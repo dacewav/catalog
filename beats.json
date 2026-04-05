@@ -59,10 +59,10 @@
   "settings": {
     "siteName": "DACE",
     "tagline": "ProducciÃ³n independiente Â· Puebla, MX",
-    "heroTitle": "Beats que\ndefinen gÃ©neros.",
+    "heroTitle": "Beats quedefinen gÃ©neros.",
     "heroSubtitle": "Producciones originales disponibles para licenciar. Encuentra el beat que tu canciÃ³n necesita.",
-    "whatsapp": "522221234567",
-    "instagram": "dacewav",
+    "whatsapp": "+527551492054",
+    "instagram": "dace.wav",
     "email": "contacto@dacewav.store",
     "bannerActive": true,
     "bannerText": "ð¥ Nuevos beats disponibles Â· Descuentos en licencias Premium esta semana",
@@ -94,9 +94,7 @@
     "decorations": [],
     "sections": {
       "featured": true,
-      "all": true,
-      "testimonials": true,
-      "banner": true
+      "testimonials": true
     }
   }
 }
