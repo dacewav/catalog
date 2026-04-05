@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DACE · Catálogo de Beats</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #080808;
+    --surface: #111111;
+    --surface2: #191919;
+    --border: rgba(255,255,255,0.07);
+    --border-hover: rgba(255,255,255,0.15);
+    --text: #f0ece4;
+    --muted: rgba(240,236,228,0.45);
+    --hint: rgba(240,236,228,0.2);
+    --accent: #d4a847;
+    --accent-dim: rgba(212,168,71,0.12);
+    --accent-border: rgba(212,168,71,0.35);
+    --green: #4caf7a;
+    --green-dim: rgba(76,175,122,0.1);
+    --red: rgba(255,255,255,0.25);
+    --radius: 10px;
+    --radius-sm: 6px;
+    --font-display: 'Syne', sans-serif;
+    --font-mono: 'DM Mono', monospace;
+  }
+
+  html { background: var(--bg); color: var(--text); font-family: var(--font-mono); font-size: 14px; line-height: 1.6; }
+  body { min-height: 100vh; }
+
+  /* ── HEADER ── */
+  header {
+    padding: 3rem 2.5rem 2rem;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+  .brand { font-family: var(--font-display); font-size: 2rem; font-weight: 800; letter-spacing: -0.02em; }
+  .brand span { color: var(--accent); }
+  .header-meta { font-size: 11px; color: var(--muted); }
+  .header-meta a { color: var(--accent); text-decoration: none; }
+
+  /* ── FILTERS ── */
+  .controls {
+    padding: 1.25rem 2.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+    border-bottom: 1px solid var(--border);
+  }
+  .filters { display: flex; gap: 6px; flex-wrap: wrap; }
+  .filter {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    padding: 4px 12px;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.15s;
+    letter-spacing: 0.05em;
+  }
+  .filter:hover { border-color: var(--border-hover); color: var(--text); }
+  .filter.active { border-color: var(--accent-border); background: var(--accent-dim); color: var(--accent); }
+  .beat-count { font-size: 11px; color: var(--hint); margin-left: auto; }
+
+  /* ── GRID ── */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1px;
+    background: var(--border);
+    border-top: 1px solid var(--border);
+  }
+  .beat-card {
+    background: var(--bg);
+    padding: 1.5rem;
+    cursor: pointer;
+    transition: background 0.15s;
+    position: relative;
+    overflow: hidden;
+  }
+  .beat-card:hover { background: var(--surface); }
+  .beat-card.playing { background: var(--surface); }
+  .beat-card.unavailable { opacity: 0.4; cursor: default; pointer-events: none; }
+
+  .playing-indicator {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--accent);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.2s;
+  }
+  .beat-card.playing .playing-indicator { transform: scaleX(1); }
+
+  /* waveform */
+  .waveform {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    height: 40px;
+    margin-bottom: 1rem;
+  }
+  .wv-bar {
+    width: 3px;
+    border-radius: 2px;
+    background: var(--border-hover);
+    transition: background 0.2s, height 0.1s;
+    flex-shrink: 0;
+  }
+  .beat-card.playing .wv-bar { background: var(--accent); }
+  .beat-card.playing .wv-bar.anim { animation: pulse var(--dur, 0.6s) ease-in-out infinite alternate; }
+  @keyframes pulse { from { transform: scaleY(0.4); } to { transform: scaleY(1); } }
+
+  .beat-name {
+    font-family: var(--font-display);
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-bottom: 0.4rem;
+    letter-spacing: -0.01em;
+  }
+  .beat-info {
+    display: flex;
+    gap: 12px;
+    font-size: 11px;
+    color: var(--muted);
+    margin-bottom: 0.75rem;
+    letter-spacing: 0.04em;
+  }
+  .beat-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 1rem; }
+  .tag {
+    font-size: 10px;
+    padding: 2px 8px;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    color: var(--hint);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .card-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: auto;
+  }
+  .price-from { font-size: 11px; color: var(--muted); }
+  .price-val { font-family: var(--font-display); font-size: 1rem; font-weight: 700; }
+  .price-val .currency { font-size: 0.7rem; font-weight: 400; color: var(--muted); }
+
+  .btn-license {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    padding: 6px 14px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--accent-border);
+    background: var(--accent-dim);
+    color: var(--accent);
+    cursor: pointer;
+    transition: all 0.15s;
+    letter-spacing: 0.05em;
+  }
+  .btn-license:hover { background: var(--accent); color: var(--bg); }
+
+  .exclusive-badge {
+    font-size: 9px;
+    padding: 2px 6px;
+    border-radius: 999px;
+    border: 1px solid var(--accent-border);
+    color: var(--accent);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .sold-label { font-size: 11px; color: var(--hint); }
+
+  /* player bar */
+  .player-bar {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    background: #0e0e0e;
+    border-top: 1px solid var(--border);
+    padding: 0.75rem 2.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    z-index: 100;
+    transform: translateY(100%);
+    transition: transform 0.25s ease;
+  }
+  .player-bar.visible { transform: translateY(0); }
+  .player-btn {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    border: 1px solid var(--border-hover);
+    background: transparent;
+    color: var(--text);
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px;
+    transition: all 0.15s;
+    flex-shrink: 0;
+  }
+  .player-btn:hover { border-color: var(--accent-border); color: var(--accent); }
+  .player-info { flex: 0 0 auto; }
+  .player-name { font-family: var(--font-display); font-size: 13px; font-weight: 700; }
+  .player-meta { font-size: 10px; color: var(--muted); }
+  .progress-wrap { flex: 1; display: flex; align-items: center; gap: 10px; }
+  .progress-bar {
+    flex: 1;
+    height: 3px;
+    background: var(--surface2);
+    border-radius: 2px;
+    cursor: pointer;
+    position: relative;
+  }
+  .progress-fill {
+    height: 100%;
+    background: var(--accent);
+    border-radius: 2px;
+    width: 0%;
+    transition: width 0.1s linear;
+    pointer-events: none;
+  }
+  .time { font-size: 10px; color: var(--muted); min-width: 32px; }
+
+  /* ── MODAL ── */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.75);
+    z-index: 200;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: var(--surface);
+    border: 1px solid var(--border-hover);
+    border-radius: var(--radius);
+    width: 100%;
+    max-width: 520px;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+  .modal-header {
+    padding: 1.5rem 1.5rem 1rem;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+  }
+  .modal-title { font-family: var(--font-display); font-size: 1.3rem; font-weight: 800; }
+  .modal-sub { font-size: 11px; color: var(--muted); margin-top: 3px; }
+  .modal-close {
+    background: none; border: none; color: var(--muted);
+    cursor: pointer; font-size: 20px; line-height: 1; padding: 0;
+    transition: color 0.15s;
+  }
+  .modal-close:hover { color: var(--text); }
+  .modal-desc {
+    padding: 1rem 1.5rem;
+    font-size: 12px;
+    color: var(--muted);
+    border-bottom: 1px solid var(--border);
+    line-height: 1.7;
+  }
+  .tiers { padding: 1rem 1.5rem; display: flex; flex-direction: column; gap: 8px; }
+  .tier-row {
+    display: flex;
+    align-items: center;
+    padding: 0.875rem 1rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    gap: 1rem;
+    transition: border-color 0.15s;
+  }
+  .tier-row:hover { border-color: var(--border-hover); }
+  .tier-name { font-family: var(--font-display); font-size: 13px; font-weight: 700; min-width: 80px; }
+  .tier-perks { font-size: 10px; color: var(--muted); flex: 1; line-height: 1.5; }
+  .tier-price { font-family: var(--font-display); font-size: 14px; font-weight: 700; color: var(--accent); min-width: 80px; text-align: right; }
+  .modal-actions {
+    padding: 1rem 1.5rem 1.5rem;
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .btn-wa {
+    flex: 1;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    padding: 10px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--accent-border);
+    background: var(--accent-dim);
+    color: var(--accent);
+    cursor: pointer;
+    text-decoration: none;
+    text-align: center;
+    transition: all 0.15s;
+    display: block;
+  }
+  .btn-wa:hover { background: var(--accent); color: var(--bg); }
+  .btn-ig {
+    flex: 1;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    padding: 10px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border-hover);
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+    text-decoration: none;
+    text-align: center;
+    transition: all 0.15s;
+    display: block;
+  }
+  .btn-ig:hover { color: var(--text); border-color: var(--text); }
+
+  /* footer */
+  footer {
+    padding: 2rem 2.5rem 6rem;
+    text-align: center;
+    font-size: 11px;
+    color: var(--hint);
+    border-top: 1px solid var(--border);
+  }
+
+  @media (max-width: 600px) {
+    header, .controls { padding: 1.5rem; }
+    .grid { grid-template-columns: 1fr; }
+    .player-bar { padding: 0.75rem 1rem; }
+    footer { padding-bottom: 5rem; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <div class="brand">DACE<span>·</span></div>
+    <div class="header-meta" id="header-meta">cargando catálogo...</div>
+  </div>
+  <div style="text-align:right;">
+    <div class="header-meta">Heroica Puebla de Zaragoza, MX</div>
+    <div class="header-meta" style="margin-top:4px;">
+      <a href="https://wa.me/52TUNUMERO" target="_blank">WhatsApp</a>
+      &nbsp;·&nbsp;
+      <a href="https://instagram.com/TUUSUARIO" target="_blank">Instagram</a>
+    </div>
+  </div>
+</header>
+
+<div class="controls">
+  <div class="filters" id="filters"></div>
+  <div class="beat-count" id="beat-count"></div>
+</div>
+
+<div class="grid" id="grid"></div>
+
+<footer>
+  DACE · todos los derechos reservados · contratos disponibles por cada licencia
+</footer>
+
+<!-- player -->
+<div class="player-bar" id="player-bar">
+  <button class="player-btn" id="play-btn" onclick="togglePlay()">▶</button>
+  <div class="player-info">
+    <div class="player-name" id="player-name">—</div>
+    <div class="player-meta" id="player-meta">—</div>
+  </div>
+  <div class="progress-wrap">
+    <span class="time" id="time-cur">0:00</span>
+    <div class="progress-bar" id="progress-bar" onclick="seek(event)">
+      <div class="progress-fill" id="progress-fill"></div>
+    </div>
+    <span class="time" id="time-dur">0:00</span>
+  </div>
+</div>
+
+<!-- modal -->
+<div class="modal-overlay" id="modal-overlay" onclick="closeModal(event)">
+  <div class="modal" id="modal">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title" id="modal-name">—</div>
+        <div class="modal-sub" id="modal-sub">—</div>
+      </div>
+      <button class="modal-close" onclick="closeModal()">×</button>
+    </div>
+    <div class="modal-desc" id="modal-desc"></div>
+    <div class="tiers" id="modal-tiers"></div>
+    <div class="modal-actions" id="modal-actions"></div>
+  </div>
+</div>
+
+<audio id="audio"></audio>
+
+<script>
+// ══════════════════════════════════════════════
+//  CONFIGURACIÓN — edita esto
+// ══════════════════════════════════════════════
+const CONFIG = {
+  whatsapp: '52TUNUMERO',       // ej: 522221234567
+  instagram: 'TUUSUARIO',       // ej: dace.beats
+  tiers: [
+    { name: 'MP3',       price: '$350 MXN',   perks: 'MP3 taggeado · hasta 10,000 streams · 1 plataforma · no comercial' },
+    { name: 'WAV',       price: '$500 MXN',   perks: 'WAV sin tag · hasta 50,000 streams · distribución digital · no comercial' },
+    { name: 'Premium',   price: '$1,200 MXN', perks: 'WAV + stems · streams ilimitados · todas las plataformas · uso comercial limitado' },
+    { name: 'Ilimitada', price: '$2,500 MXN', perks: 'WAV + stems completos · uso comercial total · sin límite de copias · Content ID incluido' },
+    { name: 'Exclusiva', price: '$8,000 MXN', perks: 'Beat retirado del catálogo · transferencia total de derechos · negociable' },
+  ]
+};
+
+// ══════════════════════════════════════════════
+//  STATE
+// ══════════════════════════════════════════════
+let beats = [];
+let filtered = [];
+let activeGenre = 'Todos';
+let currentBeat = null;
+let isPlaying = false;
+
+const audio = document.getElementById('audio');
+
+// ══════════════════════════════════════════════
+//  LOAD
+// ══════════════════════════════════════════════
+fetch('beats.json')
+  .then(r => r.json())
+  .then(data => {
+    beats = data;
+    buildFilters();
+    applyFilter();
+    const avail = beats.filter(b => b.available).length;
+    document.getElementById('header-meta').textContent =
+      `${avail} beat${avail !== 1 ? 's' : ''} disponible${avail !== 1 ? 's' : ''}`;
+  })
+  .catch(() => {
+    document.getElementById('grid').innerHTML =
+      '<p style="padding:2rem;color:var(--muted);grid-column:1/-1;">No se pudo cargar el catálogo.</p>';
+  });
+
+// ══════════════════════════════════════════════
+//  FILTERS
+// ══════════════════════════════════════════════
+function buildFilters() {
+  const genres = ['Todos', ...new Set(beats.map(b => b.genre))];
+  const wrap = document.getElementById('filters');
+  wrap.innerHTML = genres.map(g =>
+    `<button class="filter${g === 'Todos' ? ' active' : ''}" onclick="setFilter('${g}')">${g}</button>`
+  ).join('');
+}
+
+function setFilter(genre) {
+  activeGenre = genre;
+  document.querySelectorAll('.filter').forEach(b => {
+    b.classList.toggle('active', b.textContent === genre);
+  });
+  applyFilter();
+}
+
+function applyFilter() {
+  filtered = activeGenre === 'Todos' ? beats : beats.filter(b => b.genre === activeGenre);
+  renderGrid();
+  document.getElementById('beat-count').textContent = `${filtered.length} resultado${filtered.length !== 1 ? 's' : ''}`;
+}
+
+// ══════════════════════════════════════════════
+//  GRID
+// ══════════════════════════════════════════════
+function renderGrid() {
+  const grid = document.getElementById('grid');
+  if (!filtered.length) {
+    grid.innerHTML = '<p style="padding:2rem;color:var(--muted);grid-column:1/-1;">Sin resultados.</p>';
+    return;
+  }
+  grid.innerHTML = filtered.map(b => beatCard(b)).join('');
+}
+
+function beatCard(b) {
+  const barCount = 24;
+  const bars = Array.from({length: barCount}, (_, i) => {
+    const h = 10 + Math.sin(i * 0.7 + b.id * 2) * 12 + Math.cos(i * 1.3) * 8 + 10;
+    const delay = (i * 0.04).toFixed(2);
+    const dur = (0.4 + Math.random() * 0.4).toFixed(2);
+    return `<div class="wv-bar${currentBeat === b.id ? ' anim' : ''}" style="height:${Math.max(6,h)}px;--dur:${dur}s;animation-delay:${delay}s"></div>`;
+  }).join('');
+
+  const playing = currentBeat === b.id && isPlaying;
+
+  return `
+  <div class="beat-card${playing ? ' playing' : ''}${!b.available ? ' unavailable' : ''}"
+       id="card-${b.id}"
+       onclick="handleCardClick('${b.id}')">
+    <div class="playing-indicator"></div>
+    <div class="waveform">${bars}</div>
+    <div class="beat-name">${b.name} ${b.exclusive ? '<span class="exclusive-badge">excl. libre</span>' : ''}</div>
+    <div class="beat-info">
+      <span>${b.bpm} BPM</span>
+      <span>${b.key}</span>
+      <span>${b.genre}</span>
+    </div>
+    <div class="beat-tags">${b.tags.map(t => `<span class="tag">${t}</span>`).join('')}</div>
+    <div class="card-footer">
+      ${b.available ? `
+        <div>
+          <div class="price-from">desde</div>
+          <div class="price-val"><span class="currency">$</span>${CONFIG.tiers[0].price.replace('$','').split(' ')[0]} <span class="currency">MXN</span></div>
+        </div>
+        <button class="btn-license" onclick="event.stopPropagation(); openModal('${b.id}')">licenciar →</button>
+      ` : `<span class="sold-label">no disponible</span>`}
+    </div>
+  </div>`;
+}
+
+// ══════════════════════════════════════════════
+//  PLAYER
+// ══════════════════════════════════════════════
+function handleCardClick(id) {
+  const beat = beats.find(b => b.id === id);
+  if (!beat || !beat.available) return;
+
+  if (currentBeat === id) {
+    togglePlay();
+    return;
+  }
+
+  currentBeat = id;
+  audio.src = beat.audioUrl;
+  audio.play();
+  isPlaying = true;
+
+  document.getElementById('player-name').textContent = beat.name;
+  document.getElementById('player-meta').textContent = `${beat.bpm} BPM · ${beat.key} · ${beat.genre}`;
+  document.getElementById('player-bar').classList.add('visible');
+  document.getElementById('play-btn').textContent = '⏸';
+
+  renderGrid();
+}
+
+function togglePlay() {
+  if (!currentBeat) return;
+  if (isPlaying) {
+    audio.pause();
+    isPlaying = false;
+    document.getElementById('play-btn').textContent = '▶';
+  } else {
+    audio.play();
+    isPlaying = true;
+    document.getElementById('play-btn').textContent = '⏸';
+  }
+  renderGrid();
+}
+
+audio.addEventListener('timeupdate', () => {
+  if (!audio.duration) return;
+  const pct = (audio.currentTime / audio.duration) * 100;
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('time-cur').textContent = fmt(audio.currentTime);
+  document.getElementById('time-dur').textContent = fmt(audio.duration);
+});
+
+audio.addEventListener('ended', () => {
+  isPlaying = false;
+  document.getElementById('play-btn').textContent = '▶';
+  document.getElementById('progress-fill').style.width = '0%';
+  renderGrid();
+});
+
+function seek(e) {
+  if (!audio.duration) return;
+  const bar = document.getElementById('progress-bar');
+  const rect = bar.getBoundingClientRect();
+  const pct = (e.clientX - rect.left) / rect.width;
+  audio.currentTime = pct * audio.duration;
+}
+
+function fmt(s) {
+  const m = Math.floor(s / 60);
+  const sec = Math.floor(s % 60).toString().padStart(2, '0');
+  return `${m}:${sec}`;
+}
+
+// ══════════════════════════════════════════════
+//  MODAL
+// ══════════════════════════════════════════════
+function openModal(id) {
+  const b = beats.find(x => x.id === id);
+  if (!b) return;
+
+  document.getElementById('modal-name').textContent = b.name;
+  document.getElementById('modal-sub').textContent = `${b.bpm} BPM · ${b.key} · ${b.genre}`;
+  document.getElementById('modal-desc').textContent = b.description;
+
+  const tiers = CONFIG.tiers.filter(t => b.exclusive ? true : t.name !== 'Exclusiva');
+  document.getElementById('modal-tiers').innerHTML = tiers.map(t => `
+    <div class="tier-row">
+      <div class="tier-name">${t.name}</div>
+      <div class="tier-perks">${t.perks}</div>
+      <div class="tier-price">${t.price}</div>
+    </div>
+  `).join('');
+
+  const msg = encodeURIComponent(`Hola DACE, me interesa licenciar el beat "${b.name}". ¿Está disponible?`);
+  document.getElementById('modal-actions').innerHTML = `
+    <a class="btn-wa" href="https://wa.me/${CONFIG.whatsapp}?text=${msg}" target="_blank">Contactar por WhatsApp</a>
+    <a class="btn-ig" href="https://instagram.com/${CONFIG.instagram}" target="_blank">Instagram</a>
+  `;
+
+  document.getElementById('modal-overlay').classList.add('open');
+}
+
+function closeModal(e) {
+  if (!e || e.target === document.getElementById('modal-overlay') || !e.target) {
+    document.getElementById('modal-overlay').classList.remove('open');
+  }
+}
+
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+</script>
+</body>
+</html>

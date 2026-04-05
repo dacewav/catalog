@@ -1,0 +1,74 @@
+[
+  {
+    "id": "001",
+    "name": "Fantasma",
+    "bpm": 140,
+    "key": "Dm",
+    "genre": "Trap",
+    "tags": ["Trap", "Dark", "Cinematic"],
+    "audioUrl": "https://TU-BUCKET.r2.dev/fantasma-preview.mp3",
+    "available": true,
+    "exclusive": false,
+    "description": "Líneas de sintetizador oscuras sobre 808s profundos. Ideal para letras introspectivas o narrativas urbanas."
+  },
+  {
+    "id": "002",
+    "name": "Lluvia Ácida",
+    "bpm": 95,
+    "key": "Gm",
+    "genre": "R&B",
+    "tags": ["R&B", "Chill", "Soul"],
+    "audioUrl": "https://TU-BUCKET.r2.dev/lluvia-acida-preview.mp3",
+    "available": true,
+    "exclusive": false,
+    "description": "Groove suave con texturas de sintetizador analógico. Perfecto para canciones de desamor o introspección."
+  },
+  {
+    "id": "003",
+    "name": "Nortec 2070",
+    "bpm": 128,
+    "key": "Am",
+    "genre": "Corrido",
+    "tags": ["Corrido", "Electro", "Fusion"],
+    "audioUrl": "https://TU-BUCKET.r2.dev/nortec2070-preview.mp3",
+    "available": true,
+    "exclusive": false,
+    "description": "Fusión de elementos norteños con síntesis electrónica. Una propuesta diferente para el género."
+  },
+  {
+    "id": "004",
+    "name": "Cemento",
+    "bpm": 145,
+    "key": "Cm",
+    "genre": "Drill",
+    "tags": ["Drill", "Hard", "Urbano"],
+    "audioUrl": "https://TU-BUCKET.r2.dev/cemento-preview.mp3",
+    "available": false,
+    "exclusive": false,
+    "description": "808s pesados y hi-hats rápidos. Producción dura para letras contundentes."
+  },
+  {
+    "id": "005",
+    "name": "Éter",
+    "bpm": 80,
+    "key": "Em",
+    "genre": "Ambient",
+    "tags": ["Ambient", "Experimental", "Atmospheric"],
+    "audioUrl": "https://TU-BUCKET.r2.dev/eter-preview.mp3",
+    "available": true,
+    "exclusive": true,
+    "description": "Capas atmosféricas y síntesis granular. Producción experimental para artistas que buscan algo diferente."
+  },
+  {
+    "id": "006",
+    "name": "Calor Norte",
+    "bpm": 138,
+    "key": "F#m",
+    "genre": "Trap",
+    "tags": ["Trap", "Corrido", "Fusion"],
+    "audioUrl": "https://TU-BUCKET.r2.dev/calor-norte-preview.mp3",
+    "available": true,
+    "exclusive": false,
+    "description": "Mezcla de trap moderno con elementos del corrido. Para el artista que quiere cruzar géneros."
+  }
+]
