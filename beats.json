@@ -1,33 +1,118 @@
-[
-  {
-    "id": "001",
-    "name": "Keep Thinking",
-    "bpm": 132,
-    "key": "Fm",
-    "genre": "Trap",
-    "tags": [
-      "Trap",
-      "Vocal Chops"
+{
+  "beats": [
+    {
+      "id": "001",
+      "name": "Fantasma",
+      "genre": "Trap",
+      "bpm": 140,
+      "key": "Dm",
+      "description": "Líneas de sintetizador oscuras sobre 808s profundos. Ideal para letras introspectivas o narrativas urbanas.",
+      "tags": ["Trap", "Dark", "Cinematic"],
+      "imageUrl": "",
+      "audioUrl": "",
+      "previewUrl": "",
+      "featured": true,
+      "active": true,
+      "exclusive": false,
+      "available": true,
+      "date": "2026-04-01",
+      "slug": "fantasma",
+      "plays": 0,
+      "licenses": [
+        { "name": "MP3", "priceMXN": 350, "priceUSD": 18, "description": "MP3 taggeado · hasta 10,000 streams · 1 plataforma · no comercial" },
+        { "name": "WAV", "priceMXN": 500, "priceUSD": 26, "description": "WAV sin tag · hasta 50,000 streams · distribución digital · no comercial" },
+        { "name": "Premium", "priceMXN": 1200, "priceUSD": 62, "description": "WAV + stems · streams ilimitados · todas las plataformas · uso comercial limitado" },
+        { "name": "Ilimitada", "priceMXN": 2500, "priceUSD": 129, "description": "WAV + stems completos · uso comercial total · sin límite de copias · Content ID incluido" },
+        { "name": "Exclusiva", "priceMXN": 8000, "priceUSD": 415, "description": "Beat retirado del catálogo · transferencia total de derechos · negociable" }
+      ]
+    },
+    {
+      "id": "002",
+      "name": "Lluvia Ácida",
+      "genre": "R&B",
+      "bpm": 95,
+      "key": "Gm",
+      "description": "Groove suave con texturas de sintetizador analógico. Perfecto para canciones de desamor o introspección.",
+      "tags": ["R&B", "Chill", "Soul"],
+      "imageUrl": "",
+      "audioUrl": "",
+      "previewUrl": "",
+      "featured": false,
+      "active": true,
+      "exclusive": false,
+      "available": true,
+      "date": "2026-03-20",
+      "slug": "lluvia-acida",
+      "plays": 0,
+      "licenses": [
+        { "name": "MP3", "priceMXN": 350, "priceUSD": 18, "description": "MP3 taggeado · hasta 10,000 streams · 1 plataforma · no comercial" },
+        { "name": "WAV", "priceMXN": 500, "priceUSD": 26, "description": "WAV sin tag · hasta 50,000 streams · distribución digital · no comercial" },
+        { "name": "Premium", "priceMXN": 1200, "priceUSD": 62, "description": "WAV + stems · streams ilimitados · todas las plataformas · uso comercial limitado" },
+        { "name": "Ilimitada", "priceMXN": 2500, "priceUSD": 129, "description": "WAV + stems completos · uso comercial total · sin límite de copias · Content ID incluido" },
+        { "name": "Exclusiva", "priceMXN": 8000, "priceUSD": 415, "description": "Beat retirado del catálogo · transferencia total de derechos · negociable" }
+      ]
+    },
+    {
+      "id": "003",
+      "name": "Nortec 2070",
+      "genre": "Corrido",
+      "bpm": 128,
+      "key": "Am",
+      "description": "Fusión de elementos norteños con síntesis electrónica. Una propuesta diferente para el género.",
+      "tags": ["Corrido", "Electro", "Fusion"],
+      "imageUrl": "",
+      "audioUrl": "",
+      "previewUrl": "",
+      "featured": true,
+      "active": true,
+      "exclusive": false,
+      "available": true,
+      "date": "2026-03-10",
+      "slug": "nortec-2070",
+      "plays": 0,
+      "licenses": [
+        { "name": "MP3", "priceMXN": 350, "priceUSD": 18, "description": "MP3 taggeado · hasta 10,000 streams · 1 plataforma · no comercial" },
+        { "name": "WAV", "priceMXN": 500, "priceUSD": 26, "description": "WAV sin tag · hasta 50,000 streams · distribución digital · no comercial" },
+        { "name": "Premium", "priceMXN": 1200, "priceUSD": 62, "description": "WAV + stems · streams ilimitados · todas las plataformas · uso comercial limitado" },
+        { "name": "Ilimitada", "priceMXN": 2500, "priceUSD": 129, "description": "WAV + stems completos · uso comercial total · sin límite de copias · Content ID incluido" },
+        { "name": "Exclusiva", "priceMXN": 8000, "priceUSD": 415, "description": "Beat retirado del catálogo · transferencia total de derechos · negociable" }
+      ]
+    }
+  ],
+  "settings": {
+    "siteName": "DACE",
+    "tagline": "Producción independiente · Puebla, MX",
+    "heroTitle": "Beats que\ndefinen géneros.",
+    "heroSubtitle": "Producciones originales disponibles para licenciar. Encuentra el beat que tu canción necesita.",
+    "whatsapp": "522221234567",
+    "instagram": "dacewav",
+    "email": "contacto@dacewav.store",
+    "bannerActive": true,
+    "bannerText": "🔥 Nuevos beats disponibles · Descuentos en licencias Premium esta semana",
+    "testimonialsActive": true,
+    "testimonials": [
+      { "name": "LHS", "text": "La producción de DACE le dio exactamente el vibe que necesitaba el track. Profesional al 100.", "role": "Artista · Puebla" },
+      { "name": "Yarit", "text": "El proceso fue rápido y el beat superó mis expectativas. Definitivamente volvería a licenciar.", "role": "Cantante · CDMX" }
     ],
-    "audioUrl": "https://pub-b88eef8ba2b246c094f17a694820a474.r2.dev/T%201.%20keepthinking%20132%20Fm.mp3",
-    "available": true,
-    "exclusive": false,
-    "description": "LÃ­neas de sintetizador oscuras sobre 808s profundos. Ideal para letras introspectivas o narrativas urbanas."
-  },
-  {
-    "id": "005",
-    "name": "Ãter",
-    "bpm": 80,
-    "key": "Em",
-    "genre": "Ambient",
-    "tags": [
-      "Ambient",
-      "Experimental",
-      "Atmospheric"
-    ],
-    "audioUrl": "https://TU-BUCKET.r2.dev/eter-preview.mp3",
-    "available": true,
-    "exclusive": true,
-    "description": "Capas atmosfÃ©ricas y sÃ­ntesis granular. ProducciÃ³n experimental para artistas que buscan algo diferente."
+    "theme": {
+      "bg": "#060404",
+      "surface": "#0f0808",
+      "surface2": "#1a0c0c",
+      "red": "#7f1d1d",
+      "redLight": "#991b1b",
+      "redGlow": "#b91c1c",
+      "accent": "#dc2626",
+      "text": "#f5eeee",
+      "muted": "rgba(245,238,238,0.5)",
+      "fontDisplay": "Syne",
+      "fontBody": "DM Mono"
+    },
+    "decorations": [],
+    "sections": {
+      "featured": true,
+      "all": true,
+      "testimonials": true,
+      "banner": true
+    }
   }
-]
+}
