@@ -1,61 +1,6 @@
 {
   "beats": [
     {
-      "id": "002",
-      "name": "Lluvia Ãcida",
-      "genre": "R&B",
-      "bpm": 95,
-      "key": "Gm",
-      "description": "Groove suave con texturas de sintetizador analÃ³gico. Perfecto para canciones de desamor o introspecciÃ³n.",
-      "tags": [
-        "R&B",
-        "Chill",
-        "Soul"
-      ],
-      "imageUrl": "",
-      "audioUrl": "",
-      "previewUrl": "",
-      "featured": false,
-      "active": true,
-      "exclusive": false,
-      "available": true,
-      "date": "2026-03-20",
-      "slug": "lluvia-acida",
-      "plays": 0,
-      "licenses": [
-        {
-          "name": "MP3",
-          "priceMXN": 350,
-          "priceUSD": 18,
-          "description": "MP3 taggeado Â· hasta 10,000 streams Â· 1 plataforma Â· no comercial"
-        },
-        {
-          "name": "WAV",
-          "priceMXN": 500,
-          "priceUSD": 26,
-          "description": "WAV sin tag Â· hasta 50,000 streams Â· distribuciÃ³n digital Â· no comercial"
-        },
-        {
-          "name": "Premium",
-          "priceMXN": 1200,
-          "priceUSD": 62,
-          "description": "WAV + stems Â· streams ilimitados Â· todas las plataformas Â· uso comercial limitado"
-        },
-        {
-          "name": "Ilimitada",
-          "priceMXN": 2500,
-          "priceUSD": 129,
-          "description": "WAV + stems completos Â· uso comercial total Â· sin lÃ­mite de copias Â· Content ID incluido"
-        },
-        {
-          "name": "Exclusiva",
-          "priceMXN": 8000,
-          "priceUSD": 415,
-          "description": "Beat retirado del catÃ¡logo Â· transferencia total de derechos Â· negociable"
-        }
-      ]
-    },
-    {
       "id": "003",
       "name": "Nortec 2070",
       "genre": "Corrido",
