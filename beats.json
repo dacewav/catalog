@@ -109,6 +109,57 @@
           "description": "Beat retirado del catÃ¡logo Â· transferencia total de derechos Â· negociable"
         }
       ]
+    },
+    {
+      "id": "007",
+      "name": "kkklklk8",
+      "genre": "Trap",
+      "bpm": 88,
+      "key": "mm",
+      "description": "",
+      "tags": [],
+      "imageUrl": "https://pub-b88eef8ba2b246c094f17a694820a474.r2.dev/kkkk.jpg",
+      "audioUrl": "",
+      "previewUrl": "",
+      "slug": "kkklklk8",
+      "date": "2026-04-05",
+      "featured": false,
+      "exclusive": false,
+      "active": true,
+      "available": true,
+      "plays": 0,
+      "licenses": [
+        {
+          "name": "MP3",
+          "priceMXN": 350,
+          "priceUSD": 18,
+          "description": "MP3 taggeado · hasta 10,000 streams · 1 plataforma · no comercial"
+        },
+        {
+          "name": "WAV",
+          "priceMXN": 500,
+          "priceUSD": 26,
+          "description": "WAV sin tag · hasta 50,000 streams · distribución digital · no comercial"
+        },
+        {
+          "name": "Premium",
+          "priceMXN": 1200,
+          "priceUSD": 62,
+          "description": "WAV + stems · streams ilimitados · todas las plataformas · uso comercial limitado"
+        },
+        {
+          "name": "Ilimitada",
+          "priceMXN": 2500,
+          "priceUSD": 129,
+          "description": "WAV + stems completos · uso comercial total · sin límite de copias · Content ID incluido"
+        },
+        {
+          "name": "Exclusiva",
+          "priceMXN": 8000,
+          "priceUSD": 415,
+          "description": "Beat retirado del catálogo · transferencia total de derechos · negociable"
+        }
+      ]
     }
   ],
   "settings": {
