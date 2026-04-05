@@ -6,8 +6,12 @@
       "genre": "Trap",
       "bpm": 140,
       "key": "Dm",
-      "description": "Líneas de sintetizador oscuras sobre 808s profundos. Ideal para letras introspectivas o narrativas urbanas.",
-      "tags": ["Trap", "Dark", "Cinematic"],
+      "description": "LÃ­neas de sintetizador oscuras sobre 808s profundos. Ideal para letras introspectivas o narrativas urbanas.",
+      "tags": [
+        "Trap",
+        "Dark",
+        "Cinematic"
+      ],
       "imageUrl": "",
       "audioUrl": "",
       "previewUrl": "",
@@ -19,21 +23,50 @@
       "slug": "fantasma",
       "plays": 0,
       "licenses": [
-        { "name": "MP3", "priceMXN": 350, "priceUSD": 18, "description": "MP3 taggeado · hasta 10,000 streams · 1 plataforma · no comercial" },
-        { "name": "WAV", "priceMXN": 500, "priceUSD": 26, "description": "WAV sin tag · hasta 50,000 streams · distribución digital · no comercial" },
-        { "name": "Premium", "priceMXN": 1200, "priceUSD": 62, "description": "WAV + stems · streams ilimitados · todas las plataformas · uso comercial limitado" },
-        { "name": "Ilimitada", "priceMXN": 2500, "priceUSD": 129, "description": "WAV + stems completos · uso comercial total · sin límite de copias · Content ID incluido" },
-        { "name": "Exclusiva", "priceMXN": 8000, "priceUSD": 415, "description": "Beat retirado del catálogo · transferencia total de derechos · negociable" }
+        {
+          "name": "MP3",
+          "priceMXN": 350,
+          "priceUSD": 18,
+          "description": "MP3 taggeado Â· hasta 10,000 streams Â· 1 plataforma Â· no comercial"
+        },
+        {
+          "name": "WAV",
+          "priceMXN": 500,
+          "priceUSD": 26,
+          "description": "WAV sin tag Â· hasta 50,000 streams Â· distribuciÃ³n digital Â· no comercial"
+        },
+        {
+          "name": "Premium",
+          "priceMXN": 1200,
+          "priceUSD": 62,
+          "description": "WAV + stems Â· streams ilimitados Â· todas las plataformas Â· uso comercial limitado"
+        },
+        {
+          "name": "Ilimitada",
+          "priceMXN": 2500,
+          "priceUSD": 129,
+          "description": "WAV + stems completos Â· uso comercial total Â· sin lÃ­mite de copias Â· Content ID incluido"
+        },
+        {
+          "name": "Exclusiva",
+          "priceMXN": 8000,
+          "priceUSD": 415,
+          "description": "Beat retirado del catÃ¡logo Â· transferencia total de derechos Â· negociable"
+        }
       ]
     },
     {
       "id": "002",
-      "name": "Lluvia Ácida",
+      "name": "Lluvia Ãcida",
       "genre": "R&B",
       "bpm": 95,
       "key": "Gm",
-      "description": "Groove suave con texturas de sintetizador analógico. Perfecto para canciones de desamor o introspección.",
-      "tags": ["R&B", "Chill", "Soul"],
+      "description": "Groove suave con texturas de sintetizador analÃ³gico. Perfecto para canciones de desamor o introspecciÃ³n.",
+      "tags": [
+        "R&B",
+        "Chill",
+        "Soul"
+      ],
       "imageUrl": "",
       "audioUrl": "",
       "previewUrl": "",
@@ -45,11 +78,36 @@
       "slug": "lluvia-acida",
       "plays": 0,
       "licenses": [
-        { "name": "MP3", "priceMXN": 350, "priceUSD": 18, "description": "MP3 taggeado · hasta 10,000 streams · 1 plataforma · no comercial" },
-        { "name": "WAV", "priceMXN": 500, "priceUSD": 26, "description": "WAV sin tag · hasta 50,000 streams · distribución digital · no comercial" },
-        { "name": "Premium", "priceMXN": 1200, "priceUSD": 62, "description": "WAV + stems · streams ilimitados · todas las plataformas · uso comercial limitado" },
-        { "name": "Ilimitada", "priceMXN": 2500, "priceUSD": 129, "description": "WAV + stems completos · uso comercial total · sin límite de copias · Content ID incluido" },
-        { "name": "Exclusiva", "priceMXN": 8000, "priceUSD": 415, "description": "Beat retirado del catálogo · transferencia total de derechos · negociable" }
+        {
+          "name": "MP3",
+          "priceMXN": 350,
+          "priceUSD": 18,
+          "description": "MP3 taggeado Â· hasta 10,000 streams Â· 1 plataforma Â· no comercial"
+        },
+        {
+          "name": "WAV",
+          "priceMXN": 500,
+          "priceUSD": 26,
+          "description": "WAV sin tag Â· hasta 50,000 streams Â· distribuciÃ³n digital Â· no comercial"
+        },
+        {
+          "name": "Premium",
+          "priceMXN": 1200,
+          "priceUSD": 62,
+          "description": "WAV + stems Â· streams ilimitados Â· todas las plataformas Â· uso comercial limitado"
+        },
+        {
+          "name": "Ilimitada",
+          "priceMXN": 2500,
+          "priceUSD": 129,
+          "description": "WAV + stems completos Â· uso comercial total Â· sin lÃ­mite de copias Â· Content ID incluido"
+        },
+        {
+          "name": "Exclusiva",
+          "priceMXN": 8000,
+          "priceUSD": 415,
+          "description": "Beat retirado del catÃ¡logo Â· transferencia total de derechos Â· negociable"
+        }
       ]
     },
     {
@@ -58,8 +116,12 @@
       "genre": "Corrido",
       "bpm": 128,
       "key": "Am",
-      "description": "Fusión de elementos norteños con síntesis electrónica. Una propuesta diferente para el género.",
-      "tags": ["Corrido", "Electro", "Fusion"],
+      "description": "FusiÃ³n de elementos norteÃ±os con sÃ­ntesis electrÃ³nica. Una propuesta diferente para el gÃ©nero.",
+      "tags": [
+        "Corrido",
+        "Electro",
+        "Fusion"
+      ],
       "imageUrl": "",
       "audioUrl": "",
       "previewUrl": "",
@@ -71,28 +133,61 @@
       "slug": "nortec-2070",
       "plays": 0,
       "licenses": [
-        { "name": "MP3", "priceMXN": 350, "priceUSD": 18, "description": "MP3 taggeado · hasta 10,000 streams · 1 plataforma · no comercial" },
-        { "name": "WAV", "priceMXN": 500, "priceUSD": 26, "description": "WAV sin tag · hasta 50,000 streams · distribución digital · no comercial" },
-        { "name": "Premium", "priceMXN": 1200, "priceUSD": 62, "description": "WAV + stems · streams ilimitados · todas las plataformas · uso comercial limitado" },
-        { "name": "Ilimitada", "priceMXN": 2500, "priceUSD": 129, "description": "WAV + stems completos · uso comercial total · sin límite de copias · Content ID incluido" },
-        { "name": "Exclusiva", "priceMXN": 8000, "priceUSD": 415, "description": "Beat retirado del catálogo · transferencia total de derechos · negociable" }
+        {
+          "name": "MP3",
+          "priceMXN": 350,
+          "priceUSD": 18,
+          "description": "MP3 taggeado Â· hasta 10,000 streams Â· 1 plataforma Â· no comercial"
+        },
+        {
+          "name": "WAV",
+          "priceMXN": 500,
+          "priceUSD": 26,
+          "description": "WAV sin tag Â· hasta 50,000 streams Â· distribuciÃ³n digital Â· no comercial"
+        },
+        {
+          "name": "Premium",
+          "priceMXN": 1200,
+          "priceUSD": 62,
+          "description": "WAV + stems Â· streams ilimitados Â· todas las plataformas Â· uso comercial limitado"
+        },
+        {
+          "name": "Ilimitada",
+          "priceMXN": 2500,
+          "priceUSD": 129,
+          "description": "WAV + stems completos Â· uso comercial total Â· sin lÃ­mite de copias Â· Content ID incluido"
+        },
+        {
+          "name": "Exclusiva",
+          "priceMXN": 8000,
+          "priceUSD": 415,
+          "description": "Beat retirado del catÃ¡logo Â· transferencia total de derechos Â· negociable"
+        }
       ]
     }
   ],
   "settings": {
     "siteName": "DACE",
-    "tagline": "Producción independiente · Puebla, MX",
-    "heroTitle": "Beats que\ndefinen géneros.",
-    "heroSubtitle": "Producciones originales disponibles para licenciar. Encuentra el beat que tu canción necesita.",
+    "tagline": "ProducciÃ³n independiente Â· Puebla, MX",
+    "heroTitle": "Beats que\ndefinen gÃ©neros.",
+    "heroSubtitle": "Producciones originales disponibles para licenciar. Encuentra el beat que tu canciÃ³n necesita.",
     "whatsapp": "522221234567",
     "instagram": "dacewav",
     "email": "contacto@dacewav.store",
     "bannerActive": true,
-    "bannerText": "🔥 Nuevos beats disponibles · Descuentos en licencias Premium esta semana",
+    "bannerText": "ð¥ Nuevos beats disponibles Â· Descuentos en licencias Premium esta semana",
     "testimonialsActive": true,
     "testimonials": [
-      { "name": "LHS", "text": "La producción de DACE le dio exactamente el vibe que necesitaba el track. Profesional al 100.", "role": "Artista · Puebla" },
-      { "name": "Yarit", "text": "El proceso fue rápido y el beat superó mis expectativas. Definitivamente volvería a licenciar.", "role": "Cantante · CDMX" }
+      {
+        "name": "LHS",
+        "text": "La producciÃ³n de DACE le dio exactamente el vibe que necesitaba el track. Profesional al 100.",
+        "role": "Artista Â· Puebla"
+      },
+      {
+        "name": "Yarit",
+        "text": "El proceso fue rÃ¡pido y el beat superÃ³ mis expectativas. Definitivamente volverÃ­a a licenciar.",
+        "role": "Cantante Â· CDMX"
+      }
     ],
     "theme": {
       "bg": "#060404",
@@ -103,8 +198,7 @@
       "redGlow": "#b91c1c",
       "accent": "#dc2626",
       "text": "#f5eeee",
-      "muted": "rgba(245,238,238,0.5)",
-      "fontDisplay": "Syne",
+      "fontDisplay": "Space Grotesk",
       "fontBody": "DM Mono"
     },
     "decorations": [],
