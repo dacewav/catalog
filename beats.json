@@ -15,22 +15,6 @@
     "description": "LÃ­neas de sintetizador oscuras sobre 808s profundos. Ideal para letras introspectivas o narrativas urbanas."
   },
   {
-    "id": "004",
-    "name": "Cemento",
-    "bpm": 145,
-    "key": "Cm",
-    "genre": "Drill",
-    "tags": [
-      "Drill",
-      "Hard",
-      "Urbano"
-    ],
-    "audioUrl": "https://TU-BUCKET.r2.dev/cemento-preview.mp3",
-    "available": false,
-    "exclusive": false,
-    "description": "808s pesados y hi-hats rÃ¡pidos. ProducciÃ³n dura para letras contundentes."
-  },
-  {
     "id": "005",
     "name": "Ãter",
     "bpm": 80,
