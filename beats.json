@@ -85,7 +85,7 @@
       "surface2": "#1a0c0c",
       "red": "#ec2222",
       "redLight": "#991b1b",
-      "redGlow": "#b91c1c",
+      "redGlow": "#000000",
       "accent": "#dc2626",
       "text": "#f5eeee",
       "fontDisplay": "Syne",
