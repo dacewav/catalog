@@ -29,21 +29,5 @@
     "available": true,
     "exclusive": true,
     "description": "Capas atmosfÃ©ricas y sÃ­ntesis granular. ProducciÃ³n experimental para artistas que buscan algo diferente."
-  },
-  {
-    "id": "006",
-    "name": "Calor Norte",
-    "bpm": 138,
-    "key": "F#m",
-    "genre": "Trap",
-    "tags": [
-      "Trap",
-      "Corrido",
-      "Fusion"
-    ],
-    "audioUrl": "https://TU-BUCKET.r2.dev/calor-norte-preview.mp3",
-    "available": true,
-    "exclusive": false,
-    "description": "Mezcla de trap moderno con elementos del corrido. Para el artista que quiere cruzar gÃ©neros."
   }
 ]
