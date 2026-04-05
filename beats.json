@@ -5,23 +5,31 @@
     "bpm": 140,
     "key": "Dm",
     "genre": "Trap",
-    "tags": ["Trap", "Dark", "Cinematic"],
-    "audioUrl": "https://TU-BUCKET.r2.dev/fantasma-preview.mp3",
+    "tags": [
+      "Trap",
+      "Dark",
+      "Cinematic"
+    ],
+    "audioUrl": "https://pub-b88eef8ba2b246c094f17a694820a474.r2.dev/T%201.%20keepthinking%20132%20Fm.mp3",
     "available": true,
     "exclusive": false,
-    "description": "Líneas de sintetizador oscuras sobre 808s profundos. Ideal para letras introspectivas o narrativas urbanas."
+    "description": "LÃ­neas de sintetizador oscuras sobre 808s profundos. Ideal para letras introspectivas o narrativas urbanas."
   },
   {
     "id": "002",
-    "name": "Lluvia Ácida",
+    "name": "Lluvia Ãcida",
     "bpm": 95,
     "key": "Gm",
     "genre": "R&B",
-    "tags": ["R&B", "Chill", "Soul"],
+    "tags": [
+      "R&B",
+      "Chill",
+      "Soul"
+    ],
     "audioUrl": "https://TU-BUCKET.r2.dev/lluvia-acida-preview.mp3",
     "available": true,
     "exclusive": false,
-    "description": "Groove suave con texturas de sintetizador analógico. Perfecto para canciones de desamor o introspección."
+    "description": "Groove suave con texturas de sintetizador analÃ³gico. Perfecto para canciones de desamor o introspecciÃ³n."
   },
   {
     "id": "003",
@@ -29,11 +37,15 @@
     "bpm": 128,
     "key": "Am",
     "genre": "Corrido",
-    "tags": ["Corrido", "Electro", "Fusion"],
+    "tags": [
+      "Corrido",
+      "Electro",
+      "Fusion"
+    ],
     "audioUrl": "https://TU-BUCKET.r2.dev/nortec2070-preview.mp3",
     "available": true,
     "exclusive": false,
-    "description": "Fusión de elementos norteños con síntesis electrónica. Una propuesta diferente para el género."
+    "description": "FusiÃ³n de elementos norteÃ±os con sÃ­ntesis electrÃ³nica. Una propuesta diferente para el gÃ©nero."
   },
   {
     "id": "004",
@@ -41,23 +53,31 @@
     "bpm": 145,
     "key": "Cm",
     "genre": "Drill",
-    "tags": ["Drill", "Hard", "Urbano"],
+    "tags": [
+      "Drill",
+      "Hard",
+      "Urbano"
+    ],
     "audioUrl": "https://TU-BUCKET.r2.dev/cemento-preview.mp3",
     "available": false,
     "exclusive": false,
-    "description": "808s pesados y hi-hats rápidos. Producción dura para letras contundentes."
+    "description": "808s pesados y hi-hats rÃ¡pidos. ProducciÃ³n dura para letras contundentes."
   },
   {
     "id": "005",
-    "name": "Éter",
+    "name": "Ãter",
     "bpm": 80,
     "key": "Em",
     "genre": "Ambient",
-    "tags": ["Ambient", "Experimental", "Atmospheric"],
+    "tags": [
+      "Ambient",
+      "Experimental",
+      "Atmospheric"
+    ],
     "audioUrl": "https://TU-BUCKET.r2.dev/eter-preview.mp3",
     "available": true,
     "exclusive": true,
-    "description": "Capas atmosféricas y síntesis granular. Producción experimental para artistas que buscan algo diferente."
+    "description": "Capas atmosfÃ©ricas y sÃ­ntesis granular. ProducciÃ³n experimental para artistas que buscan algo diferente."
   },
   {
     "id": "006",
@@ -65,10 +85,14 @@
     "bpm": 138,
     "key": "F#m",
     "genre": "Trap",
-    "tags": ["Trap", "Corrido", "Fusion"],
+    "tags": [
+      "Trap",
+      "Corrido",
+      "Fusion"
+    ],
     "audioUrl": "https://TU-BUCKET.r2.dev/calor-norte-preview.mp3",
     "available": true,
     "exclusive": false,
-    "description": "Mezcla de trap moderno con elementos del corrido. Para el artista que quiere cruzar géneros."
+    "description": "Mezcla de trap moderno con elementos del corrido. Para el artista que quiere cruzar gÃ©neros."
   }
 ]
