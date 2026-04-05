@@ -15,22 +15,6 @@
     "description": "LÃ­neas de sintetizador oscuras sobre 808s profundos. Ideal para letras introspectivas o narrativas urbanas."
   },
   {
-    "id": "002",
-    "name": "Lluvia Ãcida",
-    "bpm": 95,
-    "key": "Gm",
-    "genre": "R&B",
-    "tags": [
-      "R&B",
-      "Chill",
-      "Soul"
-    ],
-    "audioUrl": "https://TU-BUCKET.r2.dev/lluvia-acida-preview.mp3",
-    "available": true,
-    "exclusive": false,
-    "description": "Groove suave con texturas de sintetizador analÃ³gico. Perfecto para canciones de desamor o introspecciÃ³n."
-  },
-  {
     "id": "004",
     "name": "Cemento",
     "bpm": 145,
