@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DACE · Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg:#060404;--surface:#0f0909;--surface2:#180e0e;
+  --red:#8b1a1a;--red-l:#b52a2a;--red-g:rgba(139,26,26,0.15);--red-b:rgba(139,26,26,0.4);
+  --text:#f0e8e8;--muted:rgba(240,232,232,0.45);--hint:rgba(240,232,232,0.18);
+  --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.13);
+  --green:#4caf7a;--green-g:rgba(76,175,122,0.12);--green-b:rgba(76,175,122,0.4);
+  --font-d:'Syne',sans-serif;--font-m:'DM Mono',monospace;
+  --r:8px;
+}
+html{background:var(--bg);color:var(--text);font-family:var(--font-m);font-size:13px;line-height:1.6;}
+
+/* ── LOGIN ── */
+#login-screen{
+  min-height:100vh;display:flex;align-items:center;justify-content:center;padding:2rem;
+}
+.login-box{
+  background:var(--surface);border:1px solid var(--red-b);border-radius:12px;
+  padding:2.5rem;width:100%;max-width:380px;
+}
+.login-brand{font-family:var(--font-d);font-size:1.6rem;font-weight:800;margin-bottom:0.25rem;}
+.login-brand span{color:var(--red-l);}
+.login-sub{font-size:11px;color:var(--muted);margin-bottom:2rem;}
+label{font-size:11px;color:var(--muted);display:block;margin-bottom:6px;letter-spacing:0.06em;text-transform:uppercase;}
+input[type=password],input[type=text],input[type=number],textarea,select{
+  width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:var(--r);
+  color:var(--text);font-family:var(--font-m);font-size:12px;padding:9px 12px;
+  outline:none;transition:border-color 0.15s;margin-bottom:1rem;
+}
+input:focus,textarea:focus,select:focus{border-color:var(--red-b);}
+textarea{resize:vertical;min-height:70px;}
+.btn{
+  font-family:var(--font-m);font-size:12px;padding:9px 18px;border-radius:var(--r);
+  border:1px solid var(--red-b);background:var(--red-g);color:var(--red-l);
+  cursor:pointer;transition:all 0.15s;letter-spacing:0.04em;
+}
+.btn:hover{background:var(--red-l);color:var(--bg);}
+.btn-ghost{border-color:var(--border2);background:transparent;color:var(--muted);}
+.btn-ghost:hover{border-color:var(--border2);background:var(--surface2);color:var(--text);}
+.btn-danger{border-color:rgba(220,50,50,0.4);background:rgba(220,50,50,0.1);color:#e05555;}
+.btn-danger:hover{background:#dc3232;color:#fff;}
+.btn-success{border-color:var(--green-b);background:var(--green-g);color:var(--green);}
+.btn-success:hover{background:var(--green);color:var(--bg);}
+.btn-full{width:100%;}
+.err{font-size:11px;color:#e05555;margin-top:-0.5rem;margin-bottom:1rem;}
+.token-note{font-size:10px;color:var(--hint);margin-top:-0.75rem;margin-bottom:1rem;line-height:1.6;}
+
+/* ── APP ── */
+#app{display:none;min-height:100vh;}
+
+/* header */
+.app-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:1rem 2rem;border-bottom:1px solid var(--border);
+  position:sticky;top:0;background:var(--bg);z-index:50;
+}
+.app-brand{font-family:var(--font-d);font-size:1rem;font-weight:800;}
+.app-brand span{color:var(--red-l);}
+.header-right{display:flex;align-items:center;gap:10px;}
+.status{font-size:10px;color:var(--muted);display:flex;align-items:center;gap:6px;}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--green);display:inline-block;}
+.dot.err{background:#e05555;}
+
+/* tabs */
+.tabs{display:flex;border-bottom:1px solid var(--border);padding:0 2rem;}
+.tab{
+  font-size:11px;letter-spacing:0.07em;text-transform:uppercase;
+  padding:0.875rem 0;margin-right:2rem;border-bottom:2px solid transparent;
+  color:var(--muted);cursor:pointer;transition:all 0.15s;
+}
+.tab.active{color:var(--red-l);border-bottom-color:var(--red);}
+
+/* content */
+.tab-content{display:none;padding:2rem;}
+.tab-content.active{display:block;}
+
+/* beat list */
+.beat-list{display:flex;flex-direction:column;gap:8px;}
+.beat-row{
+  display:grid;grid-template-columns:1fr auto auto auto;gap:10px;align-items:center;
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--r);
+  padding:0.875rem 1rem;transition:border-color 0.15s;
+}
+.beat-row:hover{border-color:var(--border2);}
+.beat-row-info{}
+.beat-row-name{font-family:var(--font-d);font-size:14px;font-weight:700;margin-bottom:2px;}
+.beat-row-meta{font-size:10px;color:var(--muted);}
+.badge{
+  font-size:9px;padding:2px 7px;border-radius:999px;letter-spacing:0.06em;
+  text-transform:uppercase;display:inline-block;margin-left:6px;
+}
+.badge-sold{border:1px solid var(--border2);color:var(--muted);}
+.badge-excl{border:1px solid var(--red-b);color:var(--red-l);}
+
+/* form */
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 1rem;}
+.form-grid .full{grid-column:1/-1;}
+.form-section{margin-bottom:2rem;}
+.form-title{
+  font-family:var(--font-d);font-size:14px;font-weight:700;
+  margin-bottom:1.25rem;padding-bottom:0.75rem;border-bottom:1px solid var(--border);
+}
+.toggle-wrap{display:flex;align-items:center;gap:10px;margin-bottom:1rem;}
+.toggle{appearance:none;width:36px;height:20px;background:var(--border2);border-radius:999px;position:relative;cursor:pointer;transition:background 0.2s;border:none;outline:none;}
+.toggle::before{content:'';position:absolute;top:3px;left:3px;width:14px;height:14px;border-radius:50%;background:var(--muted);transition:all 0.2s;}
+.toggle:checked{background:var(--red);}
+.toggle:checked::before{transform:translateX(16px);background:var(--text);}
+.toggle-label{font-size:12px;color:var(--muted);}
+
+/* toast */
+.toast{
+  position:fixed;bottom:2rem;right:2rem;
+  background:var(--surface);border:1px solid var(--green-b);
+  border-radius:var(--r);padding:0.875rem 1.25rem;
+  font-size:12px;color:var(--green);
+  transform:translateY(20px);opacity:0;transition:all 0.25s;
+  z-index:999;pointer-events:none;
+}
+.toast.err{border-color:rgba(220,50,50,0.4);color:#e05555;}
+.toast.show{transform:translateY(0);opacity:1;}
+
+/* empty */
+.empty{text-align:center;padding:3rem;color:var(--hint);font-size:12px;}
+
+/* loading */
+.loading{text-align:center;padding:2rem;color:var(--muted);font-size:12px;}
+
+@media(max-width:600px){
+  .beat-row{grid-template-columns:1fr;gap:8px;}
+  .form-grid{grid-template-columns:1fr;}
+  .app-header,.tabs,.tab-content{padding-left:1rem;padding-right:1rem;}
+}
+</style>
+</head>
+<body>
+
+<!-- ══ LOGIN ══ -->
+<div id="login-screen">
+  <div class="login-box">
+    <div class="login-brand">DACE<span>·</span> Admin</div>
+    <div class="login-sub">Panel de gestión de catálogo</div>
+
+    <div id="step-password">
+      <label>Contraseña</label>
+      <input type="password" id="input-pass" placeholder="••••••••••" onkeydown="if(event.key==='Enter')checkPass()">
+      <div class="err" id="err-pass" style="display:none">Contraseña incorrecta.</div>
+      <button class="btn btn-full" onclick="checkPass()">Entrar</button>
+    </div>
+
+    <div id="step-token" style="display:none">
+      <label>GitHub Personal Access Token</label>
+      <input type="password" id="input-token" placeholder="ghp_...">
+      <div class="token-note">Se guarda solo en tu navegador. Nunca se sube a ningún servidor.<br>Necesita permiso <strong style="color:var(--text)">repo</strong>.</div>
+      <div class="err" id="err-token" style="display:none">Token inválido o sin permisos.</div>
+      <button class="btn btn-full" onclick="checkToken()">Conectar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ APP ══ -->
+<div id="app">
+  <div class="app-header">
+    <div class="app-brand">DACE<span>·</span> Admin</div>
+    <div class="header-right">
+      <div class="status"><span class="dot" id="status-dot"></span><span id="status-text">conectado</span></div>
+      <button class="btn btn-ghost" onclick="logout()" style="padding:6px 12px;font-size:11px;">Salir</button>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <div class="tab active" onclick="showTab('beats')">Beats</div>
+    <div class="tab" onclick="showTab('add')">+ Agregar</div>
+    <div class="tab" onclick="showTab('edit')" id="tab-edit" style="display:none">Editando</div>
+  </div>
+
+  <!-- BEATS LIST -->
+  <div class="tab-content active" id="tab-beats">
+    <div class="loading" id="loading">Cargando catálogo...</div>
+    <div class="beat-list" id="beat-list"></div>
+  </div>
+
+  <!-- ADD BEAT -->
+  <div class="tab-content" id="tab-add">
+    <div style="max-width:600px;">
+      <div class="form-title">Nuevo beat</div>
+      <div id="add-form"></div>
+      <div style="display:flex;gap:10px;margin-top:0.5rem;">
+        <button class="btn btn-success" onclick="saveBeat(false)">Guardar beat</button>
+        <button class="btn btn-ghost" onclick="resetAddForm()">Limpiar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- EDIT BEAT -->
+  <div class="tab-content" id="tab-edit-content">
+    <div style="max-width:600px;">
+      <div class="form-title">Editar beat</div>
+      <div id="edit-form"></div>
+      <div style="display:flex;gap:10px;margin-top:0.5rem;">
+        <button class="btn btn-success" onclick="saveBeat(true)">Guardar cambios</button>
+        <button class="btn btn-ghost" onclick="showTab('beats')">Cancelar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ══════════════════════════════════════════════
+//  CONSTANTES
+// ══════════════════════════════════════════════
+const PASS     = 'DaceBeats26';
+const OWNER    = 'dacewav';
+const REPO     = 'catalog';
+const FILE     = 'beats.json';
+const API_BASE = `https://api.github.com/repos/${OWNER}/${REPO}/contents/${FILE}`;
+
+let beats = [];
+let fileSha = '';
+let editingId = null;
+let token = '';
+
+// ══════════════════════════════════════════════
+//  AUTH
+// ══════════════════════════════════════════════
+function checkPass() {
+  const val = document.getElementById('input-pass').value;
+  if (val === PASS) {
+    document.getElementById('step-password').style.display = 'none';
+    document.getElementById('err-pass').style.display = 'none';
+    const saved = localStorage.getItem('dace_token');
+    if (saved) { token = saved; initApp(); }
+    else document.getElementById('step-token').style.display = 'block';
+  } else {
+    document.getElementById('err-pass').style.display = 'block';
+  }
+}
+
+async function checkToken() {
+  const t = document.getElementById('input-token').value.trim();
+  if (!t) return;
+  const res = await fetch(`https://api.github.com/repos/${OWNER}/${REPO}`, {
+    headers: { Authorization: `token ${t}` }
+  });
+  if (res.ok) {
+    token = t;
+    localStorage.setItem('dace_token', t);
+    document.getElementById('err-token').style.display = 'none';
+    initApp();
+  } else {
+    document.getElementById('err-token').style.display = 'block';
+  }
+}
+
+function logout() {
+  localStorage.removeItem('dace_token');
+  location.reload();
+}
+
+// ══════════════════════════════════════════════
+//  INIT
+// ══════════════════════════════════════════════
+async function initApp() {
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  buildForm('add-form', {});
+  await loadBeats();
+}
+
+async function loadBeats() {
+  document.getElementById('loading').style.display = 'block';
+  document.getElementById('beat-list').innerHTML = '';
+  try {
+    const res = await fetch(API_BASE, { headers: { Authorization: `token ${token}` } });
+    if (!res.ok) throw new Error();
+    const data = await res.json();
+    fileSha = data.sha;
+    beats = JSON.parse(atob(data.content.replace(/\n/g,'')));
+    renderBeats();
+    setStatus(true, 'conectado · ' + beats.length + ' beats');
+  } catch {
+    setStatus(false, 'error al cargar');
+    toast('No se pudo cargar beats.json', true);
+  }
+  document.getElementById('loading').style.display = 'none';
+}
+
+// ══════════════════════════════════════════════
+//  RENDER
+// ══════════════════════════════════════════════
+function renderBeats() {
+  const list = document.getElementById('beat-list');
+  if (!beats.length) { list.innerHTML = '<div class="empty">No hay beats todavía.</div>'; return; }
+  list.innerHTML = beats.map(b => `
+    <div class="beat-row">
+      <div class="beat-row-info">
+        <div class="beat-row-name">
+          ${b.name}
+          ${!b.available ? '<span class="badge badge-sold">vendido</span>' : ''}
+          ${b.exclusive ? '<span class="badge badge-excl">excl. libre</span>' : ''}
+        </div>
+        <div class="beat-row-meta">${b.bpm} BPM · ${b.key} · ${b.genre} · ID ${b.id}</div>
+      </div>
+      <button class="btn btn-ghost" style="padding:5px 12px;" onclick="previewBeat('${b.id}')" title="Preview">▶</button>
+      <button class="btn" style="padding:5px 12px;" onclick="editBeat('${b.id}')">Editar</button>
+      <button class="btn btn-danger" style="padding:5px 12px;" onclick="deleteBeat('${b.id}')">Borrar</button>
+    </div>
+  `).join('');
+}
+
+// ══════════════════════════════════════════════
+//  FORM BUILDER
+// ══════════════════════════════════════════════
+function buildForm(containerId, data) {
+  const nextId = data.id || String(beats.length + 1).padStart(3,'0');
+  document.getElementById(containerId).innerHTML = `
+    <div class="form-grid">
+      <div>
+        <label>ID</label>
+        <input type="text" id="${containerId}-id" value="${data.id || nextId}" placeholder="001">
+      </div>
+      <div>
+        <label>Nombre del beat</label>
+        <input type="text" id="${containerId}-name" value="${data.name || ''}" placeholder="Fantasma">
+      </div>
+      <div>
+        <label>BPM</label>
+        <input type="number" id="${containerId}-bpm" value="${data.bpm || ''}" placeholder="140">
+      </div>
+      <div>
+        <label>Key / Tonalidad</label>
+        <input type="text" id="${containerId}-key" value="${data.key || ''}" placeholder="Am">
+      </div>
+      <div>
+        <label>Género principal</label>
+        <input type="text" id="${containerId}-genre" value="${data.genre || ''}" placeholder="Trap">
+      </div>
+      <div>
+        <label>Tags (separados por coma)</label>
+        <input type="text" id="${containerId}-tags" value="${data.tags ? data.tags.join(', ') : ''}" placeholder="Trap, Dark, Cinematic">
+      </div>
+      <div class="full">
+        <label>URL del audio (Cloudflare R2)</label>
+        <input type="text" id="${containerId}-audio" value="${data.audioUrl || ''}" placeholder="https://pub-XXX.r2.dev/beat.mp3">
+      </div>
+      <div class="full">
+        <label>Descripción para el artista</label>
+        <textarea id="${containerId}-desc" placeholder="Descripción breve del beat...">${data.description || ''}</textarea>
+      </div>
+    </div>
+    <div class="toggle-wrap">
+      <input type="checkbox" class="toggle" id="${containerId}-available" ${data.available !== false ? 'checked' : ''}>
+      <span class="toggle-label">Disponible para licenciar</span>
+    </div>
+    <div class="toggle-wrap">
+      <input type="checkbox" class="toggle" id="${containerId}-exclusive" ${data.exclusive ? 'checked' : ''}>
+      <span class="toggle-label">Exclusiva libre (muestra tier Exclusiva)</span>
+    </div>
+  `;
+}
+
+function getFormData(containerId) {
+  const g = id => document.getElementById(`${containerId}-${id}`);
+  return {
+    id:          g('id').value.trim(),
+    name:        g('name').value.trim(),
+    bpm:         parseInt(g('bpm').value) || 0,
+    key:         g('key').value.trim(),
+    genre:       g('genre').value.trim(),
+    tags:        g('tags').value.split(',').map(t=>t.trim()).filter(Boolean),
+    audioUrl:    g('audio').value.trim(),
+    description: g('desc').value.trim(),
+    available:   g('available').checked,
+    exclusive:   g('exclusive').checked,
+  };
+}
+
+function resetAddForm() {
+  buildForm('add-form', {});
+}
+
+// ══════════════════════════════════════════════
+//  EDIT / DELETE
+// ══════════════════════════════════════════════
+function editBeat(id) {
+  const b = beats.find(x => x.id === id);
+  if (!b) return;
+  editingId = id;
+  buildForm('edit-form', b);
+  document.getElementById('tab-edit').style.display = 'block';
+  showTab('edit');
+}
+
+async function deleteBeat(id) {
+  const b = beats.find(x => x.id === id);
+  if (!confirm(`¿Borrar "${b.name}"? No se puede deshacer.`)) return;
+  beats = beats.filter(x => x.id !== id);
+  await pushBeats('Eliminar beat: ' + b.name);
+}
+
+// ══════════════════════════════════════════════
+//  SAVE
+// ══════════════════════════════════════════════
+async function saveBeat(isEdit) {
+  const containerId = isEdit ? 'edit-form' : 'add-form';
+  const data = getFormData(containerId);
+
+  if (!data.name || !data.bpm || !data.key || !data.genre) {
+    toast('Nombre, BPM, key y género son obligatorios', true); return;
+  }
+
+  if (isEdit) {
+    const idx = beats.findIndex(b => b.id === editingId);
+    if (idx !== -1) beats[idx] = { ...beats[idx], ...data };
+  } else {
+    if (beats.find(b => b.id === data.id)) {
+      toast('Ya existe un beat con ese ID', true); return;
+    }
+    beats.push(data);
+  }
+
+  await pushBeats(isEdit ? 'Editar beat: ' + data.name : 'Agregar beat: ' + data.name);
+
+  if (isEdit) {
+    document.getElementById('tab-edit').style.display = 'none';
+    showTab('beats');
+  } else {
+    resetAddForm();
+    showTab('beats');
+  }
+}
+
+// ══════════════════════════════════════════════
+//  GITHUB API
+// ══════════════════════════════════════════════
+async function pushBeats(message) {
+  try {
+    const content = btoa(unescape(encodeURIComponent(JSON.stringify(beats, null, 2))));
+    const res = await fetch(API_BASE, {
+      method: 'PUT',
+      headers: {
+        Authorization: `token ${token}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ message, content, sha: fileSha })
+    });
+    if (!res.ok) throw new Error();
+    const data = await res.json();
+    fileSha = data.content.sha;
+    renderBeats();
+    setStatus(true, 'conectado · ' + beats.length + ' beats');
+    toast('✓ ' + message);
+  } catch {
+    toast('Error al guardar en GitHub', true);
+  }
+}
+
+// ══════════════════════════════════════════════
+//  PREVIEW
+// ══════════════════════════════════════════════
+let previewAudio = null;
+function previewBeat(id) {
+  const b = beats.find(x => x.id === id);
+  if (!b || !b.audioUrl || b.audioUrl.includes('TU-BUCKET')) {
+    toast('Este beat no tiene URL de audio configurada', true); return;
+  }
+  if (previewAudio) { previewAudio.pause(); previewAudio = null; }
+  previewAudio = new Audio(b.audioUrl);
+  previewAudio.play();
+  toast('▶ ' + b.name);
+}
+
+// ══════════════════════════════════════════════
+//  UI HELPERS
+// ══════════════════════════════════════════════
+function showTab(name) {
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  const map = {beats:'tab-beats', add:'tab-add', edit:'tab-edit-content'};
+  document.getElementById(map[name]).classList.add('active');
+  const tabs = document.querySelectorAll('.tab');
+  const idx = {beats:0, add:1, edit:2}[name];
+  if (tabs[idx]) tabs[idx].classList.add('active');
+}
+
+function setStatus(ok, text) {
+  document.getElementById('status-dot').className = 'dot' + (ok ? '' : ' err');
+  document.getElementById('status-text').textContent = text;
+}
+
+function toast(msg, isErr=false) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast' + (isErr ? ' err' : '') + ' show';
+  setTimeout(() => t.className = 'toast' + (isErr ? ' err' : ''), 2800);
+}
+
+// enter en login
+document.getElementById('input-pass').addEventListener('keydown', e => {
+  if (e.key === 'Enter') checkPass();
+});
+</script>
+</body>
+</html>
