@@ -31,22 +31,6 @@
     "description": "Groove suave con texturas de sintetizador analÃ³gico. Perfecto para canciones de desamor o introspecciÃ³n."
   },
   {
-    "id": "003",
-    "name": "Nortec 2070",
-    "bpm": 128,
-    "key": "Am",
-    "genre": "Corrido",
-    "tags": [
-      "Corrido",
-      "Electro",
-      "Fusion"
-    ],
-    "audioUrl": "https://TU-BUCKET.r2.dev/nortec2070-preview.mp3",
-    "available": true,
-    "exclusive": false,
-    "description": "FusiÃ³n de elementos norteÃ±os con sÃ­ntesis electrÃ³nica. Una propuesta diferente para el gÃ©nero."
-  },
-  {
     "id": "004",
     "name": "Cemento",
     "bpm": 145,
