@@ -1,61 +1,6 @@
 {
   "beats": [
     {
-      "id": "003",
-      "name": "Nortec 2070",
-      "genre": "Corrido",
-      "bpm": 128,
-      "key": "Am",
-      "description": "FusiÃÂ³n de elementos norteÃÂ±os con sÃÂ­ntesis electrÃÂ³nica. Una propuesta diferente para el gÃÂ©nero.",
-      "tags": [
-        "Corrido",
-        "Electro",
-        "Fusion"
-      ],
-      "imageUrl": "",
-      "audioUrl": "",
-      "previewUrl": "",
-      "featured": true,
-      "active": true,
-      "exclusive": false,
-      "available": true,
-      "date": "2026-03-10",
-      "slug": "nortec-2070",
-      "plays": 0,
-      "licenses": [
-        {
-          "name": "MP3",
-          "priceMXN": 350,
-          "priceUSD": 18,
-          "description": "MP3 taggeado ÃÂ· hasta 10,000 streams ÃÂ· 1 plataforma ÃÂ· no comercial"
-        },
-        {
-          "name": "WAV",
-          "priceMXN": 500,
-          "priceUSD": 26,
-          "description": "WAV sin tag ÃÂ· hasta 50,000 streams ÃÂ· distribuciÃÂ³n digital ÃÂ· no comercial"
-        },
-        {
-          "name": "Premium",
-          "priceMXN": 1200,
-          "priceUSD": 62,
-          "description": "WAV + stems ÃÂ· streams ilimitados ÃÂ· todas las plataformas ÃÂ· uso comercial limitado"
-        },
-        {
-          "name": "Ilimitada",
-          "priceMXN": 2500,
-          "priceUSD": 129,
-          "description": "WAV + stems completos ÃÂ· uso comercial total ÃÂ· sin lÃÂ­mite de copias ÃÂ· Content ID incluido"
-        },
-        {
-          "name": "Exclusiva",
-          "priceMXN": 8000,
-          "priceUSD": 415,
-          "description": "Beat retirado del catÃÂ¡logo ÃÂ· transferencia total de derechos ÃÂ· negociable"
-        }
-      ]
-    },
-    {
       "id": "007",
       "name": "kkklklk8",
       "genre": "Trap",
