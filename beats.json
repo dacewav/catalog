@@ -28,9 +28,9 @@
       "surface": "#0f0808",
       "surface2": "#1a0c0c",
       "red": "#ec2222",
-      "redLight": "#991b1b",
-      "redGlow": "#000000",
-      "accent": "#dc2626",
+      "redLight": "#800000",
+      "redGlow": "#ab0707",
+      "accent": "#4a2b2b",
       "text": "#f5eeee",
       "fontDisplay": "Bebas Neue",
       "fontBody": "IBM Plex Mono"
