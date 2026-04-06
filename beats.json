@@ -24,7 +24,7 @@
       }
     ],
     "theme": {
-      "bg": "#060404",
+      "bg": "#ffffff",
       "surface": "#0f0808",
       "surface2": "#1a0c0c",
       "red": "#ec2222",
@@ -32,7 +32,7 @@
       "redGlow": "#ab0707",
       "accent": "#aa0303",
       "text": "#f5eeee",
-      "fontDisplay": "Bebas Neue",
+      "fontDisplay": "Playfair Display",
       "fontBody": "IBM Plex Mono"
     },
     "decorations": [
