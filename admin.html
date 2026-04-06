@@ -214,30 +214,8 @@ label{font-size:10px;color:var(--mu);display:block;margin-bottom:5px;letter-spac
   <button class="btn btn-g btn-sm" onclick="exitCanvasMode()">Salir</button>
 </div>
 
-<!-- ══ LOGIN ══ -->
-<div id="login">
-  <div class="login-box">
-    <div class="login-brand">DACE<em>·</em> Admin</div>
-    <div class="login-sub">Panel de gestión · dacewav.store</div>
-    <div id="step-pass">
-      <div class="field"><label>Contraseña</label>
-        <input type="password" id="inp-pass" placeholder="••••••••" onkeydown="if(event.key==='Enter')checkPass()">
-      </div>
-      <div class="err" id="err-pass">Contraseña incorrecta.</div>
-      <button class="btn" style="width:100%" onclick="checkPass()">Entrar →</button>
-    </div>
-    <div id="step-token" style="display:none">
-      <div class="field"><label>GitHub Token (si migras datos existentes)</label>
-        <input type="password" id="inp-token" placeholder="ghp_... (opcional)">
-      </div>
-      <p style="font-size:10px;color:var(--hi);margin-bottom:1rem;line-height:1.7;">Con Firebase ya no necesitas token de GitHub. Este campo es solo si quieres importar datos previos.</p>
-      <button class="btn" style="width:100%" onclick="initApp()">Continuar sin token</button>
-    </div>
-  </div>
-</div>
-
 <!-- ══ APP ══ -->
-<div id="app">
+<div id="app" class="show">
   <div class="ah">
     <div class="ah-brand">DACE<em>·</em> <span style="font-weight:400;color:var(--mu);font-size:0.8rem;">Admin</span></div>
     <div class="ah-r">
@@ -523,7 +501,7 @@ label{font-size:10px;color:var(--mu);display:block;margin-bottom:5px;letter-spac
 // ══════════════════════════════════════════════
 //  FIREBASE CONFIG — reemplaza con tus datos
 // ══════════════════════════════════════════════
-const firebaseConfig = {
+const FB_CONFIG = {
   apiKey: "AIzaSyCr2dekkLLifIg0_JlLfEleaV32b5XdvIQ",
   authDomain: "dacewav-store-3b0f5.firebaseapp.com",
   databaseURL: "https://dacewav-store-3b0f5-default-rtdb.firebaseio.com",
@@ -580,28 +558,13 @@ let mpPlaying = false;
 let feMode = false;
 let selectedFeKey = null;
 
-// ══════════════════════════════════════════════
-//  AUTH
-// ══════════════════════════════════════════════
-function checkPass() {
-  if (g('inp-pass').value === PASS) {
-    g('step-pass').style.display = 'none';
-    g('err-pass').style.display = 'none';
-    initApp();
-  } else {
-    g('err-pass').style.display = 'block';
-  }
-}
-g('inp-pass').addEventListener('keydown', e => { if(e.key==='Enter') checkPass(); });
-
+// ── Auto-init: sin login, uso local ──
 function logout() { location.reload(); }
 
 // ══════════════════════════════════════════════
 //  INIT
 // ══════════════════════════════════════════════
 function initApp() {
-  g('login').style.display = 'none';
-  g('app').classList.add('show');
   setStatus(true, 'conectado a Firebase');
 
   // listeners en tiempo real
@@ -1234,6 +1197,7 @@ function showSaving() { g('saving').classList.add('show'); }
 function hideSaving() { g('saving').classList.remove('show'); }
 
 function g(id) { return document.getElementById(id); }
+initApp();
 </script>
 </body>
 </html>
