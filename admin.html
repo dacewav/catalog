@@ -1,0 +1,1239 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DACE · Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<!-- interact.js para drag + resize en elementos flotantes -->
+<script src="https://cdn.jsdelivr.net/npm/interactjs/dist/interact.min.js"></script>
+
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg:#060404;--s:#0f0808;--s2:#1a0c0c;--s3:#100707;
+  --r:#7f1d1d;--rl:#991b1b;--rg:#b91c1c;--acc:#dc2626;
+  --tx:#f5eeee;--mu:rgba(245,238,238,0.5);--hi:rgba(245,238,238,0.18);
+  --b:rgba(255,255,255,0.07);--b2:rgba(255,255,255,0.14);
+  --gn:#4caf7a;--gnb:rgba(76,175,122,0.4);--gng:rgba(76,175,122,0.12);
+  --fd:'Syne',sans-serif;--fm:'DM Mono',monospace;--rad:8px;--rlg:12px;
+}
+html,body{height:100%;background:var(--bg);color:var(--tx);font-family:var(--fm);font-size:13px;line-height:1.6;}
+body{display:flex;flex-direction:column;overflow:hidden;}
+
+/* ── GLOBAL INPUTS ── */
+input[type=text],input[type=password],input[type=number],input[type=url],input[type=email],input[type=date],textarea,select{
+  width:100%;background:rgba(0,0,0,0.4);border:1px solid var(--b2);border-radius:var(--rad);
+  color:var(--tx);font-family:var(--fm);font-size:12px;padding:8px 12px;
+  outline:none;transition:border-color 0.15s;
+}
+input:focus,textarea:focus,select:focus{border-color:rgba(185,28,28,0.6);}
+input[type=color]{width:38px;height:30px;padding:2px;border-radius:var(--rad);border:1px solid var(--b2);background:transparent;cursor:pointer;}
+input[type=range]{-webkit-appearance:none;appearance:none;height:3px;background:var(--b2);border-radius:2px;cursor:pointer;width:100%;outline:none;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:var(--acc);cursor:pointer;}
+textarea{resize:vertical;min-height:60px;}
+label{font-size:10px;color:var(--mu);display:block;margin-bottom:5px;letter-spacing:0.06em;text-transform:uppercase;}
+.field{margin-bottom:0.875rem;}
+.fg2{display:grid;grid-template-columns:1fr 1fr;gap:0 1rem;}
+.full{grid-column:1/-1;}
+
+/* ── TOGGLE ── */
+.tog{appearance:none;width:36px;height:20px;background:var(--b2);border-radius:999px;position:relative;cursor:pointer;transition:background 0.2s;border:none;outline:none;flex-shrink:0;}
+.tog::before{content:'';position:absolute;top:3px;left:3px;width:14px;height:14px;border-radius:50%;background:var(--mu);transition:all 0.2s;}
+.tog:checked{background:var(--rg);}
+.tog:checked::before{transform:translateX(16px);background:var(--tx);}
+.tog-row{display:flex;align-items:center;gap:10px;margin-bottom:0.875rem;}
+.tog-lbl{font-size:12px;color:var(--mu);}
+
+/* ── BUTTONS ── */
+.btn{font-family:var(--fm);font-size:11px;padding:7px 16px;border-radius:var(--rad);border:1px solid rgba(185,28,28,0.5);background:rgba(185,28,28,0.12);color:var(--acc);cursor:pointer;transition:all 0.15s;letter-spacing:0.04em;white-space:nowrap;}
+.btn:hover{background:var(--acc);color:var(--bg);box-shadow:0 0 16px rgba(185,28,28,0.4);}
+.btn-g{border-color:var(--b2);background:transparent;color:var(--mu);}
+.btn-g:hover{background:var(--s2);color:var(--tx);box-shadow:none;}
+.btn-ok{border-color:var(--gnb);background:var(--gng);color:var(--gn);}
+.btn-ok:hover{background:var(--gn);color:var(--bg);}
+.btn-del{border-color:rgba(220,50,50,0.4);background:rgba(220,50,50,0.1);color:#e05555;}
+.btn-del:hover{background:#dc3232;color:#fff;}
+.btn-sm{padding:4px 10px;font-size:10px;}
+.btn-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
+
+/* ── LOGIN ── */
+#login{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:2rem;position:relative;overflow:hidden;}
+#login::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 60% 50% at 50% 50%,rgba(185,28,28,0.1),transparent);pointer-events:none;}
+.login-box{background:var(--s);border:1px solid rgba(185,28,28,0.3);border-radius:var(--rlg);padding:2.5rem;width:100%;max-width:380px;box-shadow:0 0 40px rgba(185,28,28,0.2),0 24px 60px rgba(0,0,0,0.5);position:relative;z-index:1;}
+.login-brand{font-family:var(--fd);font-size:1.8rem;font-weight:800;margin-bottom:0.25rem;}
+.login-brand em{color:var(--acc);font-style:normal;}
+.login-sub{font-size:11px;color:var(--mu);margin-bottom:2rem;}
+.err{font-size:11px;color:#e05555;margin-bottom:0.75rem;display:none;}
+
+/* ── APP ── */
+#app{flex:1;display:none;flex-direction:column;overflow:hidden;}
+#app.show{display:flex;}
+
+/* HEADER */
+.ah{display:flex;align-items:center;justify-content:space-between;padding:0.625rem 1.5rem;border-bottom:1px solid var(--b);background:var(--bg);flex-shrink:0;}
+.ah-brand{font-family:var(--fd);font-size:0.95rem;font-weight:800;}
+.ah-brand em{color:var(--acc);font-style:normal;}
+.ah-r{display:flex;align-items:center;gap:10px;}
+.sdot{width:7px;height:7px;border-radius:50%;background:var(--gn);box-shadow:0 0 8px var(--gn);display:inline-block;transition:background 0.3s;}
+.sdot.err{background:#e05555;box-shadow:0 0 8px #e05555;}
+.stxt{font-size:10px;color:var(--mu);}
+
+/* LAYOUT */
+.body{flex:1;display:flex;overflow:hidden;}
+.sidebar{width:190px;flex-shrink:0;background:var(--s3);border-right:1px solid var(--b);padding:0.75rem 0;overflow-y:auto;}
+.si{display:flex;align-items:center;gap:10px;padding:0.55rem 1.25rem;font-size:11px;color:var(--mu);cursor:pointer;transition:all 0.15s;letter-spacing:0.05em;text-transform:uppercase;border-left:2px solid transparent;}
+.si:hover{color:var(--tx);background:var(--s);}
+.si.on{color:var(--acc);background:rgba(185,28,28,0.08);border-left-color:var(--acc);}
+.sico{font-size:14px;width:16px;text-align:center;flex-shrink:0;}
+.sep{height:1px;background:var(--b);margin:0.4rem 0;}
+.main{flex:1;overflow-y:auto;padding:1.5rem;}
+
+/* PANELS */
+.panel{display:none;}
+.panel.on{display:block;}
+.ptitle{font-family:var(--fd);font-size:1.15rem;font-weight:800;margin-bottom:1.5rem;letter-spacing:-0.01em;}
+
+/* CARDS */
+.card{background:var(--s);border:1px solid var(--b);border-radius:var(--rlg);padding:1.25rem;margin-bottom:1rem;}
+.ctitle{font-family:var(--fd);font-size:12px;font-weight:700;margin-bottom:1rem;padding-bottom:0.625rem;border-bottom:1px solid var(--b);}
+
+/* ── BEAT LIST ── */
+.bl{display:flex;flex-direction:column;gap:8px;margin-bottom:1.5rem;}
+.br{display:grid;grid-template-columns:44px 1fr auto;gap:12px;align-items:center;background:var(--s);border:1px solid var(--b);border-radius:var(--rad);padding:0.75rem 1rem;transition:border-color 0.15s;}
+.br:hover{border-color:var(--b2);}
+.br-thumb{width:44px;height:44px;border-radius:6px;background:var(--s2);overflow:hidden;display:flex;align-items:center;justify-content:center;color:var(--hi);font-size:1.2rem;flex-shrink:0;}
+.br-thumb img{width:100%;height:100%;object-fit:cover;}
+.br-name{font-family:var(--fd);font-size:13px;font-weight:700;margin-bottom:2px;}
+.br-meta{font-size:10px;color:var(--mu);}
+.br-acts{display:flex;gap:6px;}
+.bdg{font-size:9px;padding:2px 6px;border-radius:999px;letter-spacing:0.06em;text-transform:uppercase;display:inline-block;margin-left:6px;}
+.bdg-off{border:1px solid var(--b2);color:var(--hi);}
+.bdg-top{border:1px solid rgba(212,168,71,0.5);color:#d4a847;}
+.bdg-ex{border:1px solid rgba(185,28,28,0.5);color:var(--acc);}
+
+/* ── EDITOR TABS ── */
+.etabs{display:flex;border-bottom:1px solid var(--b);margin-bottom:1.5rem;overflow-x:auto;gap:0;}
+.et{font-size:10px;letter-spacing:0.07em;text-transform:uppercase;padding:0.7rem 0.875rem;color:var(--mu);cursor:pointer;transition:all 0.15s;border-bottom:2px solid transparent;white-space:nowrap;}
+.et:hover{color:var(--tx);}
+.et.on{color:var(--acc);border-bottom-color:var(--acc);}
+.etp{display:none;}
+.etp.on{display:block;}
+
+/* ── LICENSE EDITOR ── */
+.le{display:flex;flex-direction:column;gap:8px;margin-bottom:1rem;}
+.le-row{background:var(--s2);border:1px solid var(--b);border-radius:var(--rad);padding:0.875rem;display:grid;grid-template-columns:80px 80px 1fr;gap:8px;align-items:start;}
+.le-row-full{grid-column:1/-1;}
+
+/* ── MINI PLAYER ── */
+.mp{background:var(--s2);border:1px solid var(--b);border-radius:var(--rad);padding:0.875rem;display:flex;align-items:center;gap:10px;margin-top:0.75rem;}
+.mp-btn{width:30px;height:30px;border-radius:50%;border:1px solid rgba(185,28,28,0.5);background:rgba(185,28,28,0.12);color:var(--tx);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.15s;flex-shrink:0;}
+.mp-btn:hover{background:var(--acc);}
+.mp-prog{flex:1;height:3px;background:var(--s);border-radius:2px;cursor:pointer;}
+.mp-fill{height:100%;background:linear-gradient(90deg,var(--rl),var(--acc));border-radius:2px;width:0%;}
+.mp-t{font-size:10px;color:var(--mu);min-width:32px;}
+
+/* ── THEME EDITOR ── */
+.color-row{display:flex;align-items:center;gap:8px;margin-bottom:0.625rem;}
+.color-row label{margin:0;min-width:120px;}
+.slider-row{display:flex;align-items:center;gap:10px;margin-bottom:0.875rem;}
+.slider-row label{margin:0;min-width:140px;}
+.slider-val{font-family:var(--fm);font-size:11px;color:var(--acc);min-width:36px;text-align:right;}
+
+/* ── FLOATING ELEMENTS ── */
+#fe-canvas{
+  position:fixed;inset:0;pointer-events:none;z-index:1000;
+  display:none;
+}
+#fe-canvas.edit-mode{pointer-events:auto;background:rgba(6,4,4,0.3);}
+.fe-item{
+  position:absolute;touch-action:none;cursor:move;
+  border:1px solid rgba(185,28,28,0.6);border-radius:4px;
+  display:flex;align-items:center;justify-content:center;
+  overflow:hidden;
+}
+.fe-item.selected{border:2px solid var(--acc);box-shadow:0 0 16px rgba(185,28,28,0.5);}
+.fe-item img{width:100%;height:100%;object-fit:contain;pointer-events:none;user-select:none;}
+.fe-text-el{font-family:'Syne',sans-serif;color:var(--tx);white-space:pre-wrap;padding:4px;width:100%;height:100%;overflow:hidden;}
+.fe-del-btn{
+  position:absolute;top:-10px;right:-10px;width:20px;height:20px;
+  border-radius:50%;background:#dc2626;color:#fff;font-size:12px;
+  border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;
+  box-shadow:0 0 8px rgba(185,28,28,0.6);z-index:10;
+}
+.fe-list{display:flex;flex-direction:column;gap:8px;margin-bottom:1rem;}
+.fe-row{display:flex;align-items:center;gap:10px;background:var(--s2);border:1px solid var(--b);border-radius:var(--rad);padding:0.75rem 1rem;}
+.fe-row-info{flex:1;font-size:11px;color:var(--mu);}
+.fe-row-name{font-family:var(--fd);font-size:12px;font-weight:700;color:var(--tx);}
+
+/* ── CUSTOM LINKS ── */
+.cl-list{display:flex;flex-direction:column;gap:8px;margin-bottom:1rem;}
+.cl-row{display:grid;grid-template-columns:1fr 2fr 1fr auto;gap:8px;align-items:center;background:var(--s2);border:1px solid var(--b);border-radius:var(--rad);padding:0.75rem 1rem;}
+
+/* ── TESTIMONIALS ── */
+.tl{display:flex;flex-direction:column;gap:8px;margin-bottom:1rem;}
+.tr-{background:var(--s2);border:1px solid var(--b);border-radius:var(--rad);padding:0.875rem;}
+
+/* ── TOAST + SAVING ── */
+.toast{position:fixed;bottom:1.5rem;right:1.5rem;z-index:2000;background:var(--s);border:1px solid rgba(185,28,28,0.4);border-radius:var(--rad);padding:0.75rem 1.25rem;font-size:12px;color:var(--tx);opacity:0;transform:translateY(8px);transition:all 0.25s;pointer-events:none;}
+.toast.err{border-color:rgba(220,50,50,0.5);color:#e05555;}
+.toast.show{opacity:1;transform:translateY(0);}
+.saving{position:fixed;top:0.75rem;left:50%;transform:translateX(-50%);z-index:2001;background:var(--s);border:1px solid var(--gnb);border-radius:999px;padding:4px 16px;font-size:11px;color:var(--gn);display:none;}
+.saving.show{display:block;}
+
+/* ── CANVAS TOOLBAR ── */
+#canvas-toolbar{
+  position:fixed;top:60px;left:50%;transform:translateX(-50%);z-index:1100;
+  background:rgba(10,5,5,0.95);border:1px solid rgba(185,28,28,0.4);
+  border-radius:999px;padding:6px 16px;display:none;gap:10px;align-items:center;
+  backdrop-filter:blur(12px);
+}
+#canvas-toolbar.show{display:flex;}
+
+@media(max-width:640px){
+  .sidebar{width:44px;}.si span{display:none;}
+  .le-row{grid-template-columns:1fr 1fr;}
+  .fg2{grid-template-columns:1fr;}
+  .cl-row{grid-template-columns:1fr 1fr;}
+}
+</style>
+</head>
+<body>
+
+<!-- ══ FLOATING CANVAS (overlay para editar) ══ -->
+<div id="fe-canvas">
+  <div id="fe-items-container"></div>
+</div>
+<div id="canvas-toolbar">
+  <span style="font-size:11px;color:var(--mu);letter-spacing:.06em;">Modo edición</span>
+  <button class="btn btn-sm" onclick="saveFloatingElements()">Guardar</button>
+  <button class="btn btn-g btn-sm" onclick="exitCanvasMode()">Salir</button>
+</div>
+
+<!-- ══ LOGIN ══ -->
+<div id="login">
+  <div class="login-box">
+    <div class="login-brand">DACE<em>·</em> Admin</div>
+    <div class="login-sub">Panel de gestión · dacewav.store</div>
+    <div id="step-pass">
+      <div class="field"><label>Contraseña</label>
+        <input type="password" id="inp-pass" placeholder="••••••••" onkeydown="if(event.key==='Enter')checkPass()">
+      </div>
+      <div class="err" id="err-pass">Contraseña incorrecta.</div>
+      <button class="btn" style="width:100%" onclick="checkPass()">Entrar →</button>
+    </div>
+    <div id="step-token" style="display:none">
+      <div class="field"><label>GitHub Token (si migras datos existentes)</label>
+        <input type="password" id="inp-token" placeholder="ghp_... (opcional)">
+      </div>
+      <p style="font-size:10px;color:var(--hi);margin-bottom:1rem;line-height:1.7;">Con Firebase ya no necesitas token de GitHub. Este campo es solo si quieres importar datos previos.</p>
+      <button class="btn" style="width:100%" onclick="initApp()">Continuar sin token</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ APP ══ -->
+<div id="app">
+  <div class="ah">
+    <div class="ah-brand">DACE<em>·</em> <span style="font-weight:400;color:var(--mu);font-size:0.8rem;">Admin</span></div>
+    <div class="ah-r">
+      <span class="sdot" id="sdot"></span>
+      <span class="stxt" id="stxt">conectando...</span>
+      <button class="btn btn-g btn-sm" onclick="enterCanvasMode()">✦ Elementos flotantes</button>
+      <button class="btn btn-g btn-sm" onclick="window.open('/','_blank')">Ver sitio ↗</button>
+      <button class="btn btn-g btn-sm" onclick="logout()">Salir</button>
+    </div>
+  </div>
+
+  <div class="body">
+    <div class="sidebar">
+      <div class="si on" data-panel="beats" onclick="showPanel('beats')"><span class="sico">♪</span><span>Beats</span></div>
+      <div class="si" data-panel="add" onclick="showPanel('add');resetForm()"><span class="sico">+</span><span>Agregar</span></div>
+      <div class="sep"></div>
+      <div class="si" data-panel="theme" onclick="showPanel('theme')"><span class="sico">🎨</span><span>Tema</span></div>
+      <div class="si" data-panel="site" onclick="showPanel('site')"><span class="sico">⚙</span><span>Sitio</span></div>
+      <div class="si" data-panel="links" onclick="showPanel('links')"><span class="sico">🔗</span><span>Links</span></div>
+      <div class="si" data-panel="testi" onclick="showPanel('testi')"><span class="sico">💬</span><span>Artistas</span></div>
+      <div class="sep"></div>
+      <div class="si" onclick="exportAll()"><span class="sico">↓</span><span>Exportar</span></div>
+      <div class="si" onclick="document.getElementById('imp-file').click()"><span class="sico">↑</span><span>Importar</span></div>
+      <input type="file" id="imp-file" accept=".json" style="display:none" onchange="importAll(event)">
+    </div>
+
+    <div class="main">
+
+      <!-- ═══ BEATS LIST ═══ -->
+      <div class="panel on" id="panel-beats">
+        <div class="ptitle">Catálogo de beats</div>
+        <div class="btn-row" style="margin-bottom:1rem;">
+          <button class="btn" onclick="showPanel('add');resetForm()">+ Agregar beat</button>
+          <button class="btn btn-g" onclick="loadBeats()">↺ Recargar</button>
+        </div>
+        <div class="bl" id="beat-list">
+          <div style="color:var(--hi);font-size:11px;padding:1rem 0">Cargando...</div>
+        </div>
+      </div>
+
+      <!-- ═══ ADD / EDIT BEAT ═══ -->
+      <div class="panel" id="panel-add">
+        <div class="ptitle" id="editor-title">Nuevo beat</div>
+        <div class="etabs">
+          <div class="et on" onclick="showEt('info')">Info</div>
+          <div class="et" onclick="showEt('lics')">Licencias</div>
+          <div class="et" onclick="showEt('media')">Multimedia</div>
+          <div class="et" onclick="showEt('extras')">Extras</div>
+          <div class="et" onclick="showEt('estado')">Estado</div>
+        </div>
+
+        <!-- INFO -->
+        <div class="etp on" id="etp-info">
+          <div class="fg2">
+            <div class="field"><label>ID único</label><input type="text" id="f-id" placeholder="001"></div>
+            <div class="field"><label>Nombre</label><input type="text" id="f-name" placeholder="Fantasma"></div>
+            <div class="field"><label>Género</label>
+              <select id="f-genre">
+                <option>Trap</option><option>R&B</option><option>Corrido</option>
+                <option>Drill</option><option>Ambient</option><option>Pop</option>
+                <option>Hip-Hop</option><option>Reggaeton</option><option>Otro</option>
+              </select>
+            </div>
+            <div class="field"><label>Género custom (si "Otro")</label><input type="text" id="f-genre-c" placeholder="Ej: Cumbia Drill"></div>
+            <div class="field"><label>BPM</label><input type="number" id="f-bpm" placeholder="140"></div>
+            <div class="field"><label>Key</label><input type="text" id="f-key" placeholder="Am"></div>
+            <div class="field full"><label>Descripción</label><textarea id="f-desc" placeholder="Descripción para el artista..."></textarea></div>
+            <div class="field full"><label>Tags (separados por coma)</label><input type="text" id="f-tags" placeholder="Trap, Dark, Cinematic"></div>
+          </div>
+        </div>
+
+        <!-- LICENCIAS -->
+        <div class="etp" id="etp-lics">
+          <p style="font-size:11px;color:var(--mu);margin-bottom:1rem;">Edita precios en MXN y USD por licencia.</p>
+          <div class="le" id="le-editor"></div>
+          <button class="btn btn-g btn-sm" onclick="addLicRow()">+ Agregar licencia</button>
+        </div>
+
+        <!-- MULTIMEDIA -->
+        <div class="etp" id="etp-media">
+          <div class="card">
+            <div class="ctitle">Imagen de portada</div>
+            <div class="field"><label>URL (Cloudflare R2)</label>
+              <input type="url" id="f-img" placeholder="https://pub-xxx.r2.dev/portada.jpg" oninput="prevImg()">
+            </div>
+            <div id="img-prev" style="margin-top:0.5rem;"></div>
+          </div>
+          <div class="card">
+            <div class="ctitle">Audio principal (WAV completo)</div>
+            <div class="field"><label>URL · R2</label>
+              <input type="url" id="f-audio" placeholder="https://pub-xxx.r2.dev/beat.wav" oninput="updateMP()">
+            </div>
+          </div>
+          <div class="card">
+            <div class="ctitle">Preview (MP3 taggeado · para el catálogo)</div>
+            <div class="field"><label>URL · R2</label>
+              <input type="url" id="f-prev" placeholder="https://pub-xxx.r2.dev/beat-preview.mp3" oninput="updateMP()">
+            </div>
+            <div class="mp">
+              <button class="mp-btn" id="mp-btn" onclick="toggleMP()">
+                <svg id="mp-ic" width="11" height="11" viewBox="0 0 16 16" fill="currentColor"><path d="M5 3l10 5-10 5V3z"/></svg>
+              </button>
+              <div class="mp-prog" id="mp-prog" onclick="seekMP(event)"><div class="mp-fill" id="mp-fill"></div></div>
+              <span class="mp-t" id="mp-t">0:00 / 0:00</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- EXTRAS -->
+        <div class="etp" id="etp-extras">
+          <div class="fg2">
+            <div class="field"><label>Slug (URL amigable)</label><input type="text" id="f-slug" placeholder="fantasma"></div>
+            <div class="field"><label>Fecha</label><input type="date" id="f-date"></div>
+            <div class="field"><label>Orden en el catálogo</label><input type="number" id="f-order" value="0" min="0"></div>
+          </div>
+          <div class="tog-row"><input type="checkbox" class="tog" id="f-feat"><span class="tog-lbl">Beat destacado (sección TOP)</span></div>
+          <div class="tog-row"><input type="checkbox" class="tog" id="f-excl"><span class="tog-lbl">Exclusiva disponible</span></div>
+        </div>
+
+        <!-- ESTADO -->
+        <div class="etp" id="etp-estado">
+          <div class="tog-row"><input type="checkbox" class="tog" id="f-active" checked><span class="tog-lbl">Beat activo (visible en catálogo)</span></div>
+          <div class="tog-row"><input type="checkbox" class="tog" id="f-avail" checked><span class="tog-lbl">Disponible para licenciar</span></div>
+          <div class="field"><label>Reproducciones</label><input type="number" id="f-plays" value="0" min="0"></div>
+        </div>
+
+        <div style="margin-top:1.5rem;" class="btn-row">
+          <button class="btn btn-ok" onclick="saveBeat()">Guardar beat</button>
+          <button class="btn btn-g" onclick="showPanel('beats')">Cancelar</button>
+          <button class="btn btn-del" id="btn-del" style="display:none" onclick="deleteBeat()">Borrar beat</button>
+        </div>
+      </div>
+
+      <!-- ═══ THEME ═══ -->
+      <div class="panel" id="panel-theme">
+        <div class="ptitle">Editor de tema visual</div>
+
+        <div class="card">
+          <div class="ctitle">Colores principales</div>
+          <div id="color-editor"></div>
+        </div>
+
+        <div class="card">
+          <div class="ctitle">Efecto Glow / Neón</div>
+          <div class="tog-row">
+            <input type="checkbox" class="tog" id="t-glow" checked>
+            <span class="tog-lbl">Activar resplandor rojo en todo el sitio</span>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="ctitle">Opacidad de superficies</div>
+          <div class="slider-row">
+            <label>Surface (tarjetas)</label>
+            <input type="range" id="t-surf-op" min="0" max="1" step="0.05" value="1" oninput="document.getElementById('sv-surf').textContent=parseFloat(this.value).toFixed(2)">
+            <span class="slider-val" id="sv-surf">1.00</span>
+          </div>
+          <div class="slider-row">
+            <label>Surface 2 (fondos alt)</label>
+            <input type="range" id="t-surf2-op" min="0" max="1" step="0.05" value="1" oninput="document.getElementById('sv-surf2').textContent=parseFloat(this.value).toFixed(2)">
+            <span class="slider-val" id="sv-surf2">1.00</span>
+          </div>
+          <div class="slider-row">
+            <label>Orbs ambientales</label>
+            <input type="range" id="t-orb-op" min="0" max="0.3" step="0.01" value="0.1" oninput="document.getElementById('sv-orb').textContent=parseFloat(this.value).toFixed(2)">
+            <span class="slider-val" id="sv-orb">0.10</span>
+          </div>
+          <div class="slider-row">
+            <label>Grain / Ruido</label>
+            <input type="range" id="t-grain-op" min="0" max="0.6" step="0.05" value="0.3" oninput="document.getElementById('sv-grain').textContent=parseFloat(this.value).toFixed(2)">
+            <span class="slider-val" id="sv-grain">0.30</span>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="ctitle">Tipografía</div>
+          <div class="fg2">
+            <div class="field">
+              <label>Fuente de títulos</label>
+              <select id="t-font-d">
+                <option value="Syne">Syne</option>
+                <option value="Bebas Neue">Bebas Neue</option>
+                <option value="Oswald">Oswald</option>
+                <option value="Playfair Display">Playfair Display</option>
+                <option value="Raleway">Raleway</option>
+                <option value="Space Grotesk">Space Grotesk</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>Fuente de cuerpo</label>
+              <select id="t-font-m">
+                <option value="DM Mono">DM Mono</option>
+                <option value="IBM Plex Mono">IBM Plex Mono</option>
+                <option value="Inter">Inter</option>
+                <option value="Manrope">Manrope</option>
+                <option value="Outfit">Outfit</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="btn-row">
+          <button class="btn btn-ok" onclick="saveTheme()">Guardar tema</button>
+          <button class="btn btn-g" onclick="resetTheme()">Restablecer</button>
+        </div>
+      </div>
+
+      <!-- ═══ SITE ═══ -->
+      <div class="panel" id="panel-site">
+        <div class="ptitle">Configuración del sitio</div>
+        <div class="card">
+          <div class="ctitle">Identidad</div>
+          <div class="fg2">
+            <div class="field"><label>Nombre del sitio</label><input type="text" id="s-name" placeholder="DACE"></div>
+            <div class="field"><label>Tagline</label><input type="text" id="s-tagline" placeholder="Producción independiente..."></div>
+            <div class="field full"><label>Título hero (usa \n para saltos)</label><input type="text" id="s-htitle" placeholder="Beats que\ndefinen géneros."></div>
+            <div class="field full"><label>Subtítulo hero</label><textarea id="s-hsub" style="min-height:50px;"></textarea></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="ctitle">Contacto y redes</div>
+          <div class="fg2">
+            <div class="field"><label>WhatsApp (con código país)</label><input type="text" id="s-wa" placeholder="522221234567"></div>
+            <div class="field"><label>Instagram (@usuario)</label><input type="text" id="s-ig" placeholder="dacewav"></div>
+            <div class="field full"><label>Email</label><input type="email" id="s-email" placeholder="contacto@dacewav.store"></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="ctitle">Banner de anuncio</div>
+          <div class="tog-row"><input type="checkbox" class="tog" id="s-ban-on"><span class="tog-lbl">Mostrar banner superior</span></div>
+          <div class="field"><label>Texto del banner</label><input type="text" id="s-ban-txt" placeholder="🔥 Nuevos beats disponibles..."></div>
+        </div>
+        <div class="card">
+          <div class="ctitle">Secciones visibles</div>
+          <div class="tog-row"><input type="checkbox" class="tog" id="s-sec-feat"><span class="tog-lbl">Mostrar "Destacados"</span></div>
+          <div class="tog-row"><input type="checkbox" class="tog" id="s-sec-testi"><span class="tog-lbl">Mostrar "Artistas / Testimonios"</span></div>
+        </div>
+        <button class="btn btn-ok" onclick="saveSite()">Guardar configuración</button>
+      </div>
+
+      <!-- ═══ LINKS ═══ -->
+      <div class="panel" id="panel-links">
+        <div class="ptitle">Links personalizados</div>
+        <p style="font-size:11px;color:var(--mu);margin-bottom:1.25rem;">Agrega links que aparecen en el header, hero o footer de tu sitio.</p>
+        <div class="cl-list" id="cl-list"></div>
+        <div class="card">
+          <div class="ctitle">Agregar link</div>
+          <div class="fg2">
+            <div class="field"><label>Label (texto)</label><input type="text" id="cl-label" placeholder="Ej: TikTok"></div>
+            <div class="field"><label>URL</label><input type="url" id="cl-url" placeholder="https://..."></div>
+            <div class="field">
+              <label>Ubicación</label>
+              <select id="cl-loc">
+                <option value="header">Header (nav)</option>
+                <option value="hero">Hero (botón destacado)</option>
+                <option value="footer">Footer</option>
+              </select>
+            </div>
+          </div>
+          <button class="btn" onclick="addCustomLink()">+ Agregar</button>
+        </div>
+        <div style="margin-top:1rem;"><button class="btn btn-ok" onclick="saveCustomLinks()">Guardar links</button></div>
+      </div>
+
+      <!-- ═══ TESTIMONIALS ═══ -->
+      <div class="panel" id="panel-testi">
+        <div class="ptitle">Artistas y testimonios</div>
+        <div class="tog-row"><input type="checkbox" class="tog" id="t-testi-on"><span class="tog-lbl">Mostrar sección de testimonios</span></div>
+        <div class="tl" id="tl-list"></div>
+        <button class="btn btn-g btn-sm" onclick="addTesti()">+ Agregar artista</button>
+        <div style="margin-top:1.5rem;"><button class="btn btn-ok" onclick="saveTestis()">Guardar testimonios</button></div>
+      </div>
+
+    </div><!-- /main -->
+  </div><!-- /body -->
+</div><!-- /app -->
+
+<div class="saving" id="saving">Guardando en Firebase...</div>
+<div class="toast" id="toast-el"></div>
+<audio id="mp-audio"></audio>
+
+<script>
+// ══════════════════════════════════════════════
+//  FIREBASE CONFIG — reemplaza con tus datos
+// ══════════════════════════════════════════════
+const firebaseConfig = {
+  apiKey: "AIzaSyCr2dekkLLifIg0_JlLfEleaV32b5XdvIQ",
+  authDomain: "dacewav-store-3b0f5.firebaseapp.com",
+  databaseURL: "https://dacewav-store-3b0f5-default-rtdb.firebaseio.com",
+  projectId: "dacewav-store-3b0f5",
+  storageBucket: "dacewav-store-3b0f5.firebasestorage.app",
+  messagingSenderId: "163354805352",
+  appId: "1:163354805352:web:d8a99d1d71323de1ed27dd"
+};
+firebase.initializeApp(FB_CONFIG);
+const db = firebase.database();
+
+// ══════════════════════════════════════════════
+//  CONSTANTES
+// ══════════════════════════════════════════════
+const PASS = 'DaceBeats26';
+
+const DEFAULT_LICS = [
+  {name:'MP3', priceMXN:350, priceUSD:18, description:'MP3 taggeado · hasta 10,000 streams · 1 plataforma · no comercial'},
+  {name:'WAV', priceMXN:500, priceUSD:26, description:'WAV sin tag · hasta 50,000 streams · distribución digital · no comercial'},
+  {name:'Premium', priceMXN:1200, priceUSD:62, description:'WAV + stems · streams ilimitados · todas las plataformas · uso comercial limitado'},
+  {name:'Ilimitada', priceMXN:2500, priceUSD:129, description:'WAV + stems completos · uso comercial total · sin límite de copias · Content ID incluido'},
+  {name:'Exclusiva', priceMXN:8000, priceUSD:415, description:'Beat retirado del catálogo · transferencia total de derechos · negociable'},
+];
+
+const DEFAULT_THEME = {
+  bg:'#060404', surface:'#0f0808', surface2:'#1a0c0c',
+  red:'#7f1d1d', redLight:'#991b1b', redGlow:'#b91c1c', accent:'#dc2626',
+  text:'#f5eeee', glowActive:true,
+  surfaceOpacity:1, surface2Opacity:1, orbOpacity:0.1, grainOpacity:0.3,
+  fontDisplay:'Syne', fontBody:'DM Mono'
+};
+
+const COLOR_FIELDS = [
+  ['bg','Fondo principal'], ['surface','Surface (tarjetas)'], ['surface2','Surface 2'],
+  ['red','Rojo base'], ['redLight','Rojo claro'], ['redGlow','Rojo glow'],
+  ['accent','Acento / CTA'], ['text','Texto principal']
+];
+
+// ══════════════════════════════════════════════
+//  STATE
+// ══════════════════════════════════════════════
+let beats = {}; // keyed by Firebase key
+let siteSettings = {};
+let currentTheme = {...DEFAULT_THEME};
+let customLinks = {};
+let floatingEls = {};
+let editingBeatKey = null;
+
+// mini player
+let mpAudio = document.getElementById('mp-audio');
+let mpPlaying = false;
+
+// floating elements canvas state
+let feMode = false;
+let selectedFeKey = null;
+
+// ══════════════════════════════════════════════
+//  AUTH
+// ══════════════════════════════════════════════
+function checkPass() {
+  if (g('inp-pass').value === PASS) {
+    g('step-pass').style.display = 'none';
+    g('err-pass').style.display = 'none';
+    initApp();
+  } else {
+    g('err-pass').style.display = 'block';
+  }
+}
+g('inp-pass').addEventListener('keydown', e => { if(e.key==='Enter') checkPass(); });
+
+function logout() { location.reload(); }
+
+// ══════════════════════════════════════════════
+//  INIT
+// ══════════════════════════════════════════════
+function initApp() {
+  g('login').style.display = 'none';
+  g('app').classList.add('show');
+  setStatus(true, 'conectado a Firebase');
+
+  // listeners en tiempo real
+  db.ref('beats').on('value', snap => {
+    beats = snap.val() || {};
+    renderBeatList();
+  });
+
+  db.ref('settings').on('value', snap => {
+    siteSettings = snap.val() || {};
+    populateSite();
+    populateTestis();
+  });
+
+  db.ref('theme').on('value', snap => {
+    currentTheme = {...DEFAULT_THEME, ...(snap.val()||{})};
+    populateTheme();
+  });
+
+  db.ref('customLinks').on('value', snap => {
+    customLinks = snap.val() || {};
+    renderCustomLinksList();
+  });
+
+  db.ref('floatingElements').on('value', snap => {
+    floatingEls = snap.val() || {};
+    if (feMode) renderFeCanvas();
+  });
+}
+
+// ══════════════════════════════════════════════
+//  FIREBASE HELPERS
+// ══════════════════════════════════════════════
+async function fbSet(path, data) {
+  showSaving();
+  try {
+    await db.ref(path).set(data);
+    toast('✓ Guardado en Firebase');
+  } catch(e) {
+    toast('Error al guardar', true);
+  }
+  hideSaving();
+}
+
+async function fbUpdate(path, data) {
+  showSaving();
+  try {
+    await db.ref(path).update(data);
+    toast('✓ Actualizado');
+  } catch(e) {
+    toast('Error al guardar', true);
+  }
+  hideSaving();
+}
+
+// ══════════════════════════════════════════════
+//  BEAT LIST
+// ══════════════════════════════════════════════
+function renderBeatList() {
+  const list = g('beat-list');
+  const arr = Object.entries(beats);
+  if (!arr.length) { list.innerHTML = '<div style="color:var(--hi);font-size:11px;padding:1rem 0">No hay beats. Agrega el primero →</div>'; return; }
+  arr.sort(([,a],[,b]) => (a.order||0)-(b.order||0));
+  list.innerHTML = arr.map(([key, b]) => `
+    <div class="br">
+      <div class="br-thumb">${b.imageUrl?`<img src="${b.imageUrl}" alt="${b.name}">`:'♪'}</div>
+      <div>
+        <div class="br-name">${b.name}
+          ${!b.active?'<span class="bdg bdg-off">inactivo</span>':''}
+          ${b.featured?'<span class="bdg bdg-top">top</span>':''}
+          ${b.exclusive?'<span class="bdg bdg-ex">excl</span>':''}
+        </div>
+        <div class="br-meta">${b.bpm} BPM · ${b.key} · ${b.genre} · ID: ${b.id}</div>
+      </div>
+      <div class="br-acts">
+        <button class="btn btn-g btn-sm" onclick="editBeat('${key}')">Editar</button>
+        <button class="btn btn-del btn-sm" onclick="qDelete('${key}','${b.name}')">✕</button>
+      </div>
+    </div>`).join('');
+}
+
+// ══════════════════════════════════════════════
+//  BEAT FORM
+// ══════════════════════════════════════════════
+function resetForm(data) {
+  editingBeatKey = null;
+  g('editor-title').textContent = 'Nuevo beat';
+  g('btn-del').style.display = 'none';
+  const d = data || {};
+  const arrLen = Object.keys(beats).length;
+  g('f-id').value = d.id || String(arrLen+1).padStart(3,'0');
+  g('f-name').value = d.name || '';
+  g('f-genre').value = d.genre || 'Trap';
+  g('f-genre-c').value = '';
+  g('f-bpm').value = d.bpm || '';
+  g('f-key').value = d.key || '';
+  g('f-desc').value = d.description || '';
+  g('f-tags').value = d.tags ? d.tags.join(', ') : '';
+  g('f-img').value = d.imageUrl || '';
+  g('f-audio').value = d.audioUrl || '';
+  g('f-prev').value = d.previewUrl || '';
+  g('f-slug').value = d.slug || '';
+  g('f-date').value = d.date || new Date().toISOString().split('T')[0];
+  g('f-order').value = d.order || 0;
+  g('f-feat').checked = d.featured || false;
+  g('f-excl').checked = d.exclusive || false;
+  g('f-active').checked = d.active !== false;
+  g('f-avail').checked = d.available !== false;
+  g('f-plays').value = d.plays || 0;
+  buildLicEditor(d.licenses || DEFAULT_LICS);
+  prevImg();
+  showEt('info');
+}
+
+function editBeat(key) {
+  const b = beats[key];
+  if (!b) return;
+  editingBeatKey = key;
+  resetForm(b);
+  g('editor-title').textContent = 'Editar · ' + b.name;
+  g('btn-del').style.display = 'inline-block';
+  showPanel('add');
+}
+
+async function saveBeat() {
+  const genre = g('f-genre').value === 'Otro' ? g('f-genre-c').value.trim() : g('f-genre').value;
+  const data = {
+    id: g('f-id').value.trim(),
+    name: g('f-name').value.trim(),
+    genre, bpm: parseInt(g('f-bpm').value)||0,
+    key: g('f-key').value.trim(),
+    description: g('f-desc').value.trim(),
+    tags: g('f-tags').value.split(',').map(t=>t.trim()).filter(Boolean),
+    imageUrl: g('f-img').value.trim(),
+    audioUrl: g('f-audio').value.trim(),
+    previewUrl: g('f-prev').value.trim(),
+    slug: g('f-slug').value.trim() || g('f-name').value.toLowerCase().replace(/\s+/g,'-'),
+    date: g('f-date').value,
+    order: parseInt(g('f-order').value)||0,
+    featured: g('f-feat').checked,
+    exclusive: g('f-excl').checked,
+    active: g('f-active').checked,
+    available: g('f-avail').checked,
+    plays: parseInt(g('f-plays').value)||0,
+    licenses: getLics(),
+  };
+  if (!data.name || !data.id) { toast('Nombre e ID son obligatorios', true); return; }
+  const key = editingBeatKey || db.ref('beats').push().key;
+  await fbSet('beats/' + key, data);
+  showPanel('beats');
+}
+
+async function deleteBeat() {
+  if (!editingBeatKey) return;
+  const b = beats[editingBeatKey];
+  if (!confirm(`¿Borrar "${b?.name}"? No se puede deshacer.`)) return;
+  showSaving();
+  await db.ref('beats/' + editingBeatKey).remove();
+  hideSaving();
+  toast('Beat eliminado');
+  showPanel('beats');
+  resetForm();
+}
+
+async function qDelete(key, name) {
+  if (!confirm(`¿Borrar "${name}"?`)) return;
+  showSaving();
+  await db.ref('beats/' + key).remove();
+  hideSaving();
+  toast(`"${name}" eliminado`);
+}
+
+function loadBeats() { toast('Cargando...'); }
+
+// ══════════════════════════════════════════════
+//  LICENSE EDITOR
+// ══════════════════════════════════════════════
+function buildLicEditor(lics) {
+  g('le-editor').innerHTML = lics.map((l,i) => `
+    <div class="le-row" id="le-${i}">
+      <div><label>Nombre</label><input type="text" value="${l.name}" data-i="${i}" data-f="name"></div>
+      <div><label>MXN $</label><input type="number" value="${l.priceMXN}" data-i="${i}" data-f="priceMXN"></div>
+      <div><label>USD $</label><input type="number" value="${l.priceUSD}" data-i="${i}" data-f="priceUSD"></div>
+      <div class="le-row-full"><label>Descripción</label><input type="text" value="${l.description}" data-i="${i}" data-f="description"></div>
+      <div class="le-row-full"><button class="btn btn-del btn-sm" onclick="removeLic(${i})">Eliminar licencia</button></div>
+    </div>`).join('');
+}
+
+function addLicRow() { buildLicEditor([...getLics(), {name:'Nueva',priceMXN:0,priceUSD:0,description:''}]); }
+function removeLic(i) { const l = getLics(); l.splice(i,1); buildLicEditor(l); }
+
+function getLics() {
+  const rows = document.querySelectorAll('.le-row');
+  return Array.from(rows).map(r => ({
+    name: r.querySelector('[data-f=name]')?.value.trim()||'',
+    priceMXN: parseFloat(r.querySelector('[data-f=priceMXN]')?.value)||0,
+    priceUSD: parseFloat(r.querySelector('[data-f=priceUSD]')?.value)||0,
+    description: r.querySelector('[data-f=description]')?.value.trim()||'',
+  }));
+}
+
+// ══════════════════════════════════════════════
+//  MINI PLAYER
+// ══════════════════════════════════════════════
+function updateMP() {
+  const url = g('f-prev').value.trim() || g('f-audio').value.trim();
+  if (url && mpAudio.src !== url) { mpAudio.src = url; mpAudio.load(); }
+}
+function toggleMP() {
+  updateMP();
+  if (!mpAudio.src || mpAudio.src === window.location.href) return;
+  if (mpPlaying) { mpAudio.pause(); mpPlaying = false; }
+  else { mpAudio.play(); mpPlaying = true; }
+  g('mp-ic').outerHTML = mpPlaying
+    ? `<svg id="mp-ic" width="11" height="11" viewBox="0 0 16 16" fill="currentColor"><path d="M4 2h2v12H4zM10 2h2v12h-2z"/></svg>`
+    : `<svg id="mp-ic" width="11" height="11" viewBox="0 0 16 16" fill="currentColor"><path d="M5 3l10 5-10 5V3z"/></svg>`;
+}
+mpAudio.addEventListener('timeupdate', () => {
+  if (!mpAudio.duration) return;
+  const pct = (mpAudio.currentTime/mpAudio.duration)*100;
+  g('mp-fill').style.width = pct+'%';
+  g('mp-t').textContent = fmt(mpAudio.currentTime)+' / '+fmt(mpAudio.duration);
+});
+function seekMP(e) {
+  if (!mpAudio.duration) return;
+  const r = g('mp-prog').getBoundingClientRect();
+  mpAudio.currentTime = ((e.clientX-r.left)/r.width)*mpAudio.duration;
+}
+function fmt(s) { return `${Math.floor(s/60)}:${Math.floor(s%60).toString().padStart(2,'0')}`; }
+
+// ══════════════════════════════════════════════
+//  IMAGE PREVIEW
+// ══════════════════════════════════════════════
+function prevImg() {
+  const url = g('f-img').value.trim();
+  g('img-prev').innerHTML = url ? `<img src="${url}" style="max-width:100%;max-height:120px;border-radius:var(--rad);object-fit:cover;" onerror="this.style.display='none'">` : '';
+}
+
+// ══════════════════════════════════════════════
+//  THEME EDITOR
+// ══════════════════════════════════════════════
+function populateTheme() {
+  const t = currentTheme;
+  // color pickers
+  g('color-editor').innerHTML = COLOR_FIELDS.map(([key,label]) => `
+    <div class="color-row">
+      <label>${label}</label>
+      <input type="color" id="tc-${key}" value="${t[key]||'#000000'}" oninput="syncTxt('${key}')">
+      <input type="text" id="tt-${key}" value="${t[key]||'#000000'}" style="width:100px;" oninput="syncPick('${key}')">
+    </div>`).join('');
+  g('t-glow').checked = t.glowActive !== false;
+  g('t-surf-op').value = t.surfaceOpacity??1;
+  g('sv-surf').textContent = parseFloat(t.surfaceOpacity??1).toFixed(2);
+  g('t-surf2-op').value = t.surface2Opacity??1;
+  g('sv-surf2').textContent = parseFloat(t.surface2Opacity??1).toFixed(2);
+  g('t-orb-op').value = t.orbOpacity??0.1;
+  g('sv-orb').textContent = parseFloat(t.orbOpacity??0.1).toFixed(2);
+  g('t-grain-op').value = t.grainOpacity??0.3;
+  g('sv-grain').textContent = parseFloat(t.grainOpacity??0.3).toFixed(2);
+  if (t.fontDisplay) g('t-font-d').value = t.fontDisplay;
+  if (t.fontBody) g('t-font-m').value = t.fontBody;
+}
+
+function syncTxt(k) { g('tt-'+k).value = g('tc-'+k).value; }
+function syncPick(k) { if(/^#[0-9a-fA-F]{6}$/.test(g('tt-'+k).value)) g('tc-'+k).value = g('tt-'+k).value; }
+
+async function saveTheme() {
+  const t = {};
+  COLOR_FIELDS.forEach(([k]) => { t[k] = g('tc-'+k)?.value || g('tt-'+k)?.value; });
+  t.glowActive = g('t-glow').checked;
+  t.surfaceOpacity = parseFloat(g('t-surf-op').value);
+  t.surface2Opacity = parseFloat(g('t-surf2-op').value);
+  t.orbOpacity = parseFloat(g('t-orb-op').value);
+  t.grainOpacity = parseFloat(g('t-grain-op').value);
+  t.fontDisplay = g('t-font-d').value;
+  t.fontBody = g('t-font-m').value;
+  await fbSet('theme', t);
+}
+
+function resetTheme() { fbSet('theme', DEFAULT_THEME); toast('Tema restablecido'); }
+
+// ══════════════════════════════════════════════
+//  SITE SETTINGS
+// ══════════════════════════════════════════════
+function populateSite() {
+  const s = siteSettings;
+  g('s-name').value = s.siteName||'DACE';
+  g('s-tagline').value = s.tagline||'';
+  g('s-htitle').value = s.heroTitle||'';
+  g('s-hsub').value = s.heroSubtitle||'';
+  g('s-wa').value = s.whatsapp||'';
+  g('s-ig').value = s.instagram||'';
+  g('s-email').value = s.email||'';
+  g('s-ban-on').checked = s.bannerActive||false;
+  g('s-ban-txt').value = s.bannerText||'';
+  g('s-sec-feat').checked = s.sections?.featured!==false;
+  g('s-sec-testi').checked = s.sections?.testimonials!==false;
+}
+
+async function saveSite() {
+  const data = {
+    siteName: g('s-name').value.trim(),
+    tagline: g('s-tagline').value.trim(),
+    heroTitle: g('s-htitle').value.trim(),
+    heroSubtitle: g('s-hsub').value.trim(),
+    whatsapp: g('s-wa').value.trim(),
+    instagram: g('s-ig').value.trim(),
+    email: g('s-email').value.trim(),
+    bannerActive: g('s-ban-on').checked,
+    bannerText: g('s-ban-txt').value.trim(),
+    sections: { featured: g('s-sec-feat').checked, testimonials: g('s-sec-testi').checked },
+    testimonialsActive: siteSettings.testimonialsActive||false,
+    testimonials: siteSettings.testimonials||[],
+  };
+  await fbSet('settings', data);
+}
+
+// ══════════════════════════════════════════════
+//  CUSTOM LINKS
+// ══════════════════════════════════════════════
+function renderCustomLinksList() {
+  const arr = Object.entries(customLinks);
+  g('cl-list').innerHTML = arr.length ? arr.map(([key,l]) => `
+    <div class="cl-row">
+      <span style="font-family:var(--fd);font-size:12px;font-weight:700;">${l.label}</span>
+      <span style="font-size:11px;color:var(--mu);overflow:hidden;text-overflow:ellipsis;">${l.url}</span>
+      <span style="font-size:11px;color:var(--acc);">${l.location}</span>
+      <button class="btn btn-del btn-sm" onclick="removeLink('${key}')">✕</button>
+    </div>`).join('')
+  : '<div style="color:var(--hi);font-size:11px;">No hay links personalizados todavía.</div>';
+}
+
+async function addCustomLink() {
+  const label = g('cl-label').value.trim();
+  const url = g('cl-url').value.trim();
+  const location = g('cl-loc').value;
+  if (!label || !url) { toast('Label y URL son obligatorios', true); return; }
+  const key = db.ref('customLinks').push().key;
+  await fbSet('customLinks/'+key, {label, url, location, visible:true});
+  g('cl-label').value = ''; g('cl-url').value = '';
+}
+
+async function removeLink(key) {
+  await db.ref('customLinks/'+key).remove();
+  toast('Link eliminado');
+}
+
+async function saveCustomLinks() { toast('Links guardados en tiempo real · sin acción extra necesaria'); }
+
+// ══════════════════════════════════════════════
+//  TESTIMONIALS
+// ══════════════════════════════════════════════
+function populateTestis() {
+  const testis = siteSettings.testimonials||[];
+  g('t-testi-on').checked = siteSettings.testimonialsActive||false;
+  g('tl-list').innerHTML = testis.map((t,i) => `
+    <div class="tr-">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+        <span style="font-family:var(--fd);font-size:12px;font-weight:700;">${t.name||'Artista '+(i+1)}</span>
+        <button class="btn btn-del btn-sm" onclick="removeTesti(${i})">✕</button>
+      </div>
+      <div class="fg2">
+        <div class="field"><label>Nombre</label><input type="text" value="${t.name||''}" data-ti="${i}" data-tf="name"></div>
+        <div class="field"><label>Rol / Ciudad</label><input type="text" value="${t.role||''}" data-ti="${i}" data-tf="role"></div>
+      </div>
+      <div class="field"><label>Testimonio</label><textarea data-ti="${i}" data-tf="text" style="min-height:50px;">${t.text||''}</textarea></div>
+    </div>`).join('');
+}
+
+function addTesti() {
+  const cur = siteSettings.testimonials||[];
+  cur.push({name:'',role:'',text:''});
+  siteSettings.testimonials = cur;
+  populateTestis();
+}
+
+function removeTesti(i) {
+  const cur = siteSettings.testimonials||[];
+  cur.splice(i,1);
+  siteSettings.testimonials = cur;
+  populateTestis();
+}
+
+async function saveTestis() {
+  const rows = document.querySelectorAll('[data-ti]');
+  const map = {};
+  rows.forEach(el => {
+    const i = el.dataset.ti;
+    if(!map[i]) map[i] = {};
+    map[i][el.dataset.tf] = el.value.trim();
+  });
+  siteSettings.testimonials = Object.values(map);
+  siteSettings.testimonialsActive = g('t-testi-on').checked;
+  await fbUpdate('settings', {
+    testimonials: siteSettings.testimonials,
+    testimonialsActive: siteSettings.testimonialsActive
+  });
+}
+
+// ══════════════════════════════════════════════
+//  FLOATING ELEMENTS — Canvas Mode
+// ══════════════════════════════════════════════
+function enterCanvasMode() {
+  feMode = true;
+  g('fe-canvas').style.display = 'block';
+  g('fe-canvas').classList.add('edit-mode');
+  g('canvas-toolbar').classList.add('show');
+  renderFeCanvas();
+}
+
+function exitCanvasMode() {
+  feMode = false;
+  g('fe-canvas').style.display = 'none';
+  g('fe-canvas').classList.remove('edit-mode');
+  g('canvas-toolbar').classList.remove('show');
+  selectedFeKey = null;
+}
+
+function renderFeCanvas() {
+  const container = g('fe-items-container');
+  container.innerHTML = '';
+  Object.entries(floatingEls).forEach(([key, el]) => {
+    createFeItem(key, el, container);
+  });
+  // add new element button in canvas
+  if (!g('fe-add-btn')) {
+    const addBtn = document.createElement('div');
+    addBtn.id = 'fe-add-btn';
+    addBtn.style.cssText = 'position:fixed;bottom:2rem;left:50%;transform:translateX(-50%);display:flex;gap:10px;';
+    addBtn.innerHTML = `
+      <button class="btn" onclick="showFeAddDialog('image')">+ Imagen / GIF</button>
+      <button class="btn" onclick="showFeAddDialog('text')">+ Texto</button>
+    `;
+    g('fe-canvas').appendChild(addBtn);
+  }
+}
+
+function createFeItem(key, el, container) {
+  const div = document.createElement('div');
+  div.className = 'fe-item';
+  div.id = 'fe-' + key;
+  div.dataset.key = key;
+  div.style.cssText = `
+    left:${el.x||100}px; top:${el.y||100}px;
+    width:${el.width||150}px; height:${el.height||150}px;
+    opacity:${el.opacity||1};
+  `;
+
+  if (el.type === 'text') {
+    div.innerHTML = `<div class="fe-text-el" style="font-size:${el.fontSize||18}px;color:${el.color||'#f5eeee'};">${el.content||''}</div>`;
+  } else {
+    div.innerHTML = `<img src="${el.content||''}" alt="" draggable="false">`;
+  }
+
+  // delete button
+  const delBtn = document.createElement('button');
+  delBtn.className = 'fe-del-btn';
+  delBtn.textContent = '✕';
+  delBtn.onclick = (e) => { e.stopPropagation(); removeFeElement(key); };
+  div.appendChild(delBtn);
+
+  div.onclick = () => selectFe(key);
+  container.appendChild(div);
+
+  // interact.js — drag + resize
+  interact('#fe-' + key)
+    .draggable({
+      modifiers: [interact.modifiers.restrict({ restriction: 'parent' })],
+      listeners: {
+        move(event) {
+          const target = event.target;
+          const x = (parseFloat(target.getAttribute('data-x'))||0) + event.dx;
+          const y = (parseFloat(target.getAttribute('data-y'))||0) + event.dy;
+          target.style.transform = `translate(${x}px, ${y}px)`;
+          target.setAttribute('data-x', x);
+          target.setAttribute('data-y', y);
+        },
+        end(event) {
+          const target = event.target;
+          const dx = parseFloat(target.getAttribute('data-x'))||0;
+          const dy = parseFloat(target.getAttribute('data-y'))||0;
+          const rect = target.getBoundingClientRect();
+          // update stored position
+          if (floatingEls[key]) {
+            floatingEls[key].x = rect.left;
+            floatingEls[key].y = rect.top;
+          }
+        }
+      }
+    })
+    .resizable({
+      edges: { left: true, right: true, bottom: true, top: true },
+      modifiers: [interact.modifiers.restrictSize({ min: { width: 40, height: 40 } })],
+      listeners: {
+        move(event) {
+          const target = event.target;
+          let x = parseFloat(target.getAttribute('data-x'))||0;
+          let y = parseFloat(target.getAttribute('data-y'))||0;
+          target.style.width = event.rect.width + 'px';
+          target.style.height = event.rect.height + 'px';
+          x += event.deltaRect.left;
+          y += event.deltaRect.top;
+          target.style.transform = `translate(${x}px,${y}px)`;
+          target.setAttribute('data-x', x);
+          target.setAttribute('data-y', y);
+          if (floatingEls[key]) {
+            floatingEls[key].width = event.rect.width;
+            floatingEls[key].height = event.rect.height;
+          }
+        }
+      }
+    });
+}
+
+function selectFe(key) {
+  document.querySelectorAll('.fe-item').forEach(el => el.classList.remove('selected'));
+  selectedFeKey = key;
+  const el = g('fe-' + key);
+  if (el) el.classList.add('selected');
+}
+
+function showFeAddDialog(type) {
+  const content = type === 'text'
+    ? prompt('Escribe el texto:')
+    : prompt('URL de imagen o GIF (Cloudflare R2):');
+  if (!content) return;
+  const key = db.ref('floatingElements').push().key;
+  const newEl = {
+    type,
+    content,
+    x: Math.random() * 400 + 100,
+    y: Math.random() * 300 + 100,
+    width: type === 'text' ? 200 : 150,
+    height: type === 'text' ? 80 : 150,
+    opacity: 1,
+    fontSize: 18,
+    color: '#f5eeee',
+    visible: true,
+  };
+  floatingEls[key] = newEl;
+  fbSet('floatingElements/' + key, newEl);
+}
+
+async function removeFeElement(key) {
+  delete floatingEls[key];
+  await db.ref('floatingElements/' + key).remove();
+  toast('Elemento eliminado');
+}
+
+async function saveFloatingElements() {
+  // Recolecta posiciones actuales de los elementos en el DOM
+  Object.entries(floatingEls).forEach(([key, el]) => {
+    const domEl = g('fe-' + key);
+    if (!domEl) return;
+    const rect = domEl.getBoundingClientRect();
+    const dx = parseFloat(domEl.getAttribute('data-x'))||0;
+    const dy = parseFloat(domEl.getAttribute('data-y'))||0;
+    const baseLeft = parseFloat(domEl.style.left)||el.x||0;
+    const baseTop = parseFloat(domEl.style.top)||el.y||0;
+    el.x = baseLeft + dx;
+    el.y = baseTop + dy;
+    el.width = parseFloat(domEl.style.width)||el.width;
+    el.height = parseFloat(domEl.style.height)||el.height;
+  });
+  await fbSet('floatingElements', floatingEls);
+  exitCanvasMode();
+}
+
+// ══════════════════════════════════════════════
+//  EXPORT / IMPORT
+// ══════════════════════════════════════════════
+async function exportAll() {
+  const snap = await db.ref('/').once('value');
+  const data = snap.val();
+  const a = document.createElement('a');
+  a.href = 'data:application/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(data, null, 2));
+  a.download = 'dacewav-backup-' + new Date().toISOString().split('T')[0] + '.json';
+  a.click();
+  toast('Exportado completo');
+}
+
+async function importAll(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = async ev => {
+    try {
+      const data = JSON.parse(ev.target.result);
+      await fbSet('/', data);
+      toast('Importado correctamente');
+    } catch { toast('Archivo inválido', true); }
+  };
+  reader.readAsText(file);
+  e.target.value = '';
+}
+
+// ══════════════════════════════════════════════
+//  UI HELPERS
+// ══════════════════════════════════════════════
+function showPanel(name) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('on'));
+  document.querySelectorAll('.si').forEach(s => s.classList.remove('on'));
+  g('panel-' + name)?.classList.add('on');
+  document.querySelector(`[data-panel="${name}"]`)?.classList.add('on');
+}
+
+function showEt(name) {
+  document.querySelectorAll('.et').forEach(t => t.classList.remove('on'));
+  document.querySelectorAll('.etp').forEach(p => p.classList.remove('on'));
+  g('etp-' + name)?.classList.add('on');
+  // find matching tab by onclick
+  document.querySelectorAll('.et').forEach(t => {
+    if (t.getAttribute('onclick')?.includes(`'${name}'`)) t.classList.add('on');
+  });
+}
+
+function setStatus(ok, txt) {
+  g('sdot').className = 'sdot' + (ok?'':' err');
+  g('stxt').textContent = txt;
+}
+
+function toast(msg, isErr=false) {
+  const t = g('toast-el');
+  t.textContent = msg;
+  t.className = 'toast' + (isErr?' err':'') + ' show';
+  setTimeout(() => t.className = 'toast' + (isErr?' err':''), 3000);
+}
+
+function showSaving() { g('saving').classList.add('show'); }
+function hideSaving() { g('saving').classList.remove('show'); }
+
+function g(id) { return document.getElementById(id); }
+</script>
+</body>
+</html>
