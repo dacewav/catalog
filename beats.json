@@ -32,10 +32,19 @@
       "redGlow": "#000000",
       "accent": "#dc2626",
       "text": "#f5eeee",
-      "fontDisplay": "Syne",
-      "fontBody": "Inter"
+      "fontDisplay": "Bebas Neue",
+      "fontBody": "IBM Plex Mono"
     },
-    "decorations": [],
+    "decorations": [
+      {
+        "emoji": "!",
+        "x": 80,
+        "y": 20,
+        "size": 5,
+        "opacity": 0.15,
+        "delay": 2
+      }
+    ],
     "sections": {
       "featured": true,
       "testimonials": true
