@@ -29,7 +29,7 @@
       "surface2": "#4c2424",
       "red": "#b30000",
       "redLight": "#fc0303",
-      "redGlow": "#ab0707",
+      "redGlow": "#000000",
       "accent": "#aa0303",
       "text": "#f5eeee",
       "fontDisplay": "Playfair Display",
