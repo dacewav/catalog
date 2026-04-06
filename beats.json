@@ -35,7 +35,24 @@
       "fontDisplay": "Bebas Neue",
       "fontBody": "IBM Plex Mono"
     },
-    "decorations": [],
+    "decorations": [
+      {
+        "emoji": "𖤓",
+        "x": 80,
+        "y": -69,
+        "size": 10,
+        "opacity": 0.09,
+        "delay": 1
+      },
+      {
+        "emoji": "⁷⁷",
+        "x": 27,
+        "y": -90,
+        "size": 3,
+        "opacity": 0.12,
+        "delay": 3
+      }
+    ],
     "sections": {
       "featured": true,
       "testimonials": true
