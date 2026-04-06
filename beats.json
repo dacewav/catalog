@@ -24,16 +24,16 @@
       }
     ],
     "theme": {
-      "bg": "#dbc7c7",
-      "surface": "#231010",
-      "surface2": "#4c2424",
-      "red": "#b30000",
-      "redLight": "#fc0303",
-      "redGlow": "#000000",
-      "accent": "#aa0303",
+      "bg": "#060404",
+      "surface": "#0f0808",
+      "surface2": "#1a0c0c",
+      "red": "#7f1d1d",
+      "redLight": "#991b1b",
+      "redGlow": "#b91c1c",
+      "accent": "#dc2626",
       "text": "#f5eeee",
-      "fontDisplay": "Playfair Display",
-      "fontBody": "IBM Plex Mono"
+      "fontDisplay": "Syne",
+      "fontBody": "DM Mono"
     },
     "decorations": [
       {
