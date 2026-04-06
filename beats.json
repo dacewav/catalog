@@ -10,17 +10,17 @@
     "email": "daceidk@gmail.com",
     "bannerActive": true,
     "bannerText": "— Nuevos beats disponibles — · Descuentos en licencias Premium esta semana .",
-    "testimonialsActive": true,
+    "testimonialsActive": false,
     "testimonials": [
       {
         "name": "LHS",
-        "text": "La producciÃÂÃÂ³n de DACE le dio exactamente el vibe que necesitaba el track. Profesional al 100.",
-        "role": "Artista ÃÂÃÂ· Puebla"
+        "role": "Artista ÃÂÃÂ· Puebla",
+        "text": "La producciÃÂÃÂ³n de DACE le dio exactamente el vibe que necesitaba el track. Profesional al 100."
       },
       {
         "name": "Yarit",
-        "text": "El proceso fue rÃÂÃÂ¡pido y el beat superÃÂÃÂ³ mis expectativas. Definitivamente volverÃÂÃÂ­a a licenciar.",
-        "role": "Cantante ÃÂÃÂ· CDMX"
+        "role": "Cantante ÃÂÃÂ· CDMX",
+        "text": "El proceso fue rÃÂÃÂ¡pido y el beat superÃÂÃÂ³ mis expectativas. Definitivamente volverÃÂÃÂ­a a licenciar."
       }
     ],
     "theme": {
