@@ -24,7 +24,6 @@
   --glow-md:0 0 40px rgba(185,28,28,0.4),0 0 80px rgba(185,28,28,0.15);
   --font-d:'Syne',sans-serif; --font-m:'DM Mono',monospace;
   --r:10px; --r-lg:16px;
-  /* ── Creative Suite vars ── */
   --blur-bg:24px;
   --grain-opacity:0.3;
   --pad-section:4rem;
@@ -41,6 +40,25 @@
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 html{background:var(--bg);color:var(--text);font-family:var(--font-m);font-size:14px;line-height:1.7;scroll-behavior:smooth;}
 body{overflow-x:hidden;min-height:100vh;}
+
+/* ── LOADER ── */
+#loader{
+  position:fixed;inset:0;z-index:9999;
+  background:#060404;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1.75rem;
+  transition:opacity 0.4s ease;
+}
+#loader-brand{
+  font-family:'Syne',sans-serif;font-size:1.8rem;font-weight:800;
+  letter-spacing:-0.03em;color:#f5eeee;
+}
+#loader-brand em{color:#dc2626;font-style:normal;}
+.ld-dots{display:flex;gap:7px;align-items:center;}
+.ld{width:7px;height:7px;border-radius:50%;background:#dc2626;}
+.ld:nth-child(1){animation:ldp 1s ease-in-out infinite;}
+.ld:nth-child(2){animation:ldp 1s ease-in-out 0.18s infinite;}
+.ld:nth-child(3){animation:ldp 1s ease-in-out 0.36s infinite;}
+@keyframes ldp{0%,100%{opacity:0.2;transform:scaleY(0.5);}50%{opacity:1;transform:scaleY(1.5);}}
 
 /* GRAIN */
 body::before{
@@ -181,8 +199,6 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:12px;heigh
 .modal-beat-sub{font-size:11px;color:var(--muted);margin-top:4px;display:flex;gap:12px;flex-wrap:wrap;}
 
 .modal-body{padding:1.5rem;}
-
-/* ── MODAL PLAYER (comparte instancia con bar) ── */
 .modal-player-wrap{background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);padding:1rem;margin-bottom:1.5rem;}
 .modal-ctrl-row{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
 .m-ctrl{background:none;border:none;color:var(--muted);cursor:pointer;transition:color 0.15s;font-family:var(--font-m);font-size:10px;padding:4px 6px;}
@@ -193,7 +209,6 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:12px;heigh
 .modal-desc{font-size:12px;color:var(--muted);line-height:1.9;margin-bottom:1.25rem;}
 .modal-tags{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:1.5rem;}
 
-/* PLATFORM LINKS */
 .plat-links{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:1.5rem;}
 .plat-btn{display:inline-flex;align-items:center;gap:6px;font-family:var(--font-m);font-size:11px;padding:6px 14px;border-radius:999px;text-decoration:none;transition:opacity 0.2s;font-weight:500;}
 .plat-btn:hover{opacity:0.85;}
@@ -201,7 +216,6 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:12px;heigh
 .plat-youtube{background:#ff0000;color:#fff;}
 .plat-soundcloud{background:#ff5500;color:#fff;}
 
-/* LICENSES */
 .lic-title{font-family:var(--font-d);font-size:13px;font-weight:700;margin-bottom:1rem;}
 .lic-rows{display:flex;flex-direction:column;gap:8px;margin-bottom:1.5rem;}
 .lic-row{display:flex;align-items:center;gap:1rem;background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:var(--r);padding:0.875rem 1rem;cursor:pointer;transition:all 0.15s;}
@@ -227,7 +241,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:12px;heigh
 .testi-name{font-family:var(--font-d);font-size:13px;font-weight:700;}
 .testi-role{font-size:10px;color:var(--hint);}
 
-/* FLOATING ELEMENTS */
+/* FLOATING */
 #floating-layer{position:fixed;inset:0;pointer-events:none;z-index:3;overflow:hidden;}
 .fe-static{position:absolute;transform-origin:top left;}
 .fe-static img{pointer-events:none;user-select:none;width:100%;height:100%;object-fit:contain;display:block;}
@@ -262,6 +276,16 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:3r
   .modal-acts{flex-direction:column;}
 }
 </style>
+
+<!-- ══ LOADER — visible inmediatamente, oculta el FOUC ══ -->
+<div id="loader">
+  <div id="loader-brand">DACE<em>·</em></div>
+  <div class="ld-dots">
+    <div class="ld"></div>
+    <div class="ld"></div>
+    <div class="ld"></div>
+  </div>
+</div>
 
 <div class="orb orb1"></div>
 <div class="orb orb2"></div>
@@ -375,8 +399,6 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:3r
       <button class="modal-close" onclick="closeModal()">×</button>
     </div>
     <div class="modal-body">
-
-      <!-- MINI PLAYER en modal — comparte instancia AP -->
       <div class="modal-player-wrap">
         <div class="modal-ctrl-row">
           <button class="m-play" id="m-play-btn" onclick="AP.toggle()">
@@ -391,7 +413,6 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:3r
           <button class="m-ctrl" onclick="AP.skip(10)">+10s</button>
         </div>
       </div>
-
       <p class="modal-desc" id="m-desc"></p>
       <div class="modal-tags" id="m-tags"></div>
       <div class="plat-links" id="m-plat"></div>
@@ -419,7 +440,7 @@ const FIREBASE_CONFIG = {
 };
 
 // ══════════════════════════════════════════════════════════════════
-//  ESTADO GLOBAL — declarado antes de todo
+//  ESTADO GLOBAL
 // ══════════════════════════════════════════════════════════════════
 let db = null;
 let allBeats = [];
@@ -428,16 +449,26 @@ let activeGenre = 'Todos';
 let modalBeatId = null;
 
 // ══════════════════════════════════════════════════════════════════
-//  AUDIO PLAYER SINGLETON — UNA sola instancia <audio> para todo
-//  Resuelve el bug de doble sonido al abrir modal
+//  LOADER HELPERS
+// ══════════════════════════════════════════════════════════════════
+let _ldTheme = false, _ldSettings = false, _ldBeats = false;
+
+function _checkReady() {
+  if (!_ldTheme || !_ldSettings || !_ldBeats) return;
+  const loader = document.getElementById('loader');
+  loader.style.opacity = '0';
+  setTimeout(() => { loader.style.display = 'none'; }, 420);
+}
+
+// ══════════════════════════════════════════════════════════════════
+//  AUDIO PLAYER SINGLETON
 // ══════════════════════════════════════════════════════════════════
 const AP = (() => {
-  let _audio = null;   // única instancia
-  let _idx   = -1;    // índice en allBeats
+  let _audio = null;
+  let _idx   = -1;
   let _playing = false;
-  let _modalMode = false;  // true cuando el player está "controlado" desde el modal
+  let _modalMode = false;
 
-  // ── crea/reemplaza el elemento audio ──
   function _create(url) {
     if (_audio) {
       _audio.pause();
@@ -455,11 +486,9 @@ const AP = (() => {
   function _onTime() {
     if (!_audio || !_audio.duration) return;
     const pct = (_audio.currentTime / _audio.duration) * 100;
-    // actualiza barra inferior siempre
     document.getElementById('track-fill').style.width = pct + '%';
     document.getElementById('tc').textContent = _fmt(_audio.currentTime);
     document.getElementById('td').textContent = _fmt(_audio.duration);
-    // actualiza mini player del modal si está abierto
     const mFill = document.getElementById('m-fill');
     if (mFill) mFill.style.width = pct + '%';
     document.getElementById('m-tc').textContent = _fmt(_audio.currentTime);
@@ -490,7 +519,6 @@ const AP = (() => {
     const mBtn   = document.getElementById('m-play-btn');
     if (barBtn) barBtn.innerHTML = _playing ? pauseBar : playBar;
     if (mBtn)   mBtn.innerHTML   = _playing ? pauseM   : playM;
-    // re-render cards para animación waveform
     renderAll();
   }
 
@@ -504,7 +532,6 @@ const AP = (() => {
     _create(url);
     _audio.play().catch(()=>{});
     _playing = true;
-    // actualizar barra
     document.getElementById('pi-name').textContent = b.name;
     document.getElementById('pi-meta').textContent = `${b.bpm} BPM · ${b.key} · ${b.genre}`;
     const thumb = document.getElementById('pi-thumb');
@@ -514,17 +541,13 @@ const AP = (() => {
   }
 
   return {
-    // ── reproduce por índice (desde tarjeta) ──
     playIdx(idx) { _playIdx(idx); },
 
-    // ── abre modal: si es el mismo beat NO reinicia, solo sincroniza ──
     openForModal(beat) {
       _modalMode = true;
       const url = beat.previewUrl || beat.audioUrl || '';
       const isSameBeat = _idx !== -1 && allBeats[_idx]?.id === beat.id;
-
       if (!isSameBeat) {
-        // beat distinto — reinicia
         const beatIdx = allBeats.findIndex(b => b.id === beat.id);
         if (url) {
           _create(url);
@@ -538,11 +561,9 @@ const AP = (() => {
           thumb.innerHTML = beat.imageUrl ? `<img src="${beat.imageUrl}" alt="">` : '♪';
         }
       }
-      // si es el mismo beat: simplemente sigue sonando, solo actualizamos los iconos
       _updateIcons();
     },
 
-    // ── play / pause ──
     toggle() {
       if (!_audio || !_audio.src) return;
       if (_playing) { _audio.pause(); _playing = false; }
@@ -571,7 +592,6 @@ const AP = (() => {
     },
 
     setVol(v) { if (_audio) _audio.volume = parseFloat(v); },
-
     exitModal() { _modalMode = false; _updateIcons(); },
 
     get currentBeatIdx() { return _idx; },
@@ -580,25 +600,50 @@ const AP = (() => {
 })();
 
 // ══════════════════════════════════════════════════════════════════
-//  FIREBASE INIT
+//  FIREBASE INIT — con tracker de carga para el loader
 // ══════════════════════════════════════════════════════════════════
 window.addEventListener('load', function() {
+  // Fallback: si Firebase tarda más de 5s, oculta el loader igualmente
+  const loaderTimeout = setTimeout(() => {
+    _ldTheme = _ldSettings = _ldBeats = true;
+    _checkReady();
+  }, 5000);
+
   try {
     firebase.initializeApp(FIREBASE_CONFIG);
     db = firebase.database();
 
-    db.ref('theme').on('value',    snap => applyTheme(snap.val() || {}));
-    db.ref('settings').on('value', snap => { siteSettings = snap.val() || {}; applySettings(); });
-    db.ref('beats').on('value',    snap => {
+    db.ref('theme').on('value', snap => {
+      applyTheme(snap.val() || {});
+      _ldTheme = true;
+      _checkReady();
+    });
+
+    db.ref('settings').on('value', snap => {
+      siteSettings = snap.val() || {};
+      applySettings();
+      _ldSettings = true;
+      _checkReady();
+    });
+
+    db.ref('beats').on('value', snap => {
       const raw = snap.val() || {};
       allBeats = Object.values(raw).filter(b => b.active !== false).sort((a,b)=>(a.order||0)-(b.order||0));
       renderAll();
+      _ldBeats = true;
+      _checkReady();
+      clearTimeout(loaderTimeout);
     });
+
     db.ref('floatingElements').on('value', snap => renderFloating(snap.val() || {}));
     db.ref('customLinks').on('value',      snap => renderCustomLinks(snap.val() || {}));
 
   } catch(e) {
     console.error('Firebase init error:', e);
+    clearTimeout(loaderTimeout);
+    // Oculta loader aunque haya error
+    _ldTheme = _ldSettings = _ldBeats = true;
+    _checkReady();
     showToast('Error al conectar con Firebase');
   }
 });
@@ -633,7 +678,6 @@ function applyTheme(t) {
   const r = document.documentElement;
   const map = {bg:'--bg',surface:'--surface',surface2:'--surface2',red:'--red',redLight:'--red-l',redGlow:'--red-glow',accent:'--accent',text:'--text'};
 
-  // Base colors — apply surface with card opacity baked in
   Object.entries(map).forEach(([k,v]) => {
     if (k === 'surface' && t.surface && t.cardOpacity != null && t.cardOpacity < 1) {
       r.style.setProperty(v, hexToRgba(t.surface, t.cardOpacity));
@@ -642,33 +686,25 @@ function applyTheme(t) {
     }
   });
 
-  // Effects
   if (t.blurBg      != null) r.style.setProperty('--blur-bg',       t.blurBg + 'px');
   if (t.grainOpacity!= null) r.style.setProperty('--grain-opacity',  t.grainOpacity);
   if (t.radiusGlobal!= null) {
     r.style.setProperty('--r',    t.radiusGlobal + 'px');
     r.style.setProperty('--r-lg', Math.round(t.radiusGlobal * 1.6) + 'px');
   }
-
-  // Spacing
   if (t.padSection != null) r.style.setProperty('--pad-section', t.padSection + 'rem');
   if (t.beatGap    != null) r.style.setProperty('--beat-gap',    t.beatGap + 'px');
-
-  // Beat elements
   if (t.wbarColor)  r.style.setProperty('--wbar-color',   t.wbarColor);
   if (t.wbarActive) r.style.setProperty('--wbar-active',  t.wbarActive);
   if (t.btnLicBg)   r.style.setProperty('--btn-lic-bg',   t.btnLicBg);
   if (t.btnLicClr)  r.style.setProperty('--btn-lic-clr',  t.btnLicClr);
   if (t.btnLicBdr)  r.style.setProperty('--btn-lic-bdr',  t.btnLicBdr);
-
-  // Layout offsets
   if (t.layout) {
     if (t.layout.heroMarginTop != null) r.style.setProperty('--hero-pad-top',   t.layout.heroMarginTop + 'rem');
     if (t.layout.playerBottom  != null) r.style.setProperty('--player-bottom',  t.layout.playerBottom + 'px');
     if (t.layout.logoOffsetX   != null) r.style.setProperty('--logo-offset-x',  t.layout.logoOffsetX + 'px');
   }
 
-  // Glow with intensity
   const a  = t.accent || '#dc2626';
   const gi = t.glowIntensity ?? 1;
   if (t.glowActive === false || gi === 0) {
@@ -679,11 +715,9 @@ function applyTheme(t) {
     r.style.setProperty('--glow-md', `0 0 40px ${a}${clampHex(0x66*gi)},0 0 80px ${a}${clampHex(0x22*gi)}`);
   }
 
-  // Fonts (dynamic Google Fonts loading)
   if (t.fontDisplay) { loadFont(t.fontDisplay); r.style.setProperty('--font-d', `'${t.fontDisplay}',sans-serif`); }
   if (t.fontBody)    { loadFont(t.fontBody);    r.style.setProperty('--font-m', `'${t.fontBody}',monospace`); }
 
-  // Logo image override
   const brand = document.getElementById('nav-brand');
   if (brand) {
     if (t.logoUrl) {
@@ -692,6 +726,17 @@ function applyTheme(t) {
       brand.innerHTML = (t.siteName || 'DACE') + '<em>·</em>';
     }
     brand.style.transform = `translateX(var(--logo-offset-x, 0px))`;
+  }
+
+  // Sincroniza también el color del loader con el acento del tema
+  const loaderBrand = document.getElementById('loader-brand');
+  if (loaderBrand && t.accent) {
+    loaderBrand.querySelector('em').style.color = t.accent;
+    document.querySelectorAll('.ld').forEach(d => d.style.background = t.accent);
+  }
+  if (t.bg) {
+    const loader = document.getElementById('loader');
+    if (loader) loader.style.background = t.bg;
   }
 }
 
@@ -851,22 +896,19 @@ function beatCard(b, globalIdx) {
 function handleCardClick(id, idx) {
   const b = allBeats.find(x=>x.id===id);
   if (!b || b.available===false) return;
-  // si no tiene audio, abre el modal directamente
   if (!b.audioUrl && !b.previewUrl) { openModal(id); return; }
-  // si es el mismo beat ya cargado, toggle play/pause
   if (AP.currentBeatIdx === idx) { AP.toggle(); return; }
   AP.playIdx(idx);
 }
 
 // ══════════════════════════════════════════════════════════════════
-//  MODAL — NO reinicia si el beat ya está sonando
+//  MODAL
 // ══════════════════════════════════════════════════════════════════
 function openModal(id) {
   const b = allBeats.find(x=>x.id===id);
   if (!b) return;
   modalBeatId = id;
 
-  // hero
   document.getElementById('m-name').textContent = b.name;
   document.getElementById('m-sub').innerHTML = `<span>${b.bpm} BPM</span><span>${b.key}</span><span>${b.genre}</span>`;
   const mhero = document.getElementById('mhero');
@@ -883,7 +925,6 @@ function openModal(id) {
   document.getElementById('m-desc').textContent = b.description || '';
   document.getElementById('m-tags').innerHTML = (b.tags||[]).map(t=>`<span class="tag">${t}</span>`).join('');
 
-  // plataformas con colores de marca
   const platHtml = [
     b.spotify    && `<a class="plat-btn plat-spotify"    href="${b.spotify}"    target="_blank">♪ Spotify</a>`,
     b.youtube    && `<a class="plat-btn plat-youtube"    href="${b.youtube}"    target="_blank">▶ YouTube</a>`,
@@ -892,7 +933,6 @@ function openModal(id) {
   document.getElementById('m-plat').innerHTML = platHtml;
   document.getElementById('m-plat').style.display = platHtml ? 'flex' : 'none';
 
-  // licencias
   document.getElementById('m-lics').innerHTML = (b.licenses||[]).map((l,i)=>`
     <div class="lic-row${i===0?' sel':''}" onclick="selLic(this)">
       <div class="lic-name">${l.name}</div>
@@ -903,7 +943,6 @@ function openModal(id) {
       </div>
     </div>`).join('');
 
-  // acciones
   const msg = encodeURIComponent(`Hola DACE, me interesa licenciar el beat "${b.name}". ¿Podemos hablar?`);
   const wa = siteSettings.whatsapp ? `https://wa.me/${siteSettings.whatsapp}?text=${msg}` : '#';
   const ig = siteSettings.instagram ? `https://instagram.com/${siteSettings.instagram}` : '#';
@@ -911,9 +950,7 @@ function openModal(id) {
     <a class="btn-wa" href="${wa}" target="_blank">Contactar por WhatsApp</a>
     <a class="btn-ig" href="${ig}" target="_blank">Instagram</a>`;
 
-  // ── CLAVE: delega al AP sin reiniciar si ya era este beat ──
   AP.openForModal(b);
-
   document.getElementById('modal-ov').classList.add('open');
   document.body.style.overflow = 'hidden';
 }
@@ -938,7 +975,6 @@ function showToast(msg) {
   setTimeout(()=>t.classList.remove('show'), 2800);
 }
 
-// scroll reveal
 const sObs = new IntersectionObserver(entries => {
   entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('vis'); });
 },{threshold:0.1});
