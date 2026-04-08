@@ -468,7 +468,8 @@ window.addEventListener('load',function(){
   var loaderTimeout=setTimeout(function(){_ldTheme=_ldSettings=_ldBeats=true;_checkReady()},5000);
   try{
     firebase.initializeApp(FC);db=firebase.database();
-    var lt=localStorage.getItem('dace-theme');if(lt){T=JSON.parse(lt);applyTheme(T);_ldTheme=true;_checkReady()}else{_ldTheme=true;_checkReady()}
+    var lt=localStorage.getItem('dace-theme');if(lt){T=JSON.parse(lt);applyTheme(T);_ldTheme=true;_checkReady()}
+    db.ref('theme').on('value',function(snap){var t=snap.val()||{};T=t;applyTheme(T);localStorage.setItem('dace-theme',JSON.stringify(t));_ldTheme=true;_checkReady()});
     var ce=localStorage.getItem('dace-custom-emojis');if(ce)customEmojis=JSON.parse(ce);
     var fl=localStorage.getItem('dace-floating');if(fl)floatingEls=JSON.parse(fl);
     renderFloating(floatingEls);
