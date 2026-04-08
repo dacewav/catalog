@@ -2931,7 +2931,7 @@ async function doLogout(){
 window.addEventListener('load',function(){
   firebase.initializeApp(FC);
   _auth=firebase.auth();
-  // Load whitelist from Firebase before checking auth
+  // Load whitelist from Firebase (non-blocking, defaults already set)
   const dbTemp=firebase.database();
   dbTemp.ref('adminWhitelist').once('value',function(snap){
     const fbObj=snap.val();
@@ -2941,20 +2941,20 @@ window.addEventListener('load',function(){
       // Initialize Firebase whitelist with defaults
       dbTemp.ref('adminWhitelist').set(_DEFAULT_ALLOWED_EMAILS);
     }
-    // Now listen for auth state
-    _auth.onAuthStateChanged(function(user){
-      if(user){
-        if(!_allowedEmails.includes(user.email)){
-          g('login-error').textContent='Esta cuenta ('+user.email+') no tiene acceso al admin.';
-          _auth.signOut();
-          return;
-        }
-        g('login-overlay').classList.add('hidden');
-        initAdmin();
-      }else{
-        g('login-overlay').classList.remove('hidden');
+  });
+  // Listen for auth state (runs independently, uses whatever _allowedEmails is available)
+  _auth.onAuthStateChanged(function(user){
+    if(user){
+      if(!_allowedEmails.includes(user.email)){
+        g('login-error').textContent='Esta cuenta ('+user.email+') no tiene acceso al admin.';
+        _auth.signOut();
+        return;
       }
-    });
+      g('login-overlay').classList.add('hidden');
+      initAdmin();
+    }else{
+      g('login-overlay').classList.remove('hidden');
+    }
   });
 });
 
