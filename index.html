@@ -323,6 +323,7 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:3r
 
 <script>
 const FC={apiKey:"AIzaSyCr2dekkLLifIg0_JlLfEleaV32b5XdvIQ",authDomain:"dacewav-store-3b0f5.firebaseapp.com",databaseURL:"https://dacewav-store-3b0f5-default-rtdb.firebaseio.com",projectId:"dacewav-store-3b0f5",storageBucket:"dacewav-store-3b0f5.firebasestorage.app",messagingSenderId:"163354805352",appId:"1:163354805352:web:d8a99d1d71323de1ed27dd"};
+const DACE_VER='2.0';
 const ANIMS=['none','flotar','pulsar','rotar','deslizar','rebotar','parpadeo','sacudida','cambio-color','brillo','spin-lento'];
 let db=null,allBeats=[],siteSettings={},T={},customEmojis=[],floatingEls=[];
 let activeGenre='Todos',modalBeatId=null,_inspectorMode=false;
@@ -442,7 +443,7 @@ function clearHighlight() {
 // ── Notify parent on load ──
 function notifyParentReady() {
   if (window.parent !== window) {
-    window.parent.postMessage({ type: 'index-ready' }, '*');
+    window.parent.postMessage({ type: 'index-ready', ver: DACE_VER }, '*');
   }
 }
 
