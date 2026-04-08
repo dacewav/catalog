@@ -3,9 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-<meta http-equiv="Pragma" content="no-cache">
-<meta http-equiv="Expires" content="0">
+<meta http-equiv="Cache-Control" content="public, max-age=300">
 <title>DACE · Beats</title>
 <meta name="description" content="Catálogo de beats originales · Puebla, MX">
 
@@ -25,6 +23,9 @@
 <meta name="theme-color" content="#060404">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>♦</text></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://www.gstatic.com">
+<link rel="dns-prefetch" href="https://dacewav-store-3b0f5-default-rtdb.firebaseio.com">
 <link id="gf-display" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&display=swap">
 <link id="gf-body" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&display=swap">
 </head>
@@ -226,6 +227,8 @@ nav.nav-scrolled{background:rgba(6,4,4,0.95);border-bottom-color:rgba(185,28,28,
 .beat-card.is-playing .waveform-svg .wf-bg{fill:var(--wbar-active);opacity:var(--wave-opacity-on)}
 .waveform-svg .wf-fg{fill:var(--accent);opacity:0;transition:opacity .2s}
 .beat-card.is-playing .waveform-svg .wf-fg{opacity:.8}
+.waveform-svg .wf-progress{fill:var(--accent);opacity:0;transition:opacity .2s}
+.beat-card.is-playing .waveform-svg .wf-progress{opacity:1}
 
 /* ═══ WISHLIST HEART ═══ */
 .wish-btn{position:absolute;top:8px;right:8px;z-index:5;width:30px;height:30px;border-radius:50%;background:rgba(6,4,4,0.6);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .25s cubic-bezier(.4,0,.2,1);font-size:13px;color:var(--muted);backdrop-filter:blur(8px);padding:0;line-height:1}
@@ -240,6 +243,8 @@ nav.nav-scrolled{background:rgba(6,4,4,0.95);border-bottom-color:rgba(185,28,28,
 .wishlist-panel.open{display:flex}
 @keyframes slideIn{from{transform:translateX(100%)}to{transform:none}}
 .wl-header{display:flex;align-items:center;justify-content:space-between;padding:1rem 1.25rem;border-bottom:1px solid var(--border)}
+.wl-drag-handle{display:none;width:36px;height:4px;border-radius:2px;background:rgba(255,255,255,0.15);margin:8px auto 0}
+@media(max-width:768px){.wl-drag-handle{display:block}}
 .wl-title{font-family:var(--font-d);font-size:1rem;font-weight:800;display:flex;align-items:center;gap:8px}
 .wl-close{background:none;border:none;color:var(--muted);cursor:pointer;font-size:18px;padding:4px;transition:color .15s}
 .wl-close:hover{color:var(--text)}
@@ -261,7 +266,9 @@ nav.nav-scrolled{background:rgba(6,4,4,0.95);border-bottom-color:rgba(185,28,28,
 .wl-send-btn:hover{background:var(--accent);color:#fff}
 .wl-count-badge{font-family:var(--font-d);font-size:10px;font-weight:700;background:var(--accent);color:#fff;border-radius:999px;min-width:18px;height:18px;display:inline-flex;align-items:center;justify-content:center;padding:0 5px}
 .wish-nav-btn{position:relative}
-.wish-nav-badge{position:absolute;top:-4px;right:-4px;font-family:var(--font-d);font-size:8px;font-weight:700;background:var(--accent);color:#fff;border-radius:999px;min-width:14px;height:14px;display:none;align-items:center;justify-content:center;padding:0 3px}
+.wish-nav-badge{position:absolute;top:-4px;right:-4px;font-family:var(--font-d);font-size:8px;font-weight:700;background:var(--accent);color:#fff;border-radius:999px;min-width:14px;height:14px;display:none;align-items:center;justify-content:center;padding:0 3px;transition:transform .2s}
+.wish-nav-badge.pop{animation:badgePop .35s cubic-bezier(.4,0,.2,1)}
+@keyframes badgePop{0%{transform:scale(1)}40%{transform:scale(1.5)}100%{transform:scale(1)}}
 .play-hint{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(6,4,4,0.5);opacity:0;transition:opacity .25s;backdrop-filter:blur(2px)}
 .beat-card:hover .play-hint{opacity:1}
 .play-circle{width:54px;height:54px;border-radius:50%;background:rgba(185,28,28,0.9);display:flex;align-items:center;justify-content:center;box-shadow:var(--glow-md);transition:transform .25s cubic-bezier(.4,0,.2,1)}
@@ -431,6 +438,9 @@ footer::before{content:'';position:absolute;top:0;left:10%;right:10%;height:1px;
   #cursor-glow{display:none}
   .beat-card::before{display:none}
   .beat-card .shimmer-overlay{display:none}
+  /* Wishlist bottom-sheet on small screens */
+  .wishlist-panel{width:100%;max-width:100%;top:auto;right:auto;left:0;bottom:0;height:70vh;border-left:none;border-top:1px solid rgba(185,28,28,0.2);border-radius:16px 16px 0 0;animation:slideUpSheet .35s cubic-bezier(.4,0,.2,1)}
+  @keyframes slideUpSheet{from{transform:translateY(100%)}to{transform:none}}
 }
 
 /* ═══ LIGHT MODE ═══ */
@@ -600,6 +610,7 @@ body.light-mode ::-webkit-scrollbar-thumb:hover{background:rgba(185,28,28,0.3)}
 </div>
 <!-- Wishlist Panel -->
 <div class="wishlist-panel" id="wishlist-panel">
+  <div class="wl-drag-handle"></div>
   <div class="wl-header">
     <div class="wl-title">❤️ Favoritos <span class="wl-count-badge" id="wl-count">0</span></div>
     <button class="wl-close" onclick="toggleWishlist()">✕</button>
@@ -639,7 +650,12 @@ function toggleWish(id,event){
 function _updateWishBadge(){
   var badge=document.getElementById('wish-nav-badge');
   var count=document.getElementById('wl-count');
-  if(badge){badge.textContent=_wishlist.length;badge.style.display=_wishlist.length?'flex':'none'}
+  if(badge){
+    var prev=badge.textContent;
+    badge.textContent=_wishlist.length;
+    badge.style.display=_wishlist.length?'flex':'none';
+    if(prev!==String(_wishlist.length)){badge.classList.remove('pop');void badge.offsetWidth;badge.classList.add('pop')}
+  }
   if(count)count.textContent=_wishlist.length;
 }
 function _renderWishList(){
@@ -698,7 +714,7 @@ function applyWaveformToCard(beatId){
   var waveRow=card.querySelector('.beat-wave-row');if(!waveRow)return;
   generateWaveform(b.previewUrl,beatId,function(wave){
     if(!wave)return;
-    var svg='<svg class="waveform-svg" viewBox="0 0 200 52" preserveAspectRatio="none"><g class="wf-bg">'+waveformToSVG(wave,200,52)+'</g></svg>';
+    var svg='<svg class="waveform-svg" viewBox="0 0 200 52" preserveAspectRatio="none"><defs><clipPath id="wcp-'+beatId+'"><rect class="wf-clip-rect" x="0" y="0" width="0" height="52"/></clipPath></defs><g class="wf-bg">'+waveformToSVG(wave,200,52)+'</g><g class="wf-progress" clip-path="url(#wcp-'+beatId+')">'+waveformToSVG(wave,200,52)+'</g></svg>';
     waveRow.insertAdjacentHTML('afterend',svg);waveRow.style.display='none';
   });
 }
@@ -760,7 +776,8 @@ function observeStagger(){var obs=new IntersectionObserver(function(entries){ent
 var AP=(function(){
   var _audio=null,_idx=-1,_playing=false,_modalMode=false;
   function _create(url){if(_audio){_audio.pause();_audio.src='';_audio.load()}_audio=new Audio(url);_audio.volume=parseFloat(document.getElementById('vol').value);_audio.addEventListener('timeupdate',_onTime);_audio.addEventListener('ended',_next)}
-  function _onTime(){if(!_audio||!_audio.duration)return;var pct=(_audio.currentTime/_audio.duration)*100;document.getElementById('track-fill').style.width=pct+'%';document.getElementById('tc').textContent=_fmt(_audio.currentTime);document.getElementById('td').textContent=_fmt(_audio.duration);var mf=document.getElementById('m-fill');if(mf)mf.style.width=pct+'%';document.getElementById('m-tc').textContent=_fmt(_audio.currentTime);document.getElementById('m-td').textContent=_fmt(_audio.duration)}
+  function _onTime(){if(!_audio||!_audio.duration)return;var pct=(_audio.currentTime/_audio.duration)*100;document.getElementById('track-fill').style.width=pct+'%';document.getElementById('tc').textContent=_fmt(_audio.currentTime);document.getElementById('td').textContent=_fmt(_audio.duration);var mf=document.getElementById('m-fill');if(mf)mf.style.width=pct+'%';document.getElementById('m-tc').textContent=_fmt(_audio.currentTime);document.getElementById('m-td').textContent=_fmt(_audio.duration);_updateWaveProgress(pct)}
+  function _updateWaveProgress(pct){var playing=document.querySelector('.beat-card.is-playing');if(!playing)return;var rect=playing.querySelector('.wf-clip-rect');if(rect)rect.setAttribute('width',(pct/100)*200)}
   function _next(){if(!_modalMode&&_idx<allBeats.length-1)_playIdx(_idx+1);else{_playing=false;stopEQ();_updateIcons()}}
   function _fmt(s){return Math.floor(s/60)+':'+Math.floor(s%60).toString().padStart(2,'0')}
   function _updateIcons(){var pb='<svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><path d="M4 2h2v12H4zM10 2h2v12h-2z"/></svg>';var pbb='<svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><path d="M5 3l10 5-10 5V3z"/></svg>';var pm='<svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor"><path d="M4 2h2v12H4zM10 2h2v12h-2z"/></svg>';var pmm='<svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor"><path d="M5 3l10 5-10 5V3z"/></svg>';var bb=document.getElementById('bar-play-btn');var mb=document.getElementById('m-play-btn');if(bb)bb.innerHTML=_playing?pb:pbb;if(mb)mb.innerHTML=_playing?pm:pmm;if(_playing)startEQ();else stopEQ();renderAll()}
@@ -1032,5 +1049,6 @@ window.addEventListener('load',function(){
   _updateWishBadge();
 });
 </script>
+<!-- DACEWAV.STORE v3.1 — 2026-04-09 -->
 </body>
 </html>
