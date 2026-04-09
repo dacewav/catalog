@@ -65,6 +65,8 @@
     <div class="si" data-s="themes" onclick="showSection('themes')"><i class="fas fa-palette"></i><span>Temas</span></div>
     <div class="si" data-s="settings" onclick="showSection('settings')"><i class="fas fa-cog"></i><span>Ajustes</span></div>
     <div class="si" data-s="team" onclick="showSection('team')"><i class="fas fa-users"></i><span>Equipo</span></div>
+    <div class="sidebar-sep"></div>
+    <div class="si" data-s="stats" onclick="showSection('stats')"><i class="fas fa-chart-bar"></i><span>Stats</span></div>
   </div>
 
   <!-- ═══ CONTROLS ═══ -->
@@ -637,14 +639,51 @@ definen géneros.</textarea></div>
             <label>Upload Token <span style="font-size:8px;color:var(--hi)">(se guarda en Firebase, no en el HTML)</span></label>
             <input type="password" id="r2-upload-token" placeholder="Token del Worker" oninput="autoSave()">
           </div>
-          <div style="display:flex;gap:6px;margin-top:8px">
+          <div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap">
             <button class="btn btn-g" onclick="saveR2Config()" style="font-size:9px"><i class="fas fa-save"></i> Guardar</button>
             <button class="btn btn-g" onclick="testR2Connection()" style="font-size:9px"><i class="fas fa-plug"></i> Probar</button>
+            <button class="btn btn-g" onclick="purgeCache()" style="font-size:9px"><i class="fas fa-broom"></i> Purge Cache</button>
           </div>
           <p style="font-size:9px;color:var(--hi);line-height:1.6;margin-top:8px">
             Los uploads irán a <code style="background:var(--as2);padding:2px 4px;border-radius:3px">cdn.dacewav.store</code>.
             Sin configurar, las imágenes se guardan como base64 en Firebase.
           </p>
+        </div>
+      </div>
+
+      <!-- Utilidades -->
+      <div class="card">
+        <div class="card-title" onclick="toggleCard(this)"><span>🛠️ Utilidades</span><i class="fas fa-chevron-down"></i></div>
+        <div class="card-body">
+          <p style="font-size:9px;color:var(--hi);margin-bottom:10px">Estos scripts corren en tu máquina (Node.js). Los botones copian el comando listo.</p>
+          <div class="field">
+            <label>Backup Firebase → R2</label>
+            <div style="display:flex;gap:6px">
+              <input type="text" id="cmd-backup" readonly value="node firebase-backup.js" style="flex:1;font-size:10px;opacity:.7;cursor:text">
+              <button class="btn btn-g" onclick="copyCmd('cmd-backup')" style="font-size:9px;flex-shrink:0"><i class="fas fa-copy"></i></button>
+            </div>
+          </div>
+          <div class="field">
+            <label>Restaurar último backup</label>
+            <div style="display:flex;gap:6px">
+              <input type="text" id="cmd-restore" readonly value="node firebase-backup.js --restore" style="flex:1;font-size:10px;opacity:.7;cursor:text">
+              <button class="btn btn-g" onclick="copyCmd('cmd-restore')" style="font-size:9px;flex-shrink:0"><i class="fas fa-copy"></i></button>
+            </div>
+          </div>
+          <div class="field">
+            <label>Regenerar sitemap</label>
+            <div style="display:flex;gap:6px">
+              <input type="text" id="cmd-sitemap" readonly value="node generate-sitemap.js" style="flex:1;font-size:10px;opacity:.7;cursor:text">
+              <button class="btn btn-g" onclick="copyCmd('cmd-sitemap')" style="font-size:9px;flex-shrink:0"><i class="fas fa-copy"></i></button>
+            </div>
+          </div>
+          <div class="field">
+            <label>Subir previews MP3</label>
+            <div style="display:flex;gap:6px">
+              <input type="text" id="cmd-previews" readonly value="node upload-previews.js ./previews/ --token TU_TOKEN" style="flex:1;font-size:10px;opacity:.7;cursor:text">
+              <button class="btn btn-g" onclick="copyCmd('cmd-previews')" style="font-size:9px;flex-shrink:0"><i class="fas fa-copy"></i></button>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -705,6 +744,24 @@ definen géneros.</textarea></div>
           </div>
         </div>
       </div>
+    </div>
+
+    <!-- ═══ STATS ═══ -->
+    <div class="section" id="sec-stats">
+      <div class="section-title"><i class="fas fa-chart-bar"></i> Estadísticas</div>
+      <div style="display:flex;gap:6px;margin-bottom:16px">
+        <button class="tb" onclick="loadStats()"><i class="fas fa-sync-alt"></i> Actualizar</button>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:20px">
+        <div class="card" style="text-align:center;padding:16px"><div id="stat-total-visits" style="font-size:1.6rem;font-weight:800;color:var(--acc);font-family:var(--fd)">—</div><div style="font-size:9px;color:var(--mu);text-transform:uppercase;letter-spacing:.5px;margin-top:4px">Visitas (7d)</div></div>
+        <div class="card" style="text-align:center;padding:16px"><div id="stat-total-clicks" style="font-size:1.6rem;font-weight:800;color:var(--acc);font-family:var(--fd)">—</div><div style="font-size:9px;color:var(--mu);text-transform:uppercase;letter-spacing:.5px;margin-top:4px">Clicks Beats</div></div>
+        <div class="card" style="text-align:center;padding:16px"><div id="stat-total-wa" style="font-size:1.6rem;font-weight:800;color:var(--acc);font-family:var(--fd)">—</div><div style="font-size:9px;color:var(--mu);text-transform:uppercase;letter-spacing:.5px;margin-top:4px">WhatsApp</div></div>
+        <div class="card" style="text-align:center;padding:16px"><div id="stat-total-searches" style="font-size:1.6rem;font-weight:800;color:var(--acc);font-family:var(--fd)">—</div><div style="font-size:9px;color:var(--mu);text-transform:uppercase;letter-spacing:.5px;margin-top:4px">Búsquedas</div></div>
+      </div>
+      <div class="card"><div class="card-title"><span>📅 Visitas Diarias (7 días)</span></div><div class="card-body"><div id="daily-visits-chart" style="display:flex;flex-direction:column;gap:6px"><div style="color:var(--hi);font-size:10px;text-align:center;padding:16px">Click "Actualizar" para cargar datos</div></div></div></div>
+      <div class="card"><div class="card-title"><span>👁️ Top 10 — Vistas</span></div><div class="card-body"><div id="top-views-chart" style="display:flex;flex-direction:column;gap:6px"><div style="color:var(--hi);font-size:10px;text-align:center;padding:16px">Sin datos aún</div></div></div></div>
+      <div class="card"><div class="card-title"><span>📱 Top 10 — WhatsApp</span></div><div class="card-body"><div id="top-wa-chart" style="display:flex;flex-direction:column;gap:6px"><div style="color:var(--hi);font-size:10px;text-align:center;padding:16px">Sin datos aún</div></div></div></div>
+      <div class="card"><div class="card-title"><span>📊 Todos los Beats</span></div><div class="card-body"><div id="counts-table"><div style="color:var(--hi);font-size:10px;text-align:center;padding:16px">Sin datos aún</div></div></div></div>
     </div>
 
   </div><!-- end controls -->
@@ -2000,6 +2057,23 @@ async function testR2Connection(){
     else{showToast('Respuesta inesperada',true)}
   }catch(err){showToast('Error: '+err.message,true)}
 }
+async function purgeCache(){
+  const url=(g('r2-worker-url')||{}).value||R2_WORKER_URL;
+  const token=(g('r2-upload-token')||{}).value||R2_UPLOAD_TOKEN;
+  if(!url||!token){showToast('Configura Worker URL y Token primero',true);return}
+  try{
+    const res=await fetch(url+'/purge-cache',{method:'POST',headers:{'X-Upload-Token':token}});
+    const data=await res.json();
+    if(data.success){showToast('✅ Cache purged — la tienda mostrará la última versión')}
+    else{showToast('Error: '+(data.error||'Unknown'),true)}
+  }catch(err){showToast('Error: '+err.message,true)}
+}
+function copyCmd(inputId){
+  const el=g(inputId);if(!el)return;
+  const text=el.value;
+  if(navigator.clipboard){navigator.clipboard.writeText(text).then(()=>showToast('Comando copiado ✓')).catch(()=>{el.select();document.execCommand('copy');showToast('Comando copiado ✓')})}
+  else{el.select();document.execCommand('copy');showToast('Comando copiado ✓')}
+}
 function prevImg(){const url=val('f-img');g('img-prev').innerHTML=url?'<img src="'+url+'" style="max-width:160px;max-height:100px;border-radius:6px;border:1px solid var(--b)">':''}
 function saveBeat(){
   const id=val('f-id').trim(),name=val('f-name').trim();if(!id||!name){showToast('ID y nombre requeridos',true);return}
@@ -2760,6 +2834,52 @@ function removeWhitelistEmail(idx){
     if(!dragging)return;dragging=false;
     handle.classList.remove('active');document.body.style.cursor='';document.body.style.userSelect='';
   });
+})();
+</script>
+<!-- ═══ Admin Stats ═══ -->
+<script>
+(function(){
+  'use strict';
+  if(typeof firebase==='undefined'||typeof db==='undefined')return;
+  var $=function(id){return document.getElementById(id)};
+  function esc(s){var d=document.createElement('div');d.textContent=s;return d.innerHTML}
+  function fmtNum(n){if(n>=1e6)return(n/1e6).toFixed(1)+'M';if(n>=1e3)return(n/1e3).toFixed(1)+'K';return String(n)}
+  function getLast7(){var ds=[];for(var i=6;i>=0;i--){var d=new Date();d.setDate(d.getDate()-i);ds.push(d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'))}return ds}
+  function dayLbl(s){var p=s.split('-');var d=new Date(p[0],p[1]-1,p[2]);return['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'][d.getDay()]+' '+p[2]}
+  function barChart(id,data,empty){
+    var el=$(id);if(!el)return;
+    if(!data||!data.length){el.innerHTML='<div style="color:var(--hi);font-size:10px;text-align:center;padding:16px">'+(empty||'Sin datos')+'</div>';return}
+    var mx=Math.max.apply(null,data.map(function(d){return d.value}))||1;
+    var h='';data.forEach(function(d){var pct=Math.max(2,(d.value/mx)*100);
+    h+='<div style="display:flex;align-items:center;gap:8px"><div style="min-width:80px;max-width:140px;font-size:10px;color:var(--tx);text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="'+esc(d.label)+'">'+esc(d.label)+'</div><div style="flex:1;height:18px;background:var(--as2);border-radius:3px;overflow:hidden"><div style="height:100%;width:'+pct+'%;background:linear-gradient(90deg,var(--acc),var(--rg));border-radius:3px;transition:width .5s"></div></div><div style="min-width:36px;font-size:10px;color:var(--mu);font-weight:600;font-family:var(--fm)">'+fmtNum(d.value)+'</div></div>'});
+    el.innerHTML=h;
+  }
+  window.loadStats=function(){
+    db.ref('analytics/counts').once('value').then(function(snap){
+      var counts=snap.val()||{},entries=[],tc=0,tw=0,tv=0;
+      for(var id in counts){var c=counts[id];var v=c.views||0,cl=c.clicks||0,w=c.waClicks||0;tv+=v;tc+=cl;tw+=w;entries.push({id:id,views:v,clicks:cl,waClicks:w})}
+      barChart('top-views-chart',entries.filter(function(e){return e.views>0}).sort(function(a,b){return b.views-a.views}).slice(0,10).map(function(e){return{label:e.id,value:e.views}}),'Sin vistas aún');
+      barChart('top-wa-chart',entries.filter(function(e){return e.waClicks>0}).sort(function(a,b){return b.waClicks-a.waClicks}).slice(0,10).map(function(e){return{label:e.id,value:e.waClicks}}),'Sin clicks de WhatsApp aún');
+      var sorted=entries.sort(function(a,b){return b.views-a.views});
+      var th='<table style="width:100%;border-collapse:collapse"><thead><tr><th style="padding:8px;text-align:left;font-size:9px;color:var(--mu);border-bottom:1px solid var(--b)">Beat</th><th style="padding:8px;text-align:right;font-size:9px;color:var(--mu);border-bottom:1px solid var(--b)">Vistas</th><th style="padding:8px;text-align:right;font-size:9px;color:var(--mu);border-bottom:1px solid var(--b)">Clicks</th><th style="padding:8px;text-align:right;font-size:9px;color:var(--mu);border-bottom:1px solid var(--b)">WA</th></tr></thead><tbody>';
+      sorted.forEach(function(e){th+='<tr><td style="padding:6px 8px;font-size:11px;color:var(--tx);border-bottom:1px solid var(--b)">'+esc(e.id)+'</td><td style="padding:6px 8px;font-size:11px;color:var(--tx);text-align:right;border-bottom:1px solid var(--b)">'+e.views+'</td><td style="padding:6px 8px;font-size:11px;color:var(--tx);text-align:right;border-bottom:1px solid var(--b)">'+e.clicks+'</td><td style="padding:6px 8px;font-size:11px;color:var(--tx);text-align:right;border-bottom:1px solid var(--b)">'+e.waClicks+'</td></tr>'});
+      th+='</tbody></table>';
+      $('counts-table').innerHTML=sorted.length?th:'<div style="color:var(--hi);font-size:10px;text-align:center;padding:16px">Sin datos aún</div>';
+      $('stat-total-clicks').textContent=fmtNum(tc);
+      $('stat-total-wa').textContent=fmtNum(tw);
+    });
+    var dates=getLast7();
+    Promise.all(dates.map(function(date){return db.ref('analytics/daily/'+date+'/total').once('value').then(function(s){return{date:date,value:s.val()||0}})})).then(function(results){
+      barChart('daily-visits-chart',results.map(function(r){return{label:dayLbl(r.date),value:r.value}}),'Sin visitas');
+      $('stat-total-visits').textContent=fmtNum(results.reduce(function(s,r){return s+r.value},0));
+      return db.ref('analytics/daily/'+getLast7()[6]+'/actions/search_query').once('value');
+    }).then(function(s){$('stat-total-searches').textContent=fmtNum(s.val()||0)});
+  };
+  // Auto-load on section open
+  if(typeof showSection==='function'){
+    var _os=showSection;
+    window.showSection=function(id){_os.apply(this,arguments);if(id==='stats')window.loadStats()};
+  }
 })();
 </script>
 <!-- DACEWAV.STORE Admin v4.3 — 2026-04-09 -->
