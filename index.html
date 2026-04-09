@@ -12,16 +12,17 @@
 <meta property="og:site_name" content="DACE · Beats">
 <meta property="og:title" content="DACE · Beats que definen géneros">
 <meta property="og:description" content="Catálogo de beats originales desde Puebla, MX. Trap · R&B · Drill · Desde $350 MXN">
-<meta property="og:image" content="https://dacewav.store/og-cover.jpg">
+<meta property="og:image" content="https://cdn.dacewav.store/og-cover.jpg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta property="og:url" content="https://dacewav.store/">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="DACE · Beats que definen géneros">
 <meta name="twitter:description" content="Catálogo de beats originales desde Puebla, MX. Trap · R&B · Drill · Desde $350 MXN">
-<meta name="twitter:image" content="https://dacewav.store/og-cover.jpg">
+<meta name="twitter:image" content="https://cdn.dacewav.store/og-cover.jpg">
 <meta name="theme-color" content="#060404">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>♦</text></svg>">
+<link rel="sitemap" type="application/xml" href="/sitemap.xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preconnect" href="https://www.gstatic.com">
@@ -627,7 +628,7 @@ body.light-mode ::-webkit-scrollbar-thumb:hover{background:rgba(185,28,28,0.3)}
 
 <script>
 const FC={apiKey:"AIzaSyCr2dekkLLifIg0_JlLfEleaV32b5XdvIQ",authDomain:"dacewav-store-3b0f5.firebaseapp.com",databaseURL:"https://dacewav-store-3b0f5-default-rtdb.firebaseio.com",projectId:"dacewav-store-3b0f5",storageBucket:"dacewav-store-3b0f5.firebasestorage.app",messagingSenderId:"163354805352",appId:"1:163354805352:web:d8a99d1d71323de1ed27dd"};
-const DACE_VER='2.1-enhanced';
+const DACE_VER='4.3';
 const ANIMS=['none','flotar','pulsar','rotar','deslizar','rebotar','parpadeo','sacudida','cambio-color','brillo','spin-lento'];
 let db=null,allBeats=[],siteSettings={},T={},customEmojis=[],floatingEls=[];
 let activeGenre='Todos',modalBeatId=null,_inspectorMode=false;
@@ -665,7 +666,7 @@ function _renderWishList(){
     var b=allBeats.find(function(x){return x.id===id});
     if(!b)return'';
     var lics=b.licenses||[];var minL=lics[0];
-    var img=b.imageUrl?'<img src="'+b.imageUrl+'" alt="">':'<span style="font-size:1.2rem">♦</span>';
+    var img=b.imageUrl?'<img src="'+b.imageUrl+'" alt="" loading="lazy">':'<span style="font-size:1.2rem">♦</span>';
     return'<div class="wl-item" onclick="openModal(\''+b.id+'\');toggleWishlist()"><div class="wl-item-img">'+img+'</div><div class="wl-item-info"><div class="wl-item-name">'+b.name+'</div><div class="wl-item-meta">'+b.bpm+' BPM · '+b.key+(minL?' · $'+minL.priceMXN+' MXN':'')+'</div></div><button class="wl-item-remove" onclick="event.stopPropagation();toggleWish(\''+b.id+'\')" title="Quitar">✕</button></div>';
   }).join('');
 }
@@ -774,15 +775,16 @@ function observeStagger(){var obs=new IntersectionObserver(function(entries){ent
 
 // ═══ AUDIO PLAYER ═══
 var AP=(function(){
-  var _audio=null,_idx=-1,_playing=false,_modalMode=false;
+  var _audio=null,_idx=-1,_playing=false,_modalMode=false,_countedPlays={};
   function _create(url){if(_audio){_audio.pause();_audio.src='';_audio.load()}_audio=new Audio(url);_audio.volume=parseFloat(document.getElementById('vol').value);_audio.addEventListener('timeupdate',_onTime);_audio.addEventListener('ended',_next)}
   function _onTime(){if(!_audio||!_audio.duration)return;var pct=(_audio.currentTime/_audio.duration)*100;document.getElementById('track-fill').style.width=pct+'%';document.getElementById('tc').textContent=_fmt(_audio.currentTime);document.getElementById('td').textContent=_fmt(_audio.duration);var mf=document.getElementById('m-fill');if(mf)mf.style.width=pct+'%';document.getElementById('m-tc').textContent=_fmt(_audio.currentTime);document.getElementById('m-td').textContent=_fmt(_audio.duration);_updateWaveProgress(pct)}
   function _updateWaveProgress(pct){var playing=document.querySelector('.beat-card.is-playing');if(!playing)return;var rect=playing.querySelector('.wf-clip-rect');if(rect)rect.setAttribute('width',(pct/100)*200)}
+  function trackPlay(beatId){if(!beatId||_countedPlays[beatId])return;_countedPlays[beatId]=true;if(typeof db!=='undefined'&&db){db.ref('beats/'+beatId+'/plays').transaction(function(c){return(c||0)+1}).catch(function(){})}}
   function _next(){if(!_modalMode&&_idx<allBeats.length-1)_playIdx(_idx+1);else{_playing=false;stopEQ();_updateIcons()}}
   function _fmt(s){return Math.floor(s/60)+':'+Math.floor(s%60).toString().padStart(2,'0')}
   function _updateIcons(){var pb='<svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><path d="M4 2h2v12H4zM10 2h2v12h-2z"/></svg>';var pbb='<svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><path d="M5 3l10 5-10 5V3z"/></svg>';var pm='<svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor"><path d="M4 2h2v12H4zM10 2h2v12h-2z"/></svg>';var pmm='<svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor"><path d="M5 3l10 5-10 5V3z"/></svg>';var bb=document.getElementById('bar-play-btn');var mb=document.getElementById('m-play-btn');if(bb)bb.innerHTML=_playing?pb:pbb;if(mb)mb.innerHTML=_playing?pm:pmm;if(_playing)startEQ();else stopEQ();renderAll()}
-  function _playIdx(idx){var b=allBeats[idx];if(!b)return;_idx=idx;_modalMode=false;var url=b.previewUrl||b.audioUrl||'';if(!url){openModal(b.id);return}_create(url);_audio.play().catch(function(){});_playing=true;document.getElementById('pi-name').textContent=b.name;document.getElementById('pi-meta').textContent=b.bpm+' BPM · '+b.key+' · '+b.genre;var th=document.getElementById('pi-thumb');th.innerHTML=b.imageUrl?'<img src="'+b.imageUrl+'" alt="">':'♦';document.getElementById('player-bar').classList.add('up');_updateIcons()}
-  return{playIdx:function(i){_playIdx(i)},openForModal:function(beat){_modalMode=true;var url=beat.previewUrl||beat.audioUrl||'';var isSame=_idx!==-1&&allBeats[_idx]&&allBeats[_idx].id===beat.id;if(!isSame&&url){var bi=allBeats.findIndex(function(b){return b.id===beat.id});_create(url);_audio.play().catch(function(){});_playing=true;_idx=bi;document.getElementById('player-bar').classList.add('up');document.getElementById('pi-name').textContent=beat.name;document.getElementById('pi-meta').textContent=beat.bpm+' BPM · '+beat.key+' · '+beat.genre;var th=document.getElementById('pi-thumb');th.innerHTML=beat.imageUrl?'<img src="'+beat.imageUrl+'" alt="">':'♦'}_updateIcons()},toggle:function(){if(!_audio||!_audio.src)return;if(_playing){_audio.pause();_playing=false}else{_audio.play().catch(function(){});_playing=true}_updateIcons()},prev:function(){if(_idx>0&&!_modalMode)_playIdx(_idx-1)},next:function(){if(_idx<allBeats.length-1&&!_modalMode)_playIdx(_idx+1)},skip:function(s){if(!_audio)return;_audio.currentTime=Math.max(0,Math.min(_audio.duration||0,_audio.currentTime+s))},seek:function(e){if(!_audio||!_audio.duration)return;var r=document.getElementById('track').getBoundingClientRect();_audio.currentTime=((e.clientX-r.left)/r.width)*_audio.duration},seekEl:function(e,el){if(!_audio||!_audio.duration)return;var r=el.getBoundingClientRect();_audio.currentTime=((e.clientX-r.left)/r.width)*_audio.duration},setVol:function(v){if(_audio)_audio.volume=parseFloat(v)},exitModal:function(){_modalMode=false;_updateIcons()},get currentBeatIdx(){return _idx},get playing(){return _playing}}
+  function _playIdx(idx){var b=allBeats[idx];if(!b)return;_idx=idx;_modalMode=false;var url=b.previewUrl||b.audioUrl||'';if(!url){openModal(b.id);return}_create(url);_audio.play().catch(function(){});_playing=true;trackPlay(b.id);document.getElementById('pi-name').textContent=b.name;document.getElementById('pi-meta').textContent=b.bpm+' BPM · '+b.key+' · '+b.genre;var th=document.getElementById('pi-thumb');th.innerHTML=b.imageUrl?'<img src="'+b.imageUrl+'" alt="" loading="lazy">':'♦';document.getElementById('player-bar').classList.add('up');_updateIcons()}
+  return{playIdx:function(i){_playIdx(i)},openForModal:function(beat){_modalMode=true;var url=beat.previewUrl||beat.audioUrl||'';var isSame=_idx!==-1&&allBeats[_idx]&&allBeats[_idx].id===beat.id;if(!isSame&&url){var bi=allBeats.findIndex(function(b){return b.id===beat.id});_create(url);_audio.play().catch(function(){});_playing=true;_idx=bi;trackPlay(beat.id);document.getElementById('player-bar').classList.add('up');document.getElementById('pi-name').textContent=beat.name;document.getElementById('pi-meta').textContent=beat.bpm+' BPM · '+beat.key+' · '+beat.genre;var th=document.getElementById('pi-thumb');th.innerHTML=beat.imageUrl?'<img src="'+beat.imageUrl+'" alt="" loading="lazy">':'♦'}_updateIcons()},toggle:function(){if(!_audio||!_audio.src)return;if(_playing){_audio.pause();_playing=false}else{_audio.play().catch(function(){});_playing=true}_updateIcons()},prev:function(){if(_idx>0&&!_modalMode)_playIdx(_idx-1)},next:function(){if(_idx<allBeats.length-1&&!_modalMode)_playIdx(_idx+1)},skip:function(s){if(!_audio)return;_audio.currentTime=Math.max(0,Math.min(_audio.duration||0,_audio.currentTime+s))},seek:function(e){if(!_audio||!_audio.duration)return;var r=document.getElementById('track').getBoundingClientRect();_audio.currentTime=((e.clientX-r.left)/r.width)*_audio.duration},seekEl:function(e,el){if(!_audio||!_audio.duration)return;var r=el.getBoundingClientRect();_audio.currentTime=((e.clientX-r.left)/r.width)*_audio.duration},setVol:function(v){if(_audio)_audio.volume=parseFloat(v)},exitModal:function(){_modalMode=false;_updateIcons()},get currentBeatIdx(){return _idx},get playing(){return _playing}}
 })();
 
 var particles=[],pCanvas=null,pCtx=null,pAnimId=null,_pImgCache={};
@@ -1049,6 +1051,14 @@ window.addEventListener('load',function(){
   _updateWishBadge();
 });
 </script>
-<!-- DACEWAV.STORE v3.1 — 2026-04-09 -->
+<!-- DACEWAV.STORE v4.3 — 2026-04-09 -->
+<noscript>
+  <style>#loader{display:none!important}</style>
+  <div style="background:#060404;color:#f5eeee;font-family:monospace;padding:3rem;text-align:center;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1rem">
+    <div style="font-size:2rem;font-weight:800">DACE<span style="color:#dc2626">·</span> Beats</div>
+    <p style="color:rgba(245,238,238,0.5);max-width:400px;line-height:1.8">Este sitio necesita JavaScript para funcionar. Habilita JavaScript en tu navegador o usa uno moderno.</p>
+    <a href="https://dacewav.store" style="color:#dc2626;text-decoration:none;border:1px solid rgba(220,38,38,0.5);padding:8px 20px;border-radius:8px">Reintentar</a>
+  </div>
+</noscript>
 </body>
 </html>

@@ -621,23 +621,30 @@ definen géneros.</textarea></div>
     <div class="section" id="sec-settings">
       <div class="section-title"><i class="fas fa-cog"></i> Ajustes</div>
 
-      <!-- Cloudflare R2 Status -->
+      <!-- Cloudflare R2 Config -->
       <div class="card">
         <div class="card-title" onclick="toggleCard(this)"><span>☁️ Cloudflare R2</span><i class="fas fa-chevron-down"></i></div>
         <div class="card-body">
-          <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
             <span class="sdot" id="r2-status-dot"></span>
-            <span id="r2-status-text" style="font-size:11px"></span>
+            <span id="r2-status-text" style="font-size:11px;color:var(--mu)">No configurado</span>
           </div>
-          <p style="font-size:9px;color:var(--hi);line-height:1.6;margin-bottom:8px">
-            Para activar uploads a R2, edita <code style="background:var(--as2);padding:2px 4px;border-radius:3px">admin.html</code> y configura:<br>
-            • <code style="background:var(--as2);padding:2px 4px;border-radius:3px">R2_WORKER_URL</code> — URL del Worker desplegado<br>
-            • <code style="background:var(--as2);padding:2px 4px;border-radius:3px">R2_UPLOAD_TOKEN</code> — Token del Worker<br>
-            <br>
-            Actualmente los uploads de imagen se guardan como base64 en Firebase.
-            Con R2 activado, se subirán a <code style="background:var(--as2);padding:2px 4px;border-radius:3px">cdn.dacewav.store</code>.
+          <div class="field">
+            <label>Worker URL</label>
+            <input type="url" id="r2-worker-url" placeholder="https://dacewav-upload.xxx.workers.dev" oninput="autoSave()">
+          </div>
+          <div class="field">
+            <label>Upload Token <span style="font-size:8px;color:var(--hi)">(se guarda en Firebase, no en el HTML)</span></label>
+            <input type="password" id="r2-upload-token" placeholder="Token del Worker" oninput="autoSave()">
+          </div>
+          <div style="display:flex;gap:6px;margin-top:8px">
+            <button class="btn btn-g" onclick="saveR2Config()" style="font-size:9px"><i class="fas fa-save"></i> Guardar</button>
+            <button class="btn btn-g" onclick="testR2Connection()" style="font-size:9px"><i class="fas fa-plug"></i> Probar</button>
+          </div>
+          <p style="font-size:9px;color:var(--hi);line-height:1.6;margin-top:8px">
+            Los uploads irán a <code style="background:var(--as2);padding:2px 4px;border-radius:3px">cdn.dacewav.store</code>.
+            Sin configurar, las imágenes se guardan como base64 en Firebase.
           </p>
-          <button class="btn btn-g" onclick="testR2Connection()" style="font-size:9px"><i class="fas fa-plug"></i> Probar conexión</button>
         </div>
       </div>
 
@@ -804,13 +811,28 @@ definen géneros.</textarea></div>
      ═══════════════════════════════════════════════════════════ -->
 <script>
 const FC={apiKey:"AIzaSyCr2dekkLLifIg0_JlLfEleaV32b5XdvIQ",authDomain:"dacewav-store-3b0f5.firebaseapp.com",databaseURL:"https://dacewav-store-3b0f5-default-rtdb.firebaseio.com",projectId:"dacewav-store-3b0f5",storageBucket:"dacewav-store-3b0f5.firebasestorage.app",messagingSenderId:"163354805352",appId:"1:163354805352:web:d8a99d1d71323de1ed27dd"};
-const DACE_VER='2.0';
+const DACE_VER='4.3';
 
 // ═══ R2 Worker Config ═══
-// Cambia estos valores después de desplegar el Worker:
-const R2_WORKER_URL = 'https://dacewav-upload.daceidk.workers.dev'; // ej: 'https://dacewav-upload.xxx.workers.dev'
-const R2_UPLOAD_TOKEN = '5b128224d3030dc47abe827b7a5eee4d8aad909e3fa633ee'; // el token que configuraste en el Worker
-const R2_ENABLED = !!(R2_WORKER_URL && R2_UPLOAD_TOKEN);
+// Cargado desde Firebase (settings/r2Config) — NO hardcodear tokens aquí
+let R2_WORKER_URL = '';
+let R2_UPLOAD_TOKEN = '';
+let R2_ENABLED = false;
+
+function loadR2Config(settings) {
+  try {
+    const r2 = (settings && settings.r2Config) || {};
+    R2_WORKER_URL = r2.workerUrl || '';
+    R2_UPLOAD_TOKEN = r2.uploadToken || '';
+    R2_ENABLED = !!(R2_WORKER_URL && R2_UPLOAD_TOKEN);
+    // Llenar inputs si existen
+    var urlInput = document.getElementById('r2-worker-url');
+    var tokenInput = document.getElementById('r2-upload-token');
+    if (urlInput && !urlInput.value) urlInput.value = R2_WORKER_URL;
+    if (tokenInput && !tokenInput.value) tokenInput.value = R2_UPLOAD_TOKEN;
+    initR2Status();
+  } catch(e) { R2_ENABLED = false; }
+}
 
 async function uploadToR2(file, objectKey) {
   if (!R2_ENABLED) throw new Error('R2 Worker no configurado. Configura R2_WORKER_URL y R2_UPLOAD_TOKEN en admin.html');
@@ -1949,12 +1971,30 @@ function initR2Status(){
   const txt=document.getElementById('r2-status-text');
   if(!dot||!txt)return;
   if(R2_ENABLED){dot.classList.add('ok');txt.textContent='R2 Worker configurado ✓'}
-  else{dot.classList.remove('ok');txt.textContent='No configurado (uploads guardados como base64 en Firebase)'}
+  else{dot.classList.remove('ok');txt.textContent='No configurado (uploads como base64 en Firebase)'}
+}
+async function saveR2Config(){
+  const url=(g('r2-worker-url')||{}).value||'';
+  const token=(g('r2-upload-token')||{}).value||'';
+  if(!url&&!token){
+    // Borrar config
+    await db.ref('settings/r2Config').remove();
+    loadR2Config({});
+    showToast('Configuración R2 eliminada');
+    return;
+  }
+  await db.ref('settings/r2Config').set({workerUrl:url,uploadToken:token});
+  loadR2Config({r2Config:{workerUrl:url,uploadToken:token}});
+  initR2Status();
+  showToast('R2 configurado ✓');
 }
 async function testR2Connection(){
-  if(!R2_ENABLED){showToast('Configura R2_WORKER_URL y R2_UPLOAD_TOKEN primero',true);return}
+  // Leer de inputs primero, luego de variables
+  const url=(g('r2-worker-url')||{}).value||R2_WORKER_URL;
+  const token=(g('r2-upload-token')||{}).value||R2_UPLOAD_TOKEN;
+  if(!url||!token){showToast('Configura Worker URL y Token primero',true);return}
   try{
-    const res=await fetch(R2_WORKER_URL+'/',{headers:{'X-Upload-Token':R2_UPLOAD_TOKEN}});
+    const res=await fetch(url+'/',{headers:{'X-Upload-Token':token}});
     const data=await res.json();
     if(data.status==='ok'){showToast('✅ Worker conectado: '+data.service)}
     else{showToast('Respuesta inesperada',true)}
@@ -2639,7 +2679,7 @@ function initAdmin(){
     const ce=localStorage.getItem('dace-custom-emojis');if(ce)customEmojis=JSON.parse(ce);
     _ldTheme=true;_checkReady2();
     db.ref('theme').on('value',snap=>{T=snap.val()||{};localStorage.setItem('dace-theme',JSON.stringify(T));_ldTheme=true;_checkReady2();clearTimeout(loaderTimeout)});
-    db.ref('settings').on('value',snap=>{siteSettings=snap.val()||{};loadSettingsUI();_ldSettings=true;_checkReady2();clearTimeout(loaderTimeout)});
+    db.ref('settings').on('value',snap=>{siteSettings=snap.val()||{};loadSettingsUI();loadR2Config(siteSettings);_ldSettings=true;_checkReady2();clearTimeout(loaderTimeout)});
     db.ref('beats').on('value',snap=>{const raw=snap.val()||{};allBeats=Object.values(raw).filter(b=>b.active!==false).sort((a,b)=>(a.order||0)-(b.order||0));renderBeatList();_ldBeats=true;_checkReady2();clearTimeout(loaderTimeout)});
     db.ref('defaultLicenses').on('value',snap=>{defLics=snap.val()||[];renderDefLicsEditor()});
     db.ref('customLinks').on('value',snap=>{customLinks=snap.val()||{};renderLinksEditor()});
@@ -2722,6 +2762,6 @@ function removeWhitelistEmail(idx){
   });
 })();
 </script>
-<!-- DACEWAV.STORE Admin v3.1 — 2026-04-09 -->
+<!-- DACEWAV.STORE Admin v4.3 — 2026-04-09 -->
 </body>
 </html>
