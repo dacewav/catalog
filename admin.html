@@ -447,8 +447,8 @@ definen géneros.</textarea></div>
       <div class="etp" id="etp-media">
         <div class="field"><label>Imagen URL</label><div style="display:flex;gap:6px;align-items:center"><input type="url" id="f-img" placeholder="https://..." oninput="prevImg()" style="flex:1"><input type="file" id="f-img-file" accept="image/*" style="display:none" onchange="uploadBeatImg(this)"><button class="btn btn-g" onclick="document.getElementById('f-img-file').click()" style="font-size:9px" title="Subir a R2">📤</button></div></div>
         <div id="img-prev" style="margin-bottom:8px"></div>
-        <div class="field"><label>Audio WAV URL</label><input type="url" id="f-audio" placeholder="https://..."></div>
-        <div class="field"><label>Preview MP3 URL</label><input type="url" id="f-prev" placeholder="https://..." oninput="updateMP()"></div>
+        <div class="field"><label>Audio WAV URL</label><div style="display:flex;gap:6px;align-items:center"><input type="url" id="f-audio" placeholder="https://..." style="flex:1"><input type="file" id="f-audio-file" accept=".wav,.mp3,.flac" style="display:none" onchange="uploadBeatAudio(this)"><button class="btn btn-g" onclick="document.getElementById('f-audio-file').click()" style="font-size:9px" title="Subir WAV a R2">📤</button></div></div>
+        <div class="field"><label>Preview MP3 URL</label><div style="display:flex;gap:6px;align-items:center"><input type="url" id="f-prev" placeholder="https://..." oninput="updateMP()" style="flex:1"><input type="file" id="f-prev-file" accept=".mp3,.wav,.ogg,.m4a" style="display:none" onchange="uploadBeatPreview(this)"><button class="btn btn-g" onclick="document.getElementById('f-prev-file').click()" style="font-size:9px" title="Subir Preview a R2">📤</button></div></div>
         <div class="mp"><button class="mp-btn" onclick="toggleMP()"><svg id="mp-ic" width="10" height="10" viewBox="0 0 16 16" fill="currentColor"><path d="M5 3l10 5-10 5V3z"/></svg></button><div class="mp-prog" onclick="seekMP(event)"><div class="mp-fill" id="mp-fill"></div></div><span class="mp-t" id="mp-t">0:00 / 0:00</span></div>
       </div>
       <div class="etp" id="etp-plat">
@@ -2019,6 +2019,28 @@ function uploadBeatImg(input){
   showSaving(true);
   uploadToR2(file, 'beats/'+beatId+'/cover-'+file.name.replace(/[^a-zA-Z0-9._-]/g,'_'))
     .then(r=>{setVal('f-img',r.url);prevImg();showSaving(false);showToast('Imagen subida a R2 ✓')})
+    .catch(err=>{showSaving(false);showToast('Error: '+err.message,true)});
+  input.value='';
+}
+function uploadBeatAudio(input){
+  const file=input.files[0];if(!file)return;
+  if(!R2_ENABLED){showToast('R2 Worker no configurado. Usa URL directa o configura R2_WORKER_URL.',true);input.value='';return}
+  const beatId=editId||('beat_'+Date.now());
+  showSaving(true);
+  const ext=file.name.split('.').pop().toLowerCase();
+  const folder=ext==='wav'?'wavs':'audio';
+  uploadToR2(file, 'beats/'+beatId+'/'+folder+'/'+file.name.replace(/[^a-zA-Z0-9._-]/g,'_'))
+    .then(r=>{setVal('f-audio',r.url);showSaving(false);showToast('Audio subido a R2 ✓')})
+    .catch(err=>{showSaving(false);showToast('Error: '+err.message,true)});
+  input.value='';
+}
+function uploadBeatPreview(input){
+  const file=input.files[0];if(!file)return;
+  if(!R2_ENABLED){showToast('R2 Worker no configurado. Usa URL directa o configura R2_WORKER_URL.',true);input.value='';return}
+  const beatId=editId||('beat_'+Date.now());
+  showSaving(true);
+  uploadToR2(file, 'beats/'+beatId+'/previews/'+file.name.replace(/[^a-zA-Z0-9._-]/g,'_'))
+    .then(r=>{setVal('f-prev',r.url);updateMP();showSaving(false);showToast('Preview subido a R2 ✓')})
     .catch(err=>{showSaving(false);showToast('Error: '+err.message,true)});
   input.value='';
 }
