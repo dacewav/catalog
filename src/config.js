@@ -9,7 +9,7 @@ export const FC = {
   appId: '1:163354805352:web:d8a99d1d71323de1ed27dd',
 };
 
-export const DACE_VER = '5.3.0';
+export const DACE_VER = '5.4.0';
 
 export const ANIMS = [
   'none', 'flotar', 'pulsar', 'rotar', 'deslizar', 'rebotar',
