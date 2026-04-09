@@ -235,5 +235,5 @@ Object.assign(window, {
   saveBeat, deleteBeat, quickDel,
   inlineEditName, inlineEditBpm, inlineEditKey,
   openBatchImg, closeBatchImg, handleBatchImgFiles, clearBatchImgQueue, saveBatchImages,
-  batchAddBeats, toggleMP, seekMP, updateMP
+  batchAddBeats, toggleMP, seekMP, updateMP, prevImg
 });

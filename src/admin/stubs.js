@@ -24,6 +24,10 @@ function loadStats() {
   showToast('Stats: próximamente');
 }
 
+function uploadPreviews() {
+  showToast('Upload previews batch: próximamente');
+}
+
 Object.assign(window, {
-  initLayoutCanvas, runBackup, runSitemap, runStats, loadStats
+  initLayoutCanvas, runBackup, runSitemap, runStats, loadStats, uploadPreviews
 });
