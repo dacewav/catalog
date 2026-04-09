@@ -222,6 +222,12 @@ export function toggleMP() {
 function fmt(s) { return Math.floor(s / 60) + ':' + Math.floor(s % 60).toString().padStart(2, '0'); }
 export function seekMP(e) { if (!mpAudio2 || !mpAudio2.duration) return; const r = e.currentTarget.getBoundingClientRect(); mpAudio2.currentTime = ((e.clientX - r.left) / r.width) * mpAudio2.duration; }
 
+export function updateMP() {
+  if (mpAudio2) { mpAudio2.pause(); mpAudio2 = null; }
+  const fill = g('mp-fill'); if (fill) fill.style.width = '0%';
+  const t = g('mp-t'); if (t) t.textContent = '0:00 / 0:00';
+}
+
 Object.assign(window, {
   filterBeatList, renderBeatList, dragStart, dragOver, dropBeat, dragEnd,
   openEditor, upLic, addLicRow, rmLic, loadDefaultLics,
@@ -229,5 +235,5 @@ Object.assign(window, {
   saveBeat, deleteBeat, quickDel,
   inlineEditName, inlineEditBpm, inlineEditKey,
   openBatchImg, closeBatchImg, handleBatchImgFiles, clearBatchImgQueue, saveBatchImages,
-  batchAddBeats, toggleMP, seekMP
+  batchAddBeats, toggleMP, seekMP, updateMP
 });

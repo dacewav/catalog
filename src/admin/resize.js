@@ -20,3 +20,7 @@ export function initResize() {
     handle.classList.remove('active'); document.body.style.cursor = ''; document.body.style.userSelect = '';
   });
 }
+
+// Auto-init on load
+if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initResize);
+else initResize();

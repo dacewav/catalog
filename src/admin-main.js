@@ -19,7 +19,10 @@ import './admin/beats.js';
 import './admin/r2.js';
 import './admin/features.js';
 
+// Import stubs (placeholder functions for not-yet-implemented features)
+import './admin/stubs.js';
+
 // Import auth & firebase init (bootstraps everything)
 import './admin/firebase-init.js';
 
-console.log('[DACE Admin] v5.2 bundle loaded');
+console.log('[DACE Admin] v5.3 bundle loaded');
