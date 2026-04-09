@@ -2016,32 +2016,32 @@ function uploadBeatImg(input){
   const file=input.files[0];if(!file)return;
   if(!R2_ENABLED){showToast('R2 Worker no configurado. Usa URL directa o configura R2_WORKER_URL.',true);input.value='';return}
   const beatId=editId||('beat_'+Date.now());
-  showSaving(true);
+  const btn=input.parentElement.querySelector('button');btn.disabled=true;btn.textContent='⏳';showSaving(true);
   uploadToR2(file, 'beats/'+beatId+'/cover-'+file.name.replace(/[^a-zA-Z0-9._-]/g,'_'))
-    .then(r=>{setVal('f-img',r.url);prevImg();showSaving(false);showToast('Imagen subida a R2 ✓')})
-    .catch(err=>{showSaving(false);showToast('Error: '+err.message,true)});
+    .then(r=>{setVal('f-img',r.url);prevImg();showSaving(false);btn.disabled=false;btn.textContent='📤';showToast('Imagen subida a R2 ✓')})
+    .catch(err=>{showSaving(false);btn.disabled=false;btn.textContent='📤';showToast('Error: '+err.message,true)});
   input.value='';
 }
 function uploadBeatAudio(input){
   const file=input.files[0];if(!file)return;
   if(!R2_ENABLED){showToast('R2 Worker no configurado. Usa URL directa o configura R2_WORKER_URL.',true);input.value='';return}
   const beatId=editId||('beat_'+Date.now());
-  showSaving(true);
+  const btn=input.parentElement.querySelector('button');btn.disabled=true;btn.textContent='⏳ '+Math.round(file.size/1024/1024*10)/10+'MB';showSaving(true);showToast('Subiendo audio...');
   const ext=file.name.split('.').pop().toLowerCase();
   const folder=ext==='wav'?'wavs':'audio';
   uploadToR2(file, 'beats/'+beatId+'/'+folder+'/'+file.name.replace(/[^a-zA-Z0-9._-]/g,'_'))
-    .then(r=>{setVal('f-audio',r.url);showSaving(false);showToast('Audio subido a R2 ✓')})
-    .catch(err=>{showSaving(false);showToast('Error: '+err.message,true)});
+    .then(r=>{setVal('f-audio',r.url);showSaving(false);btn.disabled=false;btn.textContent='📤';showToast('Audio subido a R2 ✓')})
+    .catch(err=>{showSaving(false);btn.disabled=false;btn.textContent='📤';showToast('Error: '+err.message,true)});
   input.value='';
 }
 function uploadBeatPreview(input){
   const file=input.files[0];if(!file)return;
   if(!R2_ENABLED){showToast('R2 Worker no configurado. Usa URL directa o configura R2_WORKER_URL.',true);input.value='';return}
   const beatId=editId||('beat_'+Date.now());
-  showSaving(true);
+  const btn=input.parentElement.querySelector('button');btn.disabled=true;btn.textContent='⏳ '+Math.round(file.size/1024/1024*10)/10+'MB';showSaving(true);showToast('Subiendo preview...');
   uploadToR2(file, 'beats/'+beatId+'/previews/'+file.name.replace(/[^a-zA-Z0-9._-]/g,'_'))
-    .then(r=>{setVal('f-prev',r.url);updateMP();showSaving(false);showToast('Preview subido a R2 ✓')})
-    .catch(err=>{showSaving(false);showToast('Error: '+err.message,true)});
+    .then(r=>{setVal('f-prev',r.url);updateMP();showSaving(false);btn.disabled=false;btn.textContent='📤';showToast('Preview subido a R2 ✓')})
+    .catch(err=>{showSaving(false);btn.disabled=false;btn.textContent='📤';showToast('Error: '+err.message,true)});
   input.value='';
 }
 
