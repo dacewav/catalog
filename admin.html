@@ -651,37 +651,37 @@ definen géneros.</textarea></div>
         </div>
       </div>
 
-      <!-- Utilidades -->
+      <!-- Utilidades (v5.1 — ejecuta vía Worker, no CLI) -->
       <div class="card">
         <div class="card-title" onclick="toggleCard(this)"><span>🛠️ Utilidades</span><i class="fas fa-chevron-down"></i></div>
         <div class="card-body">
-          <p style="font-size:9px;color:var(--hi);margin-bottom:10px">Estos scripts corren en tu máquina (Node.js). Los botones copian el comando listo.</p>
-          <div class="field">
-            <label>Backup Firebase → R2</label>
-            <div style="display:flex;gap:6px">
-              <input type="text" id="cmd-backup" readonly value="node firebase-backup.js" style="flex:1;font-size:10px;opacity:.7;cursor:text">
-              <button class="btn btn-g" onclick="copyCmd('cmd-backup')" style="font-size:9px;flex-shrink:0"><i class="fas fa-copy"></i></button>
-            </div>
+          <p style="font-size:9px;color:var(--hi);margin-bottom:10px">Acciones que se ejecutan en el servidor vía Worker. Requiere R2 configurado.</p>
+
+          <!-- Backup -->
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+            <button class="btn btn-g" onclick="runBackup()" style="flex:1"><i class="fas fa-download"></i> Backup ahora</button>
           </div>
-          <div class="field">
-            <label>Restaurar último backup</label>
+          <div id="backup-status" style="font-size:9px;color:var(--mu);margin-bottom:12px"></div>
+
+          <!-- Sitemap -->
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+            <button class="btn btn-g" onclick="runSitemap()" style="flex:1"><i class="fas fa-sitemap"></i> Generar Sitemap</button>
+          </div>
+          <div id="sitemap-status" style="font-size:9px;color:var(--mu);margin-bottom:12px"></div>
+
+          <!-- Previews upload -->
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+            <input type="file" id="previews-input" accept=".mp3,.wav,.ogg,.m4a" multiple style="display:none" onchange="uploadPreviews(this)">
+            <button class="btn btn-g" onclick="document.getElementById('previews-input').click()" style="flex:1"><i class="fas fa-headphones"></i> Subir Previews MP3</button>
+          </div>
+          <div id="previews-status" style="font-size:9px;color:var(--mu);margin-bottom:12px"></div>
+
+          <!-- Restore (se mantiene como CLI — necesita Firebase Admin SDK) -->
+          <div style="border-top:1px solid var(--b);padding-top:10px;margin-top:4px">
+            <p style="font-size:9px;color:var(--hi);margin-bottom:8px">⚠️ Restore requiere Firebase Admin SDK — solo funciona desde CLI</p>
             <div style="display:flex;gap:6px">
               <input type="text" id="cmd-restore" readonly value="node firebase-backup.js --restore" style="flex:1;font-size:10px;opacity:.7;cursor:text">
               <button class="btn btn-g" onclick="copyCmd('cmd-restore')" style="font-size:9px;flex-shrink:0"><i class="fas fa-copy"></i></button>
-            </div>
-          </div>
-          <div class="field">
-            <label>Regenerar sitemap</label>
-            <div style="display:flex;gap:6px">
-              <input type="text" id="cmd-sitemap" readonly value="node generate-sitemap.js" style="flex:1;font-size:10px;opacity:.7;cursor:text">
-              <button class="btn btn-g" onclick="copyCmd('cmd-sitemap')" style="font-size:9px;flex-shrink:0"><i class="fas fa-copy"></i></button>
-            </div>
-          </div>
-          <div class="field">
-            <label>Subir previews MP3</label>
-            <div style="display:flex;gap:6px">
-              <input type="text" id="cmd-previews" readonly value="node upload-previews.js ./previews/ --token TU_TOKEN" style="flex:1;font-size:10px;opacity:.7;cursor:text">
-              <button class="btn btn-g" onclick="copyCmd('cmd-previews')" style="font-size:9px;flex-shrink:0"><i class="fas fa-copy"></i></button>
             </div>
           </div>
         </div>
@@ -751,6 +751,7 @@ definen géneros.</textarea></div>
       <div class="section-title"><i class="fas fa-chart-bar"></i> Estadísticas</div>
       <div style="display:flex;gap:6px;margin-bottom:16px">
         <button class="tb" onclick="loadStats()"><i class="fas fa-sync-alt"></i> Actualizar</button>
+        <button class="tb" onclick="runStats()" title="Cargar vía Worker (más seguro)"><i class="fas fa-server"></i> vía Worker</button>
       </div>
       <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:20px">
         <div class="card" style="text-align:center;padding:16px"><div id="stat-total-visits" style="font-size:1.6rem;font-weight:800;color:var(--acc);font-family:var(--fd)">—</div><div style="font-size:9px;color:var(--mu);text-transform:uppercase;letter-spacing:.5px;margin-top:4px">Visitas (7d)</div></div>
@@ -2074,6 +2075,124 @@ function copyCmd(inputId){
   if(navigator.clipboard){navigator.clipboard.writeText(text).then(()=>showToast('Comando copiado ✓')).catch(()=>{el.select();document.execCommand('copy');showToast('Comando copiado ✓')})}
   else{el.select();document.execCommand('copy');showToast('Comando copiado ✓')}
 }
+
+// ═══════════════════════════════════════════════════════
+// v5.1 — Worker API Functions (Utilidades)
+// ═══════════════════════════════════════════════════════
+function formatFileSize(bytes){
+  if(bytes>1048576)return(bytes/1048576).toFixed(1)+' MB';
+  return(bytes/1024).toFixed(1)+' KB';
+}
+function formatNum(n){
+  if(n>=1000000)return(n/1000000).toFixed(1)+'M';
+  if(n>=1000)return(n/1000).toFixed(1)+'K';
+  return String(n);
+}
+function checkR2Config(){
+  if(!R2_WORKER_URL||!R2_UPLOAD_TOKEN){
+    showToast('⚠️ Configura R2 primero (Ajustes → Cloudflare R2)',true);
+    return false;
+  }
+  return true;
+}
+
+async function runBackup(){
+  if(!checkR2Config())return;
+  var st=g('backup-status');if(st)st.textContent='Generando...';
+  showToast('Generando backup...');
+  try{
+    var res=await fetch(R2_WORKER_URL+'/api/backup',{method:'POST',headers:{'X-Upload-Token':R2_UPLOAD_TOKEN}});
+    var data=await res.json();
+    if(data.success){
+      var msg='✅ Backup: '+data.key.split('/').pop()+' ('+formatFileSize(data.size)+')';
+      showToast(msg);if(st)st.textContent=msg;
+    }else{showToast('Error: '+(data.error||'Unknown'),true);if(st)st.textContent='❌ Error'}
+  }catch(e){showToast('Error: '+e.message,true);if(st)st.textContent='❌ '+e.message}
+}
+
+async function runSitemap(){
+  if(!checkR2Config())return;
+  var st=g('sitemap-status');if(st)st.textContent='Generando...';
+  showToast('Generando sitemap...');
+  try{
+    var res=await fetch(R2_WORKER_URL+'/api/sitemap',{method:'POST',headers:{'X-Upload-Token':R2_UPLOAD_TOKEN}});
+    var data=await res.json();
+    if(data.success){
+      var msg='✅ Sitemap actualizado ('+data.beats+' beats)';
+      showToast(msg);if(st)st.textContent=msg;
+    }else{showToast('Error: '+(data.error||'Unknown'),true);if(st)st.textContent='❌ Error'}
+  }catch(e){showToast('Error: '+e.message,true);if(st)st.textContent='❌ '+e.message}
+}
+
+async function runStats(){
+  if(!checkR2Config())return;
+  showToast('Cargando estadísticas...');
+  try{
+    var res=await fetch(R2_WORKER_URL+'/api/stats',{method:'GET',headers:{'X-Upload-Token':R2_UPLOAD_TOKEN}});
+    var data=await res.json();
+    if(data.success){
+      var el;
+      el=g('stat-total-visits');if(el)el.textContent=formatNum(data.totalViews);
+      el=g('stat-total-clicks');if(el)el.textContent=formatNum(data.totalClicks);
+      el=g('stat-total-wa');if(el)el.textContent=formatNum(data.totalWA);
+      // Top views chart
+      if(typeof barChart==='function'){
+        barChart('top-views-chart',(data.topBeats||[]).map(function(b){return{label:b.id,value:b.views}}),'Sin datos');
+        var topWA=(data.topBeats||[]).filter(function(b){return b.waClicks>0}).map(function(b){return{label:b.id,value:b.waClicks}});
+        barChart('top-wa-chart',topWA,'Sin datos');
+      }
+      // Daily chart
+      if(data.daily&&typeof barChart==='function'){
+        var dayNames=['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
+        var dailyData=[];
+        Object.keys(data.daily).sort().forEach(function(dateStr){
+          var parts=dateStr.split('-');
+          var d=new Date(parts[0],parts[1]-1,parts[2]);
+          var label=dayNames[d.getDay()]+' '+parts[2];
+          var val=data.daily[dateStr]?(data.daily[dateStr].total||0):0;
+          dailyData.push({label:label,value:val});
+        });
+        barChart('daily-visits-chart',dailyData,'Sin visitas');
+      }
+      // Tabla counts
+      if(data.topBeats&&data.topBeats.length>0){
+        var sorted=data.topBeats.slice().sort(function(a,b){return b.views-a.views});
+        var tableHtml='<table class="counts-table"><thead><tr><th>Beat</th><th>Vistas</th><th>Clicks</th><th>WhatsApp</th></tr></thead><tbody>';
+        for(var i=0;i<sorted.length;i++){
+          tableHtml+='<tr><td>'+sorted[i].id+'</td><td>'+sorted[i].views+'</td><td>'+sorted[i].clicks+'</td><td>'+sorted[i].waClicks+'</td></tr>';
+        }
+        tableHtml+='</tbody></table>';
+        var ct=g('counts-table');if(ct)ct.innerHTML=tableHtml;
+      }
+      showToast('✅ Estadísticas actualizadas');
+    }else{showToast('Error: '+(data.error||'Unknown'),true)}
+  }catch(e){showToast('Error: '+e.message,true)}
+}
+
+async function uploadPreviews(inputEl){
+  var files=inputEl.files;if(!files||files.length===0)return;
+  if(!checkR2Config())return;
+  var st=g('previews-status');
+  if(st)st.textContent='Subiendo '+files.length+' archivo(s)...';
+  showToast('Subiendo '+files.length+' preview(s)...');
+  var formData=new FormData();
+  for(var i=0;i<files.length;i++)formData.append('files',files[i]);
+  try{
+    var res=await fetch(R2_WORKER_URL+'/api/previews',{method:'POST',headers:{'X-Upload-Token':R2_UPLOAD_TOKEN},body:formData});
+    var data=await res.json();
+    if(data.success){
+      var msg='✅ '+data.files.length+' archivo(s) subido(s)';
+      showToast(msg);
+      var urlsHtml=data.files.map(function(f){
+        return '<div style="font-size:9px;color:var(--mu);margin-top:3px;word-break:break-all">'+f.key+' → '+formatFileSize(f.size)+'<br><a href="'+f.url+'" target="_blank" style="color:var(--acc)">'+f.url+'</a></div>';
+      }).join('');
+      if(st)st.innerHTML=msg+urlsHtml;
+    }else{showToast('Error: '+(data.error||'Unknown'),true);if(st)st.textContent='❌ Error'}
+  }catch(e){showToast('Error: '+e.message,true);if(st)st.textContent='❌ '+e.message}
+  inputEl.value='';
+}
+// ═══════════════════════════════════════════════════════
+
 function prevImg(){const url=val('f-img');g('img-prev').innerHTML=url?'<img src="'+url+'" style="max-width:160px;max-height:100px;border-radius:6px;border:1px solid var(--b)">':''}
 function saveBeat(){
   const id=val('f-id').trim(),name=val('f-name').trim();if(!id||!name){showToast('ID y nombre requeridos',true);return}
@@ -2882,6 +3001,6 @@ function removeWhitelistEmail(idx){
   }
 })();
 </script>
-<!-- DACEWAV.STORE Admin v4.3 — 2026-04-09 -->
+<!-- DACEWAV.STORE Admin v5.1 — 2026-04-09 — Worker API integration -->
 </body>
 </html>
