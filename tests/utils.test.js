@@ -14,6 +14,7 @@ describe('hexRgba', () => {
   });
 
   it('handles null/undefined by falling back to #000', () => {
+    // null/undefined → '#000' fallback → strips '#' → '000' (len 3 < 6) → returns as-is
     expect(hexRgba(null, 0.5)).toBe('000');
     expect(hexRgba(undefined, 1)).toBe('000');
   });

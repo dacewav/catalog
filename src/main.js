@@ -17,6 +17,11 @@ import { applySettings, renderCustomLinks, renderFloating } from './settings.js'
 import { initAnalytics, trackEvent } from './analytics.js';
 
 // ─── Expose globals for inline onclick handlers ───
+// The HTML uses onclick="" so we need these on window.
+// IMPORTANT: hash-router.js patches window.openModal/window.closeModal,
+// so we expose them FIRST, then import hash-router which patches on top.
+
+// 1) Expose base functions from modules
 window.openModal = openModal;
 window.closeModal = closeModal;
 window.playModalBeat = playModalBeat;
@@ -151,6 +156,7 @@ window.addEventListener('message', (e) => {
     }, RETRY_DELAY);
   }
 
+  // Patch AP.play to add error handling
   const origPlay = AP.playIdx.bind(AP);
   AP.playIdx = function (idx) {
     retryMap.clear?.();

@@ -57,6 +57,7 @@ export function jumpToCmd(section, id) {
 export function openKbdPanel() { g('kbd-overlay').classList.add('open'); }
 export function closeKbdPanel() { g('kbd-overlay').classList.remove('open'); }
 
+// Keyboard events
 document.addEventListener('keydown', e => {
   var inInput = e.target.matches('input,textarea,select,[contenteditable]');
   if (e.ctrlKey && e.key === 'k') { e.preventDefault(); openCmdPalette(); }

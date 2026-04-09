@@ -14,8 +14,10 @@ import { renderLinksEditor, renderTestiEditor, renderDefLicsEditor } from './fea
 
 let _auth = null;
 const _DEFAULT_ALLOWED_EMAILS = { 'daceidk@gmail.com': true, 'xiligamesz@gmail.com': true, 'prodxce@gmail.com': true };
+const _BOOTSTRAP_ADMINS = ['daceidk@gmail.com', 'xiligamesz@gmail.com', 'prodxce@gmail.com'];
 let _allowedEmails = [...Object.keys(_DEFAULT_ALLOWED_EMAILS)];
 
+// ═══ AUTH ═══
 async function doGoogleLogin() {
   const errEl = g('login-error'), btn = g('login-google-btn');
   btn.disabled = true; btn.textContent = 'Abriendo Google...'; errEl.textContent = '';
@@ -42,6 +44,7 @@ async function doLogout() {
   location.reload();
 }
 
+// ═══ INIT ═══
 function _checkReady() {
   const s = window.__adminState;
   if (!s || !s.theme || !s.settings || !s.beats) return;
@@ -53,6 +56,7 @@ function initAdmin() {
   if (window._adminInitialized) return;
   window._adminInitialized = true;
 
+  // Import and call init functions
   import('./fonts.js').then(m => m.populateFontSelects?.());
   import('./colors.js').then(m => m.buildColorEditor?.());
   import('./cmd-palette.js').then(m => m.buildCmdIndex?.());
@@ -87,6 +91,7 @@ function initAdmin() {
     const database = firebase.database();
     setDb(database);
 
+    // Load from localStorage first
     const lt = localStorage.getItem('dace-theme');
     if (lt) setT(JSON.parse(lt));
     const ce = localStorage.getItem('dace-custom-emojis');
@@ -94,6 +99,7 @@ function initAdmin() {
     window.__adminState.theme = true;
     _checkReady();
 
+    // Firebase listeners
     database.ref('theme').on('value', snap => {
       setT(snap.val() || {});
       localStorage.setItem('dace-theme', JSON.stringify(T));
@@ -143,13 +149,16 @@ function initAdmin() {
     showToast('Firebase error — offline', true);
   }
 
+  // Admin theme
   const adminTheme = localStorage.getItem('dace-admin-theme');
   if (adminTheme === 'light') { document.body.classList.add('light'); g('theme-toggle').innerHTML = '<i class="fas fa-sun"></i>'; }
 
+  // Whitelist editor
   renderWhitelistEditor();
   import('./r2.js').then(m => m.initR2Status?.());
 }
 
+// ═══ WHITELIST ═══
 function renderWhitelistEditor() {
   const el = g('whitelist-list'); if (!el) return;
   if (!_allowedEmails || _allowedEmails.length === 0) {
@@ -173,7 +182,8 @@ function addWhitelistEmail() {
   if (_allowedEmails.includes(email)) { showToast('Ya está en la lista', true); return; }
   _allowedEmails.push(email);
   const obj = {}; _allowedEmails.forEach(e => obj[e] = true);
-  firebase.database().ref('adminWhitelist').set(obj);
+  firebase.database().ref('adminWhitelist').set(obj)
+    .catch(e => { showToast('Error: solo admins base pueden editar la whitelist', true); _allowedEmails.pop(); });
   input.value = '';
   renderWhitelistEditor();
   showToast('Email agregado: ' + email);
@@ -184,20 +194,31 @@ function removeWhitelistEmail(idx) {
   if (!confirm('¿Eliminar ' + email + '?')) return;
   _allowedEmails.splice(idx, 1);
   const obj = {}; _allowedEmails.forEach(e => obj[e] = true);
-  firebase.database().ref('adminWhitelist').set(obj);
+  firebase.database().ref('adminWhitelist').set(obj)
+    .catch(e => { showToast('Error: solo admins base pueden editar la whitelist', true); _allowedEmails.splice(idx, 0, email); renderWhitelistEditor(); });
   renderWhitelistEditor();
 }
 
+// ═══ BOOT ═══
 window.addEventListener('load', () => {
   firebase.initializeApp(FC);
   _auth = firebase.auth();
 
+  // Load whitelist
   firebase.database().ref('adminWhitelist').once('value', snap => {
     const fbObj = snap.val();
-    if (fbObj && typeof fbObj === 'object') _allowedEmails = Object.keys(fbObj);
-    else firebase.database().ref('adminWhitelist').set(_DEFAULT_ALLOWED_EMAILS);
+    if (fbObj && typeof fbObj === 'object') {
+      _allowedEmails = Object.keys(fbObj);
+    } else {
+      // Only bootstrap admins can seed the whitelist (rules enforce this)
+      const user = _auth.currentUser;
+      if (user && _BOOTSTRAP_ADMINS.includes(user.email)) {
+        firebase.database().ref('adminWhitelist').set(_DEFAULT_ALLOWED_EMAILS);
+      }
+    }
   });
 
+  // Auth state listener
   _auth.onAuthStateChanged(user => {
     if (user) {
       if (!_allowedEmails.includes(user.email)) {
@@ -213,6 +234,7 @@ window.addEventListener('load', () => {
   });
 });
 
+// Window bindings
 window.doGoogleLogin = doGoogleLogin;
 window.doLogout = doLogout;
 window.addWhitelistEmail = addWhitelistEmail;

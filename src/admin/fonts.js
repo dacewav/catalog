@@ -1,4 +1,4 @@
-// ═══ DACEWAV Admin — Fonts & Font Picker ═══
+// ═══ DACEWAV Admin — Font Picker ═══
 import { FONT_DISPLAY, FONT_BODY } from './config.js';
 import { _fpState } from './state.js';
 import { g, val, setVal, loadFont, showToast } from './helpers.js';
@@ -122,6 +122,7 @@ export function applyTypo(name) {
   loadAndPreviewFont(); autoSave(); showToast('Typo: ' + name);
 }
 
+// Close font pickers on outside click
 document.addEventListener('click', function (e) {
   if (!e.target.closest('.font-picker')) {
     document.querySelectorAll('.font-picker-dd.open').forEach(d => d.classList.remove('open'));

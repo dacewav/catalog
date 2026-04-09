@@ -5,7 +5,6 @@
 import { ANIMS } from './config.js';
 import {
   db, T, setT, siteSettings, customEmojis, floatingEls,
-  allBeats, defLics, customLinks,
   _undoStack, _redoStack, _lastSavedTheme, _undoDebounce,
   _iframeReady, setIframeReady, _ldTheme, _ldSettings, _ldBeats,
   setLdTheme, setLdSettings, setLdBeats,
@@ -24,12 +23,14 @@ let _autoSaveTimer = null;
 // ═══ UNDO/REDO ═══
 export function pushUndo() {
   clearTimeout(_undoDebounce);
+  // Use a simple timeout approach (the original used _undoDebounce but it was a let)
   const timer = setTimeout(() => {
     const snap = JSON.stringify(collectTheme());
     if (_lastSavedTheme === snap) return;
     _undoStack.push(snap);
     if (_undoStack.length > 50) _undoStack.shift();
     _redoStack.length = 0;
+    // Note: can't reassign _lastSavedTheme from here, it's handled by the snapshot comparison
   }, 300);
 }
 export function undo() {
@@ -95,6 +96,7 @@ export function _collectSiteSettings() {
   siteSettings.bannerTxtClr = val('b-txt-clr') || '#ffffff';
 }
 
+// Wire up helpers autoSave reference
 setAutoSaveRef(autoSave);
 
 // ═══ IFRAME COMMUNICATION ═══
@@ -135,6 +137,7 @@ export function setViewport(mode) {
   const btnMap = { mobile: 0, tablet: 1, desktop: 2 };
   document.querySelectorAll('.preview-bar-center .vp-btn')[btnMap[mode]]?.classList.add('on');
 }
+// Circular dep workaround: nav showSection called from message handler
 let showSectionNav = () => {};
 export function setShowSectionNav(fn) { showSectionNav = fn; }
 
@@ -402,6 +405,10 @@ export function loadThemeUI() {
   document.querySelectorAll('.slider-wrap input[type=range]').forEach(el => sv(el));
   loadColorValues();
   const gs = g('gc-swatch'); if (gs) gs.style.background = T.glowColor || T.accent || '#dc2626';
+  const ht = g('hpv-title'), he = g('hpv-eyebrow'), hs = g('hpv-sub');
+  if (ht && T.heroDragTitleTop != null) { ht.style.top = T.heroDragTitleTop + 'px'; ht.style.left = (T.heroDragTitleLeft || 0) + 'px'; }
+  if (he && T.heroDragEyebrowTop != null) { he.style.top = T.heroDragEyebrowTop + 'px'; he.style.left = (T.heroDragEyebrowLeft || 0) + 'px'; }
+  if (hs && T.heroDragSubTop != null) { hs.style.top = T.heroDragSubTop + 'px'; hs.style.left = (T.heroDragSubLeft || 0) + 'px'; }
   loadAndPreviewFont(); updatePreview(); updateHeroPv(); updateBannerPv();
   renderSaveSlots(); buildAnimControls();
 }
@@ -435,8 +442,7 @@ export function loadSettingsUI() {
 export function buildAnimControls() {
   const els = [{ key: 'logo', label: 'Logo' }, { key: 'title', label: 'Título Hero' }, { key: 'cards', label: 'Tarjetas' }, { key: 'player', label: 'Player' }, { key: 'buttons', label: 'Botones' }, { key: 'waveform', label: 'Waveform' }];
   const sel = ANIMS.map(a => '<option value="' + a + '">' + (a === 'none' ? 'Ninguna' : a) + '</option>').join('');
-  const ctrl = g('anim-controls');
-  if (ctrl) ctrl.innerHTML = els.map(el => '<div class="anim-ed"><div class="anim-ed-title">' + el.label + '</div><div class="fg3"><div class="field"><label>Tipo</label><select data-ak="' + el.key + '" data-af="type" onchange="autoSave()">' + sel + '</select></div><div class="field"><label>Velocidad</label><div class="slider-wrap"><input type="range" min="0.5" max="3" step="0.1" value="2" data-ak="' + el.key + '" data-af="dur" oninput="this.nextElementSibling.textContent=parseFloat(this.value).toFixed(1)+\'s\';autoSave()"><span class="slider-val">2.0s</span></div></div><div class="field"><label>Delay</label><div class="slider-wrap"><input type="range" min="0" max="2" step="0.1" value="0" data-ak="' + el.key + '" data-af="del" oninput="this.nextElementSibling.textContent=parseFloat(this.value).toFixed(1)+\'s\';autoSave()"><span class="slider-val">0.0s</span></div></div></div></div>').join('');
+  g('anim-controls').innerHTML = els.map(el => '<div class="anim-ed"><div class="anim-ed-title">' + el.label + '</div><div class="fg3"><div class="field"><label>Tipo</label><select data-ak="' + el.key + '" data-af="type" onchange="autoSave()">' + sel + '</select></div><div class="field"><label>Velocidad</label><div class="slider-wrap"><input type="range" min="0.5" max="3" step="0.1" value="2" data-ak="' + el.key + '" data-af="dur" oninput="this.nextElementSibling.textContent=parseFloat(this.value).toFixed(1)+\'s\';autoSave()"><span class="slider-val">2.0s</span></div></div><div class="field"><label>Delay</label><div class="slider-wrap"><input type="range" min="0" max="2" step="0.1" value="0" data-ak="' + el.key + '" data-af="del" oninput="this.nextElementSibling.textContent=parseFloat(this.value).toFixed(1)+\'s\';autoSave()"><span class="slider-val">0.0s</span></div></div></div></div>').join('');
   loadAnimValues();
 }
 export function collectAnim(key) {
@@ -475,8 +481,7 @@ const PRESETS = [
   { name: 'RETRO ARCADE', bg: '#0a0a0a', surface: '#141414', accent: '#ff5722', fontDisplay: 'Press Start 2P', fontBody: 'Fira Code', colors: ['#0a0a0a', '#141414', '#ff5722', '#ffcc80'] }
 ];
 export function renderPresets() {
-  const el = g('preset-grid');
-  if (el) el.innerHTML = PRESETS.map((p, i) => '<div class="preset-card' + (T._preset === i ? ' active' : '') + '" onclick="applyPreset(' + i + ')"><div class="preset-swatches">' + p.colors.map(c => '<span style="background:' + c + '"></span>').join('') + '</div><div class="preset-name">' + p.name + '</div><div class="preset-fonts">' + p.fontDisplay + ' + ' + p.fontBody + '</div></div>').join('');
+  g('preset-grid').innerHTML = PRESETS.map((p, i) => '<div class="preset-card' + (T._preset === i ? ' active' : '') + '" onclick="applyPreset(' + i + ')"><div class="preset-swatches">' + p.colors.map(c => '<span style="background:' + c + '"></span>').join('') + '</div><div class="preset-name">' + p.name + '</div><div class="preset-fonts">' + p.fontDisplay + ' + ' + p.fontBody + '</div></div>').join('');
 }
 export function applyPreset(idx) {
   const p = PRESETS[idx]; if (!p) return;
@@ -491,8 +496,7 @@ export function applyPreset(idx) {
 
 // ═══ SAVE SLOTS ═══
 export function renderSaveSlots() {
-  const el = g('save-slots');
-  if (el) el.innerHTML = [1, 2, 3].map(i => {
+  g('save-slots').innerHTML = [1, 2, 3].map(i => {
     const s = localStorage.getItem('dace-slot-' + i); const name = s ? JSON.parse(s).name : 'Vacío';
     return '<div class="slot" onclick="slotAction(' + i + ')"><div class="slot-label">Slot ' + i + '</div><div class="slot-name">' + name + '</div></div>';
   }).join('');
@@ -511,8 +515,7 @@ export function saveCustomTheme() {
 }
 export function renderCustomThemes() {
   const c = JSON.parse(localStorage.getItem('dace-custom-themes') || '[]');
-  const el = g('custom-themes-list');
-  if (el) el.innerHTML = c.length ? c.map((t, i) => '<div style="display:flex;align-items:center;gap:6px;padding:4px 0;border-bottom:1px solid var(--b)"><span style="flex:1;font-size:11px;font-weight:700">' + t.name + '</span><button class="btn btn-g" onclick="loadCustomTheme(' + i + ')" style="font-size:9px">Cargar</button><button class="btn btn-del" onclick="deleteCustomTheme(' + i + ')" style="font-size:9px">✕</button></div>').join('') : '<div style="color:var(--hi);font-size:10px">Sin temas personalizados</div>';
+  g('custom-themes-list').innerHTML = c.length ? c.map((t, i) => '<div style="display:flex;align-items:center;gap:6px;padding:4px 0;border-bottom:1px solid var(--b)"><span style="flex:1;font-size:11px;font-weight:700">' + t.name + '</span><button class="btn btn-g" onclick="loadCustomTheme(' + i + ')" style="font-size:9px">Cargar</button><button class="btn btn-del" onclick="deleteCustomTheme(' + i + ')" style="font-size:9px">✕</button></div>').join('') : '<div style="color:var(--hi);font-size:10px">Sin temas personalizados</div>';
 }
 export function loadCustomTheme(i) {
   const c = JSON.parse(localStorage.getItem('dace-custom-themes') || '[]'); if (!c[i]) return;
@@ -563,11 +566,10 @@ export function animPP(canvas) {
 
 // ═══ EMOJIS ═══
 export { EMOJIS } from './config.js';
-export function renderEmojiGrid() { const el = g('emoji-grid'); if (el) el.innerHTML = EMOJIS.map(e => '<div class="emoji-btn" onclick="insertEmoji(\'' + e + '\')">' + e + '</div>').join(''); }
+export function renderEmojiGrid() { g('emoji-grid').innerHTML = EMOJIS.map(e => '<div class="emoji-btn" onclick="insertEmoji(\'' + e + '\')">' + e + '</div>').join(''); }
 export function insertEmoji(e) { const b = g('b-text'); if (b) { b.value += e; updateBannerPv(); autoSave(); } }
 export function renderCustomEmojis() {
-  const el = g('ce-list');
-  if (el) el.innerHTML = customEmojis.length ? customEmojis.map((e, i) => '<div class="ce-item"><img src="' + e.url + '"><div class="ce-name">:' + e.name + ':</div><button class="btn btn-del" onclick="removeCE(' + i + ')" style="font-size:9px">✕</button></div>').join('') : '<div style="color:var(--hi);font-size:10px">Sin emojis personalizados</div>';
+  g('ce-list').innerHTML = customEmojis.length ? customEmojis.map((e, i) => '<div class="ce-item"><img src="' + e.url + '"><div class="ce-name">:' + e.name + ':</div><button class="btn btn-del" onclick="removeCE(' + i + ')" style="font-size:9px">✕</button></div>').join('') : '<div style="color:var(--hi);font-size:10px">Sin emojis personalizados</div>';
 }
 export function addCustomEmoji() {
   const name = val('ce-name').trim(), url = val('ce-url').trim();
@@ -721,147 +723,199 @@ export function renderFloatingEditor() {
       + '<div class="btn-row" style="margin-top:6px"><button class="btn btn-ok" onclick="saveFE(\'' + k + '\')" style="font-size:9px">Guardar</button><button class="btn btn-del" onclick="rmFE(\'' + k + '\')" style="font-size:9px">✕</button></div></div>';
   }).join('') : '<div style="color:var(--hi);font-size:10px">Sin elementos flotantes.</div>';
 }
-
 export function renderFloatingPreview() {
-  const el = g('floating-preview'); if (!el) return;
-  el.innerHTML = '';
-  Object.entries(floatingEls).forEach(([k, o]) => {
-    if (!o || !o.visible) return;
-    const div = document.createElement('div');
-    const i = el.offsetWidth / 1200;
-    const s = 120 / 800;
-    div.style.cssText = 'position:absolute;left:' + (o.x || 0) * i + 'px;top:' + (o.y || 0) * s + 'px;width:' + (o.width || 100) * i + 'px;height:' + (o.height || 100) * s + 'px;opacity:' + (o.opacity || 1) + ';pointer-events:none';
-    if (o.type === 'text') div.innerHTML = '<div style="font-size:' + Math.max(6, (o.fontSize || 16) * i) + 'px;color:var(--tx);white-space:nowrap">' + (o.content || '') + '</div>';
-    else if (o.content) div.innerHTML = '<img src="' + o.content + '" style="width:100%;height:100%;object-fit:contain" onerror="this.style.display=\'none\'">';
-    el.appendChild(div);
+  const pv = g('floating-preview'); if (!pv) return; pv.innerHTML = '';
+  Object.entries(floatingEls).forEach(([k, el]) => {
+    if (!el || !el.visible) return;
+    const d = document.createElement('div');
+    const scaleX = pv.offsetWidth / 1200, scaleY = 120 / 800;
+    d.style.cssText = 'position:absolute;left:' + ((el.x || 0) * scaleX) + 'px;top:' + ((el.y || 0) * scaleY) + 'px;width:' + ((el.width || 100) * scaleX) + 'px;height:' + ((el.height || 100) * scaleY) + 'px;opacity:' + (el.opacity || 1) + ';pointer-events:none';
+    if (el.type === 'text') d.innerHTML = '<div style="font-size:' + Math.max(6, (el.fontSize || 16) * scaleX) + 'px;color:var(--tx);white-space:nowrap">' + (el.content || '') + '</div>';
+    else if (el.content) d.innerHTML = '<img src="' + el.content + '" style="width:100%;height:100%;object-fit:contain" onerror="this.style.display=\'none\'">';
+    pv.appendChild(d);
   });
 }
-
 export function addFE() {
-  const e = 'fe_' + Date.now();
-  floatingEls[e] = { type: 'image', content: '', x: 100, y: 100, width: 100, height: 100, opacity: 1, visible: true, anim: 'none', animDur: 2, fontSize: 16 };
+  const k = 'fe_' + Date.now();
+  floatingEls[k] = { type: 'image', content: '', x: 100, y: 100, width: 100, height: 100, opacity: 1, visible: true, anim: 'none', animDur: 2, fontSize: 16 };
   renderFloatingEditor(); renderFloatingPreview();
 }
-
-export function saveFE(e) {
-  const item = document.querySelector('.fe-ed-item[data-key="' + e + '"]'); if (!item) return;
-  const o = {};
-  item.querySelectorAll('[data-f]').forEach(a => { o[a.dataset.f] = a.type === 'checkbox' ? a.checked : a.value; });
-  floatingEls[e] = { ...floatingEls[e], ...o, x: parseFloat(o.x) || 0, y: parseFloat(o.y) || 0, width: parseFloat(o.width) || 100, height: parseFloat(o.height) || 100, opacity: parseFloat(o.opacity) || 1, fontSize: parseInt(o.fontSize) || 16 };
+export function saveFE(k) {
+  const el = document.querySelector('.fe-ed-item[data-key="' + k + '"]'); if (!el) return;
+  const f = {}; el.querySelectorAll('[data-f]').forEach(inp => { f[inp.dataset.f] = inp.type === 'checkbox' ? inp.checked : inp.value; });
+  floatingEls[k] = { ...floatingEls[k], ...f, x: parseFloat(f.x) || 0, y: parseFloat(f.y) || 0, width: parseFloat(f.width) || 100, height: parseFloat(f.height) || 100, opacity: parseFloat(f.opacity) || 1, fontSize: parseInt(f.fontSize) || 16 };
   localStorage.setItem('dace-floating', JSON.stringify(floatingEls));
-  if (db) db.ref('floatingElements/' + e).set(floatingEls[e]).catch(() => {});
+  if (db) db.ref('floatingElements/' + k).set(floatingEls[k]).catch(() => {});
   renderFloatingPreview(); showToast('Elemento guardado');
 }
-
-export function rmFE(e) {
-  delete floatingEls[e];
-  localStorage.setItem('dace-floating', JSON.stringify(floatingEls));
-  if (db) db.ref('floatingElements/' + e).remove().catch(() => {});
+export function rmFE(k) {
+  delete floatingEls[k]; localStorage.setItem('dace-floating', JSON.stringify(floatingEls));
+  if (db) db.ref('floatingElements/' + k).remove().catch(() => {});
   renderFloatingEditor(); renderFloatingPreview(); showToast('Eliminado');
 }
 
 // ═══ GRADIENT EDITOR ═══
-export function buildGradCSS() {
-  const stops = _gradStops.sort((a, b) => a.pos - b.pos);
-  return 'radial-gradient(ellipse 80% 60% at 50% 0%, ' + stops.map(s => hexRgba(s.color, s.opacity) + ' ' + s.pos + '%').join(', ') + ')';
-}
 export function renderGradEditor() {
-  const el = g('grad-stops'); if (!el) return;
-  el.innerHTML = '<div style="height:24px;border-radius:4px;background:' + buildGradCSS() + ';margin-bottom:8px"></div>' +
-    _gradStops.map((s, i) => '<div style="display:flex;align-items:center;gap:6px;margin-bottom:4px"><input type="range" min="0" max="100" value="' + s.pos + '" style="flex:1" oninput="updateGradStop(' + i + ',\'pos\',this.value)"><input type="color" value="' + s.color + '" style="width:28px;height:22px" oninput="updateGradStop(' + i + ',\'color\',this.value)"><input type="number" min="0" max="1" step="0.01" value="' + s.opacity + '" style="width:60px" oninput="updateGradStop(' + i + ',\'opacity\',this.value)"><button class="btn btn-del" style="font-size:8px;padding:2px 6px" onclick="rmGradStop(' + i + ')">✕</button></div>').join('') +
-    '<button class="btn btn-g" onclick="addGradStop()" style="font-size:9px;margin-top:4px">+ Stop</button>';
+  const wrap = g('grad-stops'); if (!wrap) return;
+  const gradCSS = buildGradCSS();
+  wrap.innerHTML = '<div style="height:40px;border-radius:var(--rad);border:1px solid var(--b);margin-bottom:8px;position:relative;overflow:hidden;cursor:pointer" id="grad-bar" onclick="addGradStop(event)">'
+    + '<div style="width:100%;height:100%;background:linear-gradient(90deg,' + gradCSS + ');transition:background .2s"></div>'
+    + _gradStops.map((s, i) => '<div style="position:absolute;left:' + s.pos + '%;top:0;bottom:0;width:12px;margin-left:-6px;cursor:ew-resize;display:flex;flex-direction:column;align-items:center;padding-top:2px" onmousedown="startDragStop(event,' + i + ')"><div style="width:10px;height:10px;border-radius:50%;background:' + s.color + ';border:2px solid #fff;box-shadow:0 1px 3px rgba(0,0,0,0.5)"></div><div style="width:2px;flex:1;background:rgba(255,255,255,0.5)"></div></div>').join('')
+    + '</div><div style="display:flex;flex-direction:column;gap:4px">'
+    + _gradStops.map((s, i) => '<div style="display:flex;align-items:center;gap:6px;padding:4px 6px;background:var(--as2);border-radius:var(--rad)"><span style="font-size:9px;color:var(--mu);min-width:16px">' + i + '</span><input type="range" min="0" max="100" value="' + s.pos + '" style="width:70px" oninput="updateGradStop(' + i + ',\'pos\',this.value)"><input type="color" value="' + s.color + '" style="width:22px;height:18px;border:1px solid var(--b);border-radius:3px;padding:0" oninput="updateGradStop(' + i + ',\'color\',this.value)"><input type="range" min="0" max="0.5" step="0.01" value="' + s.opacity + '" style="width:50px" oninput="updateGradStop(' + i + ',\'opacity\',this.value)"><span style="font-size:9px;color:var(--acc);min-width:28px">' + s.opacity.toFixed(2) + '</span><button class="btn btn-del" onclick="rmGradStop(' + i + ')" style="font-size:8px;padding:2px 5px;margin-left:auto">✕</button></div>').join('')
+    + '</div>';
 }
-export function updateGradStop(i, field, val) {
-  _gradStops[i][field] = field === 'pos' ? parseInt(val) : field === 'opacity' ? parseFloat(val) : val;
-  renderGradEditor(); applyGradToHero(); autoSave();
+export function buildGradCSS() {
+  const sorted = [..._gradStops].sort((a, b) => a.pos - b.pos);
+  return sorted.map(s => 'rgba(' + parseInt(s.color.slice(1, 3), 16) + ',' + parseInt(s.color.slice(3, 5), 16) + ',' + parseInt(s.color.slice(5, 7), 16) + ',' + s.opacity + ') ' + s.pos + '%').join(', ');
 }
-export function addGradStop() { _gradStops.push({ pos: 50, color: '#dc2626', opacity: 0.1 }); renderGradEditor(); }
-export function rmGradStop(i) { if (_gradStops.length <= 1) return; _gradStops.splice(i, 1); renderGradEditor(); applyGradToHero(); autoSave(); }
+export function addGradStop(e) {
+  const bar = g('grad-bar'); if (!bar) return; const r = bar.getBoundingClientRect();
+  const pos = Math.round(((e.clientX - r.left) / r.width) * 100);
+  _gradStops.push({ pos, color: '#dc2626', opacity: 0.1 }); renderGradEditor(); applyGradToHero();
+}
+export function updateGradStop(i, field, v) {
+  if (!_gradStops[i]) return;
+  _gradStops[i][field] = field === 'pos' ? parseInt(v) : field === 'opacity' ? parseFloat(v) : v;
+  clearTimeout(_gradRerenderTimer);
+  setGradRerenderTimer(setTimeout(() => { renderGradEditor(); applyGradToHero(); }, field === 'color' ? 300 : 0));
+}
+export function rmGradStop(i) { _gradStops.splice(i, 1); renderGradEditor(); applyGradToHero(); }
+export function startDragStop(e, i) {
+  e.preventDefault(); const bar = g('grad-bar'); if (!bar) return; const r = bar.getBoundingClientRect();
+  function onMove(ev) { const pos = Math.round(Math.max(0, Math.min(100, ((ev.clientX - r.left) / r.width) * 100))); _gradStops[i].pos = pos; renderGradEditor(); applyGradToHero(); }
+  function onUp() { document.removeEventListener('mousemove', onMove); document.removeEventListener('mouseup', onUp); }
+  document.addEventListener('mousemove', onMove); document.addEventListener('mouseup', onUp);
+}
 export function applyGradToHero() {
   const css = buildGradCSS();
-  const heroSection = document.getElementById('hero-section');
-  if (heroSection) heroSection.style.setProperty('--hero-grad', css);
+  const pvg = g('hpv-grad');
+  if (pvg) pvg.style.background = 'radial-gradient(ellipse ' + (parseInt(val('h-grad-w')) || 80) + '% ' + (parseInt(val('h-grad-h')) || 60) + '% at 50% 0%, ' + css + ')';
 }
 
-// ═══ SNAPSHOT SYSTEM ═══
-export function renderSnapshots() {
-  const snaps = JSON.parse(localStorage.getItem('dace-snapshots') || '[]');
-  const el = g('snapshots-list'); if (!el) return;
-  el.innerHTML = snaps.length ? snaps.map((s, i) => '<div style="display:flex;align-items:center;gap:6px;padding:4px 0;border-bottom:1px solid var(--b)"><span style="flex:1;font-size:10px">' + s.name + '</span><span style="font-size:8px;color:var(--hi)">' + (s.date || '').slice(0, 10) + '</span><button class="btn btn-g" onclick="loadSnapshot(' + i + ')" style="font-size:8px">Cargar</button><button class="btn btn-del" onclick="rmSnapshot(' + i + ')" style="font-size:8px">✕</button></div>').join('') : '<div style="color:var(--hi);font-size:10px">Sin snapshots</div>';
-}
-export function takeSnapshot() {
-  const name = prompt('Nombre del snapshot:', 'Snapshot ' + new Date().toLocaleTimeString());
-  if (!name) return;
-  const snaps = JSON.parse(localStorage.getItem('dace-snapshots') || '[]');
-  snaps.push({ name, theme: collectTheme(), date: new Date().toISOString() });
-  if (snaps.length > 10) snaps.shift();
-  localStorage.setItem('dace-snapshots', JSON.stringify(snaps));
-  renderSnapshots(); showToast('Snapshot guardado');
-}
-export function loadSnapshot(i) {
-  const snaps = JSON.parse(localStorage.getItem('dace-snapshots') || '[]');
-  if (!snaps[i]) return;
-  setT(snaps[i].theme); loadThemeUI(); autoSave(); showToast('Snapshot: ' + snaps[i].name);
-}
-export function rmSnapshot(i) {
-  const snaps = JSON.parse(localStorage.getItem('dace-snapshots') || '[]');
-  snaps.splice(i, 1); localStorage.setItem('dace-snapshots', JSON.stringify(snaps)); renderSnapshots();
+// ═══ HERO DRAG ═══
+export function setupHeroDrag() {
+  const pv = g('hero-pv'); if (!pv) return;
+  let heroDragEl = null, heroDragStart = {};
+  [g('hpv-title'), g('hpv-eyebrow'), g('hpv-sub')].forEach(el => {
+    if (!el) return; el.style.cursor = 'move'; el.style.position = 'relative';
+    el.addEventListener('mousedown', e => {
+      if (e.target.closest('input,select,button')) return;
+      heroDragEl = el; heroDragStart = { x: e.clientX, y: e.clientY, top: parseFloat(el.style.top) || 0, left: parseFloat(el.style.left) || 0 };
+      e.preventDefault();
+    });
+  });
+  document.addEventListener('mousemove', e => {
+    if (!heroDragEl) return;
+    heroDragEl.style.top = (heroDragStart.top + e.clientY - heroDragStart.y) + 'px';
+    heroDragEl.style.left = (heroDragStart.left + e.clientX - heroDragStart.x) + 'px';
+  });
+  document.addEventListener('mouseup', () => { heroDragEl = null; });
 }
 
 // ═══ FULLSCREEN PREVIEW ═══
 export function toggleFullscreenPreview() {
-  const panel = g('preview-panel');
-  if (panel) panel.classList.toggle('fullscreen');
+  const panel = g('preview-panel'); if (!panel) return;
+  const isFs = panel.classList.toggle('fullscreen');
+  if (isFs) { panel.style.cssText = 'position:fixed;inset:0;z-index:9999;background:#000'; document.addEventListener('keydown', escFullscreen); }
+  else { panel.style.cssText = ''; document.removeEventListener('keydown', escFullscreen); }
+  showToast(isFs ? 'Preview fullscreen — ESC para salir' : 'Preview normal');
+}
+function escFullscreen(e) {
+  if (e.key === 'Escape') { const p = g('preview-panel'); if (p) { p.classList.remove('fullscreen'); p.style.cssText = ''; } document.removeEventListener('keydown', escFullscreen); }
 }
 
-// ═══ HERO DRAG ═══
-export function setupHeroDrag() { /* placeholder — complex drag logic */ }
+// ═══ SNAPSHOTS ═══
+export function takeSnapshot() {
+  const snaps = JSON.parse(localStorage.getItem('dace-snapshots') || '[]');
+  snaps.push({ name: val('snap-name') || 'Snapshot ' + (snaps.length + 1), theme: collectTheme(), date: new Date().toISOString() });
+  if (snaps.length > 10) snaps.shift();
+  localStorage.setItem('dace-snapshots', JSON.stringify(snaps));
+  setVal('snap-name', ''); renderSnapshots(); showToast('Snapshot guardado');
+}
+export function renderSnapshots() {
+  const wrap = g('snapshots-list'); if (!wrap) return;
+  const snaps = JSON.parse(localStorage.getItem('dace-snapshots') || '[]');
+  wrap.innerHTML = snaps.length ? snaps.map((s, i) => '<div style="display:flex;align-items:center;gap:6px;padding:4px 0;border-bottom:1px solid var(--b)"><div style="flex:1"><div style="font-size:11px;font-weight:700">' + s.name + '</div><div style="font-size:9px;color:var(--hi)">' + new Date(s.date).toLocaleString() + '</div></div><button class="btn btn-g" onclick="loadSnapshot(' + i + ')" style="font-size:9px">Cargar</button><button class="btn btn-del" onclick="rmSnapshot(' + i + ')" style="font-size:9px">✕</button></div>').join('') : '<div style="color:var(--hi);font-size:10px">Sin snapshots</div>';
+  populateDiffSelects();
+}
+export function loadSnapshot(i) {
+  const snaps = JSON.parse(localStorage.getItem('dace-snapshots') || '[]'); if (!snaps[i]) return;
+  setT(snaps[i].theme); loadThemeUI(); autoSave(); showToast('Snapshot: ' + snaps[i].name);
+}
+export function rmSnapshot(i) {
+  const snaps = JSON.parse(localStorage.getItem('dace-snapshots') || '[]'); snaps.splice(i, 1);
+  localStorage.setItem('dace-snapshots', JSON.stringify(snaps)); renderSnapshots();
+}
 
-// ═══ STUBS for truncated functions ═══
-export function importThemeFromURL() { showToast('No implementado'); }
-export function promptImportURL() { showToast('No implementado'); }
-export function populateDiffSelects() { /* stub */ }
-export function updateDiff() { /* stub */ }
+// ═══ VISUAL DIFF ═══
+export function populateDiffSelects() {
+  const snaps = JSON.parse(localStorage.getItem('dace-snapshots') || '[]');
+  const opts = '<option value="">— Seleccionar —</option>' + snaps.map((s, i) => '<option value="' + i + '">' + s.name + '</option>').join('');
+  const da = g('diff-a'), db2 = g('diff-b');
+  if (da) da.innerHTML = opts; if (db2) db2.innerHTML = opts;
+}
+export function updateDiff() {
+  const aIdx = val('diff-a'), bIdx = val('diff-b');
+  const wrap = g('diff-result'); if (!wrap) return;
+  if (aIdx === '' || bIdx === '') { wrap.innerHTML = '<div style="color:var(--hi);font-size:10px">Selecciona dos snapshots</div>'; return; }
+  const snaps = JSON.parse(localStorage.getItem('dace-snapshots') || '[]');
+  const a = snaps[aIdx], b = snaps[bIdx]; if (!a || !b) { wrap.innerHTML = ''; return; }
+  const themeA = a.theme || {}, themeB = b.theme || {};
+  const allKeys = [...new Set([...Object.keys(themeA), ...Object.keys(themeB)])].sort();
+  const diffs = allKeys.filter(k => JSON.stringify(themeA[k]) !== JSON.stringify(themeB[k]));
+  if (!diffs.length) { wrap.innerHTML = '<div style="color:var(--gn);font-size:10px">✓ Sin diferencias</div>'; return; }
+  const labels = { bg: 'Fondo', surface: 'Surface', accent: 'Acento', text: 'Texto', fontDisplay: 'Font Display', fontBody: 'Font Body', glowColor: 'Glow', glowType: 'Glow Type', glowBlur: 'Glow Blur', glowIntensity: 'Glow Int', radiusGlobal: 'Border Radius', heroTitleSize: 'Hero Title', particlesOn: 'Partículas', beatGap: 'Beat Gap', padSection: 'Pad', blurBg: 'Blur', cardOpacity: 'Card Op' };
+  wrap.innerHTML = '<div style="font-size:10px;color:var(--acc);font-weight:700;margin-bottom:6px">' + diffs.length + ' cambios</div>' + diffs.map(k => {
+    const label = labels[k] || k;
+    const va = themeA[k] !== undefined ? String(themeA[k]).slice(0, 40) : '—';
+    const vb = themeB[k] !== undefined ? String(themeB[k]).slice(0, 40) : '—';
+    return '<div style="display:flex;align-items:center;gap:6px;padding:3px 0;border-bottom:1px solid var(--b);font-size:10px"><span style="min-width:80px;font-weight:600">' + label + '</span><span style="color:var(--mu);text-decoration:line-through">' + va + '</span><span style="color:var(--mu)">→</span><span style="color:var(--acc);font-weight:600">' + vb + '</span></div>';
+  }).join('');
+}
+
+// ═══ IMPORT URL ═══
+export function promptImportURL() {
+  const url = prompt('URL del tema JSON:\n(Ej: https://mi-servidor.com/tema.json)');
+  if (!url || !url.trim()) return; importThemeFromURL(url.trim());
+}
+export function importThemeFromURL(url) {
+  showSaving(true);
+  fetch(url).then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); }).then(data => {
+    showSaving(false);
+    let theme = null;
+    if (data.theme) theme = data.theme; else if (data.bg || data.accent || data.fontDisplay) theme = data;
+    else { showToast('Formato no reconocido', true); return; }
+    const snaps = JSON.parse(localStorage.getItem('dace-snapshots') || '[]');
+    snaps.push({ name: 'Backup antes de import URL', theme: collectTheme(), date: new Date().toISOString() });
+    if (snaps.length > 10) snaps.shift(); localStorage.setItem('dace-snapshots', JSON.stringify(snaps));
+    setT({ ...T, ...theme }); loadThemeUI(); autoSave(); showToast('Tema importado desde URL ✓'); renderSnapshots();
+  }).catch(err => { showSaving(false); showToast('Error: ' + err.message, true); });
+}
 
 // ═══ WINDOW ASSIGNMENTS ═══
 Object.assign(window, {
-  // Undo/Save
-  undo, redo, saveAll, autoSave, pushUndo,
-  // Export/Import
-  exportAll, importAll, exportCSS,
-  // Admin UI
-  toggleAdminTheme, toggleInspector, toggleFullscreenPreview,
-  // Theme management
-  applyPreset, renderPresets,
-  saveCustomTheme, renderCustomThemes, loadCustomTheme, deleteCustomTheme, resetTheme,
-  renderSaveSlots, slotAction,
-  // Preview
-  updatePreview, updateHeroPv, updateBannerPv,
-  updateGlowDesc, updateGlowAnimDesc,
-  // Hero sync
-  setupHeroSync,
-  // Emoji
-  renderEmojiGrid, insertEmoji, renderCustomEmojis, addCustomEmoji, removeCE,
-  // Anim
-  buildAnimControls, collectAnim, loadAnimValues,
-  // Tooltips
-  addTooltips,
-  // Floating
-  renderFloatingEditor, renderFloatingPreview, addFE, saveFE, rmFE,
-  // Gradient
-  renderGradEditor, updateGradStop, addGradStop, rmGradStop, applyGradToHero,
-  // Snapshots
-  renderSnapshots, takeSnapshot, loadSnapshot, rmSnapshot,
-  // Particles
-  initParticlesPreview, togglePFields,
-  // Change log
-  logChange, renderChangeLog,
-  // Iframe
-  refreshIframe, loadPreviewURL, setViewport,
-  // Broadcast
+  pushUndo, undo, redo, autoSave, saveAll,
   broadcastTheme, broadcastHighlight, clearHighlight,
-  // Theme collect/load
-  collectTheme, loadThemeUI, loadSettingsUI,
-  // Inspector
-  setShowSectionNav,
+  refreshIframe, loadPreviewURL, setViewport,
+  toggleInspector, toggleAdminTheme,
+  updateHeroPv, updateBannerPv,
+  updateGlowDesc, updateGlowAnimDesc, computeGlowCSS, applyGlowTo,
+  updatePreview, collectTheme, loadThemeUI, setupHeroSync, loadSettingsUI,
+  buildAnimControls, collectAnim, loadAnimValues,
+  renderPresets, applyPreset,
+  renderSaveSlots, slotAction,
+  saveCustomTheme, renderCustomThemes, loadCustomTheme, deleteCustomTheme, resetTheme,
+  togglePFields, initParticlesPreview, animPP,
+  renderEmojiGrid, insertEmoji, renderCustomEmojis, addCustomEmoji, removeCE,
+  exportAll, importAll, exportCSS,
+  logChange, renderChangeLog, logFieldChange,
+  addTooltips,
+  renderFloatingEditor, renderFloatingPreview, addFE, saveFE, rmFE,
+  renderGradEditor, buildGradCSS, addGradStop, updateGradStop, rmGradStop, startDragStop, applyGradToHero,
+  setupHeroDrag, toggleFullscreenPreview,
+  takeSnapshot, renderSnapshots, loadSnapshot, rmSnapshot,
+  populateDiffSelects, updateDiff,
+  promptImportURL, importThemeFromURL,
+  setShowSectionNav
 });

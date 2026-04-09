@@ -1,6 +1,8 @@
 // ═══ DACEWAV.STORE — Filters Tests ═══
+// Testing sort logic and filter logic in isolation
 import { describe, it, expect } from 'vitest';
 
+// Extract sort functions for testing (same logic as filters.js)
 const sorters = {
   newest: (a, b) => (b.createdAt || 0) - (a.createdAt || 0),
   oldest: (a, b) => (a.createdAt || 0) - (b.createdAt || 0),
@@ -12,6 +14,7 @@ const sorters = {
   'price-desc': (a, b) => ((b.licenses?.[0]?.priceMXN) || 0) - ((a.licenses?.[0]?.priceMXN) || 0),
 };
 
+// Same filter logic as applyFilters
 function filterBeat(beat, { query, genre, keyF, moodF, activeTags }) {
   if (genre && genre !== 'Todos' && beat.genre !== genre) return false;
   if (query) {
@@ -158,7 +161,7 @@ describe('filter logic', () => {
       { id: '2', name: 'B', genre: 'X', bpm: 100, key: 'C', createdAt: 2, licenses: [{ priceMXN: 500 }] },
     ];
     const sorted = beats.sort(sorters['price-asc']);
-    expect(sorted[0].id).toBe('1');
+    expect(sorted[0].id).toBe('1'); // 0 price first
     expect(sorted[1].id).toBe('2');
   });
 });

@@ -4,6 +4,9 @@ import { logError } from './error-handler.js';
 
 const WAVEFORM_BARS = 40;
 
+/**
+ * Generate waveform data from audio URL. Uses cache if available.
+ */
 export function generateWaveform(audioUrl, beatId, callback) {
   if (state.waveformCache[beatId]) {
     callback(state.waveformCache[beatId]);
@@ -66,6 +69,9 @@ export function generateWaveform(audioUrl, beatId, callback) {
   }
 }
 
+/**
+ * Convert waveform data array to SVG rects.
+ */
 export function waveformToSVG(wave, width, height) {
   if (!wave || !wave.length) return '';
   const barW = width / wave.length;
@@ -78,6 +84,9 @@ export function waveformToSVG(wave, width, height) {
   }).join('');
 }
 
+/**
+ * Generate and apply waveform SVG to a beat card.
+ */
 export function applyWaveformToCard(beatId) {
   const b = state.allBeats.find((x) => x.id === beatId);
   if (!b || !b.previewUrl) return;
@@ -98,6 +107,9 @@ export function applyWaveformToCard(beatId) {
   });
 }
 
+/**
+ * Clear waveform cache (for debugging / memory management).
+ */
 export function clearWaveformCache() {
   state.waveformCache = {};
   localStorage.removeItem('dace-waveforms');

@@ -19,8 +19,7 @@ import './admin/beats.js';
 import './admin/r2.js';
 import './admin/features.js';
 
-// Import firebase init (bootstraps everything — includes auth with whitelist)
-// NOTE: auth.js removed — firebase-init.js handles auth with whitelist validation
+// Import auth & firebase init (bootstraps everything)
 import './admin/firebase-init.js';
 
 console.log('[DACE Admin] v5.2 bundle loaded');

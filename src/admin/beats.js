@@ -21,6 +21,7 @@ export function renderBeatList() {
   }).join('');
 }
 
+// Drag & Drop
 export function dragStart(e) { setDragBeatId(e.currentTarget.dataset.id); e.currentTarget.classList.add('dragging'); e.dataTransfer.effectAllowed = 'move'; }
 export function dragOver(e) { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; document.querySelectorAll('.beat-row.drag-over').forEach(r => r.classList.remove('drag-over')); e.currentTarget.classList.add('drag-over'); }
 export function dropBeat(e) {
@@ -35,6 +36,7 @@ export function dropBeat(e) {
 }
 export function dragEnd(e) { e.currentTarget.classList.remove('dragging'); setDragBeatId(null); }
 
+// Editor
 export function openEditor(id) {
   setEditId(id); showSection('add');
   g('editor-title').innerHTML = '<i class="fas fa-edit"></i> ' + (id ? 'Editar' : 'Nuevo') + ' beat';
@@ -61,6 +63,7 @@ export function openEditor(id) {
   document.querySelectorAll('#sec-add .etp').forEach((p, i) => p.classList.toggle('on', i === 0));
 }
 
+// License Editor
 function renderLicEditor(lics) {
   g('le-editor').innerHTML = lics.map((l, i) => '<div class="lic-ed-row" data-idx="' + i + '"><div class="lic-ed-grid"><input type="text" placeholder="Nombre" value="' + (l.name || '') + '" onchange="upLic(' + i + ',\'name\',this.value)"><input type="number" placeholder="MXN" value="' + (l.priceMXN || '') + '" onchange="upLic(' + i + ',\'mxn\',this.value)"><input type="number" placeholder="USD" value="' + (l.priceUSD || '') + '" onchange="upLic(' + i + ',\'usd\',this.value)"></div><input type="text" placeholder="Descripción" value="' + (l.description || '') + '" style="font-size:10px" onchange="upLic(' + i + ',\'desc\',this.value)"><button class="btn btn-del" style="margin-top:4px;font-size:9px" onclick="rmLic(' + i + ')">✕</button></div>').join('');
 }
@@ -70,6 +73,7 @@ export function rmLic(idx) { collectLics(); _edLics.splice(idx, 1); renderLicEdi
 function collectLics() { const lics = []; g('le-editor').querySelectorAll('.lic-ed-row').forEach(row => { const inp = row.querySelectorAll('input'); lics.push({ name: inp[0].value, priceMXN: parseFloat(inp[1].value) || 0, priceUSD: parseFloat(inp[2].value) || 0, description: inp[3].value }); }); setEdLics(lics); }
 export function loadDefaultLics() { renderLicEditor(JSON.parse(JSON.stringify(defLics))); showToast('Licencias base cargadas'); }
 
+// Upload helpers
 function prevImg() { const url = val('f-img'); g('img-prev').innerHTML = url ? '<img src="' + url + '" style="max-width:160px;max-height:100px;border-radius:6px;border:1px solid var(--b)">' : ''; }
 export function uploadBeatImg(input) {
   const file = input.files[0]; if (!file) return;
@@ -98,11 +102,12 @@ export function uploadBeatPreview(input) {
   const beatId = editId || ('beat_' + Date.now());
   const btn = input.parentElement.querySelector('button'); btn.disabled = true; btn.textContent = '⏳'; showSaving(true);
   uploadToR2(file, 'beats/' + beatId + '/previews/' + file.name.replace(/[^a-zA-Z0-9._-]/g, '_'))
-    .then(r => { setVal('f-prev', r.url); showSaving(false); btn.disabled = false; btn.textContent = '📤'; showToast('Preview subido ✓'); })
+    .then(r => { setVal('f-prev', r.url); updateMP(); showSaving(false); btn.disabled = false; btn.textContent = '📤'; showToast('Preview subido ✓'); })
     .catch(err => { showSaving(false); btn.disabled = false; btn.textContent = '📤'; showToast('Error: ' + err.message, true); });
   input.value = '';
 }
 
+// Save/Delete
 export function saveBeat() {
   const id = val('f-id').trim(), name = val('f-name').trim();
   if (!id || !name) { showToast('ID y nombre requeridos', true); return; }
@@ -121,6 +126,7 @@ export function quickDel(id) {
   showSaving(true); db.ref('beats/' + id).remove().then(() => { showSaving(false); showToast('Eliminado ✓'); }).catch(err => { showSaving(false); showToast('Error: ' + (err.message || err.code), true); });
 }
 
+// Inline Edit
 function _inlineEdit(el, id, field, parse) {
   if (el.querySelector('input')) return;
   const beat = allBeats.find(b => b.id === id); if (!beat) return;
@@ -143,6 +149,7 @@ export function inlineEditName(el, id) { _inlineEdit(el, id, 'name', v => { cons
 export function inlineEditBpm(el, id) { _inlineEdit(el, id, 'bpm', v => { const n = parseInt(v); return (n > 0 && n < 400) ? n : null; }); }
 export function inlineEditKey(el, id) { _inlineEdit(el, id, 'key', v => { const s = v.trim().toUpperCase(); return s ? s : null; }); }
 
+// Batch
 export function openBatchImg() { g('batch-img-overlay').classList.add('open'); setupBatchDrop(); }
 export function closeBatchImg() { g('batch-img-overlay').classList.remove('open'); }
 function setupBatchDrop() {
@@ -202,6 +209,7 @@ export function batchAddBeats() {
   Promise.all(promises).then(() => { showSaving(false); showToast(count + ' beats creados'); }).catch(() => { showSaving(false); showToast('Error', true); });
 }
 
+// MP3 Player
 let mpAudio2 = null;
 export function toggleMP() {
   const url = val('f-prev') || val('f-audio'); if (!url) return;
