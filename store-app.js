@@ -154,7 +154,7 @@ function setupCardTilt(){document.querySelectorAll('.beat-card').forEach(functio
 // ═══ EQ VISUALIZER ═══
 var _eqInterval=null;
 function startEQ(){var bars=document.querySelectorAll('#pi-eq span');if(!bars.length)return;_eqInterval=setInterval(function(){bars.forEach(function(b){b.style.height=(4+Math.random()*16)+'px'})},120)}
-function stopEQ(){clearInterval(_eqInterval);document.querySelectorAll('#pi-eq span').forEach(function(b){b.style.height='4px'})}
+function stopEQ(){clearInterval(_eqInterval);document.querySelectorAll('#pi-eq span').forEach(function(b){b.style.height='4px'});document.querySelectorAll('.wbar.anim').forEach(function(b){b.classList.remove('anim');b.style.transform='scaleY(1)'})}
 
 // ═══ ANIMATED COUNTER ═══
 function animateCounter(el,target){var current=0;var step=Math.max(1,Math.ceil(target/30));var iv=setInterval(function(){current+=step;if(current>=target){current=target;clearInterval(iv)}el.textContent=current},30)}
@@ -275,10 +275,10 @@ function renderAll(){
   setTimeout(function(){setupCardTilt();observeStagger()},50);
   // Generate waveforms async (non-blocking)
   setTimeout(function(){allBeats.forEach(function(b){if(b.previewUrl)applyWaveformToCard(b.id)})},500);
-  // Sync player bar thumbnail with current beat data
+  // Sync player bar thumbnail with current beat data (cache-busted)
   if(AP.currentBeatIdx>=0&&AP.currentBeatIdx<allBeats.length){
     var cb=allBeats[AP.currentBeatIdx];
-    if(cb){var th=document.getElementById('pi-thumb');if(th){var cur=th.querySelector('img');var curSrc=cur?cur.src:'';if(cb.imageUrl&&curSrc!==cb.imageUrl){th.innerHTML='<img src="'+cb.imageUrl+'" alt="" loading="lazy">'}else if(!cb.imageUrl&&!cur){th.innerHTML='♦'}}}
+    if(cb&&cb.imageUrl){var th=document.getElementById('pi-thumb');if(th){var bustUrl=cb.imageUrl.split('?')[0]+'?t='+Date.now();th.innerHTML='<img src="'+bustUrl+'" alt="" loading="lazy">'}}
   }
 }
 
