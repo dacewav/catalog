@@ -275,6 +275,11 @@ function renderAll(){
   setTimeout(function(){setupCardTilt();observeStagger()},50);
   // Generate waveforms async (non-blocking)
   setTimeout(function(){allBeats.forEach(function(b){if(b.previewUrl)applyWaveformToCard(b.id)})},500);
+  // Sync player bar thumbnail with current beat data
+  if(AP.currentBeatIdx>=0&&AP.currentBeatIdx<allBeats.length){
+    var cb=allBeats[AP.currentBeatIdx];
+    if(cb){var th=document.getElementById('pi-thumb');if(th){var cur=th.querySelector('img');var curSrc=cur?cur.src:'';if(cb.imageUrl&&curSrc!==cb.imageUrl){th.innerHTML='<img src="'+cb.imageUrl+'" alt="" loading="lazy">'}else if(!cb.imageUrl&&!cur){th.innerHTML='♦'}}}
+  }
 }
 
 function buildFilterOptions(){
