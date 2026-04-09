@@ -2879,7 +2879,7 @@ function initAdmin(){
     _ldTheme=true;_checkReady2();
     db.ref('theme').on('value',snap=>{T=snap.val()||{};localStorage.setItem('dace-theme',JSON.stringify(T));_ldTheme=true;_checkReady2();clearTimeout(loaderTimeout)});
     db.ref('settings').on('value',snap=>{siteSettings=snap.val()||{};loadSettingsUI();loadR2Config(siteSettings);_ldSettings=true;_checkReady2();clearTimeout(loaderTimeout)});
-    db.ref('beats').on('value',snap=>{const raw=snap.val()||{};allBeats=Object.values(raw).filter(b=>b.active!==false).sort((a,b)=>(a.order||0)-(b.order||0));renderBeatList();_ldBeats=true;_checkReady2();clearTimeout(loaderTimeout)});
+    db.ref('beats').on('value',snap=>{const raw=snap.val()||{};allBeats=Object.keys(raw).map(k=>{raw[k].id=raw[k].id||k;return raw[k]}).filter(b=>b.active!==false&&b.id&&b.id!=='undefined').sort((a,b)=>(a.order||0)-(b.order||0));renderBeatList();_ldBeats=true;_checkReady2();clearTimeout(loaderTimeout)});
     db.ref('defaultLicenses').on('value',snap=>{defLics=snap.val()||[];renderDefLicsEditor()});
     db.ref('customLinks').on('value',snap=>{customLinks=snap.val()||{};renderLinksEditor()});
     db.ref('floatingElements').on('value',snap=>{floatingEls=snap.val()||{}});
@@ -2971,7 +2971,7 @@ function removeWhitelistEmail(idx){
   function fmtNum(n){if(n>=1e6)return(n/1e6).toFixed(1)+'M';if(n>=1e3)return(n/1e3).toFixed(1)+'K';return String(n)}
   function getLast7(){var ds=[];for(var i=6;i>=0;i--){var d=new Date();d.setDate(d.getDate()-i);ds.push(d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'))}return ds}
   function dayLbl(s){var p=s.split('-');var d=new Date(p[0],p[1]-1,p[2]);return['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'][d.getDay()]+' '+p[2]}
-  function barChart(id,data,empty){
+  window.barChart=function(id,data,empty){
     var el=$(id);if(!el)return;
     if(!data||!data.length){el.innerHTML='<div style="color:var(--hi);font-size:10px;text-align:center;padding:16px">'+(empty||'Sin datos')+'</div>';return}
     var mx=Math.max.apply(null,data.map(function(d){return d.value}))||1;
@@ -2983,8 +2983,8 @@ function removeWhitelistEmail(idx){
     db.ref('analytics/counts').once('value').then(function(snap){
       var counts=snap.val()||{},entries=[],tc=0,tw=0,tv=0;
       for(var id in counts){var c=counts[id];var v=c.views||0,cl=c.clicks||0,w=c.waClicks||0;tv+=v;tc+=cl;tw+=w;entries.push({id:id,views:v,clicks:cl,waClicks:w})}
-      barChart('top-views-chart',entries.filter(function(e){return e.views>0}).sort(function(a,b){return b.views-a.views}).slice(0,10).map(function(e){return{label:e.id,value:e.views}}),'Sin vistas aún');
-      barChart('top-wa-chart',entries.filter(function(e){return e.waClicks>0}).sort(function(a,b){return b.waClicks-a.waClicks}).slice(0,10).map(function(e){return{label:e.id,value:e.waClicks}}),'Sin clicks de WhatsApp aún');
+      window.barChart('top-views-chart',entries.filter(function(e){return e.views>0}).sort(function(a,b){return b.views-a.views}).slice(0,10).map(function(e){return{label:e.id,value:e.views}}),'Sin vistas aún');
+      window.barChart('top-wa-chart',entries.filter(function(e){return e.waClicks>0}).sort(function(a,b){return b.waClicks-a.waClicks}).slice(0,10).map(function(e){return{label:e.id,value:e.waClicks}}),'Sin clicks de WhatsApp aún');
       var sorted=entries.sort(function(a,b){return b.views-a.views});
       var th='<table style="width:100%;border-collapse:collapse"><thead><tr><th style="padding:8px;text-align:left;font-size:9px;color:var(--mu);border-bottom:1px solid var(--b)">Beat</th><th style="padding:8px;text-align:right;font-size:9px;color:var(--mu);border-bottom:1px solid var(--b)">Vistas</th><th style="padding:8px;text-align:right;font-size:9px;color:var(--mu);border-bottom:1px solid var(--b)">Clicks</th><th style="padding:8px;text-align:right;font-size:9px;color:var(--mu);border-bottom:1px solid var(--b)">WA</th></tr></thead><tbody>';
       sorted.forEach(function(e){th+='<tr><td style="padding:6px 8px;font-size:11px;color:var(--tx);border-bottom:1px solid var(--b)">'+esc(e.id)+'</td><td style="padding:6px 8px;font-size:11px;color:var(--tx);text-align:right;border-bottom:1px solid var(--b)">'+e.views+'</td><td style="padding:6px 8px;font-size:11px;color:var(--tx);text-align:right;border-bottom:1px solid var(--b)">'+e.clicks+'</td><td style="padding:6px 8px;font-size:11px;color:var(--tx);text-align:right;border-bottom:1px solid var(--b)">'+e.waClicks+'</td></tr>'});
@@ -2995,7 +2995,7 @@ function removeWhitelistEmail(idx){
     });
     var dates=getLast7();
     Promise.all(dates.map(function(date){return db.ref('analytics/daily/'+date+'/total').once('value').then(function(s){return{date:date,value:s.val()||0}})})).then(function(results){
-      barChart('daily-visits-chart',results.map(function(r){return{label:dayLbl(r.date),value:r.value}}),'Sin visitas');
+      window.barChart('daily-visits-chart',results.map(function(r){return{label:dayLbl(r.date),value:r.value}}),'Sin visitas');
       $('stat-total-visits').textContent=fmtNum(results.reduce(function(s,r){return s+r.value},0));
       return db.ref('analytics/daily/'+getLast7()[6]+'/actions/search_query').once('value');
     }).then(function(s){$('stat-total-searches').textContent=fmtNum(s.val()||0)});
