@@ -11,8 +11,873 @@
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-<link rel="stylesheet" href="admin-styles.css">
+<style>
+/* ════════════════════════════════════════════════════════════
+   DACEWAV.STORE — Admin UI v2
+   Spotify / BeatStars / Tidal inspired dark design
+   ════════════════════════════════════════════════════════════ */
+:root {
+  --bg: #0d0d0f;
+  --sf: #141417;
+  --sf2: #1a1a1f;
+  --abg: #1c1c21;
+  --bg2: #222228;
+  --b: #2a2a33;
+  --b2: #3a3a47;
+  --acc: #dc2626;
+  --ac2: #b91c1c;
+  --ac3: #991b1b;
+  --tx: #f0f0f2;
+  --mu: #8888a0;
+  --hi: #c0c0d0;
+  --ok: #22c55e;
+  --wr: #f59e0b;
+  --fd: 'Syne', sans-serif;
+  --fm: 'Inter', sans-serif;
+  --fx: 'DM Mono', monospace;
+  --rad: 8px;
+  --rlg: 12px;
+  --rsb: 6px;
+  --tr: 0.18s ease;
+  --shd: 0 2px 12px rgba(0,0,0,0.4);
+  --shl: 0 4px 24px rgba(0,0,0,0.5);
+  /* layout */
+  --sbw: 220px;
+  --sbw-collapsed: 64px;
+  --tbh: 56px;
+  --prw: 380px;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; overflow: hidden; }
+body {
+  font-family: var(--fm);
+  font-size: 13px;
+  color: var(--tx);
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+}
+::selection { background: rgba(220,38,38,0.3); }
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--b); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--b2); }
+
+/* ═══ LOGIN ═══ */
+.login-overlay {
+  position: fixed; inset: 0; z-index: 9999;
+  background: rgba(0,0,0,0.85); backdrop-filter: blur(20px);
+  display: flex; align-items: center; justify-content: center;
+}
+.login-overlay[style*="display: none"] { display: none !important; }
+.login-box {
+  background: var(--sf);
+  border: 1px solid var(--b);
+  border-radius: var(--rlg);
+  padding: 48px 40px;
+  text-align: center;
+  min-width: 340px;
+  box-shadow: var(--shl);
+}
+.login-brand {
+  font-family: var(--fd); font-weight: 800; font-size: 28px;
+  letter-spacing: -0.02em; color: var(--tx); margin-bottom: 6px;
+}
+.login-brand em { font-style: normal; color: var(--acc); }
+.login-sub { font-size: 11px; color: var(--mu); margin-bottom: 28px; text-transform: uppercase; letter-spacing: 0.08em; }
+.login-btn {
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  width: 100%; padding: 12px 20px;
+  background: var(--abg); border: 1px solid var(--b); border-radius: var(--rad);
+  color: var(--tx); font-family: var(--fm); font-size: 13px; font-weight: 500;
+  cursor: pointer; transition: var(--tr);
+}
+.login-btn:hover { background: var(--bg2); border-color: var(--b2); }
+.login-error { font-size: 11px; color: var(--acc); min-height: 18px; }
+.login-lockout { font-size: 11px; color: var(--wr); min-height: 18px; margin-top: 4px; }
+
+/* ═══ TOPBAR ═══ */
+.topbar {
+  position: fixed; top: 0; left: 0; right: 0; height: var(--tbh); z-index: 100;
+  background: var(--sf);
+  border-bottom: 1px solid var(--b);
+  display: flex; align-items: center; padding: 0 20px; gap: 16px;
+}
+.topbar-brand {
+  font-family: var(--fd); font-weight: 800; font-size: 16px;
+  letter-spacing: -0.02em; flex-shrink: 0;
+}
+.topbar-brand em { font-style: normal; color: var(--acc); }
+.topbar-center {
+  display: flex; align-items: center; gap: 4px;
+  margin: 0 auto;
+}
+.topbar-right {
+  display: flex; align-items: center; gap: 6px; flex-shrink: 0;
+}
+
+/* ═══ TB BUTTONS ═══ */
+.tb {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 7px 12px; border-radius: var(--rad);
+  background: transparent; border: 1px solid transparent;
+  color: var(--mu); font-family: var(--fm); font-size: 11px; font-weight: 500;
+  cursor: pointer; transition: var(--tr); white-space: nowrap;
+}
+.tb:hover { color: var(--tx); background: rgba(255,255,255,0.05); border-color: var(--b); }
+.tb.gn {
+  background: var(--acc); border-color: var(--acc); color: #fff;
+  font-weight: 600;
+}
+.tb.gn:hover { background: var(--ac2); border-color: var(--ac2); }
+
+/* Status dot */
+.sdot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--wr); flex-shrink: 0;
+  transition: var(--tr);
+}
+.sdot.on { background: var(--ok); }
+.sdot.off { background: var(--acc); }
+
+/* ═══ MAIN LAYOUT ═══ */
+.split {
+  display: flex; height: calc(100vh - var(--tbh));
+  margin-top: var(--tbh);
+}
+
+/* ═══ SIDEBAR ═══ */
+.sidebar {
+  width: var(--sbw); flex-shrink: 0;
+  background: var(--sf);
+  border-right: 1px solid var(--b);
+  padding: 12px 0;
+  overflow-y: auto;
+  transition: width 0.25s ease;
+}
+.sb-label {
+  font-size: 9px; font-weight: 600; text-transform: uppercase;
+  letter-spacing: 0.1em; color: var(--mu);
+  padding: 16px 20px 6px;
+}
+.sidebar-sep {
+  height: 1px; background: var(--b); margin: 8px 16px;
+}
+.si {
+  display: flex; align-items: center; gap: 12px;
+  padding: 10px 20px;
+  color: var(--mu); font-size: 12px; font-weight: 500;
+  cursor: pointer; transition: var(--tr);
+  position: relative;
+  border-left: 3px solid transparent;
+}
+.si:hover { color: var(--hi); background: rgba(255,255,255,0.03); }
+.si.on {
+  color: var(--tx); background: rgba(220,38,38,0.06);
+  border-left-color: var(--acc);
+}
+.si i { width: 18px; text-align: center; font-size: 13px; opacity: 0.7; flex-shrink: 0; }
+.si.on i { opacity: 1; color: var(--acc); }
+
+/* ═══ CONTENT AREA ═══ */
+.controls {
+  flex: 1; overflow-y: auto; overflow-x: hidden;
+  padding: 24px 28px 40px;
+  scroll-behavior: smooth;
+}
+.section { display: none; }
+.section.on { display: block; }
+.section-title {
+  font-family: var(--fd); font-weight: 800; font-size: 20px;
+  letter-spacing: -0.02em; margin-bottom: 20px;
+  display: flex; align-items: center; gap: 10px;
+}
+.section-title i { font-size: 16px; color: var(--acc); }
+
+/* ═══ CARDS ═══ */
+.card {
+  background: var(--abg);
+  border: 1px solid var(--b);
+  border-radius: var(--rlg);
+  margin-bottom: 12px;
+  overflow: hidden;
+  transition: border-color var(--tr);
+}
+.card:hover { border-color: var(--b2); }
+.card-title {
+  font-size: 13px; font-weight: 600;
+  padding: 14px 18px;
+  display: flex; align-items: center; justify-content: space-between;
+  cursor: pointer; user-select: none;
+  transition: var(--tr);
+}
+.card-title span { flex: 1; }
+.card-title i {
+  font-size: 10px; color: var(--mu); transition: transform 0.2s ease;
+}
+.card-title:hover i { color: var(--hi); }
+.card-title:not(.collapsed) > i { transform: rotate(180deg); }
+.card-title.collapsed > i { transform: rotate(0deg); }
+.card-body {
+  padding: 0 18px 18px;
+  transition: max-height 0.3s ease, opacity 0.2s ease, padding 0.2s ease;
+  overflow: hidden;
+}
+.card-body.collapsed {
+  max-height: 0; opacity: 0; padding-top: 0; padding-bottom: 0;
+  pointer-events: none;
+}
+
+/* ═══ FORM ELEMENTS ═══ */
+.field { margin-bottom: 12px; }
+.field label {
+  display: block; font-size: 11px; font-weight: 500;
+  text-transform: uppercase; letter-spacing: 0.06em;
+  color: var(--mu); margin-bottom: 6px;
+}
+.field.full { grid-column: 1 / -1; }
+.field input[type="text"],
+.field input[type="url"],
+.field input[type="email"],
+.field input[type="number"],
+.field input[type="password"],
+.field input[type="date"],
+.field textarea,
+.field select {
+  width: 100%; padding: 9px 12px;
+  background: rgba(0,0,0,0.3);
+  border: 1px solid var(--b);
+  border-radius: var(--rad);
+  color: var(--tx); font-family: var(--fm); font-size: 12px;
+  outline: none; transition: var(--tr);
+}
+.field input:focus, .field textarea:focus, .field select:focus {
+  border-color: var(--acc);
+  box-shadow: 0 0 0 2px rgba(220,38,38,0.15);
+}
+.field textarea { resize: vertical; min-height: 60px; line-height: 1.5; }
+.field select { cursor: pointer; }
+
+/* Slider */
+.slider-wrap {
+  display: flex; align-items: center; gap: 10px;
+}
+.slider-wrap input[type="range"] {
+  flex: 1; height: 4px;
+  -webkit-appearance: none; appearance: none;
+  background: var(--b); border-radius: 2px; outline: none;
+}
+.slider-wrap input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none; width: 14px; height: 14px;
+  background: var(--acc); border-radius: 50%; cursor: pointer;
+  border: 2px solid var(--abg);
+  transition: var(--tr);
+}
+.slider-wrap input[type="range"]::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+  box-shadow: 0 0 8px rgba(220,38,38,0.4);
+}
+.slider-val {
+  font-family: var(--fx); font-size: 11px; color: var(--hi);
+  min-width: 44px; text-align: right;
+}
+.slider-reset {
+  background: none; border: none; color: var(--mu); cursor: pointer;
+  font-size: 12px; padding: 2px; transition: var(--tr);
+}
+.slider-reset:hover { color: var(--tx); }
+
+/* Toggle */
+.tog-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.03);
+}
+.tog-row:last-child { border-bottom: none; }
+.tog {
+  width: 36px; height: 20px; -webkit-appearance: none; appearance: none;
+  background: var(--b); border-radius: 10px; cursor: pointer;
+  position: relative; transition: var(--tr); flex-shrink: 0;
+}
+.tog::after {
+  content: ''; position: absolute; top: 2px; left: 2px;
+  width: 16px; height: 16px; background: var(--mu);
+  border-radius: 50%; transition: var(--tr);
+}
+.tog:checked { background: var(--acc); }
+.tog:checked::after { left: 18px; background: #fff; }
+.tog-lbl { font-size: 12px; color: var(--tx); }
+
+/* Color picker */
+.color-wrap {
+  display: flex; align-items: center; gap: 8px;
+  margin-bottom: 12px;
+}
+.color-wrap label { font-size: 11px; color: var(--mu); text-transform: uppercase; letter-spacing: 0.06em; white-space: nowrap; }
+.color-swatch {
+  width: 32px; height: 32px; border-radius: var(--rad);
+  border: 2px solid var(--b); overflow: hidden; flex-shrink: 0;
+  position: relative; cursor: pointer;
+}
+.color-swatch input[type="color"] {
+  position: absolute; inset: -6px; width: calc(100% + 12px);
+  height: calc(100% + 12px); border: none; cursor: pointer;
+}
+.color-hex {
+  width: 80px; padding: 6px 8px;
+  background: rgba(0,0,0,0.3); border: 1px solid var(--b);
+  border-radius: var(--rad); color: var(--tx);
+  font-family: var(--fx); font-size: 11px; outline: none;
+}
+.color-hex:focus { border-color: var(--acc); }
+
+/* Buttons */
+.btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 8px 14px; border-radius: var(--rad);
+  background: var(--bg2); border: 1px solid var(--b);
+  color: var(--tx); font-family: var(--fm); font-size: 11px; font-weight: 500;
+  cursor: pointer; transition: var(--tr);
+}
+.btn:hover { background: var(--b); border-color: var(--b2); }
+.btn-g { background: transparent; border-color: var(--b); color: var(--mu); }
+.btn-g:hover { color: var(--tx); border-color: var(--b2); }
+.btn-ok { background: var(--acc); border-color: var(--acc); color: #fff; font-weight: 600; }
+.btn-ok:hover { background: var(--ac2); border-color: var(--ac2); }
+.btn-del { background: rgba(220,38,38,0.1); border-color: var(--ac3); color: var(--acc); }
+.btn-del:hover { background: rgba(220,38,38,0.2); }
+.btn-row { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 8px; }
+
+/* Field grid */
+.fg2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0 14px; }
+.fg3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0 14px; }
+
+/* Tip */
+.tip {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 14px; height: 14px; border-radius: 50%;
+  background: var(--b); color: var(--mu); font-size: 8px;
+  cursor: help; margin-left: 4px;
+}
+
+/* Font Picker */
+.font-picker { position: relative; }
+.font-picker-btn {
+  width: 100%; padding: 9px 12px;
+  background: rgba(0,0,0,0.3); border: 1px solid var(--b);
+  border-radius: var(--rad); color: var(--tx);
+  font-size: 12px; text-align: left; cursor: pointer;
+  transition: var(--tr);
+}
+.font-picker-btn:hover { border-color: var(--b2); }
+.font-picker-dd {
+  display: none; position: absolute; top: calc(100% + 4px); left: 0; right: 0;
+  background: var(--sf); border: 1px solid var(--b2);
+  border-radius: var(--rlg); z-index: 50; max-height: 280px;
+  overflow: hidden; box-shadow: var(--shl);
+}
+.font-picker-dd.open { display: block; }
+.font-picker-search {
+  width: 100%; padding: 10px 12px;
+  background: transparent; border: none; border-bottom: 1px solid var(--b);
+  color: var(--tx); font-family: var(--fm); font-size: 12px; outline: none;
+}
+.font-picker-tabs { display: flex; gap: 2px; padding: 6px 8px; border-bottom: 1px solid var(--b); }
+.font-picker-list { max-height: 140px; overflow-y: auto; padding: 4px 0; }
+.fp-item {
+  padding: 7px 12px; font-size: 12px; cursor: pointer;
+  color: var(--hi); transition: var(--tr);
+}
+.fp-item:hover { background: rgba(255,255,255,0.04); color: var(--tx); }
+.fp-item.on { color: var(--acc); font-weight: 600; }
+.fp-more-row { padding: 6px 8px; border-top: 1px solid var(--b); }
+.fp-more-btn {
+  width: 100%; padding: 6px; background: none; border: 1px dashed var(--b);
+  border-radius: var(--rad); color: var(--mu); font-size: 10px; cursor: pointer;
+}
+.fp-more-btn:hover { color: var(--tx); border-color: var(--b2); }
+.fp-custom-row { display: flex; gap: 4px; padding: 6px 8px; border-top: 1px solid var(--b); }
+.fp-custom-input {
+  flex: 1; padding: 6px 8px; background: rgba(0,0,0,0.3);
+  border: 1px solid var(--b); border-radius: var(--rad);
+  color: var(--tx); font-size: 10px; outline: none;
+}
+.fp-custom-btn {
+  padding: 6px 10px; background: var(--acc); border: none;
+  border-radius: var(--rad); color: #fff; font-size: 10px; cursor: pointer;
+}
+.font-preview { margin-top: 10px; padding: 16px; background: rgba(0,0,0,0.2); border-radius: var(--rad); border: 1px solid var(--b); }
+.font-preview-display { font-family: var(--fd); font-size: 20px; font-weight: 700; color: var(--tx); margin-bottom: 6px; }
+.font-preview-body { font-family: var(--fm); font-size: 12px; color: var(--mu); }
+
+/* ═══ HERO PREVIEW ═══ */
+.hero-pv {
+  position: relative; padding: 32px 24px; margin-bottom: 16px;
+  background: var(--abg); border: 1px solid var(--b);
+  border-radius: var(--rlg); overflow: hidden; min-height: 160px;
+}
+.hero-pv-grad {
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse 80% 60% at center, rgba(220,38,38,0.14) 0%, transparent 70%);
+  pointer-events: none;
+}
+.hero-pv-eyebrow {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 10px; color: var(--acc); font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.06em;
+  margin-bottom: 12px; position: relative;
+}
+.hero-pv-eyebrow-dot {
+  width: 6px; height: 6px; border-radius: 50%; background: var(--acc);
+}
+.hero-pv-title {
+  font-family: var(--fd); font-size: 2.8rem; font-weight: 800;
+  line-height: 1; letter-spacing: -0.04em;
+  color: var(--tx); position: relative;
+}
+.hero-pv-sub {
+  font-size: 12px; color: var(--mu); margin-top: 10px;
+  position: relative;
+}
+.glow-word {
+  display: inline;
+  -webkit-text-stroke: 1px var(--acc);
+  paint-order: stroke fill;
+}
+/* ═══ BEAT LIST ═══ */
+.beat-search {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 14px; background: var(--abg);
+  border: 1px solid var(--b); border-radius: var(--rad);
+  margin-bottom: 12px;
+}
+.bs-icon { color: var(--mu); font-size: 13px; }
+.beat-search input {
+  flex: 1; background: none; border: none; color: var(--tx);
+  font-family: var(--fm); font-size: 12px; outline: none;
+}
+.beat-search input::placeholder { color: var(--mu); }
+.beat-search-count {
+  font-family: var(--fx); font-size: 10px; color: var(--mu);
+}
+.beat-list {
+  display: flex; flex-direction: column; gap: 2px;
+}
+.beat-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 10px 14px; border-radius: var(--rad);
+  cursor: pointer; transition: var(--tr);
+  border: 1px solid transparent;
+}
+.beat-item:hover {
+  background: rgba(255,255,255,0.03);
+  border-color: var(--b);
+}
+.beat-thumb {
+  width: 40px; height: 40px; border-radius: var(--rsb);
+  background: var(--bg2); flex-shrink: 0;
+  overflow: hidden; display: flex; align-items: center; justify-content: center;
+}
+.beat-thumb img { width: 100%; height: 100%; object-fit: cover; }
+.beat-info { flex: 1; min-width: 0; }
+.beat-name { font-size: 12px; font-weight: 600; color: var(--tx); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.beat-meta { font-size: 10px; color: var(--mu); margin-top: 2px; font-family: var(--fx); }
+.beat-badge {
+  font-size: 9px; font-weight: 600; text-transform: uppercase;
+  letter-spacing: 0.06em; padding: 3px 8px;
+  border-radius: 4px; flex-shrink: 0;
+}
+.beat-badge.active { background: rgba(34,197,94,0.15); color: var(--ok); }
+.beat-badge.inactive { background: rgba(136,136,160,0.15); color: var(--mu); }
+.beat-badge.excl { background: rgba(220,38,38,0.15); color: var(--acc); }
+.beat-actions {
+  display: flex; gap: 4px; opacity: 0; transition: var(--tr);
+}
+.beat-item:hover .beat-actions { opacity: 1; }
+.beat-actions button {
+  width: 28px; height: 28px; border-radius: var(--rsb);
+  background: none; border: 1px solid var(--b); color: var(--mu);
+  cursor: pointer; font-size: 11px; transition: var(--tr);
+}
+.beat-actions button:hover { color: var(--tx); border-color: var(--b2); background: var(--bg2); }
+
+/* ═══ EDITOR TABS ═══ */
+.etabs {
+  display: flex; gap: 0; border-bottom: 1px solid var(--b); margin-bottom: 16px;
+}
+.et {
+  padding: 10px 16px; font-size: 11px; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.06em;
+  color: var(--mu); cursor: pointer; transition: var(--tr);
+  border-bottom: 2px solid transparent; margin-bottom: -1px;
+}
+.et:hover { color: var(--hi); }
+.et.on { color: var(--tx); border-bottom-color: var(--acc); }
+.etp { display: none; }
+.etp.on { display: block; }
+
+/* ═══ LICENCE EDITOR ═══ */
+.lic-ed, .lic-row {
+  display: flex; gap: 6px; align-items: center;
+  margin-bottom: 6px; flex-wrap: wrap;
+}
+.lic-row input {
+  flex: 1; min-width: 60px; padding: 6px 8px;
+  background: rgba(0,0,0,0.3); border: 1px solid var(--b);
+  border-radius: var(--rad); color: var(--tx);
+  font-family: var(--fm); font-size: 11px; outline: none;
+}
+.lic-row input:focus { border-color: var(--acc); }
+
+/* ═══ MINI PLAYER ═══ */
+.mp {
+  display: flex; align-items: center; gap: 8px;
+  margin-top: 8px; padding: 8px;
+  background: var(--bg2); border-radius: var(--rad);
+}
+.mp-btn {
+  width: 28px; height: 28px; border-radius: 50%;
+  background: var(--acc); border: none; color: #fff;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+}
+.mp-prog {
+  flex: 1; height: 4px; background: var(--b); border-radius: 2px;
+  cursor: pointer; position: relative;
+}
+.mp-fill {
+  height: 100%; background: var(--acc); border-radius: 2px;
+  width: 0%; transition: width 0.1s linear;
+}
+.mp-t { font-family: var(--fx); font-size: 10px; color: var(--mu); min-width: 60px; text-align: right; }
+
+/* ═══ GLOW PREVIEW ═══ */
+.glow-pv-row {
+  display: flex; gap: 10px; margin-top: 12px;
+  padding: 12px; background: rgba(0,0,0,0.2);
+  border-radius: var(--rad); border: 1px solid var(--b);
+}
+.glow-pv-el {
+  flex: 1; padding: 10px; text-align: center;
+  font-size: 11px; font-weight: 600; border-radius: var(--rsb);
+}
+
+/* ═══ PREVIEW PANEL ═══ */
+.preview-panel {
+  width: var(--prw); flex-shrink: 0;
+  display: flex; flex-direction: column;
+  background: var(--sf); border-left: 1px solid var(--b);
+}
+.preview-panel[style*="display: none"] { display: none !important; }
+.preview-bar {
+  height: 44px; display: flex; align-items: center; padding: 0 12px; gap: 8px;
+  border-bottom: 1px solid var(--b); flex-shrink: 0;
+}
+.preview-bar-left, .preview-bar-center, .preview-bar-right {
+  display: flex; align-items: center; gap: 4px;
+}
+.preview-bar-center { margin: 0 auto; }
+.preview-label {
+  font-size: 10px; color: var(--mu); font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.06em;
+}
+.vp-btn {
+  width: 28px; height: 28px; border-radius: var(--rsb);
+  background: none; border: 1px solid transparent;
+  color: var(--mu); cursor: pointer; font-size: 12px;
+  display: flex; align-items: center; justify-content: center;
+  transition: var(--tr);
+}
+.vp-btn:hover { color: var(--tx); background: rgba(255,255,255,0.04); border-color: var(--b); }
+.vp-btn.on { color: var(--tx); background: rgba(255,255,255,0.06); border-color: var(--b2); }
+.preview-iframe-wrap {
+  flex: 1; display: flex; align-items: center; justify-content: center;
+  padding: 12px; overflow: hidden; background: #000;
+}
+#preview-frame {
+  width: 100%; height: 100%; border: none; border-radius: var(--rad);
+  transition: width 0.3s ease, max-width 0.3s ease;
+}
+#preview-frame.mobile { max-width: 375px; }
+#preview-frame.tablet { max-width: 768px; }
+
+/* ═══ RESIZE HANDLE ═══ */
+.resize-handle-h {
+  width: 4px; cursor: col-resize; flex-shrink: 0;
+  background: var(--b); transition: background var(--tr);
+}
+.resize-handle-h:hover, .resize-handle-h.active { background: var(--acc); }
+
+/* ═══ COMMAND PALETTE ═══ */
+.cmd-overlay {
+  position: fixed; inset: 0; z-index: 200;
+  background: rgba(0,0,0,0.6); backdrop-filter: blur(4px);
+  display: none; align-items: flex-start; justify-content: center;
+  padding-top: 20vh;
+}
+.cmd-overlay.on { display: flex; }
+.cmd-box {
+  width: 520px; background: var(--sf); border: 1px solid var(--b2);
+  border-radius: var(--rlg); box-shadow: var(--shl); overflow: hidden;
+}
+.cmd-input {
+  width: 100%; padding: 16px 18px; background: transparent;
+  border: none; border-bottom: 1px solid var(--b);
+  color: var(--tx); font-family: var(--fm); font-size: 14px; outline: none;
+}
+.cmd-input::placeholder { color: var(--mu); }
+.cmd-results { max-height: 300px; overflow-y: auto; }
+.cmd-item {
+  padding: 10px 18px; cursor: pointer; transition: var(--tr);
+  display: flex; align-items: center; gap: 10px;
+}
+.cmd-item:hover { background: rgba(255,255,255,0.04); }
+.cmd-item i { width: 16px; color: var(--mu); font-size: 12px; }
+.cmd-item span { font-size: 12px; color: var(--hi); }
+.cmd-item .cmd-sec { font-size: 9px; color: var(--mu); margin-left: auto; text-transform: uppercase; }
+
+/* ═══ KEYBOARD / QR PANELS ═══ */
+.kbd-overlay {
+  position: fixed; inset: 0; z-index: 200;
+  background: rgba(0,0,0,0.6); backdrop-filter: blur(4px);
+  display: none; align-items: center; justify-content: center;
+}
+.kbd-overlay.on { display: flex; }
+.kbd-box {
+  width: 480px; background: var(--sf); border: 1px solid var(--b2);
+  border-radius: var(--rlg); box-shadow: var(--shl); padding: 24px;
+}
+.kbd-title {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 20px; font-family: var(--fd); font-weight: 700; font-size: 16px;
+}
+.kbd-title button {
+  width: 28px; height: 28px; border-radius: var(--rsb);
+  background: none; border: 1px solid var(--b); color: var(--mu);
+  cursor: pointer; font-size: 14px;
+}
+.kbd-title button:hover { color: var(--tx); border-color: var(--b2); }
+.kbd-group { margin-bottom: 16px; }
+.kbd-group-title {
+  font-size: 9px; font-weight: 600; text-transform: uppercase;
+  letter-spacing: 0.1em; color: var(--mu); margin-bottom: 8px;
+}
+.kbd-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 6px 0; font-size: 12px; color: var(--hi);
+}
+.kbd-keys { display: flex; gap: 3px; }
+.kbd-key {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 24px; height: 24px; padding: 0 6px;
+  background: var(--abg); border: 1px solid var(--b);
+  border-radius: 4px; font-family: var(--fx); font-size: 10px;
+  color: var(--mu);
+}
+
+/* QR */
+.qr-section { text-align: center; }
+.qr-canvas { background: #fff; border-radius: var(--rad); margin-bottom: 12px; }
+.qr-url { font-family: var(--fx); font-size: 10px; color: var(--mu); margin-bottom: 10px; word-break: break-all; }
+.qr-copy-btn { margin: 0 auto; }
+
+/* ═══ BATCH IMAGE ═══ */
+.batch-img-overlay {
+  position: fixed; inset: 0; z-index: 200;
+  background: rgba(0,0,0,0.6); backdrop-filter: blur(4px);
+  display: none; align-items: center; justify-content: center;
+}
+.batch-img-overlay.on { display: flex; }
+.batch-img-box {
+  width: 520px; background: var(--sf); border: 1px solid var(--b2);
+  border-radius: var(--rlg); box-shadow: var(--shl); padding: 24px;
+}
+.batch-img-title {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 16px; font-family: var(--fd); font-weight: 700; font-size: 16px;
+}
+.batch-img-title button {
+  width: 28px; height: 28px; border-radius: var(--rsb);
+  background: none; border: 1px solid var(--b); color: var(--mu);
+  cursor: pointer; font-size: 14px;
+}
+.batch-img-drop {
+  border: 2px dashed var(--b); border-radius: var(--rlg);
+  padding: 32px; text-align: center; color: var(--mu); font-size: 12px;
+  cursor: pointer; transition: var(--tr); position: relative;
+}
+.batch-img-drop:hover { border-color: var(--b2); color: var(--hi); }
+.batch-img-drop input[type="file"] {
+  position: absolute; inset: 0; opacity: 0; cursor: pointer;
+}
+.batch-img-list { margin-top: 12px; max-height: 200px; overflow-y: auto; }
+.batch-img-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 6px 0; border-bottom: 1px solid var(--b);
+}
+.batch-img-item img { width: 32px; height: 32px; object-fit: cover; border-radius: 4px; }
+.batch-img-item span { font-size: 11px; color: var(--hi); flex: 1; }
+
+/* ═══ TOAST ═══ */
+.toast {
+  position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+  padding: 10px 20px; background: var(--abg); border: 1px solid var(--b);
+  border-radius: var(--rad); font-size: 12px; color: var(--tx);
+  box-shadow: var(--shl); z-index: 300;
+  opacity: 0; pointer-events: none; transition: opacity 0.2s ease;
+}
+.toast.on { opacity: 1; pointer-events: auto; }
+
+.saving {
+  position: fixed; top: 68px; right: 24px;
+  padding: 6px 14px; background: var(--acc); border-radius: var(--rad);
+  font-size: 11px; font-weight: 600; color: #fff; z-index: 300;
+  opacity: 0; pointer-events: none; transition: opacity 0.2s ease;
+}
+.saving.on { opacity: 1; }
+
+/* ═══ STATS ═══ */
+.stat-card {
+  text-align: center; padding: 16px;
+  background: var(--abg); border: 1px solid var(--b);
+  border-radius: var(--rlg);
+}
+.stat-value {
+  font-family: var(--fd); font-size: 1.6rem; font-weight: 800;
+  color: var(--acc);
+}
+.stat-label {
+  font-size: 9px; color: var(--mu); text-transform: uppercase;
+  letter-spacing: 0.05em; margin-top: 4px;
+}
+.chart-bar {
+  display: flex; align-items: center; gap: 8px; margin-bottom: 4px;
+}
+.chart-bar-label { font-size: 10px; color: var(--hi); width: 60px; flex-shrink: 0; text-align: right; }
+.chart-bar-track {
+  flex: 1; height: 20px; background: rgba(0,0,0,0.2);
+  border-radius: 4px; overflow: hidden; position: relative;
+}
+.chart-bar-fill {
+  height: 100%; background: var(--acc); border-radius: 4px;
+  transition: width 0.5s ease;
+}
+.chart-bar-val {
+  font-family: var(--fx); font-size: 10px; color: var(--mu); min-width: 30px;
+}
+
+/* ═══ EMOJI / PARTICLES ═══ */
+.emoji-grid { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 12px; }
+.emoji-grid button {
+  width: 32px; height: 32px; font-size: 16px;
+  background: none; border: 1px solid transparent;
+  border-radius: var(--rsb); cursor: pointer; transition: var(--tr);
+}
+.emoji-grid button:hover { background: rgba(255,255,255,0.05); border-color: var(--b); }
+.custom-emoji-list { margin-bottom: 8px; }
+.particles-pv {
+  width: 100%; height: 80px; border: 1px solid var(--b);
+  border-radius: var(--rad); background: rgba(0,0,0,0.3);
+  overflow: hidden; margin-top: 8px;
+}
+.banner-pv {
+  width: 100%; height: 36px; border: 1px solid var(--b);
+  border-radius: var(--rad); overflow: hidden; margin-top: 8px;
+  display: flex; align-items: center;
+}
+
+/* ═══ SLOT ROW ═══ */
+.slot-row { display: flex; gap: 8px; padding: 8px 0; }
+.slot {
+  flex: 1; padding: 12px; background: rgba(0,0,0,0.2);
+  border: 1px solid var(--b); border-radius: var(--rad);
+  text-align: center; cursor: pointer; transition: var(--tr);
+}
+.slot:hover { border-color: var(--b2); background: rgba(255,255,255,0.03); }
+.slot.on { border-color: var(--acc); background: rgba(220,38,38,0.08); }
+.slot-name { font-size: 10px; font-weight: 600; color: var(--tx); margin-bottom: 2px; }
+.slot-date { font-size: 9px; color: var(--mu); font-family: var(--fx); }
+
+/* ═══ PRESET GRID ═══ */
+.preset-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 8px; margin-bottom: 16px;
+}
+.preset-card {
+  padding: 14px; background: var(--abg);
+  border: 1px solid var(--b); border-radius: var(--rlg);
+  cursor: pointer; transition: var(--tr); text-align: center;
+}
+.preset-card:hover { border-color: var(--b2); }
+.preset-card.on { border-color: var(--acc); }
+.preset-name { font-size: 11px; font-weight: 600; color: var(--tx); margin-bottom: 4px; }
+.preset-preview {
+  display: flex; gap: 3px; justify-content: center; margin-top: 8px;
+}
+.preset-dot { width: 10px; height: 10px; border-radius: 50%; }
+
+/* ═══ WHITELIST ═══ */
+.wl-item {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 8px 12px; background: rgba(0,0,0,0.2);
+  border: 1px solid var(--b); border-radius: var(--rad);
+  margin-bottom: 4px;
+}
+.wl-email { font-size: 12px; color: var(--hi); font-family: var(--fx); }
+.wl-del {
+  width: 24px; height: 24px; border-radius: var(--rsb);
+  background: none; border: 1px solid transparent;
+  color: var(--mu); cursor: pointer; font-size: 11px;
+  transition: var(--tr);
+}
+.wl-del:hover { color: var(--acc); border-color: var(--ac3); }
+
+/* ═══ CHANGE LOG ═══ */
+.cl-item {
+  display: flex; align-items: flex-start; gap: 8px;
+  padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.03);
+  font-size: 11px;
+}
+.cl-time { font-family: var(--fx); font-size: 10px; color: var(--mu); min-width: 80px; }
+.cl-text { color: var(--hi); }
+
+/* ═══ LAYOUT CANVAS ═══ */
+.layout-block {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 12px; background: var(--bg2);
+  border: 1px solid var(--b); border-radius: var(--rad);
+  margin-bottom: 4px; cursor: grab; user-select: none;
+  transition: var(--tr);
+}
+.layout-block:hover { border-color: var(--b2); }
+.layout-block:active { cursor: grabbing; border-color: var(--acc); }
+.layout-handle { color: var(--mu); font-size: 12px; }
+.layout-name { font-size: 12px; font-weight: 500; color: var(--tx); flex: 1; }
+
+/* ═══ SNAPSHOT ═══ */
+.snap-item {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 8px 12px; background: rgba(0,0,0,0.2);
+  border: 1px solid var(--b); border-radius: var(--rad);
+  margin-bottom: 4px;
+}
+.snap-name { font-size: 11px; color: var(--hi); }
+.snap-date { font-size: 9px; color: var(--mu); font-family: var(--fx); }
+
+/* ═══ FLOATING PREVIEW ═══ */
+#floating-preview {
+  border: 1px solid var(--b); border-radius: var(--rlg);
+  background: var(--abg); position: relative; overflow: hidden;
+}
+
+/* ═══ RESPONSIVE ═══ */
+@media (max-width: 1100px) {
+  .preview-panel { width: 300px; }
+}
+@media (max-width: 900px) {
+  .preview-panel { display: none; }
+  .resize-handle-h { display: none; }
+}
+</style>
 </head>
+
 <body>
 
 <!-- ═══ LOGIN OVERLAY ═══ -->
@@ -30,7 +895,7 @@
 </div>
 
 <!-- ═══ TOP BAR ═══ -->
-<div class="topbar">
+<div class="topbar" id="topbar">
   <div class="topbar-brand">DACE<em>·</em> Admin</div>
   <div class="topbar-center">
     <button class="tb" onclick="undo()" title="Deshacer (Ctrl+Z)"><i class="fas fa-undo"></i></button>
@@ -53,20 +918,20 @@
 <div class="split">
   <!-- Sidebar -->
   <div class="sidebar">
-    <div class="si on" data-s="global" onclick="showSection('global')"><i class="fas fa-globe"></i><span>Global</span></div>
-    <div class="si" data-s="hero" onclick="showSection('hero')"><i class="fas fa-star"></i><span>Hero</span></div>
-    <div class="si" data-s="layout" onclick="showSection('layout')"><i class="fas fa-th-large"></i><span>Layout</span></div>
-    <div class="sidebar-sep"></div>
-    <div class="si" data-s="beats" onclick="showSection('beats')"><i class="fas fa-music"></i><span>Beats</span></div>
-    <div class="si" data-s="elements" onclick="showSection('elements')"><i class="fas fa-shopping-bag"></i><span>Elementos</span></div>
-    <div class="si" data-s="animations" onclick="showSection('animations')"><i class="fas fa-magic"></i><span>Anim</span></div>
-    <div class="si" data-s="floating" onclick="showSection('floating')"><i class="fas fa-arrows-alt"></i><span>Float</span></div>
-    <div class="sidebar-sep"></div>
-    <div class="si" data-s="themes" onclick="showSection('themes')"><i class="fas fa-palette"></i><span>Temas</span></div>
-    <div class="si" data-s="settings" onclick="showSection('settings')"><i class="fas fa-cog"></i><span>Ajustes</span></div>
+    <div class="sb-label">Trabajo</div>
+    <div class="si" data-s="beats" onclick="showSection('beats')"><i class="fas fa-music"></i><span>Catálogo de Beats</span></div>
+    <div class="si" data-s="stats" onclick="showSection('stats')"><i class="fas fa-chart-bar"></i><span>Estadísticas</span></div>
+    <div class="si" data-s="settings" onclick="showSection('settings')"><i class="fas fa-cog"></i><span>Configuración</span></div>
     <div class="si" data-s="team" onclick="showSection('team')"><i class="fas fa-users"></i><span>Equipo</span></div>
     <div class="sidebar-sep"></div>
-    <div class="si" data-s="stats" onclick="showSection('stats')"><i class="fas fa-chart-bar"></i><span>Stats</span></div>
+    <div class="sb-label">Diseño</div>
+    <div class="si on" data-s="global" onclick="showSection('global')"><i class="fas fa-palette"></i><span>Estilos globales</span></div>
+    <div class="si" data-s="hero" onclick="showSection('hero')"><i class="fas fa-star"></i><span>Hero & Banner</span></div>
+    <div class="si" data-s="layout" onclick="showSection('layout')"><i class="fas fa-th-large"></i><span>Layout</span></div>
+    <div class="si" data-s="elements" onclick="showSection('elements')"><i class="fas fa-shopping-bag"></i><span>Elementos</span></div>
+    <div class="si" data-s="animations" onclick="showSection('animations')"><i class="fas fa-magic"></i><span>Animaciones</span></div>
+    <div class="si" data-s="floating" onclick="showSection('floating')"><i class="fas fa-arrows-alt"></i><span>Flotantes</span></div>
+    <div class="si" data-s="themes" onclick="showSection('themes')"><i class="fas fa-swatchbook"></i><span>Temas & Presets</span></div>
   </div>
 
   <!-- ═══ CONTROLS ═══ -->
@@ -74,7 +939,7 @@
 
     <!-- ═══ GLOBAL ═══ -->
     <div class="section on" id="sec-global">
-      <div class="section-title"><i class="fas fa-globe"></i> Global</div>
+      <div class="section-title"><i class="fas fa-palette"></i> Estilos globales</div>
 
       <!-- Colors -->
       <div class="card">
@@ -132,7 +997,7 @@
             <div class="font-preview-display" id="fp-display">Beats que definen géneros.</div>
             <div class="font-preview-body" id="fp-body">140 BPM · Am · Trap · Desde $350 MXN</div>
           </div>
-          <div class="field" style="margin-top:8px">
+          <div class="field" style="margin-top:12px">
             <label>Tamaño base</label>
             <div class="slider-wrap"><input type="range" id="t-font-size" min="8" max="24" value="14" oninput="sv(this);autoSave()"><span class="slider-val">14px</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,14)">↺</button></div>
           </div>
@@ -142,29 +1007,27 @@
           </div>
           <div class="field">
             <label>Peso título</label>
-            <div class="slider-wrap"><select id="t-font-weight" onchange="autoSave()" style="font-family:var(--fm);font-size:10px;background:var(--as);color:var(--tx);border:1px solid var(--b);border-radius:var(--rad);padding:3px 6px"><option value="400">400</option><option value="700">700</option><option value="800" selected>800</option><option value="900">900</option></select></div>
+            <div class="slider-wrap"><select id="t-font-weight" onchange="autoSave()" style="font-family:var(--fm);font-size:10px;background:var(--abg);color:var(--tx);border:1px solid var(--b);border-radius:var(--rad);padding:3px 6px"><option value="400">400</option><option value="700">700</option><option value="800" selected>800</option><option value="900">900</option></select></div>
           </div>
         </div>
       </div>
 
       <!-- Effects -->
       <div class="card">
-        <div class="card-title" onclick="toggleCard(this)"><span>🎛️ Efectos visuales</span><i class="fas fa-chevron-down"></i></div>
+        <div class="card-title" onclick="toggleCard(this)"><span>Efectos visuales</span><i class="fas fa-chevron-down"></i></div>
         <div class="card-body">
-          <p style="font-size:9px;color:var(--hi);margin-bottom:10px">Ajustes generales de apariencia. Más opacidad = más visible.</p>
+          <p style="font-size:9px;color:var(--hi);margin-bottom:10px">Ajustes generales de apariencia.</p>
           <div class="field"><label>Blur fondo</label><div class="slider-wrap"><input type="range" id="t-blur" min="0" max="80" value="24" oninput="sv(this);autoSave()"><span class="slider-val">24px</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,24)">↺</button></div></div>
           <div class="field"><label>Opacidad tarjetas</label><div class="slider-wrap"><input type="range" id="t-card-op" min="0" max="1" step="0.05" value="1" oninput="sv(this);autoSave()"><span class="slider-val">1.00</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,1)">↺</button></div></div>
           <div class="field"><label>Grano</label><div class="slider-wrap"><input type="range" id="t-grain" min="0" max="1" step="0.05" value="0.3" oninput="sv(this);autoSave()"><span class="slider-val">0.30</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,0.3)">↺</button></div></div>
           <div class="field"><label>Border radius</label><div class="slider-wrap"><input type="range" id="t-radius" min="0" max="40" value="10" oninput="sv(this);autoSave()"><span class="slider-val">10px</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,10)">↺</button></div></div>
-
           <div class="field"><label>Opacidad nav</label><div class="slider-wrap"><input type="range" id="t-nav-op" min="0" max="1" step="0.05" value="0.88" oninput="sv(this);autoSave()"><span class="slider-val">0.88</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,0.88)">↺</button></div></div>
           <div class="field"><label>Opacidad beat img</label><div class="slider-wrap"><input type="range" id="t-beat-img-op" min="0" max="1" step="0.05" value="1" oninput="sv(this);autoSave()"><span class="slider-val">1.00</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,1)">↺</button></div></div>
           <div class="field"><label>Opacidad texto</label><div class="slider-wrap"><input type="range" id="t-text-op" min="0" max="1" step="0.05" value="1" oninput="sv(this);autoSave()"><span class="slider-val">1.00</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,1)">↺</button></div></div>
           <div class="field"><label>Opacidad hero bg</label><div class="slider-wrap"><input type="range" id="t-hero-bg-op" min="0" max="1" step="0.05" value="1" oninput="sv(this);autoSave()"><span class="slider-val">1.00</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,1)">↺</button></div></div>
           <div class="field"><label>Opacidad secciones</label><div class="slider-wrap"><input type="range" id="t-section-op" min="0" max="1" step="0.05" value="1" oninput="sv(this);autoSave()"><span class="slider-val">1.00</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,1)">↺</button></div></div>
-          <div class="field"><label>Mix-blend orbs</label><div class="slider-wrap"><select id="t-orb-blend" onchange="autoSave()" style="font-family:var(--fm);font-size:10px;background:var(--as);color:var(--tx);border:1px solid var(--b);border-radius:var(--rad);padding:3px 6px"><option value="normal">normal</option><option value="screen">screen</option><option value="overlay">overlay</option><option value="multiply">multiply</option><option value="soft-light">soft-light</option><option value="color-dodge">color-dodge</option><option value="hard-light">hard-light</option><option value="exclusion">exclusion</option></select></div></div>
-          <div class="field"><label>Mix-blend grain</label><div class="slider-wrap"><select id="t-grain-blend" onchange="autoSave()" style="font-family:var(--fm);font-size:10px;background:var(--as);color:var(--tx);border:1px solid var(--b);border-radius:var(--rad);padding:3px 6px"><option value="overlay">overlay</option><option value="soft-light">soft-light</option><option value="multiply">multiply</option><option value="normal">normal</option><option value="screen">screen</option><option value="color-dodge">color-dodge</option></select></div></div>
-
+          <div class="field"><label>Mix-blend orbs</label><div class="slider-wrap"><select id="t-orb-blend" onchange="autoSave()" style="font-family:var(--fm);font-size:10px;background:var(--abg);color:var(--tx);border:1px solid var(--b);border-radius:var(--rad);padding:3px 6px"><option value="normal">normal</option><option value="screen">screen</option><option value="overlay">overlay</option><option value="multiply">multiply</option><option value="soft-light">soft-light</option><option value="color-dodge">color-dodge</option><option value="hard-light">hard-light</option><option value="exclusion">exclusion</option></select></div></div>
+          <div class="field"><label>Mix-blend grain</label><div class="slider-wrap"><select id="t-grain-blend" onchange="autoSave()" style="font-family:var(--fm);font-size:10px;background:var(--abg);color:var(--tx);border:1px solid var(--b);border-radius:var(--rad);padding:3px 6px"><option value="overlay">overlay</option><option value="soft-light">soft-light</option><option value="multiply">multiply</option><option value="normal">normal</option><option value="screen">screen</option><option value="color-dodge">color-dodge</option></select></div></div>
         </div>
       </div>
 
@@ -189,50 +1052,36 @@
         <div class="hero-pv-title" id="hpv-title">Beats que<br><span class="glow-word" data-t="definen géneros.">definen géneros.</span></div>
         <div class="hero-pv-sub" id="hpv-sub">Puebla, MX · Trap · R&B · Drill</div>
       </div>
-      <div style="font-size:9px;color:var(--hi);margin-bottom:12px;text-align:center">👆 Preview en tiempo real. Los cambios se reflejan aquí y en la tienda.</div>
+      <div style="font-size:9px;color:var(--hi);margin-bottom:12px;text-align:center">Vista previa en tiempo real.</div>
 
       <!-- ═══ GLOW UNIFICADO ═══ -->
       <div class="card">
-        <div class="card-title" onclick="toggleCard(this)"><span>💡 Sistema Glow — Todo en uno</span><i class="fas fa-chevron-down"></i></div>
+        <div class="card-title" onclick="toggleCard(this)"><span>Sistema Glow — Todo en uno</span><i class="fas fa-chevron-down"></i></div>
         <div class="card-body">
-          <p style="font-size:9px;color:var(--hi);margin-bottom:10px">El color de abajo se usa en toda la tienda: botones, títulos, tarjetas, y el hero.</p>
-
-          <!-- Color principal -->
+          <p style="font-size:9px;color:var(--hi);margin-bottom:10px">El color se usa en toda la tienda: botones, títulos, tarjetas, y el hero.</p>
           <div class="color-wrap"><label>Color principal</label><div class="color-swatch" id="gc-swatch"><input type="color" id="tc-glow" value="#dc2626" oninput="syncGlowColor(this.value)"></div><input type="text" class="color-hex" id="tt-glow" value="#dc2626" oninput="syncGlowColor(this.value)"></div>
-
-          <!-- Toggle global -->
           <div class="tog-row"><input type="checkbox" class="tog" id="t-glow" checked onchange="updatePreview();autoSave()"><span class="tog-lbl">Activar glow global</span></div>
-
-          <!-- Tipo y animación -->
           <div class="fg2">
             <div class="field"><label>Tipo de efecto</label><select id="t-glow-type" onchange="updatePreview();autoSave();updateGlowDesc()"><option value="text-shadow">text-shadow</option><option value="box-shadow">box-shadow</option><option value="drop-shadow">drop-shadow</option><option value="neon-blur">neon-blur</option><option value="neon-sign">neon-sign</option><option value="outer-glow">outer-glow</option><option value="inner-glow">inner-glow</option></select><div id="glow-desc" style="font-size:9px;color:var(--hi);margin-top:3px;line-height:1.4"></div></div>
             <div class="field"><label>Animación</label><select id="t-glow-anim" onchange="updatePreview();autoSave();updateGlowAnimDesc()"><option value="none">Ninguna</option><option value="pulse">Pulse</option><option value="breathe">Breathe</option><option value="flicker">Flicker</option><option value="rainbow">Rainbow</option><option value="wave">Wave</option></select><div id="glow-anim-desc" style="font-size:9px;color:var(--hi);margin-top:3px;line-height:1.4"></div></div>
           </div>
-
-          <!-- Sliders -->
           <div class="fg3">
             <div class="field"><label>Opacidad</label><div class="slider-wrap"><input type="range" id="t-glow-op" min="0" max="1" step="0.05" value="1" oninput="sv(this);autoSave()"><span class="slider-val">1.00</span></div></div>
             <div class="field"><label>Difuminado</label><div class="slider-wrap"><input type="range" id="t-glow-blur" min="0" max="100" value="20" oninput="sv(this);autoSave()"><span class="slider-val">20px</span></div></div>
             <div class="field"><label>Intensidad</label><div class="slider-wrap"><input type="range" id="t-glow-int" min="0" max="5" step="0.1" value="1" oninput="sv(this);autoSave()"><span class="slider-val">1.0x</span></div></div>
           </div>
-
-          <!-- Preview -->
           <div class="glow-pv-row">
             <div class="glow-pv-el" id="gp-box" style="background:var(--abg);color:var(--acc);border:1px solid var(--b)">Box</div>
             <div class="glow-pv-el" id="gp-text" style="color:var(--tx)">Texto</div>
             <div class="glow-pv-el" id="gp-btn" style="border:1px solid rgba(185,28,28,0.5);color:var(--acc);background:rgba(185,28,28,0.1)">Botón</div>
           </div>
-
-          <!-- Separador -->
           <div style="border-top:1px solid var(--b);margin-top:12px;padding-top:12px">
-            <p style="font-size:9px;color:var(--mu);margin-bottom:8px">⬇️ Efectos específicos del título del hero</p>
-
+            <p style="font-size:9px;color:var(--mu);margin-bottom:8px">Efectos específicos del título del hero</p>
             <div class="tog-row"><input type="checkbox" class="tog" id="h-glow-on" checked onchange="updateHeroPv();autoSave()"><span class="tog-lbl">Glow en el título</span></div>
             <div class="fg2">
               <div class="field"><label>Intensidad título</label><div class="slider-wrap"><input type="range" id="h-glow-int" min="0" max="5" step="0.1" value="1" oninput="sv(this);updateHeroPv();autoSave()"><span class="slider-val">1.0x</span></div></div>
               <div class="field"><label>Alcance brillo</label><div class="slider-wrap"><input type="range" id="h-glow-blur" min="0" max="100" value="20" oninput="sv(this);updateHeroPv();autoSave()"><span class="slider-val">20px</span></div></div>
             </div>
-
             <div class="tog-row" style="margin-top:6px"><input type="checkbox" class="tog" id="h-stroke-on" onchange="updateHeroPv();autoSave()"><span class="tog-lbl">Outline (solo borde de la última palabra)</span></div>
             <div class="fg2">
               <div class="field"><label>Grosor borde</label><div class="slider-wrap"><input type="range" id="h-stroke-w" min="0" max="8" step="0.5" value="1" oninput="sv(this);updateHeroPv();autoSave()"><span class="slider-val">1.0px</span></div></div>
@@ -248,7 +1097,7 @@
 
       <!-- Hero Text -->
       <div class="card">
-        <div class="card-title" onclick="toggleCard(this)"><span>📝 Texto principal</span><i class="fas fa-chevron-down"></i></div>
+        <div class="card-title" onclick="toggleCard(this)"><span>Texto principal</span><i class="fas fa-chevron-down"></i></div>
         <div class="card-body">
           <div class="field"><label>Título <span style="font-size:8px;color:var(--hi)">(la última línea recibe el efecto glow)</span></label><textarea id="h-title" oninput="updateHeroPv();autoSave()" style="min-height:44px">Beats que
 definen géneros.</textarea></div>
@@ -259,44 +1108,45 @@ definen géneros.</textarea></div>
 
       <!-- Hero Background -->
       <div class="card">
-        <div class="card-title" onclick="toggleCard(this)"><span>🌅 Fondo del hero</span><i class="fas fa-chevron-down"></i></div>
+        <div class="card-title" onclick="toggleCard(this)"><span>Fondo del hero</span><i class="fas fa-chevron-down"></i></div>
         <div class="card-body">
           <div class="tog-row"><input type="checkbox" class="tog" id="h-grad-on" checked onchange="updateHeroPv();autoSave()"><span class="tog-lbl">Degradado radial</span></div>
-          <p style="font-size:9px;color:var(--hi);margin-bottom:8px">Mancha de color detrás del título. Más opacidad = más intenso.</p>
+          <p style="font-size:9px;color:var(--hi);margin-bottom:8px">Mancha de color detrás del título.</p>
           <div class="fg2">
             <div class="color-wrap"><label>Color</label><div class="color-swatch"><input type="color" id="h-grad-clr" value="#dc2626" oninput="updateHeroPv();autoSave()"></div></div>
             <div class="field"><label>Opacidad del degradado</label><div class="slider-wrap"><input type="range" id="h-grad-op" min="0" max="1" step="0.01" value="0.14" oninput="sv(this);updateHeroPv();autoSave()"><span class="slider-val">0.14</span></div></div>
           </div>
           <div class="fg2">
-            <div class="field"><label>Ancho (qué tan ancha)</label><div class="slider-wrap"><input type="range" id="h-grad-w" min="30" max="100" value="80" oninput="sv(this);updateHeroPv();autoSave()"><span class="slider-val">80%</span></div></div>
-            <div class="field"><label>Alto (qué tan alta)</label><div class="slider-wrap"><input type="range" id="h-grad-h" min="20" max="100" value="60" oninput="sv(this);updateHeroPv();autoSave()"><span class="slider-val">60%</span></div></div>
+            <div class="field"><label>Ancho</label><div class="slider-wrap"><input type="range" id="h-grad-w" min="30" max="100" value="80" oninput="sv(this);updateHeroPv();autoSave()"><span class="slider-val">80%</span></div></div>
+            <div class="field"><label>Alto</label><div class="slider-wrap"><input type="range" id="h-grad-h" min="20" max="100" value="60" oninput="sv(this);updateHeroPv();autoSave()"><span class="slider-val">60%</span></div></div>
           </div>
         </div>
       </div>
 
       <!-- Gradient Editor -->
       <div class="card">
-        <div class="card-title collapsed" onclick="toggleCard(this)"><span>🎨 Editor degradado avanzado</span><i class="fas fa-chevron-down"></i></div>
+        <div class="card-title collapsed" onclick="toggleCard(this)"><span>Editor degradado avanzado</span><i class="fas fa-chevron-down"></i></div>
         <div class="card-body collapsed">
           <p style="font-size:10px;color:var(--mu);margin-bottom:8px">Click en la barra para añadir stops. Arrastra para mover.</p>
           <div id="grad-stops"></div>
           <button class="btn btn-g" onclick="_gradStops=[{pos:0,color:'#dc2626',opacity:0.14},{pos:100,color:'#dc2626',opacity:0}];renderGradEditor();applyGradToHero()" style="font-size:9px;margin-top:4px">Resetear</button>
         </div>
       </div>
+
       <!-- Hero Typography -->
       <div class="card">
-        <div class="card-title" onclick="toggleCard(this)"><span>🔤 Tamaño y espaciado</span><i class="fas fa-chevron-down"></i></div>
+        <div class="card-title" onclick="toggleCard(this)"><span>Tamaño y espaciado</span><i class="fas fa-chevron-down"></i></div>
         <div class="card-body">
           <div class="field"><label>Tamaño del título</label><div class="slider-wrap"><input type="range" id="h-title-size" min="1" max="8" step="0.1" value="2.8" oninput="sv(this);updateHeroPv();autoSave()"><span class="slider-val">2.8rem</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,2.8)">↺</button></div></div>
           <div class="field"><label>Espacio entre letras <span style="font-size:8px;color:var(--hi)">(negativo = más junto)</span></label><div class="slider-wrap"><input type="range" id="h-ls" min="-0.15" max="0.2" step="0.01" value="-0.04" oninput="sv(this);updateHeroPv();autoSave()"><span class="slider-val">-0.04</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,-0.04)">↺</button></div></div>
-          <div class="field"><label>Altura de línea <span style="font-size:8px;color:var(--hi)">(espacio entre renglones)</span></label><div class="slider-wrap"><input type="range" id="h-lh" min="0.5" max="2" step="0.05" value="1" oninput="sv(this);updateHeroPv();autoSave()"><span class="slider-val">1.00</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,1)">↺</button></div></div>
+          <div class="field"><label>Altura de línea</label><div class="slider-wrap"><input type="range" id="h-lh" min="0.5" max="2" step="0.05" value="1" oninput="sv(this);updateHeroPv();autoSave()"><span class="slider-val">1.00</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,1)">↺</button></div></div>
           <div class="field"><label>Espacio arriba del hero</label><div class="slider-wrap"><input type="range" id="h-pad-top" min="0" max="20" step="0.5" value="7" oninput="sv(this);autoSave()"><span class="slider-val">7.0rem</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,7)">↺</button></div></div>
         </div>
       </div>
 
-      <!-- Eyebrow settings (separate from glow) -->
+      <!-- Eyebrow settings -->
       <div class="card">
-        <div class="card-title" onclick="toggleCard(this)"><span>🏷️ Tag (eyebrow)</span><i class="fas fa-chevron-down"></i></div>
+        <div class="card-title" onclick="toggleCard(this)"><span>Tag (eyebrow)</span><i class="fas fa-chevron-down"></i></div>
         <div class="card-body">
           <p style="font-size:9px;color:var(--hi);margin-bottom:8px">El pill/badge arriba del título. Ej: "En vivo · Puebla, MX"</p>
           <div class="tog-row"><input type="checkbox" class="tog" id="h-eyebrow-on" checked onchange="updateHeroPv();autoSave()"><span class="tog-lbl">Mostrar tag</span></div>
@@ -347,6 +1197,7 @@ definen géneros.</textarea></div>
             <div class="field"><label>Dirección</label><select id="b-dir" onchange="updateBannerPv();autoSave()"><option value="normal">Normal</option><option value="reverse">Reverse</option><option value="alternate">Alternate</option></select></div>
           </div>
           <div class="banner-pv" id="banner-pv"></div>
+          <input type="hidden" id="b-anim-dir" value="normal">
         </div>
       </div>
 
@@ -382,7 +1233,6 @@ definen géneros.</textarea></div>
           <div class="field"><label>Logo offset X</label><div class="slider-wrap"><input type="range" id="t-logo-ox" min="-300" max="300" value="0" oninput="sv(this);autoSave()"><span class="slider-val">0px</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,0)">↺</button></div></div>
         </div>
       </div>
-      <!-- Layout Canvas -->
       <div class="card">
         <div class="card-title" onclick="toggleCard(this)"><span>Layout Canvas</span><i class="fas fa-chevron-down"></i></div>
         <div class="card-body">
@@ -410,11 +1260,15 @@ definen géneros.</textarea></div>
 
     <!-- ═══ BEATS ═══ -->
     <div class="section" id="sec-beats">
-      <div class="section-title"><i class="fas fa-music"></i> Beats</div>
-      <div class="btn-row"><button class="btn" onclick="openEditor(null)"><i class="fas fa-plus"></i> Nuevo beat</button><button class="btn btn-g" onclick="batchAddBeats()"><i class="fas fa-layer-group"></i> Batch</button><button class="btn btn-g" onclick="openBatchImg()"><i class="fas fa-images"></i> Imágenes</button><button class="btn btn-g" onclick="openKbdPanel()" title="Atajos (Ctrl+/)"><i class="fas fa-keyboard"></i></button></div>
+      <div class="section-title"><i class="fas fa-music"></i> Catálogo de Beats</div>
+      <div class="btn-row">
+        <button class="btn btn-ok" onclick="openEditor(null)"><i class="fas fa-plus"></i> Nuevo beat</button>
+        <button class="btn btn-g" onclick="batchAddBeats()"><i class="fas fa-layer-group"></i> Batch</button>
+        <button class="btn btn-g" onclick="openBatchImg()"><i class="fas fa-images"></i> Imágenes</button>
+        <button class="btn btn-g" onclick="openKbdPanel()" title="Atajos (Ctrl+/)"><i class="fas fa-keyboard"></i></button>
+      </div>
       <div class="beat-search"><span class="bs-icon"><i class="fas fa-search"></i></span><input type="text" id="beat-search-input" placeholder="Buscar beats..." oninput="filterBeatList(this.value)"><div class="beat-search-count" id="beat-search-count"></div></div>
       <div class="beat-list" id="beat-list"><div style="color:var(--hi);padding:12px 0">Cargando...</div></div>
-      <!-- Beat Editor (hidden by default, shown in sec-add) -->
     </div>
 
     <!-- ═══ BEAT EDITOR ═══ -->
@@ -558,7 +1412,7 @@ definen géneros.</textarea></div>
         <div class="card-title" onclick="toggleCard(this)"><span>Canvas flotante</span><i class="fas fa-chevron-down"></i></div>
         <div class="card-body">
           <p style="font-size:10px;color:var(--mu);margin-bottom:8px">Imágenes y texto flotantes sobre la tienda</p>
-          <div id="floating-preview" style="width:100%;height:120px;border:1px solid var(--b);border-radius:var(--rlg);position:relative;overflow:hidden;background:var(--as);margin-bottom:8px"></div>
+          <div id="floating-preview" style="width:100%;height:120px;border:1px solid var(--b);border-radius:var(--rlg);position:relative;overflow:hidden;background:var(--abg);margin-bottom:8px"></div>
           <div id="floating-editor"></div>
           <button class="btn btn-ok" onclick="addFE()" style="margin-top:8px"><i class="fas fa-plus"></i> Añadir elemento</button>
         </div>
@@ -567,7 +1421,7 @@ definen géneros.</textarea></div>
 
     <!-- ═══ THEMES ═══ -->
     <div class="section" id="sec-themes">
-      <div class="section-title"><i class="fas fa-palette"></i> Temas</div>
+      <div class="section-title"><i class="fas fa-swatchbook"></i> Temas & Presets</div>
 
       <div class="card">
         <div class="card-title">Slots de guardado</div>
@@ -621,7 +1475,7 @@ definen géneros.</textarea></div>
 
     <!-- ═══ SETTINGS ═══ -->
     <div class="section" id="sec-settings">
-      <div class="section-title"><i class="fas fa-cog"></i> Ajustes</div>
+      <div class="section-title"><i class="fas fa-cog"></i> Configuración</div>
 
       <!-- Cloudflare R2 Config -->
       <div class="card">
@@ -645,38 +1499,30 @@ definen géneros.</textarea></div>
             <button class="btn btn-g" onclick="purgeCache()" style="font-size:9px"><i class="fas fa-broom"></i> Purge Cache</button>
           </div>
           <p style="font-size:9px;color:var(--hi);line-height:1.6;margin-top:8px">
-            Los uploads irán a <code style="background:var(--as2);padding:2px 4px;border-radius:3px">cdn.dacewav.store</code>.
+            Los uploads irán a <code style="background:var(--bg2);padding:2px 4px;border-radius:3px">cdn.dacewav.store</code>.
             Sin configurar, las imágenes se guardan como base64 en Firebase.
           </p>
         </div>
       </div>
 
-      <!-- Utilidades (v5.1 — ejecuta vía Worker, no CLI) -->
+      <!-- Utilidades -->
       <div class="card">
         <div class="card-title" onclick="toggleCard(this)"><span>🛠️ Utilidades</span><i class="fas fa-chevron-down"></i></div>
         <div class="card-body">
           <p style="font-size:9px;color:var(--hi);margin-bottom:10px">Acciones que se ejecutan en el servidor vía Worker. Requiere R2 configurado.</p>
-
-          <!-- Backup -->
           <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
             <button class="btn btn-g" onclick="runBackup()" style="flex:1"><i class="fas fa-download"></i> Backup ahora</button>
           </div>
           <div id="backup-status" style="font-size:9px;color:var(--mu);margin-bottom:12px"></div>
-
-          <!-- Sitemap -->
           <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
             <button class="btn btn-g" onclick="runSitemap()" style="flex:1"><i class="fas fa-sitemap"></i> Generar Sitemap</button>
           </div>
           <div id="sitemap-status" style="font-size:9px;color:var(--mu);margin-bottom:12px"></div>
-
-          <!-- Previews upload -->
           <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
             <input type="file" id="previews-input" accept=".mp3,.wav,.ogg,.m4a" multiple style="display:none" onchange="uploadPreviews(this)">
             <button class="btn btn-g" onclick="document.getElementById('previews-input').click()" style="flex:1"><i class="fas fa-headphones"></i> Subir Previews MP3</button>
           </div>
           <div id="previews-status" style="font-size:9px;color:var(--mu);margin-bottom:12px"></div>
-
-          <!-- Restore (se mantiene como CLI — necesita Firebase Admin SDK) -->
           <div style="border-top:1px solid var(--b);padding-top:10px;margin-top:4px">
             <p style="font-size:9px;color:var(--hi);margin-bottom:8px">⚠️ Restore requiere Firebase Admin SDK — solo funciona desde CLI</p>
             <div style="display:flex;gap:6px">
@@ -733,13 +1579,13 @@ definen géneros.</textarea></div>
     <!-- ═══ EQUIPO / WHITELIST ═══ -->
     <div class="section" id="sec-team">
       <div class="section-title"><i class="fas fa-users"></i> Equipo</div>
-      <p style="font-size:10px;color:var(--mu);margin-bottom:12px">Solo estas cuentas de Google pueden acceder al admin. Los cambios se guardan en Firebase automáticamente.</p>
+      <p style="font-size:10px;color:var(--mu);margin-bottom:12px">Solo estas cuentas de Google pueden acceder al admin.</p>
       <div class="card">
         <div class="card-title"><span>Emails autorizados</span></div>
         <div class="card-body">
           <div id="whitelist-list"></div>
           <div style="display:flex;gap:6px;margin-top:10px">
-            <input type="email" id="wl-new-email" placeholder="nuevo@email.com" style="flex:1;background:rgba(0,0,0,0.3);border:1px solid var(--b2);border-radius:var(--rad);color:var(--tx);font-family:var(--fm);font-size:11px;padding:6px 10px;outline:none">
+            <input type="email" id="wl-new-email" placeholder="nuevo@email.com" style="flex:1;background:rgba(0,0,0,0.3);border:1px solid var(--b);border-radius:var(--rad);color:var(--tx);font-family:var(--fm);font-size:11px;padding:6px 10px;outline:none">
             <button class="tb gn" onclick="addWhitelistEmail()" style="flex-shrink:0"><i class="fas fa-plus"></i> Agregar</button>
           </div>
         </div>
@@ -754,10 +1600,10 @@ definen géneros.</textarea></div>
         <button class="tb" onclick="runStats()" title="Cargar vía Worker (más seguro)"><i class="fas fa-server"></i> vía Worker</button>
       </div>
       <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:20px">
-        <div class="card" style="text-align:center;padding:16px"><div id="stat-total-visits" style="font-size:1.6rem;font-weight:800;color:var(--acc);font-family:var(--fd)">—</div><div style="font-size:9px;color:var(--mu);text-transform:uppercase;letter-spacing:.5px;margin-top:4px">Visitas (7d)</div></div>
-        <div class="card" style="text-align:center;padding:16px"><div id="stat-total-clicks" style="font-size:1.6rem;font-weight:800;color:var(--acc);font-family:var(--fd)">—</div><div style="font-size:9px;color:var(--mu);text-transform:uppercase;letter-spacing:.5px;margin-top:4px">Clicks Beats</div></div>
-        <div class="card" style="text-align:center;padding:16px"><div id="stat-total-wa" style="font-size:1.6rem;font-weight:800;color:var(--acc);font-family:var(--fd)">—</div><div style="font-size:9px;color:var(--mu);text-transform:uppercase;letter-spacing:.5px;margin-top:4px">WhatsApp</div></div>
-        <div class="card" style="text-align:center;padding:16px"><div id="stat-total-searches" style="font-size:1.6rem;font-weight:800;color:var(--acc);font-family:var(--fd)">—</div><div style="font-size:9px;color:var(--mu);text-transform:uppercase;letter-spacing:.5px;margin-top:4px">Búsquedas</div></div>
+        <div class="stat-card"><div class="stat-value" id="stat-total-visits">—</div><div class="stat-label">Visitas (7d)</div></div>
+        <div class="stat-card"><div class="stat-value" id="stat-total-clicks">—</div><div class="stat-label">Clicks Beats</div></div>
+        <div class="stat-card"><div class="stat-value" id="stat-total-wa">—</div><div class="stat-label">WhatsApp</div></div>
+        <div class="stat-card"><div class="stat-value" id="stat-total-searches">—</div><div class="stat-label">Búsquedas</div></div>
       </div>
       <div class="card"><div class="card-title"><span>📅 Visitas Diarias (7 días)</span></div><div class="card-body"><div id="daily-visits-chart" style="display:flex;flex-direction:column;gap:6px"><div style="color:var(--hi);font-size:10px;text-align:center;padding:16px">Click "Actualizar" para cargar datos</div></div></div></div>
       <div class="card"><div class="card-title"><span>👁️ Top 10 — Vistas</span></div><div class="card-body"><div id="top-views-chart" style="display:flex;flex-direction:column;gap:6px"><div style="color:var(--hi);font-size:10px;text-align:center;padding:16px">Sin datos aún</div></div></div></div>
