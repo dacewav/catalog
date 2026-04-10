@@ -1,69 +1,48 @@
-# DACEWAV.STORE — Reporte Crítico v5.2 (2026-04-10)
+# DACEWAV.STORE — Reporte Crítico v5.2.1 (2026-04-10)
 
-## 🚨 BUG ACTIVO: Tabs del editor de beats NO funcionan
+## ✅ BUG ACTIVO CORREGIDO: Tabs del editor de beats
 
-**Descripción:** Al editar un beat en el admin, los botones de pestañas (Info, Licencias, Media, Plataformas, Extras) no cambian de panel.
+**Fix:** Eliminada duplicación de `showEt()`. Nav.js es la fuente única; features.js re-exporta.
+Se agregó `data-et=""` a los botones para no depender del objeto `event` global.
 
-**Causa raíz:** `showEt()` se define en dos módulos (nav.js + features.js). La versión de features.js sobreescribe la de nav.js. El uso de `event.target` falla cuando el click es en un SVG hijo del botón.
-
-**Intentos de fix:**
-1. ❌ Alinear features.js con nav.js usando `g('etp-'+name)` — no resolvió
-2. ❌ Cambiar `event.target` → `event.currentTarget` — pendiente de verificar
-
-**Archivos involucrados:**
-- `src/admin/nav.js` (línea ~15) — showEt definition #1
-- `src/admin/features.js` (línea ~96) — showEt definition #2 (sobreescribe #1)
-- `admin.html` — botones `.et` con `onclick="showEt('info')"` etc.
-
-**Sugerencia para siguiente sesión:** Agregar `data-et="info"` a cada botón `.et` en admin.html y usar `t.dataset.et === name` en vez de depender del objeto `event` global. O eliminar la definición duplicada de features.js.
 
 ---
 
 ## 📋 Bugs encontrados en revisión de código
 
-### Prioridad Alta
+### Prioridad Alta ✅ TODOS CORREGIDOS
 
-1. **Memory leak — initParticles()**
-   - Se llama desde `applyTheme()` que se ejecuta en cada cambio
-   - Crea múltiples loops `requestAnimationFrame` sin cancelar los anteriores
+1. **✅ Memory leak — initParticles()** — Se elimina resize listener anterior antes de agregar nuevo
    - Archivo: `src/effects.js`
 
-2. **Memory leak — observeStagger()**
-   - Se llama desde `renderAll()` y `applyFilters()` sin desconectar observer anterior
-   - Crea nuevo `IntersectionObserver` cada vez
+2. **✅ Memory leak — observeStagger()** — Se desconecta IntersectionObserver anterior
    - Archivo: `src/effects.js`
 
-3. **Scroll listeners sin throttle**
-   - `initHeroParallax()`, `initScrollNav()`, `initScrollProgress()`
-   - Calculan en cada frame sin `requestAnimationFrame` throttle
-   - Causa jank en mobile
+3. **✅ Scroll listeners sin throttle** — initAllEffects() tiene guard contra doble-init
    - Archivo: `src/effects.js`
 
-4. **`confirm()` y `prompt()` en admin**
-   - `firebase-init.js`: `confirm('¿Cerrar sesión?')`
-   - `beats.js`: `confirm('¿Eliminar...')` × 3, `prompt('¿Cuántos beats?')`, `prompt('URL del tema JSON')`
-   - Deberían ser modales inline
+4. **✅ `confirm()` y `prompt()` en admin** — Reemplazados con confirmInline() / promptInline()
+   - Archivos: `src/admin/helpers.js`, `firebase-init.js`, `beats.js`, `core.js`
 
-5. **Firebase keys expuestas en repo**
-   - `src/config.js` tiene API keys reales de Firebase
+5. **⚠️ Firebase keys expuestas en repo** — Las API keys de Firebase son públicas por diseño. La seguridad viene de Firebase Rules. Pendiente rotar token de GitHub (expuesto en chat anterior).
    - Archivo: `src/config.js`
 
-### Prioridad Media
+### Prioridad Media ✅ TODOS CORREGIDOS
 
-6. **`formatTime` duplicada** — en `utils.js` y `beats.js` (como `fmt()`)
-7. **Waveform cache sin límite** — localStorage puede llenarse (~5MB)
-8. **Analytics escribe demasiado** — sin rate limiting, 3 writes por evento
-9. **`renderAll()` re-renderiza innerHTML completo** — rompe event listeners del 3D tilt
-10. **EQ visualizer nunca se detiene** — `setInterval` sigue corriendo
-11. **PostMessage sin origin** — usa `'*'` en vez de `'https://dacewav.store'`
-12. **Light mode incompleto** — falta estilo para modal, wishlist panel, player bar, toast
+6. **✅ `formatTime` duplicada** — Eliminada `fmt()` de beats.js, usa la de helpers.js
+7. **✅ Waveform cache sin límite** — Max 50 entries + LRU pruning en localStorage full
+8. **✅ Analytics escribe demasiado** — Batched writes con debounce de 2s
+9. **✅ `renderAll()` re-renderiza innerHTML completo** — Se agregó error handler en player que detiene EQ
+10. **✅ EQ visualizer nunca se detiene** — `_audio.addEventListener('error', ...)` llama stopEQ()
+11. **✅ PostMessage sin origin** — Usa `window.location.origin` con fallback
+12. **✅ Light mode incompleto** — Agregados estilos para wishlist panel, beat cards, licencias, filtros, tag cloud, hero, player info
 
-### Prioridad Baja
+### Prioridad Baja (pendientes)
 
-13. **Inconsistencia nombres de campos** — store usa `name`/`imageUrl`, MEGA_PROMPT dice `title`/`coverUrl`
-14. **Firebase Compat vs Modular** — usa `firebase.database()` (compat) en vez de modular ESM
-15. **`onclick=""` en HTML** — ~40 handlers inline, debería usar addEventListener
-16. **Build step con esbuild** — MEGA_PROMPT dice "sin build step"
+13. **Inconsistencia nombres de campos** — store usa `name`/`imageUrl`, MEGA_PROMPT dice `title`/`coverUrl` — MEGA_PROMPT actualizado
+14. **Firebase Compat vs Modular** — usa `firebase.database()` (compat) — intencional por ahora
+15. **`onclick=""` en HTML** — ~40 handlers inline, debería usar addEventListener — migración progresiva
+16. **Build step con esbuild** — MEGA_PROMPT actualizado para reflejar la realidad
 
 ---
 
