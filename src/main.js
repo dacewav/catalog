@@ -222,16 +222,21 @@ window.addEventListener('load', () => {
 
   const loaderTimeout = setTimeout(() => {
     state.ldTheme = state.ldSettings = state.ldBeats = true;
-    _checkReady();
-  }, 5000);
+    _hideLoader();
+  }, 3000);
 
-  function _checkReady() {
-    if (!state.ldTheme || !state.ldSettings || !state.ldBeats) return;
+  let _loaderHidden = false;
+  function _hideLoader() {
+    if (_loaderHidden) return;
+    _loaderHidden = true;
     const l = document.getElementById('loader');
     if (l) {
       l.style.opacity = '0';
       setTimeout(() => { l.style.display = 'none'; }, 500);
     }
+  }
+  function _checkReady() {
+    if (state.ldTheme) _hideLoader();
   }
 
   try {
