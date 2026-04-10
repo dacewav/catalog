@@ -7,11 +7,13 @@ import { ref, get } from 'https://www.gstatic.com/firebasejs/11.2.0/firebase-dat
 import { initCatalog } from './catalog.js';
 import { initPlayer } from './player.js';
 import { initLicenses } from './licenses.js';
+import { initWishlist } from './wishlist.js';
 
 document.addEventListener('DOMContentLoaded', async () => {
   try {
     await loadTheme();
     initCatalog(db);
+    initWishlist(db);
     initPlayer();
     initLicenses();
     setupNav();

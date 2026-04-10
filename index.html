@@ -18,6 +18,12 @@
       <li><a href="#catalog">Beats</a></li>
       <li><a href="#" id="nav-instagram">Instagram</a></li>
       <li><a href="#" id="nav-beatstars">BeatStars</a></li>
+      <li>
+        <button class="nav__wish-btn" id="wish-toggle" aria-label="Favoritos">
+          ♥
+          <span class="wish-badge" id="wish-badge">0</span>
+        </button>
+      </li>
     </ul>
   </nav>
 
@@ -87,6 +93,21 @@
       </div>
     </div>
   </div>
+
+  <!-- Wishlist Panel -->
+  <div class="wish-overlay" id="wish-overlay"></div>
+  <aside class="wish-panel" id="wish-panel">
+    <div class="wish-panel__header">
+      <h3 class="wish-panel__title">Favoritos <span id="wish-count">0</span></h3>
+      <button class="wish-panel__close" id="wish-close" aria-label="Cerrar">✕</button>
+    </div>
+    <div class="wish-panel__list" id="wish-list">
+      <!-- Rendered from JS -->
+    </div>
+    <div class="wish-panel__footer">
+      <button class="btn-primary wish-panel__wa-btn" id="wish-whatsapp">📱 Enviar por WhatsApp</button>
+    </div>
+  </aside>
 
   <!-- Footer -->
   <footer class="footer">

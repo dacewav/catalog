@@ -3,6 +3,7 @@
 // ════════════════════════════════════════════════════════════
 
 import { ref, onValue } from 'https://www.gstatic.com/firebasejs/11.2.0/firebase-database.js';
+import { isWished, toggleWish } from './wishlist.js';
 
 let db;
 let beatsData = [];
@@ -240,6 +241,9 @@ function listenBeats() {
       .map(([id, beat]) => ({ id, ...beat }))
       .filter(b => b.status === 'active');
 
+    // Expose for wishlist module
+    window.__daceBeats = beatsData;
+
     if (beatsData.length === 0) {
       showEmpty();
       return;
@@ -410,6 +414,18 @@ function createBeatCard(beat) {
   // Play overlay
   const overlay = document.createElement('div');
   overlay.className = 'beat-card__cover-actions';
+
+  const btnWish = document.createElement('button');
+  btnWish.className = 'wish-btn';
+  btnWish.dataset.id = beat.id;
+  btnWish.textContent = isWished(beat.id) ? '♥' : '♡';
+  if (isWished(beat.id)) btnWish.classList.add('wish-btn--active');
+  btnWish.setAttribute('aria-label', `Favorito ${beat.title}`);
+  btnWish.addEventListener('click', (e) => {
+    e.stopPropagation();
+    toggleWish(beat.id);
+  });
+  overlay.appendChild(btnWish);
 
   const btnPlay = document.createElement('button');
   btnPlay.className = 'btn-play';
