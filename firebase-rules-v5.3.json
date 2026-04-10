@@ -7,16 +7,16 @@
     },
 
     "settings": {
-      ".write": "auth != null && root.child('adminWhitelist').child(auth.token.email).val() === true"
+      ".write": "auth != null && root.child('adminWhitelist').child(auth.token.email.replace('.',',')).val() === true"
     },
 
     "theme": {
-      ".write": "auth != null && root.child('adminWhitelist').child(auth.token.email).val() === true"
+      ".write": "auth != null && root.child('adminWhitelist').child(auth.token.email.replace('.',',')).val() === true"
     },
 
     "beats": {
       ".read": true,
-      ".write": "auth != null && root.child('adminWhitelist').child(auth.token.email).val() === true",
+      ".write": "auth != null && root.child('adminWhitelist').child(auth.token.email.replace('.',',')).val() === true",
       "$beatId": {
         ".validate": "newData.hasChildren(['name', 'genre', 'bpm', 'key'])",
         "name": { ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 200" },
@@ -67,27 +67,27 @@
     },
 
     "floatingElements": {
-      ".write": "auth != null && root.child('adminWhitelist').child(auth.token.email).val() === true"
+      ".write": "auth != null && root.child('adminWhitelist').child(auth.token.email.replace('.',',')).val() === true"
     },
 
     "customLinks": {
-      ".write": "auth != null && root.child('adminWhitelist').child(auth.token.email).val() === true"
+      ".write": "auth != null && root.child('adminWhitelist').child(auth.token.email.replace('.',',')).val() === true"
     },
 
     "customEmojis": {
-      ".write": "auth != null && root.child('adminWhitelist').child(auth.token.email).val() === true"
+      ".write": "auth != null && root.child('adminWhitelist').child(auth.token.email.replace('.',',')).val() === true"
     },
 
     "team": {
-      ".write": "auth != null && root.child('adminWhitelist').child(auth.token.email).val() === true"
+      ".write": "auth != null && root.child('adminWhitelist').child(auth.token.email.replace('.',',')).val() === true"
     },
 
     "defaultLicenses": {
-      ".write": "auth != null && root.child('adminWhitelist').child(auth.token.email).val() === true"
+      ".write": "auth != null && root.child('adminWhitelist').child(auth.token.email.replace('.',',')).val() === true"
     },
 
     "analytics": {
-      ".read": "auth != null && root.child('adminWhitelist').child(auth.token.email).val() === true",
+      ".read": "auth != null && root.child('adminWhitelist').child(auth.token.email.replace('.',',')).val() === true",
       "events": {
         "$date": {
           "$eventId": {

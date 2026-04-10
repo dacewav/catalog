@@ -16,7 +16,6 @@ export function showSection(name) {
 export function showEt(name) {
   const tabs = document.querySelectorAll('#sec-add .et');
   const panels = document.querySelectorAll('#sec-add .etp');
-  // Map tab index to panel: tabs[0]→panels[0] (info), tabs[1]→panels[1] (lics), etc.
   const names = ['info', 'lics', 'media', 'plat', 'extras'];
   const idx = names.indexOf(name);
   tabs.forEach((t, i) => t.classList.toggle('on', i === idx));
