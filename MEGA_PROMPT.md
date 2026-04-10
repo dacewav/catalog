@@ -313,9 +313,9 @@ Variables de tema se manejan desde el admin (Firebase `theme` node) y se aplican
 
 ---
 
-## BUGS CORREGIDOS (v5.2 → v5.2.1)
+## BUGS CORREGIDOS (v5.2 → v5.3)
 
-- ✅ showEt tabs — duplicación eliminada, data-et attributes
+- ✅ showEt tabs — FIX DEFINITIVO: eliminado de Object.assign(window) de features.js
 - ✅ Memory leak observeStagger — disconnect prev observer
 - ✅ Memory leak initParticles — remove prev resize listener
 - ✅ Scroll listeners duplicados — initAllEffects guard
@@ -325,6 +325,7 @@ Variables de tema se manejan desde el admin (Firebase `theme` node) y se aplican
 - ✅ Analytics sin rate limiting — batched writes 2s debounce
 - ✅ EQ no se detiene en error — error handler agrega stopEQ
 - ✅ postMessage sin origin validation
+- ✅ Light mode incompleto — estilos para wishlist, cards, filtros
 
 ---
 
@@ -364,4 +365,4 @@ NUNCA:
 
 ---
 
-*Versión de este contexto: 5.2.1 | Proyecto: dacewav.store | Stack: Cloudflare + Firebase + R2 + esbuild*
+*Versión de este contexto: 5.3 | Proyecto: dacewav.store | Stack: Cloudflare + Firebase + R2 + esbuild*

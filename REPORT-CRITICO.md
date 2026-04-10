@@ -1,78 +1,63 @@
-# DACEWAV.STORE — Reporte Crítico v5.2.1 (2026-04-10)
+# DACEWAV.STORE — Reporte Crítico v5.3 (2026-04-10)
 
-## ✅ BUG ACTIVO CORREGIDO: Tabs del editor de beats
+## ✅ BUG ACTIVO FINALMENTE CORREGIDO: showEt tabs
 
-**Fix:** Eliminada duplicación de `showEt()`. Nav.js es la fuente única; features.js re-exporta.
-Se agregó `data-et=""` a los botones para no depender del objeto `event` global.
+**Causa raíz REAL:** `showEt` se asignaba a `window` desde DOS módulos:
+1. `src/admin/nav.js` → `Object.assign(window, { showSection, showEt })`
+2. `src/admin/features.js` → `Object.assign(window, { ..., showEt, copyCmd })`
 
+El fix de `data-et` y re-export NO bastaba porque features.js seguía asignando `showEt` a window en su `Object.assign`. Esbuild no lo eliminaba del bundle.
 
----
+**Fix definitivo:** Eliminado `showEt` del `Object.assign(window)` de features.js. Ahora solo nav.js lo asigna.
 
-## 📋 Bugs encontrados en revisión de código
-
-### Prioridad Alta ✅ TODOS CORREGIDOS
-
-1. **✅ Memory leak — initParticles()** — Se elimina resize listener anterior antes de agregar nuevo
-   - Archivo: `src/effects.js`
-
-2. **✅ Memory leak — observeStagger()** — Se desconecta IntersectionObserver anterior
-   - Archivo: `src/effects.js`
-
-3. **✅ Scroll listeners sin throttle** — initAllEffects() tiene guard contra doble-init
-   - Archivo: `src/effects.js`
-
-4. **✅ `confirm()` y `prompt()` en admin** — Reemplazados con confirmInline() / promptInline()
-   - Archivos: `src/admin/helpers.js`, `firebase-init.js`, `beats.js`, `core.js`
-
-5. **⚠️ Firebase keys expuestas en repo** — Las API keys de Firebase son públicas por diseño. La seguridad viene de Firebase Rules. Pendiente rotar token de GitHub (expuesto en chat anterior).
-   - Archivo: `src/config.js`
-
-### Prioridad Media ✅ TODOS CORREGIDOS
-
-6. **✅ `formatTime` duplicada** — Eliminada `fmt()` de beats.js, usa la de helpers.js
-7. **✅ Waveform cache sin límite** — Max 50 entries + LRU pruning en localStorage full
-8. **✅ Analytics escribe demasiado** — Batched writes con debounce de 2s
-9. **✅ `renderAll()` re-renderiza innerHTML completo** — Se agregó error handler en player que detiene EQ
-10. **✅ EQ visualizer nunca se detiene** — `_audio.addEventListener('error', ...)` llama stopEQ()
-11. **✅ PostMessage sin origin** — Usa `window.location.origin` con fallback
-12. **✅ Light mode incompleto** — Agregados estilos para wishlist panel, beat cards, licencias, filtros, tag cloud, hero, player info
-
-### Prioridad Baja (pendientes)
-
-13. **Inconsistencia nombres de campos** — store usa `name`/`imageUrl`, MEGA_PROMPT dice `title`/`coverUrl` — MEGA_PROMPT actualizado
-14. **Firebase Compat vs Modular** — usa `firebase.database()` (compat) — intencional por ahora
-15. **`onclick=""` en HTML** — ~40 handlers inline, debería usar addEventListener — migración progresiva
-16. **Build step con esbuild** — MEGA_PROMPT actualizado para reflejar la realidad
+**Archivos modificados:**
+- `src/admin/features.js` — quitado `showEt` del Object.assign + quitado re-export
+- `src/admin/nav.js` — showEt usa `data-et` attributes (ya estaba)
 
 ---
 
-## ✅ Features que YA funcionan
+## Estado actual del proyecto: v5.3
 
-- [x] Grid de beats con filtros avanzados (genre, key, mood, search, sort, tag cloud)
-- [x] Wishlist (localStorage, panel lateral, WhatsApp)
-- [x] Player persistente con skip ±10s, EQ visualizer
-- [x] Modal de licencias con OG tags, links de plataforma
-- [x] Featured section, banner configurable
-- [x] Admin: CRUD beats, drag & drop, inline edit, batch add
-- [x] Admin: Editor de tema masivo (glow, fonts, particles, gradients, presets)
-- [x] Admin: Command palette, keyboard shortcuts, QR preview
-- [x] Scroll-aware nav, cursor glow, parallax hero, card tilt 3D
-- [x] Hash router para deep links
-- [x] Light mode toggle
-- [x] Analytics tracking
-- [x] .gitignore configurado
+### Bugs corregidos en esta sesión (v5.2 → v5.3)
+
+| Bug | Estado | Fix |
+|-----|--------|-----|
+| showEt tabs rotas | ✅ FIX DEFINITIVO | Un solo módulo asigna a window |
+| Memory leaks effects.js | ✅ | disconnect observer + removeEventListener |
+| Scroll listeners duplicados | ✅ | Guard en initAllEffects() |
+| confirm()/prompt() nativos | ✅ | confirmInline/promptInline |
+| formatTime duplicada | ✅ | fmt() unificada en helpers.js |
+| Waveform cache sin límite | ✅ | Max 50 entries + LRU |
+| Analytics rate limiting | ✅ | Batched writes 2s debounce |
+| EQ no se detiene en error | ✅ | error handler agrega stopEQ |
+| postMessage sin origin | ✅ | window.location.origin |
+| Light mode incompleto | ✅ | Estilos para wishlist, cards, filtros |
+
+### Bugs pendientes (Priority Baja)
+
+- Firebase Compat vs Modular (intencional por ahora)
+- ~150 onclick="" inline handlers en admin.html (migración progresiva)
+- renderAll() re-renderiza innerHTML (pierde event listeners 3D tilt)
+
+### Problemas estructurales identificados
+
+1. **150 onclick inline en HTML** — frágil, depende de que esbuild resuelva window assignments en orden correcto
+2. **2 Object.assign(window) compitiendo** — cualquier función duplicada causa bugs silentos
+3. **admin.html tiene 75KB** — todo el HTML del admin en un solo archivo
+4. **admin-styles.css tiene 34KB** — un solo archivo CSS para todo
+5. **Beats + Diseño + Settings mezclados** — secciones no están organizadas lógicamente
 
 ---
 
 ## Pendientes de deploy
 
-- [ ] Verificar que Cloudflare Pages deploy automático funcione
-- [ ] Subir reglas Firebase (`firebase-rules-v5.3.json`)
+- [ ] Verificar Cloudflare Pages deploy automático
+- [ ] Subir reglas Firebase (firebase-rules-v5.2.json)
 - [ ] Activar Google Auth en Firebase Console
 - [ ] Desplegar Cloudflare Worker (R2 upload)
-- [ ] Configurar CDN `cdn.dacewav.store`
-- [ ] **Rotar token de GitHub** (quedó expuesto en chat anterior)
+- [ ] Configurar CDN cdn.dacewav.store
+- [ ] **Rotar token de GitHub** (quedó expuesto)
 
 ---
 
-*Última actualización: 2026-04-10 23:21 GMT+8*
+*Última actualización: 2026-04-10 23:58 GMT+8*
