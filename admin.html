@@ -988,6 +988,64 @@ body.light .batch-img-drop input[type="file"] { opacity: 0; }
 .ce-item img { width: 28px; height: 28px; object-fit: contain; border-radius: 3px; }
 .ce-name { font-size: 11px; font-weight: 700; flex: 1; }
 
+/* ═══ TEXT COLORIZER ═══ */
+.tcz-wrap {
+  background: var(--abg); border: 1px solid var(--b);
+  border-radius: var(--rad); padding: 10px; margin-bottom: 8px;
+}
+.tcz-toolbar {
+  display: flex; align-items: center; gap: 6px;
+  margin-bottom: 8px; flex-wrap: wrap;
+}
+.tcz-toolbar label { font-size: 10px; color: var(--mu); font-weight: 600; }
+.tcz-color-pick {
+  width: 26px; height: 26px; border: 2px solid var(--b);
+  border-radius: 6px; padding: 0; cursor: pointer;
+  background: none; flex-shrink: 0;
+}
+.tcz-color-pick::-webkit-color-swatch-wrapper { padding: 0; }
+.tcz-color-pick::-webkit-color-swatch { border: none; border-radius: 4px; }
+.tcz-presets {
+  display: flex; gap: 4px; align-items: center;
+}
+.tcz-preset {
+  width: 20px; height: 20px; border-radius: 50%; border: 2px solid transparent;
+  cursor: pointer; transition: var(--tr); flex-shrink: 0;
+}
+.tcz-preset:hover { transform: scale(1.2); }
+.tcz-preset.on { border-color: #fff; box-shadow: 0 0 6px rgba(255,255,255,0.4); }
+.tcz-text {
+  font-family: var(--fd); font-size: 16px; font-weight: 800;
+  letter-spacing: -0.02em; line-height: 1.8;
+  padding: 8px; min-height: 40px; user-select: text;
+  cursor: text; outline: none;
+  border: 1px dashed var(--b); border-radius: var(--rad);
+  transition: border-color var(--tr);
+}
+.tcz-text:focus, .tcz-text:hover { border-color: var(--acc); }
+.tcz-text span.tcz-w {
+  padding: 1px 3px; border-radius: 3px; cursor: pointer;
+  transition: background 0.15s, box-shadow 0.15s;
+  display: inline;
+}
+.tcz-text span.tcz-w:hover {
+  background: rgba(255,255,255,0.08);
+  box-shadow: 0 0 0 1px rgba(255,255,255,0.15);
+}
+.tcz-text span.tcz-w.tcz-colored {
+  box-shadow: 0 0 0 1px currentColor;
+}
+.tcz-actions {
+  display: flex; gap: 6px; margin-top: 6px;
+}
+.tcz-actions button {
+  font-size: 9px; padding: 3px 8px; border-radius: var(--rad);
+  border: 1px solid var(--b); background: var(--abg); color: var(--mu);
+  cursor: pointer; transition: var(--tr);
+}
+.tcz-actions button:hover { color: var(--tx); border-color: var(--acc); }
+.tcz-hint { font-size: 9px; color: var(--hi); margin-top: 4px; line-height: 1.4; }
+
 /* ═══ FLOATING ELEMENT EDITOR (JS-generated) ═══ */
 .fe-ed-item { margin-bottom: 8px; }
 
@@ -1283,6 +1341,11 @@ body.light .batch-img-drop input[type="file"] { opacity: 0; }
         <div class="card-body">
           <div class="field"><label>Título <span style="font-size:8px;color:var(--hi)">(la última línea recibe el efecto glow)</span></label><textarea id="h-title" oninput="updateHeroPv();autoSave()" style="min-height:44px">Beats que
 definen géneros.</textarea></div>
+
+          <!-- Hero Title Colorizer -->
+          <p style="font-size:10px;color:var(--mu);margin-bottom:6px;font-weight:700">Colorizar título (visual)</p>
+          <div id="hero-tcz" class="tcz-wrap"></div>
+
           <div class="field"><label>Subtítulo</label><textarea id="h-sub" oninput="updateHeroPv();autoSave()" style="min-height:32px">Puebla, MX · Trap · R&B · Drill</textarea></div>
           <div class="color-wrap"><label>Color texto</label><div class="color-swatch"><input type="color" id="h-text-clr" value="#f0f0f2" oninput="updateHeroPv();autoSave()"></div><input type="text" class="color-hex" id="h-text-clr-h" value="#f0f0f2" oninput="syncHeroTextColor(this.value)"></div>
           <div class="field"><label>Eyebrow <span style="font-size:8px;color:var(--hi)">(tag arriba del título)</span></label><input type="text" id="h-eyebrow" value="En vivo · Puebla, MX" oninput="updateHeroPv();autoSave()"></div>
@@ -1740,9 +1803,38 @@ definen géneros.</textarea></div>
       <div class="card">
         <div class="card-title" onclick="toggleCard(this)"><span>Section Divider</span><i class="fas fa-chevron-down"></i></div>
         <div class="card-body">
-          <p style="font-size:10px;color:var(--mu);margin-bottom:8px">Texto bold entre el hero y el catálogo. Usa &lt;em&gt;texto&lt;/em&gt; para texto en color accent.</p>
-          <div class="field"><label>Título</label><input type="text" id="s-div-title" placeholder="Todo fire. <em>Zero filler.</em>" oninput="autoSave()"></div>
-          <div class="field"><label>Subtítulo</label><textarea id="s-div-sub" oninput="autoSave()" style="min-height:40px" placeholder="Beats profesionales desde Puebla, MX..."></textarea></div>
+          <!-- Divider Preview -->
+          <div style="background:var(--abg);border:1px solid var(--b);border-radius:var(--rad);padding:24px 16px;text-align:center;margin-bottom:12px;position:relative;overflow:hidden">
+            <div id="div-pv-title" style="font-family:var(--fd);font-size:clamp(1.5rem,4vw,2.8rem);font-weight:900;letter-spacing:-0.04em;line-height:1.1;color:var(--tx)">Todo fire. <span style="color:var(--acc)">Zero filler.</span></div>
+            <div id="div-pv-sub" style="font-size:12px;color:var(--mu);margin-top:8px;line-height:1.6">Beats profesionales desde Puebla, MX...</div>
+          </div>
+
+          <!-- Text Colorizer for Title -->
+          <p style="font-size:10px;color:var(--mu);margin-bottom:6px;font-weight:700">Título — coloriza palabras</p>
+          <div id="div-tcz" class="tcz-wrap"></div>
+          <input type="text" id="s-div-title" style="display:none" value="Todo fire. Zero filler.">
+
+          <div class="fg2">
+            <div class="field"><label>Tamaño título</label><div class="slider-wrap"><input type="range" id="d-title-size" min="1.5" max="5" step="0.1" value="3" oninput="sv(this);updateDividerPv();autoSave()"><span class="slider-val">3.0rem</span></div></div>
+            <div class="field"><label>Espaciado</label><div class="slider-wrap"><input type="range" id="d-ls" min="-0.08" max="0.1" step="0.005" value="-0.04" oninput="sv(this);updateDividerPv();autoSave()"><span class="slider-val">-0.04em</span></div></div>
+          </div>
+
+          <!-- Divider Subtitle -->
+          <div class="field"><label>Subtítulo</label><textarea id="s-div-sub" oninput="updateDividerPv();autoSave()" style="min-height:40px" placeholder="Beats profesionales desde Puebla, MX..."></textarea></div>
+          <div class="fg2">
+            <div class="color-wrap"><label>Color subtítulo</label><div class="color-swatch"><input type="color" id="d-sub-clr" value="#888888" oninput="updateDividerPv();autoSave()"></div></div>
+            <div class="field"><label>Tamaño subtítulo</label><div class="slider-wrap"><input type="range" id="d-sub-size" min="10" max="20" value="13" oninput="sv(this);updateDividerPv();autoSave()"><span class="slider-val">13px</span></div></div>
+          </div>
+
+          <!-- Divider Glow -->
+          <div style="border-top:1px solid var(--b);margin-top:12px;padding-top:12px">
+            <p style="font-size:9px;color:var(--hi);margin-bottom:8px">Efectos del divider</p>
+            <div class="tog-row"><input type="checkbox" class="tog" id="d-glow-on" onchange="updateDividerPv();autoSave()"><span class="tog-lbl">Glow en el título</span></div>
+            <div class="fg2">
+              <div class="field"><label>Intensidad glow</label><div class="slider-wrap"><input type="range" id="d-glow-int" min="0" max="3" step="0.1" value="1" oninput="sv(this);updateDividerPv();autoSave()"><span class="slider-val">1.0x</span></div></div>
+              <div class="field"><label>Blur glow</label><div class="slider-wrap"><input type="range" id="d-glow-blur" min="0" max="80" value="20" oninput="sv(this);updateDividerPv();autoSave()"><span class="slider-val">20px</span></div></div>
+            </div>
+          </div>
         </div>
       </div>
 

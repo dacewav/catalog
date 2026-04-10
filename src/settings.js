@@ -28,23 +28,45 @@ function _buildHero(s, T) {
   const lines = raw.split('\n');
   const lastIdx = lines.length - 1;
 
+  // Check for colorizer segments (from admin visual editor)
+  const heroSegs = T.heroTitleSegments;
+  const hasColoredSegs = heroSegs && heroSegs.length && heroSegs.some(s => s.c);
+
   // Build HTML
   let html = '';
-  lines.forEach((line, i) => {
-    const safe = line.replace(/</g, '&lt;').replace(/>/g, '&gt;');
-    if (i < lastIdx) {
-      html += `<span style="color:${heroTextClr}">${safe}</span><br>`;
-    } else {
-      // Last line: glow-word always (for ::after pseudo-element)
+  if (hasColoredSegs) {
+    // Use colorizer segments
+    const segHTML = heroSegs.map(seg => {
+      if (seg.c) return `<span style="color:${seg.c}">${seg.text.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</span>`;
+      return seg.text.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }).join('');
+    // Wrap for glow/stroke effects
+    if (strokeOn || glowOn) {
       const classes = ['glow-word'];
       if (strokeOn) classes.push('stroke-mode');
-      const styles = [`color:${strokeOn ? 'transparent' : heroTextClr}`];
+      const styles = [`--hw-blur:${wordBlur}px`, `--hw-op:${wordOp}`];
       if (strokeOn) styles.push(`-webkit-text-stroke:${strokeW}px ${strokeClr}`);
-      styles.push(`--hw-blur:${wordBlur}px`);
-      styles.push(`--hw-op:${wordOp}`);
-      html += `<span class="${classes.join(' ')}" data-t="${safe}" style="${styles.join(';')}">${safe}</span>`;
+      html = `<span class="${classes.join(' ')}" style="${styles.join(';')}">${segHTML}</span>`;
+    } else {
+      html = segHTML;
     }
-  });
+  } else {
+    // Original line-by-line logic
+    lines.forEach((line, i) => {
+      const safe = line.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      if (i < lastIdx) {
+        html += `<span style="color:${heroTextClr}">${safe}</span><br>`;
+      } else {
+        const classes = ['glow-word'];
+        if (strokeOn) classes.push('stroke-mode');
+        const styles = [`color:${strokeOn ? 'transparent' : heroTextClr}`];
+        if (strokeOn) styles.push(`-webkit-text-stroke:${strokeW}px ${strokeClr}`);
+        styles.push(`--hw-blur:${wordBlur}px`);
+        styles.push(`--hw-op:${wordOp}`);
+        html += `<span class="${classes.join(' ')}" data-t="${safe}" style="${styles.join(';')}">${safe}</span>`;
+      }
+    });
+  }
   ht.innerHTML = html;
 
   // Title-level styles
@@ -154,8 +176,29 @@ export function applySettings() {
   // Section divider
   const dt = document.getElementById('divider-title');
   const ds = document.getElementById('divider-sub');
-  if (dt && s.dividerTitle) dt.innerHTML = s.dividerTitle;
-  if (ds && s.dividerSub) ds.textContent = s.dividerSub;
+  if (dt) {
+    if (s.dividerTitleSegments && s.dividerTitleSegments.length) {
+      // Render from colorizer segments
+      dt.innerHTML = s.dividerTitleSegments.map(seg => {
+        if (seg.c) return '<span style="color:' + seg.c + '">' + seg.text + '</span>';
+        return seg.text;
+      }).join('');
+    } else if (s.dividerTitle) {
+      dt.innerHTML = s.dividerTitle; // fallback to old <em> approach
+    }
+    // Apply divider styling
+    if (s.dividerTitleSize) dt.style.fontSize = s.dividerTitleSize + 'rem';
+    if (s.dividerLetterSpacing != null) dt.style.letterSpacing = s.dividerLetterSpacing + 'em';
+    if (s.dividerGlowOn) {
+      const accent = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#dc2626';
+      dt.style.textShadow = '0 0 ' + (s.dividerGlowBlur || 20) + 'px ' + hexRgba(accent, (s.dividerGlowInt || 1) * 0.5);
+    }
+  }
+  if (ds && s.dividerSub) {
+    ds.textContent = s.dividerSub;
+    if (s.dividerSubColor) ds.style.color = s.dividerSubColor;
+    if (s.dividerSubSize) ds.style.fontSize = s.dividerSubSize + 'px';
+  }
 
   // Testimonials
   if (s.testimonialsActive && s.testimonials?.length) {

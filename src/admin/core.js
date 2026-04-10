@@ -85,6 +85,14 @@ export function _collectSiteSettings() {
   siteSettings.heroSubtitle = val('s-sub') || '';
   siteSettings.dividerTitle = val('s-div-title') || '';
   siteSettings.dividerSub = val('s-div-sub') || '';
+  siteSettings.dividerTitleSegments = tczGetSegments('div-tcz');
+  siteSettings.dividerTitleSize = parseFloat(val('d-title-size')) || 3;
+  siteSettings.dividerLetterSpacing = parseFloat(val('d-ls')) || -0.04;
+  siteSettings.dividerSubColor = val('d-sub-clr') || '';
+  siteSettings.dividerSubSize = parseInt(val('d-sub-size')) || 13;
+  siteSettings.dividerGlowOn = checked('d-glow-on');
+  siteSettings.dividerGlowInt = parseFloat(val('d-glow-int')) || 1;
+  siteSettings.dividerGlowBlur = parseInt(val('d-glow-blur')) || 20;
   siteSettings.testimonialsActive = checked('s-testi');
   siteSettings.bannerActive = checked('b-active');
   siteSettings.bannerText = val('b-text') || '';
@@ -273,20 +281,42 @@ export function updateHeroPv() {
 
     // Build title HTML
     let html = '';
-    if (otherLines.length) {
-      html += '<span style="color:' + textClr + '">' + otherLines.map(l => escapeHtml(l)).join('<br>') + '</span><br>';
-    }
-    if (lastLine) {
-      const escapedLine = escapeHtml(lastLine);
-      const classes = ['glow-word'];
-      const styles = ['--hw-blur:' + wordBlur + 'px', '--hw-op:' + wordOp];
-      if (strokeOn) {
-        classes.push('stroke-mode');
-        styles.push('color:transparent', '-webkit-text-stroke:' + strokeW + 'px ' + strokeClr);
+    const heroSegs = tczGetSegments('hero-tcz');
+    const hasColoredSegs = heroSegs.length && heroSegs.some(s => s.c);
+
+    if (hasColoredSegs) {
+      // Use colorizer segments - each word rendered with its color
+      // Still apply glow/stroke to the last visual line
+      const segHTML = segmentsToHTML(heroSegs);
+      // For glow/stroke, wrap the whole thing
+      if (strokeOn || glowOn) {
+        const classes = ['glow-word'];
+        const styles = ['--hw-blur:' + wordBlur + 'px', '--hw-op:' + wordOp];
+        if (strokeOn) {
+          classes.push('stroke-mode');
+          styles.push('-webkit-text-stroke:' + strokeW + 'px ' + strokeClr);
+        }
+        html = '<span class="' + classes.join(' ') + '" style="' + styles.join(';') + '">' + segHTML + '</span>';
       } else {
-        styles.push('color:' + textClr);
+        html = segHTML;
       }
-      html += '<span class="' + classes.join(' ') + '" data-t="' + escapedLine + '" style="' + styles.join(';') + '">' + escapedLine + '</span>';
+    } else {
+      // Original logic: split by lines, last line gets glow/stroke
+      if (otherLines.length) {
+        html += '<span style="color:' + textClr + '">' + otherLines.map(l => escapeHtml(l)).join('<br>') + '</span><br>';
+      }
+      if (lastLine) {
+        const escapedLine = escapeHtml(lastLine);
+        const classes = ['glow-word'];
+        const styles = ['--hw-blur:' + wordBlur + 'px', '--hw-op:' + wordOp];
+        if (strokeOn) {
+          classes.push('stroke-mode');
+          styles.push('color:transparent', '-webkit-text-stroke:' + strokeW + 'px ' + strokeClr);
+        } else {
+          styles.push('color:' + textClr);
+        }
+        html += '<span class="' + classes.join(' ') + '" data-t="' + escapedLine + '" style="' + styles.join(';') + '">' + escapedLine + '</span>';
+      }
     }
     pvt.innerHTML = html;
   }
@@ -318,6 +348,46 @@ export function updateBannerPv() {
   const dur = durMap[anim] || speed + 's';
   const animCss = anim === 'static' ? '' : 'animation:bp-' + anim + ' ' + dur + ' ' + easing + ' ' + delay + 's infinite ' + dir;
   bp.innerHTML = '<span style="display:inline-block;white-space:nowrap;color:' + txtClr + ';' + animCss + '">' + text + '</span>';
+}
+
+// ═══ DIVIDER PREVIEW ═══
+export function updateDividerPv() {
+  const pvTitle = g('div-pv-title'); if (!pvTitle) return;
+  const segments = tczGetSegments('div-tcz');
+  if (segments.length) {
+    pvTitle.innerHTML = segmentsToHTML(segments);
+  }
+  // Apply styles
+  const titleSize = parseFloat(val('d-title-size')) || 3;
+  const ls = parseFloat(val('d-ls')) || -0.04;
+  const glowOn = checked('d-glow-on');
+  const glowInt = parseFloat(val('d-glow-int')) || 1;
+  const glowBlur = parseInt(val('d-glow-blur')) || 20;
+  const accent = val('tc-glow') || '#dc2626';
+
+  pvTitle.style.fontSize = titleSize + 'rem';
+  pvTitle.style.letterSpacing = ls + 'em';
+  pvTitle.style.textShadow = glowOn ? '0 0 ' + glowBlur + 'px ' + hexRgba(accent, glowInt * 0.5) : 'none';
+
+  const pvSub = g('div-pv-sub');
+  if (pvSub) {
+    pvSub.textContent = val('s-div-sub') || '';
+    pvSub.style.color = val('d-sub-clr') || 'var(--mu)';
+    pvSub.style.fontSize = (parseInt(val('d-sub-size')) || 13) + 'px';
+  }
+}
+
+// ═══ INIT TEXT COLORIZERS ═══
+export function initTextColorizers() {
+  // Divider colorizer
+  const divTitle = val('s-div-title') || 'Todo fire. Zero filler.';
+  const divSegments = _tczParseHTML(divTitle);
+  renderTextColorizer('div-tcz', 's-div-title', divSegments);
+
+  // Hero colorizer
+  const heroTitle = val('h-title') || 'Beats que\ndefinen géneros.';
+  const heroSegments = _tczParseHTML(heroTitle.replace(/\n/g, '\n'));
+  renderTextColorizer('hero-tcz', 'h-title', heroSegments);
 }
 
 // ═══ GLOW EFFECTS ═══
@@ -450,6 +520,7 @@ export function collectTheme() {
     animCards: collectAnim('cards'), animButtons: collectAnim('buttons'), animWaveform: collectAnim('waveform'),
     layout: { heroMarginTop: parseFloat(val('t-hero-top')) || 7, playerBottom: parseInt(val('t-player-bot')) || 0, logoOffsetX: parseInt(val('t-logo-ox')) || 0 },
     heroTitleCustom: val('h-title') || '', heroSubCustom: val('h-sub') || '', heroEyebrow: val('h-eyebrow') || '',
+    heroTitleSegments: tczGetSegments('hero-tcz'),
     heroGlowOn: checked('h-glow-on'), heroGlowInt: parseFloat(val('h-glow-int')) || 1, heroGlowBlur: parseInt(val('h-glow-blur')) || 20, heroGlowClr: val('h-glow-clr') || '#dc2626',
     heroStrokeOn: checked('h-stroke-on'), heroStrokeW: parseFloat(val('h-stroke-w')) || 1, heroWordBlur: parseInt(val('h-word-blur')) || 10, heroWordOp: parseFloat(val('h-word-op')) || 0.35, heroStrokeClr: val('h-stroke-clr') || '#dc2626',
     heroGradOn: checked('h-grad-on'), heroGradClr: val('h-grad-clr') || '#dc2626', heroGradOp: parseFloat(val('h-grad-op')) || 0.14, heroGradW: parseInt(val('h-grad-w')) || 80, heroGradH: parseInt(val('h-grad-h')) || 60,
@@ -525,6 +596,7 @@ export function loadThemeUI() {
   if (he && T.heroDragEyebrowTop != null) { he.style.top = T.heroDragEyebrowTop + 'px'; he.style.left = (T.heroDragEyebrowLeft || 0) + 'px'; }
   if (hs && T.heroDragSubTop != null) { hs.style.top = T.heroDragSubTop + 'px'; hs.style.left = (T.heroDragSubLeft || 0) + 'px'; }
   loadAndPreviewFont(); updatePreview(); updateHeroPv(); updateBannerPv();
+  initTextColorizers(); updateDividerPv();
   renderSaveSlots(); buildAnimControls();
 }
 
@@ -557,6 +629,14 @@ export function loadSettingsUI() {
   setVal('s-ig', siteSettings.instagram || ''); setVal('s-email', siteSettings.email || '');
   setVal('s-hero', siteSettings.heroTitle || ''); setVal('s-sub', siteSettings.heroSubtitle || '');
   setVal('s-div-title', siteSettings.dividerTitle || ''); setVal('s-div-sub', siteSettings.dividerSub || '');
+  // Divider extra settings
+  if (siteSettings.dividerTitleSize) setVal('d-title-size', siteSettings.dividerTitleSize);
+  if (siteSettings.dividerLetterSpacing != null) setVal('d-ls', siteSettings.dividerLetterSpacing);
+  if (siteSettings.dividerSubColor) setVal('d-sub-clr', siteSettings.dividerSubColor);
+  if (siteSettings.dividerSubSize) setVal('d-sub-size', siteSettings.dividerSubSize);
+  if (siteSettings.dividerGlowOn) setChecked('d-glow-on', true);
+  if (siteSettings.dividerGlowInt != null) setVal('d-glow-int', siteSettings.dividerGlowInt);
+  if (siteSettings.dividerGlowBlur) setVal('d-glow-blur', siteSettings.dividerGlowBlur);
   setChecked('s-testi', siteSettings.testimonialsActive);
   setChecked('b-active', siteSettings.bannerActive);
   setVal('b-text', siteSettings.bannerText || '');
@@ -567,6 +647,9 @@ export function loadSettingsUI() {
   setVal('b-dir', siteSettings.bannerDir || 'normal');
   setVal('b-delay', siteSettings.bannerDelay || 0);
   setVal('b-txt-clr', siteSettings.bannerTxtClr || '#ffffff');
+  // Init text colorizers after settings are loaded
+  initTextColorizers();
+  updateDividerPv();
 }
 
 // ═══ ANIM CONTROLS ═══
@@ -741,6 +824,198 @@ export function removeCE(i) {
   customEmojis.splice(i, 1); localStorage.setItem('dace-custom-emojis', JSON.stringify(customEmojis));
   renderCustomEmojis(); updateBannerPv();
   if (db) db.ref('customEmojis').set(customEmojis).catch(() => {});
+}
+
+// ═══ TEXT COLORIZER ═══
+// Visual text editor: click words to color them. Replaces <em> tag workflow.
+// Stores data as segments: [{text:"Hello", c:""}, {text:" World", c:"#ff0000"}]
+let _tczState = {};
+
+export function renderTextColorizer(containerId, inputId, segments) {
+  const wrap = g(containerId); if (!wrap) return;
+  // Default color picker presets
+  const accent = val('tc-glow') || '#dc2626';
+  const presets = [accent, '#f59e0b', '#10b981', '#3b82f6', '#8b5cf6', '#ec4899', '#f0f0f2', ''];
+  _tczState[containerId] = { segments: segments || [], activeColor: accent };
+
+  wrap.innerHTML =
+    '<div class="tcz-toolbar">' +
+      '<label>Color:</label>' +
+      '<input type="color" class="tcz-color-pick" id="' + containerId + '-pick" value="' + accent + '" oninput="tczSetColor(\'' + containerId + '\',this.value)">' +
+      '<div class="tcz-presets">' +
+        presets.map((c, i) =>
+          '<div class="tcz-preset' + (i === 0 ? ' on' : '') + '"' +
+          ' style="background:' + (c || 'transparent') + ';' + (!c ? 'border:1px dashed var(--mu)' : '') + '"' +
+          ' onclick="tczSetColor(\'' + containerId + '\',\'' + c + '\');tczMarkPreset(this,\'' + containerId + '\')"' +
+          ' title="' + (c || 'Quitar color') + '"></div>'
+        ).join('') +
+      '</div>' +
+    '</div>' +
+    '<div class="tcz-text" id="' + containerId + '-text">' + _tczRenderWords(containerId, segments) + '</div>' +
+    '<div class="tcz-actions">' +
+      '<button onclick="tczClearColors(\'' + containerId + '\')">🗑 Quitar colores</button>' +
+      '<button onclick="tczSplitAtCursor(\'' + containerId + '\',\'' + inputId + '\')">✂ Dividir texto</button>' +
+    '</div>' +
+    '<div class="tcz-hint">Click en una palabra para aplicar el color seleccionado. Click de nuevo para quitarlo.</div>';
+
+  // Hide the raw input
+  const rawInput = g(inputId);
+  if (rawInput) rawInput.style.display = 'none';
+}
+
+function _tczRenderWords(containerId, segments) {
+  let html = '';
+  let idx = 0;
+  segments.forEach(seg => {
+    const words = seg.text.split(/(\s+)/); // split but keep whitespace
+    words.forEach(w => {
+      if (/^\s+$/.test(w)) {
+        html += w; // keep whitespace as-is
+      } else if (w.length > 0) {
+        const style = seg.c ? 'color:' + seg.c : '';
+        const cls = 'tcz-w' + (seg.c ? ' tcz-colored' : '');
+        html += '<span class="' + cls + '" style="' + style + '" data-idx="' + idx + '" onclick="tczWordClick(\'' + containerId + '\',' + idx + ')">' + w + '</span>';
+        idx++;
+      }
+    });
+  });
+  return html || '<span style="color:var(--hi);font-style:italic">Escribe texto arriba...</span>';
+}
+
+export function tczSetColor(containerId, color) {
+  if (!_tczState[containerId]) return;
+  _tczState[containerId].activeColor = color;
+  const pick = g(containerId + '-pick');
+  if (pick) pick.value = color || '#ffffff';
+}
+
+export function tczMarkPreset(el, containerId) {
+  const wrap = el.closest('.tcz-presets');
+  if (wrap) wrap.querySelectorAll('.tcz-preset').forEach(p => p.classList.remove('on'));
+  el.classList.add('on');
+}
+
+export function tczWordClick(containerId, wordIdx) {
+  const state = _tczState[containerId]; if (!state) return;
+  const color = state.activeColor;
+
+  // Find which segment and word this index belongs to
+  let globalIdx = 0;
+  let newSegments = [];
+  state.segments.forEach(seg => {
+    const words = seg.text.split(/(\s+)/);
+    words.forEach(w => {
+      if (/^\s+$/.test(w)) {
+        // whitespace - attach to previous or next word segment
+        if (newSegments.length > 0) {
+          newSegments[newSegments.length - 1].text += w;
+        } else {
+          newSegments.push({ text: w, c: seg.c });
+        }
+      } else if (w.length > 0) {
+        if (globalIdx === wordIdx) {
+          // Toggle: if same color, remove; otherwise apply new color
+          newSegments.push({ text: w, c: (seg.c === color && color) ? '' : color });
+        } else {
+          newSegments.push({ text: w, c: seg.c });
+        }
+        globalIdx++;
+      }
+    });
+  });
+
+  // Merge adjacent segments with same color
+  state.segments = _tczMergeSegments(newSegments);
+
+  // Re-render
+  const textEl = g(containerId + '-text');
+  if (textEl) textEl.innerHTML = _tczRenderWords(containerId, state.segments);
+
+  // Sync to raw input
+  _tczSyncToInput(containerId);
+}
+
+function _tczMergeSegments(segments) {
+  if (segments.length < 2) return segments;
+  const merged = [segments[0]];
+  for (let i = 1; i < segments.length; i++) {
+    const prev = merged[merged.length - 1];
+    const curr = segments[i];
+    // Merge if same color AND prev ends with whitespace or curr starts with whitespace
+    if (prev.c === curr.c) {
+      prev.text += curr.text;
+    } else {
+      merged.push(curr);
+    }
+  }
+  return merged;
+}
+
+export function tczClearColors(containerId) {
+  const state = _tczState[containerId]; if (!state) return;
+  const fullText = state.segments.map(s => s.text).join('');
+  state.segments = [{ text: fullText, c: '' }];
+  const textEl = g(containerId + '-text');
+  if (textEl) textEl.innerHTML = _tczRenderWords(containerId, state.segments);
+  _tczSyncToInput(containerId);
+}
+
+export function tczSplitAtCursor(containerId, inputId) {
+  // Opens a prompt to let user type raw text, then parses <em> tags into segments
+  const state = _tczState[containerId]; if (!state) return;
+  const rawInput = g(inputId); if (!rawInput) return;
+  // Show input temporarily
+  rawInput.style.display = '';
+  rawInput.focus();
+  rawInput.addEventListener('input', function handler() {
+    const html = rawInput.value;
+    state.segments = _tczParseHTML(html);
+    const textEl = g(containerId + '-text');
+    if (textEl) textEl.innerHTML = _tczRenderWords(containerId, state.segments);
+    _tczSyncToInput(containerId);
+  }, { once: false });
+  showToast('Edita el texto raw. Los <em> se convierten en colores.');
+}
+
+function _tczParseHTML(html) {
+  // Parse "Hello <em>World</em> !" into segments
+  const segments = [];
+  const parts = html.split(/(<em>.*?<\/em>)/);
+  const accent = val('tc-glow') || '#dc2626';
+  parts.forEach(part => {
+    const emMatch = part.match(/^<em>(.*?)<\/em>$/);
+    if (emMatch) {
+      segments.push({ text: emMatch[1], c: accent });
+    } else if (part.length > 0) {
+      segments.push({ text: part, c: '' });
+    }
+  });
+  return segments.length ? segments : [{ text: html, c: '' }];
+}
+
+function _tczSyncToInput(containerId) {
+  const state = _tczState[containerId]; if (!state) return;
+  // Find the associated input by convention: containerId + '-raw' or search nearby
+  const container = g(containerId);
+  if (!container) return;
+  const rawInput = container.closest('.card-body')?.querySelector('input[id^="s-div"], textarea[id^="s-div"], input[id^="h-"], textarea[id^="h-"]');
+  // Also store in a hidden data attribute
+  container.dataset.segments = JSON.stringify(state.segments);
+}
+
+export function tczGetSegments(containerId) {
+  const state = _tczState[containerId];
+  return state ? state.segments : [];
+}
+
+// Render segments to HTML string (for the store)
+export function segmentsToHTML(segments) {
+  if (!segments || !segments.length) return '';
+  return segments.map(s => {
+    const text = escapeHtml(s.text).replace(/\n/g, '<br>');
+    if (s.c) return '<span style="color:' + s.c + '">' + text + '</span>';
+    return text;
+  }).join('');
 }
 
 // ═══ EXPORT/IMPORT ═══
@@ -1057,7 +1332,7 @@ Object.assign(window, {
   broadcastTheme, broadcastHighlight, clearHighlight,
   refreshIframe, loadPreviewURL, setViewport,
   toggleInspector, toggleAdminTheme,
-  updateHeroPv, updateBannerPv,
+  updateHeroPv, updateBannerPv, updateDividerPv, initTextColorizers,
   updateGlowDesc, updateGlowAnimDesc, computeGlowCSS, applyGlowTo, applyGlowPreset,
   updatePreview, collectTheme, loadThemeUI, setupHeroSync, loadSettingsUI,
   buildAnimControls, collectAnim, loadAnimValues,
@@ -1066,6 +1341,7 @@ Object.assign(window, {
   saveCustomTheme, renderCustomThemes, loadCustomTheme, deleteCustomTheme, resetTheme,
   togglePFields, initParticlesPreview, animPP,
   renderEmojiGrid, insertEmoji, renderCustomEmojis, addCustomEmoji, uploadEmojiFile, removeCE,
+  renderTextColorizer, tczSetColor, tczMarkPreset, tczWordClick, tczClearColors, tczSplitAtCursor, tczGetSegments, segmentsToHTML,
   exportAll, importAll, exportCSS,
   logChange, renderChangeLog, logFieldChange,
   addTooltips,
