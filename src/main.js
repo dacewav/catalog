@@ -125,12 +125,18 @@ window.addEventListener('message', (e) => {
   }
   const d = e.data;
   if (!d || !d.type) return;
-  switch (d.type) {
-    case 'theme-update': if (d.theme) { state.T = d.theme; applyTheme(state.T); applySettings(); } break;
-    case 'settings-update': if (d.settings) { state.siteSettings = d.settings; applySettings(); } break;
-    case 'emojis-update': if (d.emojis) { state.customEmojis = d.emojis; applySettings(); } break;
-    case 'floating-update': if (d.elements) { state.floatingEls = d.elements; renderFloating(state.floatingEls); } break;
-  }
+
+  // Store latest data — don't process immediately
+  if (d.type === 'theme-update' && d.theme) state.T = d.theme;
+  if (d.type === 'settings-update' && d.settings) state.siteSettings = d.settings;
+  if (d.type === 'emojis-update' && d.emojis) state.customEmojis = d.emojis;
+  if (d.type === 'floating-update' && d.elements) { state.floatingEls = d.elements; renderFloating(state.floatingEls); }
+
+  // Debounce: batch all updates and run once after messages stop arriving
+  clearTimeout(window._applyDebounce);
+  window._applyDebounce = setTimeout(() => {
+    if (state.T) { applyTheme(state.T); applySettings(); }
+  }, 60);
 });
 
 // ─── Audio error recovery ───
