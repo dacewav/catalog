@@ -1,4 +1,4 @@
-name = "dacewav-upload"
+name = "assets"
 main = "workers/upload.js"
 compatibility_date = "2024-12-01"
 
