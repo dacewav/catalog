@@ -39,6 +39,14 @@ body{overflow-x:hidden;min-height:100vh;opacity:var(--bg-opacity)}
 @keyframes glow-flicker{0%,100%{opacity:1}5%{opacity:.3}10%{opacity:1}15%{opacity:.5}20%{opacity:1}50%{opacity:.8}55%{opacity:1}}
 @keyframes glow-rainbow{0%{filter:hue-rotate(0deg)}100%{filter:hue-rotate(360deg)}}
 @keyframes glow-wave{0%,100%{opacity:.6}25%{opacity:1}50%{opacity:.7}75%{opacity:1}}
+/* Glow animation utility classes */
+.gap-anim-pulse{animation:glow-pulse var(--ga-s,2s) ease-in-out infinite}
+.gap-anim-breathe{animation:glow-breathe var(--ga-s,2s) ease-in-out infinite}
+.gap-anim-flicker{animation:glow-flicker var(--ga-s,2s) linear infinite}
+.gap-anim-rainbow{animation:glow-rainbow var(--ga-s,4s) linear infinite}
+.gap-anim-wave{animation:glow-wave var(--ga-s,2s) ease-in-out infinite}
+.gap-anim-neon-flicker{animation:neon-flicker var(--ga-s,3s) linear infinite}
+.gap-anim-holograma{animation:holograma var(--ga-s,4s) linear infinite}
 @keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
 @keyframes fadeInUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
 @keyframes pulse-ring{0%{transform:scale(1);opacity:.6}100%{transform:scale(1.8);opacity:0}}
@@ -56,6 +64,66 @@ body{overflow-x:hidden;min-height:100vh;opacity:var(--bg-opacity)}
 .anim-cambio-color{animation:cambio-color var(--ad,4s) linear infinite;animation-delay:var(--adl,0s)}
 .anim-brillo{animation:brillo var(--ad,2s) ease-in-out infinite;animation-delay:var(--adl,0s)}
 .anim-spin-lento{animation:spin-lento var(--ad,8s) linear infinite;animation-delay:var(--adl,0s)}
+/* ═══ Extended Animations ═══ */
+@keyframes deslizar-arriba{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+@keyframes deslizar-abajo{0%,100%{transform:translateY(0)}50%{transform:translateY(10px)}}
+@keyframes deslizar-izq{0%,100%{transform:translateX(0)}50%{transform:translateX(-10px)}}
+@keyframes deslizar-der{0%,100%{transform:translateX(0)}50%{transform:translateX(10px)}}
+@keyframes temblor{0%,100%{transform:translate(0)}10%{transform:translate(-2px,-2px)}20%{transform:translate(2px,-2px)}30%{transform:translate(-2px,2px)}40%{transform:translate(2px,2px)}50%{transform:translate(-1px,1px)}60%{transform:translate(1px,-1px)}70%{transform:translate(-1px,-1px)}80%{transform:translate(1px,1px)}90%{transform:translate(-1px,2px)}}
+@keyframes balanceo{0%{transform:rotate(0deg)}25%{transform:rotate(5deg)}50%{transform:rotate(0deg)}75%{transform:rotate(-5deg)}100%{transform:rotate(0deg)}}
+@keyframes drift{0%,100%{transform:translate(0,0) rotate(0deg)}25%{transform:translate(6px,-6px) rotate(1deg)}50%{transform:translate(-4px,4px) rotate(-1deg)}75%{transform:translate(4px,2px) rotate(0.5deg)}}
+@keyframes spin-rapido{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+@keyframes wobble{0%{transform:rotate(0deg)}15%{transform:rotate(5deg)}30%{transform:rotate(-4deg)}45%{transform:rotate(3deg)}60%{transform:rotate(-2deg)}75%{transform:rotate(1deg)}100%{transform:rotate(0deg)}}
+@keyframes fade-in{from{opacity:0}to{opacity:1}}
+@keyframes respirar{0%,100%{transform:scale(1);opacity:.8}50%{transform:scale(1.03);opacity:1}}
+@keyframes latido{0%,100%{transform:scale(1)}14%{transform:scale(1.1)}28%{transform:scale(1)}42%{transform:scale(1.1)}70%{transform:scale(1)}}
+@keyframes zoom-in{0%{transform:scale(.8);opacity:.5}100%{transform:scale(1);opacity:1}}
+@keyframes zoom-out{0%{transform:scale(1.2);opacity:.5}100%{transform:scale(1);opacity:1}}
+@keyframes pop{0%{transform:scale(0)}60%{transform:scale(1.15)}100%{transform:scale(1)}}
+@keyframes rubber-band{0%{transform:scaleX(1) scaleY(1)}30%{transform:scaleX(1.25) scaleY(0.75)}40%{transform:scaleX(0.75) scaleY(1.25)}50%{transform:scaleX(1.15) scaleY(0.85)}65%{transform:scaleX(0.95) scaleY(1.05)}75%{transform:scaleX(1.05) scaleY(0.95)}100%{transform:scaleX(1) scaleY(1)}}
+@keyframes jello{0%,100%{transform:translateX(0)}11.1%{transform:translateX(-6px) skewX(-5deg)}22.2%{transform:translateX(4px) skewX(3deg)}33.3%{transform:translateX(-3px) skewX(-2deg)}44.4%{transform:translateX(2px) skewX(1deg)}55.5%{transform:translateX(-1px)}}
+@keyframes neon-flicker{0%,100%{opacity:1}7%{opacity:.7}10%{opacity:1}12%{opacity:.6}15%{opacity:1}20%{opacity:.8}50%{opacity:1}55%{opacity:.5}57%{opacity:1}}
+@keyframes glitch{0%,100%{transform:translate(0)}20%{transform:translate(-3px,3px)}40%{transform:translate(-3px,-3px)}60%{transform:translate(3px,3px)}80%{transform:translate(3px,-3px)}}
+@keyframes holograma{0%,100%{filter:hue-rotate(0deg) brightness(1)}25%{filter:hue-rotate(90deg) brightness(1.2)}50%{filter:hue-rotate(180deg) brightness(1)}75%{filter:hue-rotate(270deg) brightness(1.2)}}
+@keyframes shake-x{0%,100%{transform:translateX(0)}10%{transform:translateX(-8px)}20%{transform:translateX(8px)}30%{transform:translateX(-6px)}40%{transform:translateX(6px)}50%{transform:translateX(-3px)}60%{transform:translateX(3px)}70%{transform:translateX(-1px)}80%{transform:translateX(1px)}}
+@keyframes heartbeat{0%,100%{transform:scale(1)}10%{transform:scale(1.15)}20%{transform:scale(1)}30%{transform:scale(1.15)}40%{transform:scale(1)}}
+@keyframes flip{0%{transform:perspective(400px) rotateY(0)}100%{transform:perspective(400px) rotateY(360deg)}}
+@keyframes swing{20%{transform:rotate(15deg)}40%{transform:rotate(-10deg)}60%{transform:rotate(5deg)}80%{transform:rotate(-5deg)}100%{transform:rotate(0deg)}}
+@keyframes tada{0%{transform:scale(1)}10%,20%{transform:scale(.9) rotate(-3deg)}30%,50%,70%,90%{transform:scale(1.1) rotate(3deg)}40%,60%,80%{transform:scale(1.1) rotate(-3deg)}100%{transform:scale(1) rotate(0)}}
+@keyframes bounce-in{0%{opacity:0;transform:scale(.3)}50%{transform:scale(1.08)}70%{transform:scale(.95)}100%{opacity:1;transform:scale(1)}}
+@keyframes elastic{0%{transform:scale(0)}55%{transform:scale(1.1)}70%{transform:scale(.95)}100%{transform:scale(1)}}
+@keyframes slide-up-fade{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes typing{from{width:0}to{width:100%}}
+/* Animation utility classes */
+.anim-deslizar-arriba{animation:deslizar-arriba var(--ad,2s) ease-in-out infinite;animation-delay:var(--adl,0s)}
+.anim-deslizar-abajo{animation:deslizar-abajo var(--ad,2s) ease-in-out infinite;animation-delay:var(--adl,0s)}
+.anim-deslizar-izq{animation:deslizar-izq var(--ad,2s) ease-in-out infinite;animation-delay:var(--adl,0s)}
+.anim-deslizar-der{animation:deslizar-der var(--ad,2s) ease-in-out infinite;animation-delay:var(--adl,0s)}
+.anim-temblor{animation:temblor var(--ad,2s) ease-in-out infinite;animation-delay:var(--adl,0s)}
+.anim-balanceo{animation:balanceo var(--ad,2s) ease-in-out infinite;animation-delay:var(--adl,0s)}
+.anim-drift{animation:drift var(--ad,4s) ease-in-out infinite;animation-delay:var(--adl,0s)}
+.anim-spin-rapido{animation:spin-rapido var(--ad,1s) linear infinite;animation-delay:var(--adl,0s)}
+.anim-wobble{animation:wobble var(--ad,2s) ease-in-out infinite;animation-delay:var(--adl,0s)}
+.anim-fade-in{animation:fade-in var(--ad,1s) ease-out infinite;animation-delay:var(--adl,0s)}
+.anim-respirar{animation:respirar var(--ad,3s) ease-in-out infinite;animation-delay:var(--adl,0s)}
+.anim-latido{animation:latido var(--ad,1.5s) ease-in-out infinite;animation-delay:var(--adl,0s)}
+.anim-zoom-in{animation:zoom-in var(--ad,1s) ease-out infinite;animation-delay:var(--adl,0s)}
+.anim-zoom-out{animation:zoom-out var(--ad,1s) ease-out infinite;animation-delay:var(--adl,0s)}
+.anim-pop{animation:pop var(--ad,.5s) ease-out infinite;animation-delay:var(--adl,0s)}
+.anim-rubber-band{animation:rubber-band var(--ad,1s) ease-in-out infinite;animation-delay:var(--adl,0s)}
+.anim-jello{animation:jello var(--ad,1s) ease-in-out infinite;animation-delay:var(--adl,0s)}
+.anim-neon-flicker{animation:neon-flicker var(--ad,3s) linear infinite;animation-delay:var(--adl,0s)}
+.anim-glitch{animation:glitch var(--ad,1s) linear infinite;animation-delay:var(--adl,0s)}
+.anim-holograma{animation:holograma var(--ad,4s) linear infinite;animation-delay:var(--adl,0s)}
+.anim-shake-x{animation:shake-x var(--ad,1s) ease-in-out infinite;animation-delay:var(--adl,0s)}
+.anim-heartbeat{animation:heartbeat var(--ad,1.5s) ease-in-out infinite;animation-delay:var(--adl,0s)}
+.anim-flip{animation:flip var(--ad,1s) ease-in-out infinite;animation-delay:var(--adl,0s)}
+.anim-swing{animation:swing var(--ad,2s) ease-in-out infinite;animation-delay:var(--adl,0s)}
+.anim-tada{animation:tada var(--ad,1.5s) ease-in-out infinite;animation-delay:var(--adl,0s)}
+.anim-bounce-in{animation:bounce-in var(--ad,.8s) ease-out infinite;animation-delay:var(--adl,0s)}
+.anim-elastic{animation:elastic var(--ad,1s) ease-out infinite;animation-delay:var(--adl,0s)}
+.anim-slide-up-fade{animation:slide-up-fade var(--ad,1s) ease-out infinite;animation-delay:var(--adl,0s)}
+.anim-typing{animation:typing var(--ad,2s) steps(20) infinite;animation-delay:var(--adl,0s);overflow:hidden;white-space:nowrap}
 
 /* ═══ SCROLL PROGRESS ═══ */
 #scroll-progress{position:fixed;top:0;left:0;height:2px;background:linear-gradient(90deg,var(--accent),#ff6b6b,var(--accent));z-index:99999;width:0%;transition:width .1s;box-shadow:0 0 10px var(--accent)}

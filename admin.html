@@ -244,11 +244,24 @@ body {
 .field textarea,
 .field select {
   width: 100%; padding: 9px 12px;
-  background: rgba(0,0,0,0.3);
+  background: #1a1015;
   border: 1px solid var(--b);
   border-radius: var(--rad);
   color: var(--tx); font-family: var(--fm); font-size: 12px;
   outline: none; transition: var(--tr);
+  /* Fix: dark option backgrounds */
+  color-scheme: dark;
+}
+.field select option {
+  background: #1a1015;
+  color: #f0e6ea;
+  padding: 8px;
+}
+.field select option:hover,
+.field select option:focus,
+.field select option:checked {
+  background: #2a1520;
+  color: #fff;
 }
 .field input:focus, .field textarea:focus, .field select:focus {
   border-color: var(--acc);
@@ -1209,14 +1222,34 @@ body.light .batch-img-drop input[type="file"] { opacity: 0; }
           <p style="font-size:9px;color:var(--hi);margin-bottom:10px">El color se usa en toda la tienda: botones, títulos, tarjetas, y el hero.</p>
           <div class="color-wrap"><label>Color principal</label><div class="color-swatch" id="gc-swatch"><input type="color" id="tc-glow" value="#dc2626" oninput="syncGlowColor(this.value)"></div><input type="text" class="color-hex" id="tt-glow" value="#dc2626" oninput="syncGlowColor(this.value)"></div>
           <div class="tog-row"><input type="checkbox" class="tog" id="t-glow" checked onchange="updatePreview();autoSave()"><span class="tog-lbl">Activar glow global</span></div>
+
+          <!-- Glow Quick Presets -->
+          <div style="margin-bottom:12px">
+            <label style="font-size:10px;color:var(--mu);font-weight:700;display:block;margin-bottom:6px">Presets rápidos</label>
+            <div style="display:flex;flex-wrap:wrap;gap:4px">
+              <button class="btn btn-g" onclick="applyGlowPreset('soft')" style="font-size:9px;padding:4px 8px">☁️ Soft</button>
+              <button class="btn btn-g" onclick="applyGlowPreset('neon')" style="font-size:9px;padding:4px 8px">💡 Neon</button>
+              <button class="btn btn-g" onclick="applyGlowPreset('fire')" style="font-size:9px;padding:4px 8px">🔥 Fire</button>
+              <button class="btn btn-g" onclick="applyGlowPreset('ice')" style="font-size:9px;padding:4px 8px">🧊 Ice</button>
+              <button class="btn btn-g" onclick="applyGlowPreset('toxic')" style="font-size:9px;padding:4px 8px">☢️ Toxic</button>
+              <button class="btn btn-g" onclick="applyGlowPreset('sunset')" style="font-size:9px;padding:4px 8px">🌅 Sunset</button>
+              <button class="btn btn-g" onclick="applyGlowPreset('royal')" style="font-size:9px;padding:4px 8px">👑 Royal</button>
+              <button class="btn btn-g" onclick="applyGlowPreset('disco')" style="font-size:9px;padding:4px 8px">🪩 Disco</button>
+            </div>
+          </div>
+
           <div class="fg2">
             <div class="field"><label>Tipo de efecto</label><select id="t-glow-type" onchange="updatePreview();autoSave();updateGlowDesc()"><option value="text-shadow">text-shadow</option><option value="box-shadow">box-shadow</option><option value="drop-shadow">drop-shadow</option><option value="neon-blur">neon-blur</option><option value="neon-sign">neon-sign</option><option value="outer-glow">outer-glow</option><option value="inner-glow">inner-glow</option></select><div id="glow-desc" style="font-size:9px;color:var(--hi);margin-top:3px;line-height:1.4"></div></div>
-            <div class="field"><label>Animación</label><select id="t-glow-anim" onchange="updatePreview();autoSave();updateGlowAnimDesc()"><option value="none">Ninguna</option><option value="pulse">Pulse</option><option value="breathe">Breathe</option><option value="flicker">Flicker</option><option value="rainbow">Rainbow</option><option value="wave">Wave</option></select><div id="glow-anim-desc" style="font-size:9px;color:var(--hi);margin-top:3px;line-height:1.4"></div></div>
+            <div class="field"><label>Animación</label><select id="t-glow-anim" onchange="updatePreview();autoSave();updateGlowAnimDesc()"><option value="none">Ninguna</option><option value="pulse">Pulse</option><option value="breathe">Breathe</option><option value="flicker">Flicker</option><option value="rainbow">Rainbow</option><option value="wave">Wave</option><option value="neon-flicker">Neon flicker</option><option value="holograma">Holograma</option></select><div id="glow-anim-desc" style="font-size:9px;color:var(--hi);margin-top:3px;line-height:1.4"></div></div>
           </div>
           <div class="fg3">
             <div class="field"><label>Opacidad</label><div class="slider-wrap"><input type="range" id="t-glow-op" min="0" max="1" step="0.05" value="1" oninput="sv(this);autoSave()"><span class="slider-val">1.00</span></div></div>
             <div class="field"><label>Difuminado</label><div class="slider-wrap"><input type="range" id="t-glow-blur" min="0" max="100" value="20" oninput="sv(this);autoSave()"><span class="slider-val">20px</span></div></div>
             <div class="field"><label>Intensidad</label><div class="slider-wrap"><input type="range" id="t-glow-int" min="0" max="5" step="0.1" value="1" oninput="sv(this);autoSave()"><span class="slider-val">1.0x</span></div></div>
+          </div>
+          <div class="fg2">
+            <div class="field"><label>Velocidad anim</label><div class="slider-wrap"><input type="range" id="t-glow-speed" min="0.3" max="8" step="0.1" value="2" oninput="sv(this);autoSave()"><span class="slider-val">2.0s</span></div></div>
+            <div class="field"><label>Spread</label><div class="slider-wrap"><input type="range" id="t-glow-spread" min="0" max="30" value="0" oninput="sv(this);autoSave()"><span class="slider-val">0px</span></div></div>
           </div>
           <div class="glow-pv-row">
             <div class="glow-pv-el" id="gp-box" style="background:var(--abg);color:var(--acc);border:1px solid var(--b)">Box</div>
@@ -1358,6 +1391,11 @@ definen géneros.</textarea></div>
           <div class="emoji-grid" id="emoji-grid"></div>
           <div style="font-size:10px;color:var(--mu);margin-bottom:6px;font-weight:700">Personalizados</div>
           <div class="custom-emoji-list" id="ce-list"></div>
+          <div style="display:flex;gap:6px;margin-bottom:8px">
+            <button class="btn btn-ok" onclick="document.getElementById('ce-file-input').click()" style="flex:1;font-size:10px"><i class="fas fa-upload"></i> Subir imagen</button>
+            <input type="file" id="ce-file-input" accept="image/*,.gif,.webp" style="display:none" onchange="uploadEmojiFile(this)">
+          </div>
+          <div style="font-size:9px;color:var(--hi);margin-bottom:8px;text-align:center">— o pega una URL manualmente —</div>
           <div class="fg2">
             <div class="field"><label>Nombre</label><input type="text" id="ce-name" placeholder="fire-gif"></div>
             <div class="field"><label>URL</label><input type="url" id="ce-url" placeholder="https://..."></div>

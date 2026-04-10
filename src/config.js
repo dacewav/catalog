@@ -12,6 +12,13 @@ export const FC = {
 export const DACE_VER = '5.2.0';
 
 export const ANIMS = [
-  'none', 'flotar', 'pulsar', 'rotar', 'deslizar', 'rebotar',
-  'parpadeo', 'sacudida', 'cambio-color', 'brillo', 'spin-lento',
+  'none',
+  'flotar', 'deslizar-arriba', 'deslizar-abajo', 'deslizar-izq', 'deslizar-der',
+  'rebotar', 'sacudida', 'temblor', 'balanceo', 'drift',
+  'rotar', 'spin-lento', 'spin-rapido', 'wobble',
+  'pulsar', 'parpadeo', 'fade-in', 'respirar', 'latido',
+  'zoom-in', 'zoom-out', 'pop', 'rubber-band', 'jello',
+  'cambio-color', 'brillo', 'neon-flicker', 'glitch', 'holograma',
+  'typing', 'shake-x', 'heartbeat', 'flip', 'swing',
+  'tada', 'bounce-in', 'elastic', 'slide-up-fade',
 ];
