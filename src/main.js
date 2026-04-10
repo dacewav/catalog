@@ -238,21 +238,27 @@ window.addEventListener('load', () => {
     firebase.initializeApp(FC);
     state.db = firebase.database();
 
-    // Load cached theme first
+    // Load cached theme + settings immediately so hero shows without waiting for Firebase
     const lt = localStorage.getItem('dace-theme');
     if (lt) {
       state.T = JSON.parse(lt);
-      applyTheme(state.T);
       state.ldTheme = true;
-      _checkReady();
     }
+    const lset = localStorage.getItem('dace-settings');
+    if (lset) {
+      state.siteSettings = JSON.parse(lset);
+      state.ldSettings = true;
+    }
+    if (state.T) applyTheme(state.T);
+    applySettings();
+    _checkReady();
 
-    // Firebase listeners
+    // Firebase listeners (overwrite cache with live data)
     state.db.ref('theme').on('value', (snap) => {
       const t = snap.val() || {};
       state.T = t;
       applyTheme(t);
-      if (state.ldSettings) applySettings();
+      applySettings();
       localStorage.setItem('dace-theme', JSON.stringify(t));
       state.ldTheme = true;
       _checkReady();
@@ -267,6 +273,7 @@ window.addEventListener('load', () => {
     state.db.ref('settings').on('value', (snap) => {
       state.siteSettings = snap.val() || {};
       applySettings();
+      localStorage.setItem('dace-settings', JSON.stringify(state.siteSettings));
       state.ldSettings = true;
       _checkReady();
     });
