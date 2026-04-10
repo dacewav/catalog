@@ -59,13 +59,22 @@ export function closeKbdPanel() { g('kbd-overlay').classList.remove('open'); }
 
 // Keyboard events
 document.addEventListener('keydown', e => {
-  var inInput = e.target.matches('input,textarea,select,[contenteditable]');
+  var inTextInput = e.target.matches('input:not([type=range]),textarea,[contenteditable]');
+  var inRangeInput = e.target.matches('input[type=range]');
   if (e.ctrlKey && e.key === 'k') { e.preventDefault(); openCmdPalette(); }
   if (e.ctrlKey && e.key === '/') { e.preventDefault(); openKbdPanel(); }
   if (e.key === 'Escape') { closeCmdPalette(); closeKbdPanel(); if (window.closeQRPanel) window.closeQRPanel(); }
-  // Undo/Redo: only intercept when NOT in an input (let browser handle text undo)
-  if (!inInput && e.ctrlKey && e.key === 'z' && !e.shiftKey) { e.preventDefault(); undo(); }
-  if (!inInput && e.ctrlKey && e.shiftKey && e.key === 'Z') { e.preventDefault(); redo(); }
+  // Undo/Redo: let browser handle text undo in text inputs/textarea
+  // For range sliders, selects, and non-inputs → theme undo
+  if (e.ctrlKey && e.key === 'z' && !e.shiftKey) {
+    if (!inTextInput) { e.preventDefault(); undo(); }
+    // else: let browser handle native text undo
+  }
+  if (e.ctrlKey && e.shiftKey && (e.key === 'Z' || e.key === 'z')) {
+    if (!inTextInput) { e.preventDefault(); redo(); }
+  }
+  // Ctrl+Y for redo (Windows convention)
+  if (e.ctrlKey && e.key === 'y' && !inTextInput) { e.preventDefault(); redo(); }
   if (e.ctrlKey && e.key === 's') { e.preventDefault(); saveAll(); }
   if (!inInput && !e.ctrlKey && !e.altKey) {
     if (e.key === '1') { e.preventDefault(); showSection('global'); }

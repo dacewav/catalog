@@ -26,11 +26,28 @@ export function beatCard(b, globalIdx) {
     : '<div class="beat-img-ph">♦</div>';
   const isWished = state.wishlist.indexOf(b.id) > -1;
 
-  return `<div class="beat-card${isPlay ? ' is-playing' : ''}${b.featured ? ' featured' : ''}" id="card-${b.id}"
+  // Per-beat glow animation classes
+  let glowClasses = '';
+  let glowStyle = '';
+  if (b.glowConfig && b.glowConfig.enabled) {
+    const gc = b.glowConfig;
+    const glowType = gc.type || 'active'; // active, rgb, pulse, breathe, neon
+    glowClasses = 'glow-' + glowType;
+    if (gc.color) {
+      // Parse hex to RGB for CSS custom properties
+      const hex = gc.color.replace('#', '');
+      const r = parseInt(hex.substring(0, 2), 16) || 220;
+      const g = parseInt(hex.substring(2, 4), 16) || 38;
+      const bl = parseInt(hex.substring(4, 6), 16) || 38;
+      glowStyle = `--glow-clr:${gc.color};--glow-r:${r};--glow-g:${g};--glow-b:${bl};--glow-speed:${gc.speed || 3}s`;
+    }
+  }
+
+  return `<div class="beat-card${isPlay ? ' is-playing' : ''}${b.featured ? ' featured' : ''}${glowClasses ? ' ' + glowClasses : ''}" id="card-${b.id}"
     onclick="handleCardClick('${b.id}',${globalIdx})"
     style="--card-tint:${b.accentColor
       ? `linear-gradient(135deg,${b.accentColor},transparent)`
-      : 'linear-gradient(135deg,rgba(185,28,28,0.3),transparent)'}">
+      : 'linear-gradient(135deg,rgba(185,28,28,0.3),transparent)'}${glowStyle ? ';' + glowStyle : ''}">
     <div class="shimmer-overlay"></div>
     <button class="wish-btn${isWished ? ' active' : ''}" data-id="${b.id}" onclick="toggleWish('${b.id}',event)">${isWished ? '♥' : '♡'}</button>
     <div class="beat-card-inner">
@@ -174,8 +191,16 @@ export function playModalBeat() {
   const b = state.allBeats.find((x) => x.id === state.modalBeatId);
   if (!b) return;
   const bi = state.allBeats.findIndex((x) => x.id === state.modalBeatId);
-  if (AP.currentBeatIdx === bi && AP.playing) { AP.toggle(); }
-  else { AP.openForModal(b); }
+
+  // Use a unified approach: playIdx handles everything (including modal state)
+  if (AP.currentBeatIdx === bi && AP.playing) {
+    // Same beat is playing — toggle pause
+    AP.toggle();
+  } else {
+    // Different beat or not playing — play via global player
+    // The global player will also update modal button via _updateIcons
+    AP.playModalBeat(b);
+  }
 }
 
 export function closeModal() {

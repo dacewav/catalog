@@ -190,6 +190,44 @@ export const AP = {
 
   exitModal() { _modalMode = false; _updateIcons(); },
 
+  playModalBeat(beat) {
+    // Play a beat from modal context — uses global player with modal tracking
+    _modalMode = true;
+    const bi = state.allBeats.findIndex((b) => b.id === beat.id);
+    const url = beat.previewUrl || beat.audioUrl || '';
+    if (!url) return;
+    const isSame = _idx === bi && _audio && _audio.src;
+
+    if (!isSame) {
+      _create(url);
+      _audio.play().catch((err) => logError('Player/modalPlay', err));
+      _playing = true;
+      _idx = bi;
+      trackPlay(beat.id);
+
+      const bar = document.getElementById('player-bar');
+      if (bar) bar.classList.add('up');
+
+      const piName = document.getElementById('pi-name');
+      if (piName) piName.textContent = beat.name;
+
+      const piMeta = document.getElementById('pi-meta');
+      if (piMeta) piMeta.textContent = `${beat.bpm} BPM · ${beat.key} · ${beat.genre}`;
+
+      const th = document.getElementById('pi-thumb');
+      if (th) {
+        th.innerHTML = beat.imageUrl
+          ? `<img src="${beat.imageUrl}" alt="" loading="lazy">`
+          : '♦';
+      }
+    } else {
+      // Same beat, just resume
+      _audio.play().catch((err) => logError('Player/toggle', err));
+      _playing = true;
+    }
+    _updateIcons();
+  },
+
   get currentBeatIdx() { return _idx; },
   get playing() { return _playing; },
   get audio() { return _audio; },

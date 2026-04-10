@@ -353,17 +353,41 @@ body > * { position: relative; z-index: 1; }
   -webkit-appearance: none; appearance: none;
   background: linear-gradient(90deg, var(--b) 0%, rgba(255,255,255,0.08) 100%);
   border-radius: 3px; outline: none;
+  transition: height .15s ease;
+  cursor: pointer;
+}
+.slider-wrap input[type="range"]:hover {
+  height: 7px;
 }
 .slider-wrap input[type="range"]::-webkit-slider-thumb {
-  -webkit-appearance: none; width: 16px; height: 16px;
+  -webkit-appearance: none; width: 18px; height: 18px;
   background: var(--acc); border-radius: 50%; cursor: pointer;
   border: 3px solid var(--bg);
-  transition: var(--tr);
-  box-shadow: 0 2px 8px rgba(230,57,70,0.3);
+  transition: transform .25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow .25s ease;
+  box-shadow: 0 2px 10px rgba(230,57,70,0.35);
 }
 .slider-wrap input[type="range"]::-webkit-slider-thumb:hover {
-  transform: scale(1.2);
-  box-shadow: 0 2px 14px rgba(230,57,70,0.5);
+  transform: scale(1.25);
+  box-shadow: 0 2px 18px rgba(230,57,70,0.55);
+}
+.slider-wrap input[type="range"]::-webkit-slider-thumb:active {
+  transform: scale(1.35);
+  box-shadow: 0 2px 22px rgba(230,57,70,0.7);
+}
+.slider-wrap input[type="range"]::-moz-range-thumb {
+  width: 18px; height: 18px;
+  background: var(--acc); border-radius: 50%; cursor: pointer;
+  border: 3px solid var(--bg);
+  transition: transform .25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow .25s ease;
+  box-shadow: 0 2px 10px rgba(230,57,70,0.35);
+}
+.slider-wrap input[type="range"]::-moz-range-thumb:hover {
+  transform: scale(1.25);
+  box-shadow: 0 2px 18px rgba(230,57,70,0.55);
+}
+.slider-wrap input[type="range"]::-moz-range-track {
+  height: 5px; background: linear-gradient(90deg, var(--b) 0%, rgba(255,255,255,0.08) 100%);
+  border-radius: 3px; border: none;
 }
 .slider-val {
   font-family: var(--fx); font-size: 11px; color: var(--hi);
@@ -1088,9 +1112,24 @@ body.light .batch-img-drop input[type="file"] { opacity: 0; }
 /* ═══ LICENSE EDITOR (JS-generated) ═══ */
 .lic-ed-row {
   background: var(--abg); border: 1px solid var(--b);
-  border-radius: var(--rad); padding: 8px; margin-bottom: 6px;
+  border-radius: var(--rad); padding: 10px; margin-bottom: 8px;
+  transition: border-color .2s ease;
 }
+.lic-ed-row:hover { border-color: rgba(230,57,70,0.3); }
 .lic-ed-grid { display: grid; grid-template-columns: 1fr 80px 80px; gap: 6px; margin-bottom: 6px; }
+.lic-ed-row input {
+  flex: 1; min-width: 50px; padding: 7px 10px;
+  background: rgba(12,10,14,0.7); border: 1px solid var(--b);
+  border-radius: var(--rad); color: var(--tx);
+  font-family: var(--fm); font-size: 11px; outline: none;
+  transition: border-color .2s ease, box-shadow .2s ease;
+}
+.lic-ed-row input:focus {
+  border-color: var(--acc);
+  box-shadow: 0 0 0 3px rgba(230,57,70,0.1);
+  background: rgba(12,10,14,0.9);
+}
+.lic-ed-row input::placeholder { color: var(--hi); }
 
 /* ═══ LINK EDITOR (JS-generated) ═══ */
 .link-ed-row {
@@ -1380,7 +1419,7 @@ body.light .batch-img-drop input[type="file"] { opacity: 0; }
           <div class="field"><label>Blur fondo</label><div class="slider-wrap"><input type="range" id="t-blur" min="0" max="80" value="24" oninput="sv(this);autoSave()"><span class="slider-val">24px</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,24)">↺</button></div></div>
           <div class="field"><label>Opacidad tarjetas</label><div class="slider-wrap"><input type="range" id="t-card-op" min="0" max="1" step="0.05" value="1" oninput="sv(this);autoSave()"><span class="slider-val">1.00</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,1)">↺</button></div></div>
           <div class="field"><label>Grano</label><div class="slider-wrap"><input type="range" id="t-grain" min="0" max="1" step="0.05" value="0.3" oninput="sv(this);autoSave()"><span class="slider-val">0.30</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,0.3)">↺</button></div></div>
-          <div class="field"><label>Border radius</label><div class="slider-wrap"><input type="range" id="t-radius" min="0" max="40" value="10" oninput="sv(this);autoSave()"><span class="slider-val">10px</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,10)">↺</button></div></div>
+          <div class="field"><label>Border radius</label><div class="slider-wrap"><input type="range" id="t-radius" min="0" max="80" value="10" oninput="sv(this);autoSave()"><span class="slider-val">10px</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,10)">↺</button></div></div>
           <div class="field"><label>Opacidad nav</label><div class="slider-wrap"><input type="range" id="t-nav-op" min="0" max="1" step="0.05" value="0.88" oninput="sv(this);autoSave()"><span class="slider-val">0.88</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,0.88)">↺</button></div></div>
           <div class="field"><label>Opacidad beat img</label><div class="slider-wrap"><input type="range" id="t-beat-img-op" min="0" max="1" step="0.05" value="1" oninput="sv(this);autoSave()"><span class="slider-val">1.00</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,1)">↺</button></div></div>
           <div class="field"><label>Opacidad texto</label><div class="slider-wrap"><input type="range" id="t-text-op" min="0" max="1" step="0.05" value="1" oninput="sv(this);autoSave()"><span class="slider-val">1.00</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,1)">↺</button></div></div>
@@ -1395,7 +1434,7 @@ body.light .batch-img-drop input[type="file"] { opacity: 0; }
       <div class="card">
         <div class="card-title" onclick="toggleCard(this)"><span>Espaciado</span><i class="fas fa-chevron-down"></i></div>
         <div class="card-body">
-          <div class="field"><label>Padding secciones</label><div class="slider-wrap"><input type="range" id="t-pad" min="0" max="12" step="0.5" value="4" oninput="sv(this);autoSave()"><span class="slider-val">4.0rem</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,4)">↺</button></div></div>
+          <div class="field"><label>Padding secciones</label><div class="slider-wrap"><input type="range" id="t-pad" min="0" max="20" step="0.5" value="4" oninput="sv(this);autoSave()"><span class="slider-val">4.0rem</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,4)">↺</button></div></div>
           <div class="field"><label>Gap entre beats</label><div class="slider-wrap"><input type="range" id="t-gap" min="0" max="60" value="16" oninput="sv(this);autoSave()"><span class="slider-val">16px</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,16)">↺</button></div></div>
         </div>
       </div>
@@ -1443,12 +1482,12 @@ body.light .batch-img-drop input[type="file"] { opacity: 0; }
           </div>
           <div class="fg3">
             <div class="field"><label>Opacidad</label><div class="slider-wrap"><input type="range" id="t-glow-op" min="0" max="1" step="0.05" value="1" oninput="sv(this);autoSave()"><span class="slider-val">1.00</span></div></div>
-            <div class="field"><label>Difuminado</label><div class="slider-wrap"><input type="range" id="t-glow-blur" min="0" max="100" value="20" oninput="sv(this);autoSave()"><span class="slider-val">20px</span></div></div>
-            <div class="field"><label>Intensidad</label><div class="slider-wrap"><input type="range" id="t-glow-int" min="0" max="5" step="0.1" value="1" oninput="sv(this);autoSave()"><span class="slider-val">1.0x</span></div></div>
+            <div class="field"><label>Difuminado</label><div class="slider-wrap"><input type="range" id="t-glow-blur" min="0" max="200" value="20" oninput="sv(this);autoSave()"><span class="slider-val">20px</span></div></div>
+            <div class="field"><label>Intensidad</label><div class="slider-wrap"><input type="range" id="t-glow-int" min="0" max="10" step="0.1" value="1" oninput="sv(this);autoSave()"><span class="slider-val">1.0x</span></div></div>
           </div>
           <div class="fg2">
             <div class="field"><label>Velocidad anim</label><div class="slider-wrap"><input type="range" id="t-glow-speed" min="0.3" max="8" step="0.1" value="2" oninput="sv(this);autoSave()"><span class="slider-val">2.0s</span></div></div>
-            <div class="field"><label>Spread</label><div class="slider-wrap"><input type="range" id="t-glow-spread" min="0" max="30" value="0" oninput="sv(this);autoSave()"><span class="slider-val">0px</span></div></div>
+            <div class="field"><label>Spread</label><div class="slider-wrap"><input type="range" id="t-glow-spread" min="0" max="60" value="0" oninput="sv(this);autoSave()"><span class="slider-val">0px</span></div></div>
           </div>
           <div class="glow-pv-row">
             <div class="glow-pv-el" id="gp-box" style="background:var(--abg);color:var(--acc);border:1px solid var(--b)">Box</div>
@@ -1558,7 +1597,7 @@ definen géneros.</textarea></div>
             <div class="field"><label>Tamaño mín</label><div class="slider-wrap"><input type="range" id="p-min" min="1" max="30" value="2" oninput="sv(this);autoSave()"><span class="slider-val">2</span></div></div>
             <div class="field"><label>Tamaño máx</label><div class="slider-wrap"><input type="range" id="p-max" min="2" max="80" value="6" oninput="sv(this);autoSave()"><span class="slider-val">6</span></div></div>
           </div>
-          <div class="field"><label>Velocidad</label><div class="slider-wrap"><input type="range" id="p-speed" min="0.1" max="5" step="0.1" value="1" oninput="sv(this);autoSave()"><span class="slider-val">1.0</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,1)">↺</button></div></div>
+          <div class="field"><label>Velocidad</label><div class="slider-wrap"><input type="range" id="p-speed" min="0.1" max="10" step="0.1" value="1" oninput="sv(this);autoSave()"><span class="slider-val">1.0</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,1)">↺</button></div></div>
           <div class="field"><label>Opacidad</label><div class="slider-wrap"><input type="range" id="p-opacity" min="0" max="1" step="0.05" value="0.5" oninput="sv(this);autoSave()"><span class="slider-val">0.50</span></div></div>
           <div class="particles-pv" id="particles-pv"></div>
         </div>
@@ -1712,6 +1751,25 @@ definen géneros.</textarea></div>
         <div class="tog-row"><input type="checkbox" class="tog" id="f-excl"><span class="tog-lbl">Exclusiva</span></div>
         <div class="tog-row"><input type="checkbox" class="tog" id="f-active" checked><span class="tog-lbl">Activo</span></div>
         <div class="tog-row"><input type="checkbox" class="tog" id="f-avail" checked><span class="tog-lbl">Disponible</span></div>
+
+        <!-- Per-beat Glow Animation -->
+        <div class="card" style="margin-top:12px">
+          <div class="card-title" onclick="toggleCard(this)"><span>✨ Glow animado</span><i class="fas fa-chevron-down"></i></div>
+          <div class="card-body">
+            <div class="tog-row"><input type="checkbox" class="tog" id="f-glow-on"><span class="tog-lbl">Activar glow</span></div>
+            <div class="field"><label>Tipo de glow</label>
+              <select id="f-glow-type" style="font-family:var(--fm);font-size:11px;background:var(--abg);color:var(--tx);border:1px solid var(--b);border-radius:var(--rad);padding:6px 10px;width:100%;cursor:pointer">
+                <option value="active">Pulso suave</option>
+                <option value="rgb">Ciclo RGB</option>
+                <option value="pulse">Latido</option>
+                <option value="breathe">Respiración</option>
+                <option value="neon">Neón parpadeo</option>
+              </select>
+            </div>
+            <div class="color-wrap"><label>Color glow</label><div class="color-swatch"><input type="color" id="f-glow-color" value="#dc2626"></div><input type="text" class="color-hex" id="f-glow-color-h" value="#dc2626"></div>
+            <div class="field"><label>Velocidad</label><div class="slider-wrap"><input type="range" id="f-glow-speed" min="0.5" max="10" step="0.1" value="3" oninput="this.nextElementSibling.textContent=parseFloat(this.value).toFixed(1)+'s'"><span class="slider-val">3.0s</span></div></div>
+          </div>
+        </div>
       </div>
       <div style="margin-top:12px" class="btn-row">
         <button class="btn btn-ok" onclick="saveBeat()"><i class="fas fa-save"></i> Guardar</button>
