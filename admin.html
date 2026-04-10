@@ -384,6 +384,42 @@ body::before {
 }
 .color-hex:focus { border-color: var(--acc); }
 
+/* Color Editor Rows */
+.ce-row {
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.03);
+}
+.ce-row:last-child { border-bottom: none; }
+.ce-row label {
+  font-size: 10px; font-weight: 600; color: var(--mu);
+  min-width: 70px; flex-shrink: 0;
+  text-transform: uppercase; letter-spacing: 0.04em;
+}
+.ce-row input[type="color"] {
+  width: 28px; height: 28px; border: 2px solid var(--b);
+  border-radius: var(--rsb); cursor: pointer; padding: 0;
+  flex-shrink: 0; background: none;
+}
+.ce-row input[type="text"] {
+  flex: 1; padding: 6px 8px;
+  background: rgba(0,0,0,0.3); border: 1px solid var(--b);
+  border-radius: var(--rad); color: var(--tx);
+  font-family: var(--fx); font-size: 11px; outline: none;
+  transition: var(--tr);
+}
+.ce-row input[type="text"]:focus { border-color: var(--acc); }
+.ce-row input[type="range"] {
+  height: 3px; -webkit-appearance: none; appearance: none;
+  background: var(--b); border-radius: 2px; outline: none;
+  flex-shrink: 0;
+}
+.ce-row input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none; width: 12px; height: 12px;
+  background: var(--acc); border-radius: 50%; cursor: pointer;
+  border: 2px solid var(--abg);
+}
+
 /* Buttons */
 .btn {
   display: inline-flex; align-items: center; gap: 6px;
@@ -821,12 +857,14 @@ body::before {
 
 /* ═══ EMOJI / PARTICLES ═══ */
 .emoji-grid { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 12px; }
-.emoji-grid button {
+.emoji-btn {
   width: 32px; height: 32px; font-size: 16px;
+  display: flex; align-items: center; justify-content: center;
   background: none; border: 1px solid transparent;
   border-radius: var(--rsb); cursor: pointer; transition: var(--tr);
 }
-.emoji-grid button:hover { background: rgba(255,255,255,0.05); border-color: var(--b); }
+.emoji-btn:hover { background: rgba(255,255,255,0.05); border-color: var(--b); transform: scale(1.1); }
+.emoji-btn:active { transform: scale(0.9); }
 .custom-emoji-list { margin-bottom: 8px; }
 .particles-pv {
   width: 100%; height: 80px; border: 1px solid var(--b);
@@ -849,6 +887,7 @@ body::before {
 .slot:hover { border-color: var(--b2); background: rgba(255,255,255,0.03); }
 .slot.on { border-color: var(--acc); background: rgba(220,38,38,0.08); }
 .slot-name { font-size: 10px; font-weight: 600; color: var(--tx); margin-bottom: 2px; }
+.slot-label { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--mu); }
 .slot-date { font-size: 9px; color: var(--mu); font-family: var(--fx); }
 
 /* ═══ PRESET GRID ═══ */
