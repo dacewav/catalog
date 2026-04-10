@@ -140,9 +140,10 @@ function _postToFrame(msg) {
 }
 
 export function broadcastTheme() {
-  // Debounce: only broadcast after 80ms of no calls (smooth slider dragging)
+  // Debounce: only broadcast after 150ms of no calls (smooth slider dragging)
+  // Increased from 80ms to batch more aggressively and reduce iframe thrashing
   clearTimeout(_broadcastTimer);
-  _broadcastTimer = setTimeout(_doBroadcast, 80);
+  _broadcastTimer = setTimeout(_doBroadcast, 150);
 }
 
 function _doBroadcast() {

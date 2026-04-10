@@ -116,6 +116,13 @@ window.addEventListener('storage', (e) => {
 });
 
 // ─── PostMessage bridge (admin iframe) ───
+// Single shared debounce for ALL message types.
+// Tracks which data changed to skip unnecessary re-renders.
+let _lastThemeJSON = '';
+let _lastSettingsJSON = '';
+let _lastEmojisJSON = '';
+let _lastFloatingJSON = '';
+
 window.addEventListener('message', (e) => {
   // Accept from same origin, known domains, parent frame, or null (file://)
   const own = window.location?.origin || '*';
@@ -126,17 +133,39 @@ window.addEventListener('message', (e) => {
   const d = e.data;
   if (!d || !d.type) return;
 
-  // Store latest data — don't process immediately
-  if (d.type === 'theme-update' && d.theme) state.T = d.theme;
-  if (d.type === 'settings-update' && d.settings) state.siteSettings = d.settings;
-  if (d.type === 'emojis-update' && d.emojis) state.customEmojis = d.emojis;
-  if (d.type === 'floating-update' && d.elements) { state.floatingEls = d.elements; renderFloating(state.floatingEls); }
+  // Store latest data — skip if nothing changed (dedup before debounce)
+  if (d.type === 'theme-update' && d.theme) {
+    const json = JSON.stringify(d.theme);
+    if (json === _lastThemeJSON) return; // identical to last processed — skip
+    _lastThemeJSON = json;
+    state.T = d.theme;
+  } else if (d.type === 'settings-update' && d.settings) {
+    const json = JSON.stringify(d.settings);
+    if (json === _lastSettingsJSON) return;
+    _lastSettingsJSON = json;
+    state.siteSettings = d.settings;
+  } else if (d.type === 'emojis-update' && d.emojis) {
+    const json = JSON.stringify(d.emojis);
+    if (json === _lastEmojisJSON) return;
+    _lastEmojisJSON = json;
+    state.customEmojis = d.emojis;
+  } else if (d.type === 'floating-update' && d.elements) {
+    const json = JSON.stringify(d.elements);
+    if (json === _lastFloatingJSON) return;
+    _lastFloatingJSON = json;
+    state.floatingEls = d.elements;
+    // Floating elements need immediate render (lightweight)
+    renderFloating(state.floatingEls);
+  }
 
-  // Debounce: batch all updates and run once after messages stop arriving
+  // SINGLE shared debounce: batch all updates and run once after messages stop arriving
   clearTimeout(window._applyDebounce);
   window._applyDebounce = setTimeout(() => {
-    if (state.T) { applyTheme(state.T); applySettings(); }
-  }, 60);
+    if (state.T) {
+      applyTheme(state.T);
+      applySettings();
+    }
+  }, 100); // increased from 60ms — gives more time for admin to send all 4 message types
 });
 
 // ─── Audio error recovery ───

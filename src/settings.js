@@ -253,9 +253,14 @@ export function renderCustomLinks(links) {
   if (footerCL) footerCL.innerHTML = byLoc.footer.map((l) => `<a class="footer-link" href="${l.url}" target="_blank">${l.label}</a>`).join('');
 }
 
+let _lastFloatingRenderJSON = '';
 export function renderFloating(elements) {
   const layer = document.getElementById('floating-layer');
   if (!layer) return;
+  // Skip rebuild if data hasn't changed
+  const json = JSON.stringify(elements);
+  if (json === _lastFloatingRenderJSON) return;
+  _lastFloatingRenderJSON = json;
   layer.innerHTML = '';
   Object.values(elements).forEach((el) => {
     if (!el || !el.visible) return;
