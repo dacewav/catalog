@@ -250,6 +250,7 @@ function listenBeats() {
     }
 
     populateFilterOptions();
+    renderFeatured();
     filterAndRender();
   }, (err) => {
     console.error('[DACEWAV] Beats listen error:', err);
@@ -380,6 +381,27 @@ function resetAllFilters() {
   genreGroupEl.querySelectorAll('.genre-btn').forEach(b => b.classList.toggle('active', b.textContent === 'Todos'));
   tagCloudEl?.querySelectorAll('.tag-cloud-item').forEach(el => el.classList.remove('tag-cloud-item--active'));
   filterAndRender();
+}
+
+function renderFeatured() {
+  const section = document.getElementById('featured');
+  const grid = document.getElementById('featured-grid');
+  if (!section || !grid) return;
+
+  const featured = beatsData.filter(b => b.featured);
+  if (featured.length === 0) {
+    section.style.display = 'none';
+    return;
+  }
+
+  grid.innerHTML = '';
+  featured.forEach((beat, i) => {
+    const card = createBeatCard(beat);
+    card.style.animationDelay = `${i * 60}ms`;
+    grid.appendChild(card);
+  });
+
+  section.style.display = 'block';
 }
 
 function renderGrid(beats) {

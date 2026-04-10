@@ -12,6 +12,7 @@ import { initWishlist } from './wishlist.js';
 document.addEventListener('DOMContentLoaded', async () => {
   try {
     await loadTheme();
+    loadBanner();
     initCatalog(db);
     initWishlist(db);
     initPlayer();
@@ -76,4 +77,34 @@ function setupNav() {
   window.addEventListener('scroll', () => {
     nav.classList.toggle('nav--scrolled', window.scrollY > 80);
   }, { passive: true });
+}
+
+async function loadBanner() {
+  try {
+    const snap = await get(ref(db, 'config/site'));
+    if (!snap.exists()) return;
+    const site = snap.val();
+    const msg = site.banner || '';
+    if (!msg) return;
+
+    const banner = document.getElementById('banner');
+    const text = document.getElementById('banner-text');
+    const close = document.getElementById('banner-close');
+    if (!banner || !text) return;
+
+    // Check if dismissed in this session
+    if (sessionStorage.getItem('dace-banner-dismissed') === msg) return;
+
+    text.textContent = msg;
+    banner.style.display = 'flex';
+
+    if (close) {
+      close.addEventListener('click', () => {
+        banner.style.display = 'none';
+        sessionStorage.setItem('dace-banner-dismissed', msg);
+      });
+    }
+  } catch {
+    // silent
+  }
 }

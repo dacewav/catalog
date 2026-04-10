@@ -2,6 +2,46 @@
    DACEWAV.STORE — Store Styles (css/store.css)
    ════════════════════════════════════════════════════════════ */
 
+/* ── Banner ── */
+.banner {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-md);
+  padding: var(--space-sm) var(--space-lg);
+  background: var(--color-primary);
+  color: var(--color-text);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  z-index: 60;
+}
+
+.banner__text {
+  flex: 1;
+  text-align: center;
+  margin: 0;
+}
+
+.banner__close {
+  width: 24px;
+  height: 24px;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-full);
+  color: var(--color-text);
+  opacity: 0.7;
+  transition: opacity var(--transition-fast);
+  flex-shrink: 0;
+}
+
+.banner__close:hover {
+  opacity: 1;
+}
+
 /* ── Grain Overlay ── */
 body::before {
   content: '';
@@ -101,6 +141,36 @@ body::before {
   color: var(--color-text-muted);
   max-width: 500px;
   margin: 0 auto;
+}
+
+/* ── Featured Section ── */
+.featured {
+  padding: 0 var(--space-lg) var(--space-2xl);
+}
+
+.featured__title {
+  font-family: var(--font-display);
+  font-size: var(--text-2xl);
+  letter-spacing: 0.1em;
+  margin-bottom: var(--space-lg);
+}
+
+.featured__grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-lg);
+}
+
+@media (max-width: 640px) {
+  .featured__grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (min-width: 480px) and (max-width: 768px) {
+  .featured__grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 
 /* ── Catalog Section ── */
