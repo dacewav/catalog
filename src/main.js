@@ -223,7 +223,7 @@ window.addEventListener('load', () => {
   const loaderTimeout = setTimeout(() => {
     state.ldTheme = state.ldSettings = state.ldBeats = true;
     _hideLoader();
-  }, 3000);
+  }, 1000);
 
   let _loaderHidden = false;
   function _hideLoader() {
