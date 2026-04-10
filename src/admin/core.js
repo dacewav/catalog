@@ -26,14 +26,13 @@ let _lastBroadcastJSON = '';
 // ═══ UNDO/REDO ═══
 export function pushUndo() {
   clearTimeout(_undoDebounce);
-  // Use a simple timeout approach (the original used _undoDebounce but it was a let)
-  const timer = setTimeout(() => {
+  _undoDebounce = setTimeout(() => {
     const snap = JSON.stringify(collectTheme());
     if (_lastSavedTheme === snap) return;
     _undoStack.push(snap);
+    _lastSavedTheme = snap;
     if (_undoStack.length > 50) _undoStack.shift();
     _redoStack.length = 0;
-    // Note: can't reassign _lastSavedTheme from here, it's handled by the snapshot comparison
   }, 300);
 }
 export function undo() {
@@ -47,6 +46,15 @@ export function redo() {
   const next = _redoStack.pop();
   _undoStack.push(next);
   setT(JSON.parse(next)); loadThemeUI(); broadcastThemeNow(); showToast('Rehacer ↪');
+}
+
+// Save initial state for undo
+export function pushUndoInitial() {
+  const snap = JSON.stringify(collectTheme());
+  _undoStack.length = 0;
+  _undoStack.push(snap);
+  _lastSavedTheme = snap;
+  _redoStack.length = 0;
 }
 
 // ═══ AUTO-SAVE ═══
@@ -618,6 +626,8 @@ export function loadThemeUI() {
   loadAndPreviewFont(); updatePreview(); updateHeroPv(); updateBannerPv();
   initTextColorizers(); updateDividerPv();
   renderSaveSlots(); buildAnimControls();
+  // Save initial state for undo (only if stack is empty — don't reset on undo/redo reloads)
+  if (!_undoStack.length) pushUndoInitial();
 }
 
 // ═══ SYNC s-hero ↔ h-title ═══
@@ -1348,7 +1358,7 @@ export function importThemeFromURL(url) {
 
 // ═══ WINDOW ASSIGNMENTS ═══
 Object.assign(window, {
-  pushUndo, undo, redo, autoSave, saveAll,
+  pushUndo, pushUndoInitial, undo, redo, autoSave, saveAll,
   broadcastTheme, broadcastThemeNow, broadcastHighlight, clearHighlight,
   refreshIframe, loadPreviewURL, setViewport,
   toggleInspector, toggleAdminTheme,
