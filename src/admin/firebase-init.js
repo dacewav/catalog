@@ -200,8 +200,22 @@ async function removeWhitelistEmail(idx) {
 }
 
 // ═══ BOOT ═══
+window.addEventListener('error', (e) => {
+  console.error('[DACE Admin] Uncaught:', e.error || e.message);
+});
+window.addEventListener('unhandledrejection', (e) => {
+  console.error('[DACE Admin] Unhandled rejection:', e.reason);
+});
+
 window.addEventListener('load', () => {
-  firebase.initializeApp(FC);
+  try {
+    firebase.initializeApp(FC);
+  } catch (e) {
+    console.error('[DACE Admin] Firebase init error:', e);
+    const errEl = g('login-error');
+    if (errEl) errEl.textContent = 'Error al inicializar Firebase: ' + (e.message || 'desconocido');
+    return;
+  }
   _auth = firebase.auth();
 
   // Load whitelist
@@ -221,14 +235,21 @@ window.addEventListener('load', () => {
   // Auth state listener
   _auth.onAuthStateChanged(user => {
     if (user) {
+      console.log('[DACE Admin] Auth:', user.email);
       if (!_allowedEmails.includes(user.email)) {
         g('login-error').textContent = 'Esta cuenta (' + user.email + ') no tiene acceso al admin.';
         _auth.signOut();
         return;
       }
       g('login-overlay').classList.add('hidden');
-      initAdmin();
+      try {
+        initAdmin();
+      } catch (e) {
+        console.error('[DACE Admin] initAdmin error:', e);
+        showToast('Error al cargar admin: ' + e.message, true);
+      }
     } else {
+      console.log('[DACE Admin] No auth — showing login');
       g('login-overlay').classList.remove('hidden');
     }
   });
@@ -240,3 +261,10 @@ window.doLogout = doLogout;
 window.addWhitelistEmail = addWhitelistEmail;
 window.removeWhitelistEmail = removeWhitelistEmail;
 window.renderWhitelistEditor = renderWhitelistEditor;
+
+// Stubs for functions referenced in HTML but not yet implemented
+window.initLayoutCanvas = () => showToast('Layout canvas próximamente');
+window.loadStats = () => showToast('Stats próximamente');
+window.runStats = () => showToast('Stats via Worker próximamente');
+window.runBackup = () => { const e = { beats: window.allBeats || [] }; showToast('Usa Exportar datos ↑'); };
+window.runSitemap = () => showToast('Sitemap próximamente');
