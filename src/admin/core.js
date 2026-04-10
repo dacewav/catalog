@@ -95,41 +95,56 @@ export function _collectSiteSettings() {
   siteSettings.bannerDir = val('b-dir') || 'normal';
   siteSettings.bannerDelay = parseFloat(val('b-delay')) || 0;
   siteSettings.bannerTxtClr = val('b-txt-clr') || '#ffffff';
+  // R2 config — auto-save alongside other settings
+  const r2Url = val('r2-worker-url') || '';
+  const r2Token = val('r2-upload-token') || '';
+  if (r2Url || r2Token) {
+    siteSettings.r2Config = { workerUrl: r2Url, uploadToken: r2Token };
+  }
 }
 
 // Wire up helpers autoSave reference
 setAutoSaveRef(autoSave);
 
 // ═══ IFRAME COMMUNICATION ═══
-const PM_ORIGIN = typeof window !== 'undefined' && window.location ? window.location.origin : '*';
+const PM_ORIGIN = (() => {
+  try { return window.location.origin || '*'; } catch { return '*'; }
+})();
+
+// Post to iframe with fallback: try specific origin first, then '*'
+function _postToFrame(msg) {
+  const frame = g('preview-frame');
+  if (!frame || !frame.contentWindow) return;
+  try { frame.contentWindow.postMessage(msg, PM_ORIGIN); } catch {}
+  if (PM_ORIGIN !== '*') { try { frame.contentWindow.postMessage(msg, '*'); } catch {} }
+}
 
 export function broadcastTheme() {
-  const frame = g('preview-frame');
-  if (frame && frame.contentWindow) {
-    frame.contentWindow.postMessage({ type: 'theme-update', theme: collectTheme() }, PM_ORIGIN);
-    frame.contentWindow.postMessage({ type: 'settings-update', settings: siteSettings }, PM_ORIGIN);
-    frame.contentWindow.postMessage({ type: 'emojis-update', emojis: customEmojis }, PM_ORIGIN);
-    frame.contentWindow.postMessage({ type: 'floating-update', elements: floatingEls }, PM_ORIGIN);
-  }
+  const theme = collectTheme();
+  _postToFrame({ type: 'theme-update', theme });
+  _postToFrame({ type: 'settings-update', settings: siteSettings });
+  _postToFrame({ type: 'emojis-update', emojis: customEmojis });
+  _postToFrame({ type: 'floating-update', elements: floatingEls });
 }
-export function broadcastHighlight(selector) {
-  const frame = g('preview-frame');
-  if (frame && frame.contentWindow) frame.contentWindow.postMessage({ type: 'highlight-element', selector }, PM_ORIGIN);
-}
-export function clearHighlight() {
-  const frame = g('preview-frame');
-  if (frame && _iframeReady) frame.contentWindow.postMessage({ type: 'clear-highlight' }, PM_ORIGIN);
-}
+export function broadcastHighlight(selector) { _postToFrame({ type: 'highlight-element', selector }); }
+export function clearHighlight() { if (_iframeReady) _postToFrame({ type: 'clear-highlight' }); }
 window.addEventListener('message', function (e) {
-  if (e.origin !== PM_ORIGIN && PM_ORIGIN !== '*') return;
+  // Accept messages from same origin OR from the iframe's origin
+  const frame = g('preview-frame');
+  const frameOrigin = frame?.contentWindow ? '*' : PM_ORIGIN;
+  if (e.origin !== PM_ORIGIN && PM_ORIGIN !== '*' && e.origin !== 'null') return;
   const d = e.data; if (!d || !d.type) return;
-  if (d.type === 'index-ready') { setIframeReady(true); broadcastTheme(); }
+  if (d.type === 'index-ready') { setIframeReady(true); broadcastTheme(); showToast('Preview conectado ✓'); }
   if (d.type === 'element-clicked' && d.info) {
     const map = { 'hero-title': 'hero', 'hero-eyebrow': 'hero', 'hero-sub': 'hero', 'hero': 'hero', 'nav': 'layout', 'beat-card': 'elements', 'btn-lic': 'elements', 'wbar': 'elements', 'player-bar': 'layout' };
     for (const [sel, sec] of Object.entries(map)) { if (d.info.classes && d.info.classes.includes(sel)) { showSectionNav(sec); break; } }
   }
 });
-export function refreshIframe() { const f = g('preview-frame'); if (f) f.src = f.src; }
+export function refreshIframe() {
+  setIframeReady(false);
+  const f = g('preview-frame');
+  if (f) { f.src = f.src; showToast('Recargando preview...'); }
+}
 export function loadPreviewURL() {
   const url = g('preview-url')?.value?.trim(); if (!url) return;
   const f = g('preview-frame'); if (f) f.src = url; showToast('Cargando: ' + url);
@@ -163,66 +178,126 @@ export function toggleAdminTheme() {
 }
 
 // ═══ HERO PREVIEW ═══
+// ═══ HERO PREVIEW — Clean rewrite ═══
+// Reads all hero-related inputs and renders the preview in #hero-pv
 export function updateHeroPv() {
-  const accent = val('h-stroke-clr') || val('tc-glow') || '#dc2626';
-  const titleRaw = val('h-title') || 'Beats que\ndefinen géneros.';
-  const lines = titleRaw.split('\n');
-  const lastLine = lines[lines.length - 1] || 'definen géneros.';
-  const otherLines = lines.slice(0, -1);
-  const strokeOn = checked('h-stroke-on');
-  const strokeW = parseFloat(val('h-stroke-w')) || 1;
-  const wordBlur = parseInt(val('h-word-blur')) || 10;
-  const wordOp = parseFloat(val('h-word-op')) || 0.35;
-  const strokeClr = val('h-stroke-clr') || accent;
-  const glowOn = checked('h-glow-on');
-  const glowInt = parseFloat(val('h-glow-int')) || 1;
-  const glowBlur = parseInt(val('h-glow-blur')) || 20;
-  const titleSize = parseFloat(val('h-title-size')) || 2.8;
-  const ls = parseFloat(val('h-ls')) || -0.04;
-  const lh = parseFloat(val('h-lh')) || 1;
-  const fd = val('t-font-d') || 'Syne';
-  const gradOn = checked('h-grad-on');
-  const gradClr = val('h-grad-clr') || accent;
-  const gradOp = parseFloat(val('h-grad-op')) || 0.14;
-  const gradW = parseInt(val('h-grad-w')) || 80;
-  const gradH = parseInt(val('h-grad-h')) || 60;
-  const eyebrowOn = checked('h-eyebrow-on');
-  const eyebrowText = val('h-eyebrow') || 'En vivo · Puebla, MX';
-  const eyebrowClr = val('h-eyebrow-clr') || accent;
-  const eyebrowSize = parseInt(val('h-eyebrow-size')) || 10;
+  // Collect values with safe fallbacks
+  const $ = (id) => document.getElementById(id);
+  const v = (id, def) => { const el = $(id); return el ? el.value : def; };
+  const c = (id) => { const el = $(id); return el ? el.checked : false; };
 
-  const pv = g('hero-pv'); if (!pv) return;
-  const pvg = g('hpv-grad');
-  if (pvg) pvg.style.background = gradOn ? 'radial-gradient(ellipse ' + gradW + '% ' + gradH + '% at 50% 0%, ' + hexRgba(gradClr, gradOp) + ', transparent)' : 'none';
-  const pve = g('hpv-eyebrow');
-  if (pve) {
-    pve.style.display = eyebrowOn ? 'inline-flex' : 'none';
-    pve.style.color = eyebrowClr;
-    pve.style.borderColor = hexRgba(eyebrowClr, .3);
-    pve.style.background = hexRgba(eyebrowClr, .08);
-    pve.style.fontSize = eyebrowSize + 'px';
-    const dot = pve.querySelector('.hero-pv-eyebrow-dot');
-    if (dot) dot.style.background = eyebrowClr;
+  const accent = v('h-stroke-clr') || v('tc-glow') || '#dc2626';
+  const fd = v('t-font-d', 'Syne');
+
+  // Title
+  const titleRaw = v('h-title', 'Beats que\ndefinen géneros.');
+  const lines = titleRaw.split('\n');
+  const lastLine = lines[lines.length - 1] || '';
+  const otherLines = lines.slice(0, -1);
+
+  // Glow/stroke on last word
+  const strokeOn = c('h-stroke-on');
+  const strokeW = parseFloat(v('h-stroke-w', '1')) || 1;
+  const wordBlur = parseInt(v('h-word-blur', '10')) || 10;
+  const wordOp = parseFloat(v('h-word-op', '0.35'));
+  const strokeClr = v('h-stroke-clr', accent);
+
+  // Title glow
+  const glowOn = c('h-glow-on');
+  const glowInt = parseFloat(v('h-glow-int', '1'));
+  const glowBlur = parseInt(v('h-glow-blur', '20')) || 20;
+
+  // Typography
+  const titleSize = parseFloat(v('h-title-size', '2.8'));
+  const ls = parseFloat(v('h-ls', '-0.04'));
+  const lh = parseFloat(v('h-lh', '1'));
+
+  // Gradient background
+  const gradOn = c('h-grad-on');
+  const gradClr = v('h-grad-clr', accent);
+  const gradOp = parseFloat(v('h-grad-op', '0.14'));
+  const gradW = parseInt(v('h-grad-w', '80')) || 80;
+  const gradH = parseInt(v('h-grad-h', '60')) || 60;
+
+  // Eyebrow
+  const eyebrowOn = c('h-eyebrow-on');
+  const eyebrowText = v('h-eyebrow', 'En vivo · Puebla, MX');
+  const eyebrowClr = v('h-eyebrow-clr', accent);
+  const eyebrowSize = parseInt(v('h-eyebrow-size', '10')) || 10;
+
+  // Subtitle
+  const subText = v('h-sub', 'Puebla, MX · Trap · R&B · Drill');
+
+  // ── Apply to preview ──
+  const pv = $('hero-pv');
+  if (!pv) return;
+
+  // Gradient
+  const pvg = $('hpv-grad');
+  if (pvg) {
+    pvg.style.background = gradOn
+      ? 'radial-gradient(ellipse ' + gradW + '% ' + gradH + '% at 50% 0%, ' + hexRgba(gradClr, gradOp) + ', transparent)'
+      : 'none';
   }
-  const pvet = g('hpv-eyebrow-text'); if (pvet) pvet.textContent = eyebrowText;
-  const pvt = g('hpv-title');
+
+  // Eyebrow
+  const pve = $('hpv-eyebrow');
+  if (pve) {
+    if (eyebrowOn && eyebrowText) {
+      pve.style.display = 'inline-flex';
+      pve.style.color = eyebrowClr;
+      pve.style.borderColor = hexRgba(eyebrowClr, 0.3);
+      pve.style.background = hexRgba(eyebrowClr, 0.08);
+      pve.style.fontSize = eyebrowSize + 'px';
+      const dot = pve.querySelector('.hero-pv-eyebrow-dot');
+      if (dot) dot.style.background = eyebrowClr;
+      const pvet = $('hpv-eyebrow-text');
+      if (pvet) pvet.textContent = eyebrowText;
+    } else {
+      pve.style.display = 'none';
+    }
+  }
+
+  // Title
+  const pvt = $('hpv-title');
   if (pvt) {
-    pvt.style.fontFamily = "'" + fd + "',sans-serif";
+    pvt.style.fontFamily = "'" + fd + "', sans-serif";
     pvt.style.fontSize = titleSize + 'rem';
     pvt.style.letterSpacing = ls + 'em';
-    pvt.style.lineHeight = lh;
-    if (glowOn) pvt.style.textShadow = '0 0 ' + glowBlur + 'px ' + hexRgba(accent, glowInt);
-    else pvt.style.textShadow = 'none';
-    let html = '';
-    if (otherLines.length) html += otherLines.join('<br>') + '<br>';
-    if (strokeOn) {
-      html += '<span class="glow-word" data-t="' + lastLine + '" style="color:transparent;-webkit-text-stroke:' + strokeW + 'px ' + strokeClr + ';--hw-blur:' + wordBlur + 'px;--hw-op:' + wordOp + '">' + lastLine + '</span>';
-    } else {
-      html += '<span class="glow-word" data-t="' + lastLine + '" style="color:' + strokeClr + ';--hw-blur:' + wordBlur + 'px;--hw-op:' + wordOp + '">' + lastLine + '</span>';
+    pvt.style.lineHeight = String(lh);
+    pvt.style.textShadow = glowOn ? '0 0 ' + glowBlur + 'px ' + hexRgba(accent, glowInt) : 'none';
+
+    // Build title HTML
+    let html = otherLines.length ? otherLines.map(l => escapeHtml(l)).join('<br>') + '<br>' : '';
+    if (lastLine) {
+      const escapedLine = escapeHtml(lastLine);
+      if (strokeOn) {
+        html += '<span class="glow-word" data-t="' + escapedLine + '" style="'
+          + 'color:transparent;'
+          + '-webkit-text-stroke:' + strokeW + 'px ' + strokeClr + ';'
+          + '--hw-blur:' + wordBlur + 'px;'
+          + '--hw-op:' + wordOp + '">'
+          + escapedLine + '</span>';
+      } else {
+        html += '<span class="glow-word" data-t="' + escapedLine + '" style="'
+          + 'color:' + strokeClr + ';'
+          + '--hw-blur:' + wordBlur + 'px;'
+          + '--hw-op:' + wordOp + '">'
+          + escapedLine + '</span>';
+      }
     }
     pvt.innerHTML = html;
   }
-  const pvs = g('hpv-sub'); if (pvs) pvs.textContent = val('h-sub') || 'Puebla, MX · Trap · R&B · Drill';
+
+  // Subtitle
+  const pvs = $('hpv-sub');
+  if (pvs) pvs.textContent = subText;
+}
+
+// Safe HTML escape for user input
+function escapeHtml(s) {
+  if (!s) return '';
+  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 
 // ═══ BANNER PREVIEW ═══
@@ -420,8 +495,24 @@ export function loadThemeUI() {
 // ═══ SYNC s-hero ↔ h-title ═══
 export function setupHeroSync() {
   const sHero = g('s-hero'), hTitle = g('h-title');
-  if (sHero) sHero.addEventListener('input', function () { if (hTitle && hTitle.value !== sHero.value) { hTitle.value = sHero.value; updateHeroPv(); } });
-  if (hTitle) hTitle.addEventListener('input', function () { if (sHero && sHero.value !== hTitle.value) sHero.value = hTitle.value; });
+  if (sHero && hTitle) {
+    sHero.addEventListener('input', function () {
+      if (hTitle.value !== sHero.value) { hTitle.value = sHero.value; updateHeroPv(); }
+    });
+    hTitle.addEventListener('input', function () {
+      if (sHero.value !== hTitle.value) sHero.value = hTitle.value;
+    });
+  }
+  // Also sync subtitle
+  const sSub = g('s-sub'), hSub = g('h-sub');
+  if (sSub && hSub) {
+    sSub.addEventListener('input', function () {
+      if (hSub.value !== sSub.value) { hSub.value = sSub.value; updateHeroPv(); }
+    });
+    hSub.addEventListener('input', function () {
+      if (sSub.value !== hSub.value) sSub.value = hSub.value;
+    });
+  }
 }
 
 // ═══ LOAD SETTINGS UI ═══
