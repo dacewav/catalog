@@ -5,6 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="DACEWAV — Beats exclusivos. Trap, R&B, Drill, Reggaeton.">
   <meta name="theme-color" content="#080808">
+  <meta property="og:title" content="DACE Beats — dacewav.store">
+  <meta property="og:description" content="Beats exclusivos por DACEWAV. Trap, R&B, Drill, Reggaeton.">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="https://cdn.dacewav.store/og-cover.jpg">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="DACE Beats — dacewav.store">
+  <meta name="twitter:description" content="Beats exclusivos por DACEWAV.">
+  <meta name="twitter:image" content="https://cdn.dacewav.store/og-cover.jpg">
   <title>DACE Beats — dacewav.store</title>
   <link rel="stylesheet" href="css/shared.css">
   <link rel="stylesheet" href="css/store.css">
@@ -85,12 +93,14 @@
         <h3 class="license-modal__title" id="license-beat-title">Licencias</h3>
         <button class="license-modal__close" id="license-close" aria-label="Cerrar">✕</button>
       </div>
-      <div class="license-tabs" id="license-tabs">
-        <!-- Tabs se renderizan desde JS -->
+      <div class="license-meta">
+        <p class="license-desc" id="license-desc" style="display:none"></p>
+        <div class="license-tags" id="license-tags" style="display:none"></div>
+        <div class="license-platforms" id="license-platforms" style="display:none"></div>
       </div>
-      <div class="license-content" id="license-content">
-        <!-- Contenido se renderiza desde JS -->
-      </div>
+      <div class="license-tabs" id="license-tabs"></div>
+      <div class="license-content" id="license-content"></div>
+      <div class="license-actions" id="license-actions"></div>
     </div>
   </div>
 

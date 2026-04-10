@@ -24,9 +24,14 @@ const TIER_NAMES = {
 };
 
 let overlay, tabsEl, contentEl, titleEl, closeBtn;
+let descEl, tagsEl, platformsEl, actionsEl;
 let configLicenses = {};
+let siteConfig = {};
 let currentBeat = null;
 let activeTier = 'mp3';
+
+// OG defaults
+const ogDefaults = { title: null, desc: null, img: null };
 
 export function initLicenses() {
   overlay = document.getElementById('license-overlay');
@@ -34,37 +39,44 @@ export function initLicenses() {
   contentEl = document.getElementById('license-content');
   titleEl = document.getElementById('license-beat-title');
   closeBtn = document.getElementById('license-close');
+  descEl = document.getElementById('license-desc');
+  tagsEl = document.getElementById('license-tags');
+  platformsEl = document.getElementById('license-platforms');
+  actionsEl = document.getElementById('license-actions');
 
-  loadConfigLicenses();
+  // Cache OG defaults
+  ogDefaults.title = document.querySelector('meta[property="og:title"]')?.content || null;
+  ogDefaults.desc = document.querySelector('meta[property="og:description"]')?.content || null;
+  ogDefaults.img = document.querySelector('meta[property="og:image"]')?.content || null;
+
+  loadConfig();
   bindEvents();
 }
 
-async function loadConfigLicenses() {
+async function loadConfig() {
   try {
-    const snap = await get(ref(db, 'config/licenses'));
-    if (snap.exists()) {
-      configLicenses = snap.val();
-    }
+    const [licSnap, siteSnap] = await Promise.all([
+      get(ref(db, 'config/licenses')),
+      get(ref(db, 'config/site')),
+    ]);
+    if (licSnap.exists()) configLicenses = licSnap.val();
+    if (siteSnap.exists()) siteConfig = siteSnap.val();
   } catch (err) {
-    console.warn('[DACEWAV] License config load failed, using defaults:', err);
+    console.warn('[DACEWAV] Config load failed:', err);
   }
 }
 
 function bindEvents() {
-  // Listen for show events
   document.addEventListener('beat:showLicenses', (e) => {
     if (e.detail) showModal(e.detail);
   });
 
-  // Close
   closeBtn.addEventListener('click', closeModal);
   overlay.addEventListener('click', (e) => {
     if (e.target === overlay) closeModal();
   });
   document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && overlay.classList.contains('visible')) {
-      closeModal();
-    }
+    if (e.key === 'Escape' && overlay.classList.contains('visible')) closeModal();
   });
 }
 
@@ -72,18 +84,81 @@ function showModal(beat) {
   currentBeat = beat;
   titleEl.textContent = beat.title || 'Licencias';
 
-  // Default to first available tier
   activeTier = TIERS.find(t => !beat.exclusive || t !== 'exclusiva') || 'mp3';
 
+  renderMeta(beat);
+  renderPlatforms(beat);
   renderTabs(beat);
   renderContent(beat, activeTier);
+  renderActions(beat);
+  updateOG(beat);
 
   overlay.classList.add('visible');
+  document.body.style.overflow = 'hidden';
 }
 
 function closeModal() {
   overlay.classList.remove('visible');
+  document.body.style.overflow = '';
   currentBeat = null;
+  restoreOG();
+}
+
+function renderMeta(beat) {
+  // Description
+  if (descEl) {
+    if (beat.description) {
+      descEl.textContent = beat.description;
+      descEl.style.display = 'block';
+    } else {
+      descEl.style.display = 'none';
+    }
+  }
+
+  // Tags
+  if (tagsEl) {
+    tagsEl.innerHTML = '';
+    const tags = beat.tags || [];
+    if (tags.length) {
+      tags.forEach(t => {
+        const span = document.createElement('span');
+        span.className = 'tag';
+        span.textContent = t;
+        tagsEl.appendChild(span);
+      });
+      tagsEl.style.display = 'flex';
+    } else {
+      tagsEl.style.display = 'none';
+    }
+  }
+}
+
+function renderPlatforms(beat) {
+  if (!platformsEl) return;
+  platformsEl.innerHTML = '';
+
+  const links = [
+    { key: 'spotify', label: '🎵 Spotify', color: '#1DB954' },
+    { key: 'youtube', label: '▶ YouTube', color: '#FF0000' },
+    { key: 'soundcloud', label: '☁ SoundCloud', color: '#FF5500' },
+  ];
+
+  let hasAny = false;
+  links.forEach(({ key, label, color }) => {
+    if (beat[key]) {
+      hasAny = true;
+      const a = document.createElement('a');
+      a.className = 'platform-btn';
+      a.href = beat[key];
+      a.target = '_blank';
+      a.rel = 'noopener';
+      a.textContent = label;
+      a.style.setProperty('--plat-color', color);
+      platformsEl.appendChild(a);
+    }
+  });
+
+  platformsEl.style.display = hasAny ? 'flex' : 'none';
 }
 
 function renderTabs(beat) {
@@ -95,8 +170,6 @@ function renderTabs(beat) {
     tab.textContent = TIER_NAMES[tier];
 
     if (tier === activeTier) tab.classList.add('active');
-
-    // Disable exclusiva if beat is already exclusive
     if (tier === 'exclusiva' && beat.exclusive) {
       tab.classList.add('disabled');
       tab.title = 'Beat ya vendido exclusivamente';
@@ -105,7 +178,8 @@ function renderTabs(beat) {
     tab.addEventListener('click', () => {
       if (tab.classList.contains('disabled')) return;
       activeTier = tier;
-      renderTabs(beat);
+      tabsEl.querySelectorAll('.license-tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
       renderContent(beat, tier);
     });
 
@@ -134,47 +208,94 @@ function renderContent(beat, tier) {
   priceEl.className = 'license-content__price';
   priceEl.textContent = `$${price.mxn} MXN / $${price.usd} USD`;
   contentEl.appendChild(priceEl);
-
-  // Actions
-  const actions = document.createElement('div');
-  actions.className = 'license-content__actions';
-
-  const btnBeatstars = document.createElement('a');
-  btnBeatstars.className = 'btn-primary';
-  btnBeatstars.textContent = 'Comprar en BeatStars';
-  btnBeatstars.target = '_blank';
-  btnBeatstars.rel = 'noopener';
-  // BeatStars URL from config or fallback
-  btnBeatstars.href = '#';
-  actions.appendChild(btnBeatstars);
-
-  const btnContact = document.createElement('a');
-  btnContact.className = 'btn-secondary';
-  btnContact.textContent = 'Contactar';
-  btnContact.href = '#';
-  actions.appendChild(btnContact);
-
-  // Load config for links
-  loadLinks(btnBeatstars, btnContact);
-
-  contentEl.appendChild(actions);
 }
 
-async function loadLinks(btnBeatstars, btnContact) {
-  try {
-    const snap = await get(ref(db, 'config/site'));
-    if (snap.exists()) {
-      const site = snap.val();
-      if (site.beatstarsUrl) btnBeatstars.href = site.beatstarsUrl;
-      if (site.contactEmail) btnContact.href = `mailto:${site.contactEmail}`;
-    }
-  } catch (err) {
-    // Keep defaults
+function renderActions(beat) {
+  if (!actionsEl) return;
+  actionsEl.innerHTML = '';
+
+  // BeatStars
+  if (siteConfig.beatstarsUrl) {
+    const btnBs = document.createElement('a');
+    btnBs.className = 'btn-primary';
+    btnBs.textContent = 'Comprar en BeatStars';
+    btnBs.href = siteConfig.beatstarsUrl;
+    btnBs.target = '_blank';
+    btnBs.rel = 'noopener';
+    actionsEl.appendChild(btnBs);
+  }
+
+  // WhatsApp
+  const waUrl = siteConfig.whatsapp
+    ? `https://wa.me/${siteConfig.whatsapp}?text=${encodeURIComponent(`Hola DACE, me interesa licenciar el beat "${beat.title || 'Untitled'}". ¿Podemos hablar?`)}`
+    : `https://wa.me/?text=${encodeURIComponent(`Hola DACE, me interesa licenciar el beat "${beat.title || 'Untitled'}". ¿Podemos hablar?`)}`;
+
+  const btnWa = document.createElement('a');
+  btnWa.className = btnBsExists() ? 'btn-secondary' : 'btn-primary';
+  btnWa.textContent = '📱 WhatsApp';
+  btnWa.href = waUrl;
+  btnWa.target = '_blank';
+  btnWa.rel = 'noopener';
+  actionsEl.appendChild(btnWa);
+
+  // Email
+  if (siteConfig.contactEmail) {
+    const btnEmail = document.createElement('a');
+    btnEmail.className = 'btn-secondary';
+    btnEmail.textContent = '✉ Email';
+    btnEmail.href = `mailto:${siteConfig.contactEmail}?subject=${encodeURIComponent(`Licencia: ${beat.title || 'Untitled'}`)}`;
+    actionsEl.appendChild(btnEmail);
   }
 }
 
+function btnBsExists() {
+  return !!siteConfig.beatstarsUrl;
+}
+
+// ── OG Tags ──
+function setMeta(prop, content) {
+  const el = document.querySelector(`meta[property="${prop}"]`) || document.querySelector(`meta[name="${prop}"]`);
+  if (el) el.setAttribute('content', content);
+}
+
+function updateOG(beat) {
+  const title = `${beat.title || 'Untitled'} · DACE Beats`;
+  const parts = [];
+  if (beat.bpm) parts.push(`${beat.bpm} BPM`);
+  if (beat.key) parts.push(beat.key);
+  if (beat.genre) parts.push(beat.genre);
+  const desc = parts.join(' · ') || 'Beats exclusivos por DACEWAV';
+  const img = beat.coverUrl || ogDefaults.img;
+
+  setMeta('og:title', title);
+  setMeta('twitter:title', title);
+  setMeta('og:description', desc);
+  setMeta('twitter:description', desc);
+  if (img) {
+    setMeta('og:image', img);
+    setMeta('twitter:image', img);
+  }
+  document.title = `${beat.title || 'Untitled'} · DACE`;
+}
+
+function restoreOG() {
+  if (ogDefaults.title) {
+    setMeta('og:title', ogDefaults.title);
+    setMeta('twitter:title', ogDefaults.title);
+  }
+  if (ogDefaults.desc) {
+    setMeta('og:description', ogDefaults.desc);
+    setMeta('twitter:description', ogDefaults.desc);
+  }
+  if (ogDefaults.img) {
+    setMeta('og:image', ogDefaults.img);
+    setMeta('twitter:image', ogDefaults.img);
+  }
+  document.title = 'DACE Beats — dacewav.store';
+}
+
+// ── Helpers ──
 function getTierPrice(beat, tier) {
-  // Beat-level prices first, then config fallback, then hardcoded
   if (beat.licenses && beat.licenses[tier]) {
     const p = beat.licenses[tier];
     return {
@@ -190,7 +311,6 @@ function getTierPrice(beat, tier) {
     };
   }
 
-  // Hardcoded fallback
   const defaults = {
     mp3:       { mxn: 299,  usd: 15  },
     wav:       { mxn: 499,  usd: 25  },
@@ -198,7 +318,6 @@ function getTierPrice(beat, tier) {
     ilimitada: { mxn: 1999, usd: 100 },
     exclusiva: { mxn: 4999, usd: 250 },
   };
-
   return defaults[tier] || { mxn: 0, usd: 0 };
 }
 
