@@ -420,6 +420,11 @@ function createBeatCard(beat) {
   card.className = 'beat-card';
   card.dataset.beatId = beat.id;
 
+  // Shimmer overlay
+  const shimmer = document.createElement('div');
+  shimmer.className = 'shimmer-overlay';
+  card.appendChild(shimmer);
+
   // Accent color per beat
   if (beat.accentColor) {
     card.style.setProperty('--card-tint', `linear-gradient(135deg, ${beat.accentColor}, transparent)`);
@@ -439,7 +444,28 @@ function createBeatCard(beat) {
   coverImg.onerror = () => { coverImg.src = PLACEHOLDER_COVER; };
   coverDiv.appendChild(coverImg);
 
-  // Play overlay
+  // Waveform visualization
+  const waveRow = document.createElement('div');
+  waveRow.className = 'beat-wave-row';
+  for (let i = 0; i < 24; i++) {
+    const bar = document.createElement('div');
+    bar.className = 'wbar';
+    bar.style.setProperty('--wd', (0.3 + Math.random() * 0.4).toFixed(2) + 's');
+    bar.style.height = (4 + Math.random() * 28) + 'px';
+    waveRow.appendChild(bar);
+  }
+  coverDiv.appendChild(waveRow);
+
+  // Play hint overlay
+  const playHint = document.createElement('div');
+  playHint.className = 'play-hint';
+  const playCircle = document.createElement('div');
+  playCircle.className = 'play-circle';
+  playCircle.innerHTML = '<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>';
+  playHint.appendChild(playCircle);
+  coverDiv.appendChild(playHint);
+
+  // Play overlay actions
   const overlay = document.createElement('div');
   overlay.className = 'beat-card__cover-actions';
 

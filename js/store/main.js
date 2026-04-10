@@ -11,6 +11,7 @@ import { initWishlist } from './wishlist.js';
 
 document.addEventListener('DOMContentLoaded', async () => {
   try {
+    initVisualEffects();
     await loadTheme();
     loadBanner();
     initCatalog(db);
@@ -18,10 +19,58 @@ document.addEventListener('DOMContentLoaded', async () => {
     initPlayer();
     initLicenses();
     setupNav();
+    initScrollReveal();
+
+    // Hide loader
+    setTimeout(() => {
+      document.getElementById('loader')?.classList.add('hidden');
+      setTimeout(() => document.getElementById('loader')?.remove(), 500);
+    }, 600);
   } catch (err) {
     console.error('[DACEWAV] Init error:', err);
+    document.getElementById('loader')?.remove();
   }
 });
+
+// ── Visual Effects ──
+function initVisualEffects() {
+  // Cursor glow
+  const glow = document.getElementById('cursor-glow');
+  if (glow && window.innerWidth > 768) {
+    document.addEventListener('mousemove', (e) => {
+      glow.style.left = e.clientX + 'px';
+      glow.style.top = e.clientY + 'px';
+    }, { passive: true });
+  }
+
+  // Scroll progress
+  const progress = document.getElementById('scroll-progress');
+  if (progress) {
+    window.addEventListener('scroll', () => {
+      const scrollTop = window.scrollY;
+      const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+      const pct = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+      progress.style.width = pct + '%';
+    }, { passive: true });
+  }
+}
+
+// ── Scroll Reveal ──
+function initScrollReveal() {
+  const reveals = document.querySelectorAll('.reveal');
+  if (reveals.length === 0) return;
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.1 });
+
+  reveals.forEach(el => observer.observe(el));
+}
 
 async function loadTheme() {
   try {

@@ -72,8 +72,14 @@ function bindEvents() {
   audio.addEventListener('timeupdate', updateProgress);
   audio.addEventListener('loadedmetadata', onMetadata);
   audio.addEventListener('ended', onEnded);
-  audio.addEventListener('play', () => updatePlayIcon(true));
-  audio.addEventListener('pause', () => updatePlayIcon(false));
+  audio.addEventListener('play', () => {
+    updatePlayIcon(true);
+    bar.querySelector('.pi-eq')?.classList.add('playing');
+  });
+  audio.addEventListener('pause', () => {
+    updatePlayIcon(false);
+    bar.querySelector('.pi-eq')?.classList.remove('playing');
+  });
 
   // Seek
   seekEl.addEventListener('click', seek);
@@ -87,8 +93,15 @@ function bindEvents() {
 function playBeat(beat) {
   if (!beat.audioUrl) return;
 
+  // Remove playing state from all cards
+  document.querySelectorAll('.beat-card.is-playing').forEach(c => c.classList.remove('is-playing'));
+
   // Find index in list
   currentIndex = beatsList.findIndex(b => b.id === beat.id);
+
+  // Add playing state to current card
+  const currentCard = document.querySelector(`.beat-card[data-beat-id="${beat.id}"]`);
+  if (currentCard) currentCard.classList.add('is-playing');
 
   // Show bar
   bar.classList.add('visible');
@@ -98,6 +111,10 @@ function playBeat(beat) {
   coverImg.alt = beat.title || '';
   titleEl.textContent = beat.title || 'Untitled';
   metaEl.textContent = formatMeta(beat);
+
+  // Start equalizer
+  const eq = bar.querySelector('.pi-eq');
+  if (eq) eq.classList.add('playing');
 
   // Play
   audio.src = beat.audioUrl;
