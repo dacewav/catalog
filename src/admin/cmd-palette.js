@@ -63,8 +63,9 @@ document.addEventListener('keydown', e => {
   if (e.ctrlKey && e.key === 'k') { e.preventDefault(); openCmdPalette(); }
   if (e.ctrlKey && e.key === '/') { e.preventDefault(); openKbdPanel(); }
   if (e.key === 'Escape') { closeCmdPalette(); closeKbdPanel(); if (window.closeQRPanel) window.closeQRPanel(); }
-  if (e.ctrlKey && e.key === 'z' && !e.shiftKey) { e.preventDefault(); undo(); }
-  if (e.ctrlKey && e.shiftKey && e.key === 'Z') { e.preventDefault(); redo(); }
+  // Undo/Redo: only intercept when NOT in an input (let browser handle text undo)
+  if (!inInput && e.ctrlKey && e.key === 'z' && !e.shiftKey) { e.preventDefault(); undo(); }
+  if (!inInput && e.ctrlKey && e.shiftKey && e.key === 'Z') { e.preventDefault(); redo(); }
   if (e.ctrlKey && e.key === 's') { e.preventDefault(); saveAll(); }
   if (!inInput && !e.ctrlKey && !e.altKey) {
     if (e.key === '1') { e.preventDefault(); showSection('global'); }
