@@ -116,9 +116,12 @@ window.addEventListener('storage', (e) => {
 
 // ─── PostMessage bridge (admin iframe) ───
 window.addEventListener('message', (e) => {
+  // Accept from same origin, known domains, parent frame, or null (file://)
   const own = window.location?.origin || '*';
-  // Accept from same origin, dacewav.store, or null (file://)
-  if (e.origin !== own && e.origin !== 'https://dacewav.store' && e.origin !== 'null') return;
+  if (e.origin !== own && e.origin !== 'https://dacewav.store' && e.origin !== 'null') {
+    // Also accept if sender is the parent window (iframe context)
+    if (e.source !== window.parent) return;
+  }
   const d = e.data;
   if (!d || !d.type) return;
   switch (d.type) {
