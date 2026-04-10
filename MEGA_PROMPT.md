@@ -72,53 +72,192 @@ Cuando el zip esté listo, dime: **"✅ Zip listo: dacewav-vX.Y.zip — puedes d
 | Capa | Tecnología |
 |------|-----------|
 | Hosting | Cloudflare Pages (deploy automático desde GitHub main) |
-| Base de datos | Firebase Realtime Database — SDK modular v9 ESM |
-| Auth | Firebase Auth (email/password, solo mi cuenta) |
+| Build | esbuild (npm run build → dist/) |
+| Base de datos | Firebase Realtime Database — SDK compat (firebase.database()) |
+| Auth | Firebase Auth (Google login, whitelist de emails) |
 | Audio | Cloudflare R2 → public URL: cdn.dacewav.store |
-| Código | Vanilla HTML + CSS + JS ESM (sin bundler, sin build step) |
+| Tests | Vitest (npm test) |
+| Código | Vanilla HTML + CSS + JS ESM |
+
+**Nota:** El proyecto usa esbuild para bundlear `src/` → `dist/`. El store carga `dist/store-app.js` y el admin carga scripts inline + `dist/admin-app.js` (stub con utilidades compartidas).
+
+---
+
+## ESTRUCTURA DE ARCHIVOS ACTUAL
+
+```
+dacewav/catalog/
+├── index.html                  # Tienda pública (carga dist/store-app.js)
+├── admin.html                  # Admin (scripts inline + dist/admin-app.js)
+├── store-styles.css            # Estilos de la tienda
+├── admin-styles.css            # Estilos del admin
+├── store-app.js                # Bundle legacy (backup)
+│
+├── src/                        # Código fuente modularizado
+│   ├── main.js                 # Entry point tienda
+│   ├── config.js               # Firebase config, versión, constantes
+│   ├── state.js                # Estado global centralizado
+│   ├── utils.js                # Funciones puras (hexRgba, formatTime, etc.)
+│   ├── error-handler.js        # Manejo centralizado de errores
+│   ├── wishlist.js             # Sistema de favoritos
+│   ├── waveform.js             # Generación de formas de onda (cache limitado)
+│   ├── theme.js                # Tema light/dark, applyTheme()
+│   ├── effects.js              # Cursor glow, parallax, particles, EQ
+│   ├── player.js               # Reproductor de audio (AP object)
+│   ├── cards.js                # Beat cards + modal de licencias
+│   ├── filters.js              # Búsqueda, filtros, tag cloud
+│   ├── settings.js             # Settings, custom links, floating
+│   ├── analytics.js            # Tracking de eventos (batched)
+│   ├── hash-router.js          # Deep links #/beat/<id>
+│   └── admin/                  # Admin modules
+│       ├── nav.js              # Navegación + showEt (tabs del editor)
+│       ├── core.js             # Undo/redo, preview iframe, theme collect/load
+│       ├── beats.js            # CRUD beats + drag & drop
+│       ├── features.js         # Links, testimonios, licencias base
+│       ├── firebase-init.js    # Auth + carga de datos Firebase
+│       ├── helpers.js          # DOM helpers, toast, confirmInline/promptInline
+│       ├── colors.js           # Editor de colores
+│       ├── config.js           # Config admin
+│       ├── state.js            # Estado admin
+│       ├── fonts.js            # Selector de fuentes Google
+│       ├── r2.js               # Cloudflare R2 upload
+│       ├── qr.js               # QR preview
+│       ├── resize.js           # Resize handler
+│       ├── cmd-palette.js      # Command palette (Ctrl+K)
+│       └── admin-main.js       # Entry point admin (stub)
+│
+├── dist/                       # Build output (gitignored)
+│   ├── store-app.js            # Bundle tienda (~49KB)
+│   ├── store-app.js.map
+│   ├── admin-app.js            # Bundle admin (~101KB)
+│   ├── admin-app.js.map
+│   ├── store-styles.css
+│   └── admin-styles.css
+│
+├── tests/                      # Tests unitarios (Vitest)
+│   ├── utils.test.js
+│   ├── error-handler.test.js
+│   ├── player.test.js
+│   ├── cards.test.js
+│   ├── filters.test.js
+│   ├── admin-beats.test.js
+│   └── admin-core.test.js
+│
+├── firebase-rules-v5.2.json    # Reglas de seguridad Firebase
+├── package.json                # Dependencias y scripts
+├── build.js                    # Script de build (esbuild)
+└── vitest.config.js
+```
+
+**Scripts disponibles:**
+```bash
+npm run build       # Build minificado para producción
+npm run build:watch # Watch mode para desarrollo
+npm run build:dev   # Build sin minificar (debugging)
+npm test            # Correr tests (Vitest)
+```
 
 ---
 
 ## REGLAS DE ARQUITECTURA — OBLIGATORIAS
 
-1. **Sin build step.** No esbuild, webpack, vite. Solo `<script type="module">`.
-2. **Firebase modular.** `import { ... } from 'https://www.gstatic.com/firebasejs/11.2.0/...'`
-3. **Sin NPM en producción.** Librerías solo via CDN si es necesario.
-4. **Archivos ≤ 150 líneas.** Si crece más, dividir el módulo.
-5. **Sin `window.fn = fn`.** Solo `addEventListener` desde JS. Sin `onclick=""` en HTML.
-6. **CSS con variables.** Todo desde `css/shared.css`. Sin hardcodear colores.
-7. **Sin alert() / confirm() / prompt().** Feedback siempre inline en el UI.
-8. **Un módulo = una responsabilidad.** catalog.js solo renderiza. player.js solo audio.
+1. **esbuild para bundlear.** `npm run build` genera `dist/`. No tocar dist/ a mano.
+2. **Firebase compat SDK.** `firebase.database()` — NO modular en admin.
+3. **Archivos ≤ 150 líneas.** Si crece más, dividir el módulo.
+4. **Preferir addEventListener.** Legacy tiene `onclick=""` en HTML (~40 handlers). Nuevos módulos usar addEventListener.
+5. **CSS con variables.** Todo desde `store-styles.css` / `admin-styles.css`. Sin hardcodear colores.
+6. **Sin alert() / confirm() / prompt().** Usar `confirmInline()` / `promptInline()` de `src/admin/helpers.js`.
+7. **Un módulo = una responsabilidad.** catalog.js solo renderiza. player.js solo audio.
 
 ---
 
-## ESTRUCTURA DE ARCHIVOS
+## FIREBASE — Schema de datos (ACTUAL)
 
+```json
+{
+  "beats": {
+    "BEAT_ID": {
+      "id": "string",
+      "name": "string",
+      "genre": "string",
+      "genreCustom": "string",
+      "bpm": "number",
+      "key": "string",
+      "description": "string",
+      "tags": ["string"],
+      "imageUrl": "string (R2 URL)",
+      "audioUrl": "string (R2 URL)",
+      "previewUrl": "string (R2 URL)",
+      "spotify": "string",
+      "youtube": "string",
+      "soundcloud": "string",
+      "date": "string (YYYY-MM-DD)",
+      "order": "number",
+      "plays": "number",
+      "featured": "boolean",
+      "exclusive": "boolean",
+      "active": "boolean",
+      "available": "boolean",
+      "licenses": [
+        {
+          "name": "string",
+          "priceMXN": "number",
+          "priceUSD": "number",
+          "description": "string"
+        }
+      ]
+    }
+  },
+  "settings": {
+    "heroTitle": "string",
+    "heroSubtitle": "string",
+    "bannerText": "string",
+    "bannerActive": "boolean",
+    "whatsappNumber": "string",
+    "instagramUrl": "string",
+    "beatstarsUrl": "string",
+    "contactEmail": "string",
+    "r2AccountId": "string",
+    "r2AccessKeyId": "string",
+    "r2Bucket": "string",
+    "r2PublicUrl": "string",
+    "testimonials": [{ "name": "string", "role": "string", "text": "string" }]
+  },
+  "theme": {
+    "bg": "string",
+    "surface": "string",
+    "accent": "string",
+    "glowColor": "string",
+    "fontDisplay": "string",
+    "fontBody": "string",
+    "grainOpacity": "number",
+    "particlesOn": "boolean",
+    "particlesType": "circle|square|star|text|image",
+    "particlesCount": "number",
+    "... más variables de tema"
+  },
+  "defaultLicenses": [{ "name": "string", "priceMXN": "number", "priceUSD": "number", "description": "string" }],
+  "customLinks": { "KEY": { "label": "string", "url": "string", "location": "header|hero|footer" } },
+  "floatingElements": { "..." },
+  "customEmojis": ["string"],
+  "adminWhitelist": { "email@domain.com": true }
+}
 ```
-dacewav/catalog/
-├── index.html              # Tienda pública
-├── admin.html              # Admin (requiere auth)
-├── 404.html
-├── _headers                # Cloudflare security headers
-├── _redirects              # /admin → /admin.html
-├── css/
-│   ├── shared.css          # CSS variables globales (design tokens)
-│   ├── store.css
-│   └── admin.css
-├── js/
-│   ├── firebase.js         # export { db, auth }
-│   ├── store/
-│   │   ├── main.js         # Entry point: carga tema, inicia módulos
-│   │   ├── catalog.js      # Grid de beats + filtros
-│   │   ├── player.js       # Audio player persistente
-│   │   └── licenses.js     # Modal de licencias
-│   └── admin/
-│       ├── main.js         # Auth guard + navegación
-│       ├── beats.js        # CRUD beats + subida R2
-│       ├── theme.js        # Editor de tema visual
-│       └── settings.js     # Config sitio + órdenes
-└── workers/
-    └── upload.js           # Cloudflare Worker → R2
+
+**Firebase Security Rules** (firebase-rules-v5.2.json):
+```json
+{
+  "rules": {
+    "beats":  { ".read": true, ".write": "auth != null" },
+    "settings": { ".read": true, ".write": "auth != null" },
+    "theme": { ".read": true, ".write": "auth != null" },
+    "defaultLicenses": { ".read": true, ".write": "auth != null" },
+    "customLinks": { ".read": true, ".write": "auth != null" },
+    "floatingElements": { ".read": true, ".write": "auth != null" },
+    "adminWhitelist": { ".read": "auth != null", ".write": "auth != null" },
+    "analytics": { ".read": "auth != null", ".write": true }
+  }
+}
 ```
 
 ---
@@ -128,153 +267,76 @@ dacewav/catalog/
 **Concepto:** Cinematográfico oscuro. Vino tinto. Grain texture. Ambient glow. No genérico.
 **Referencias:** A24 films, Frank Ocean artwork, Travis Scott Astroworld.
 
-```css
-/* CSS Variables principales — en css/shared.css */
-:root {
-  --color-bg:          #080808;
-  --color-surface:     #111111;
-  --color-surface-2:   #1A1A1A;
-  --color-border:      #222222;
-  --color-primary:     #6B1A2A;    /* vino tinto */
-  --color-primary-glow:#8B2035;
-  --color-accent:      #C44569;    /* rosa oscuro */
-  --color-accent-soft: #E8637B;
-  --color-text:        #F0EAE2;    /* blanco cálido */
-  --color-text-muted:  #8A8078;
-  --color-text-dim:    #554E47;
-  --glow-primary:      0 0 40px rgba(107,26,42,0.6);
-  --grain-opacity:     0.035;
-  --font-display:      'Bebas Neue', sans-serif;
-  --font-body:         'DM Sans', sans-serif;
-  --font-mono:         'JetBrains Mono', monospace;
-  --player-height:     72px;
-  --z-player:          100;
-  --z-modal:           200;
-}
-```
+Variables de tema se manejan desde el admin (Firebase `theme` node) y se aplican via CSS custom properties en runtime.
 
-**Google Fonts a usar:**
-```html
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+---
+
+## PLAN DE FASES — Estado actual v5.2
+
+```
+✅ FASE 1 — Infraestructura base
+✅ FASE 2 — Design system + HTML
+✅ FASE 3 — Tienda: datos + grid de beats
+✅ FASE 4 — Tienda: player + modal de licencias
+✅ FASE 5 — Admin: auth + estructura
+✅ FASE 6 — Admin: CRUD de beats
+✅ FASE 7 — Admin: editor de tema
+✅ FASE 8 — Tienda: filtros + animaciones
+✅ FASE 9 — Admin: config + órdenes
+
+[ ] FASE 10 — QA + deploy final
+      - Verificar Cloudflare Pages deploy
+      - Subir reglas Firebase (firebase-rules-v5.2.json)
+      - Activar Google Auth en Firebase Console
+      - Desplegar Cloudflare Worker (R2 upload)
+      - Configurar CDN cdn.dacewav.store
+      - Rotar token de GitHub (quedó expuesto)
 ```
 
 ---
 
-## FIREBASE — Schema de datos
+## FEATURES QUE YA FUNCIONAN
 
-```json
-{
-  "beats": {
-    "BEAT_ID": {
-      "title": "string",
-      "slug": "string",
-      "bpm": "number",
-      "key": "string",
-      "genre": "Trap|R&B|Drill|Reggaeton|Afro|Sample",
-      "mood": "Dark|Chill|Hype|Romantic|Aggressive",
-      "tags": ["string"],
-      "audioUrl": "string (R2 URL)",
-      "coverUrl": "string",
-      "duration": "number (segundos)",
-      "plays": "number",
-      "featured": "boolean",
-      "status": "active|draft|sold",
-      "exclusive": "boolean",
-      "createdAt": "number (timestamp)",
-      "updatedAt": "number (timestamp)",
-      "licenses": {
-        "mp3":       { "mxn": 299,  "usd": 15  },
-        "wav":       { "mxn": 499,  "usd": 25  },
-        "premium":   { "mxn": 999,  "usd": 50  },
-        "ilimitada": { "mxn": 1999, "usd": 100 },
-        "exclusiva": { "mxn": 4999, "usd": 250 }
-      }
-    }
-  },
-  "config": {
-    "site": {
-      "title": "DACE Beats",
-      "heroText": "string",
-      "instagramUrl": "string",
-      "beatstarsUrl": "string",
-      "contactEmail": "string"
-    },
-    "theme": { "...variables CSS..." },
-    "licenses": {
-      "mp3": { "name": "MP3 Básica", "features": ["..."], "mxn": 299, "usd": 15 }
-    }
-  },
-  "orders": {
-    "ORDER_ID": {
-      "beatId": "string", "licenseType": "string",
-      "price": "number", "currency": "MXN|USD",
-      "buyerEmail": "string", "createdAt": "number"
-    }
-  }
-}
-```
-
-**Firebase Security Rules:**
-```json
-{
-  "rules": {
-    "beats":  { ".read": true, ".write": "auth != null && auth.token.email === 'TU_EMAIL'" },
-    "config": { ".read": true, ".write": "auth != null && auth.token.email === 'TU_EMAIL'" },
-    "orders": { ".read": "auth != null && auth.token.email === 'TU_EMAIL'", ".write": true }
-  }
-}
-```
+- ✅ Grid de beats con filtros avanzados (genre, key, mood, search, sort, tag cloud)
+- ✅ Wishlist (localStorage, panel lateral, WhatsApp)
+- ✅ Player persistente con skip ±10s, EQ visualizer
+- ✅ Modal de licencias con OG tags, links de plataforma
+- ✅ Featured section, banner configurable
+- ✅ Admin: CRUD beats, drag & drop, inline edit, batch add
+- ✅ Admin: Editor de tema masivo (glow, fonts, particles, gradients, presets)
+- ✅ Admin: Command palette, keyboard shortcuts, QR preview
+- ✅ Scroll-aware nav, cursor glow, parallax hero, card tilt 3D
+- ✅ Hash router para deep links
+- ✅ Light mode toggle
+- ✅ Analytics tracking (batched, rate-limited)
+- ✅ Tests unitarios (95 tests pasando)
 
 ---
 
-## PLAN DE FASES — Estado actual
+## BUGS CORREGIDOS (v5.2 → v5.2.1)
 
-Marca con ✅ las fases que ya terminaron al inicio de sesión nueva.
+- ✅ showEt tabs — duplicación eliminada, data-et attributes
+- ✅ Memory leak observeStagger — disconnect prev observer
+- ✅ Memory leak initParticles — remove prev resize listener
+- ✅ Scroll listeners duplicados — initAllEffects guard
+- ✅ confirm()/prompt() nativos → confirmInline()/promptInline()
+- ✅ formatTime duplicada — unificada en helpers.js fmt()
+- ✅ Waveform cache sin límite — max 50 entries + LRU pruning
+- ✅ Analytics sin rate limiting — batched writes 2s debounce
+- ✅ EQ no se detiene en error — error handler agrega stopEQ
+- ✅ postMessage sin origin validation
 
-```
-[ ] FASE 1 — Infraestructura base
-      firebase.js, _headers, _redirects, workers/upload.js
-      CHECKPOINT 1 → zip v1.0
+---
 
-[ ] FASE 2 — Design system
-      css/shared.css, css/store.css, css/admin.css
-      Estructura HTML de index.html y admin.html
-      CHECKPOINT 2 → zip v2.0
+## BUGS PENDIENTES
 
-[ ] FASE 3 — Tienda: datos + grid de beats
-      js/store/main.js, js/store/catalog.js
-      CHECKPOINT 3 → zip v3.0
+### Prioridad Media
+- Light mode incompleto — falta estilo para modal, wishlist panel, player bar, toast
 
-[ ] FASE 4 — Tienda: player + modal de licencias
-      js/store/player.js, js/store/licenses.js
-      CHECKPOINT 4 → zip v4.0
-
-[ ] FASE 5 — Admin: auth + estructura
-      js/admin/main.js, admin.html completo
-      CHECKPOINT 5 → zip v5.0
-
-[ ] FASE 6 — Admin: CRUD de beats
-      js/admin/beats.js
-      CHECKPOINT 6 → zip v6.0
-
-[ ] FASE 7 — Admin: editor de tema
-      js/admin/theme.js
-      CHECKPOINT 7 → zip v7.0
-
-[ ] FASE 8 — Tienda: filtros + animaciones
-      js/store/catalog.js (añadir filtros), css/store.css (polish)
-      CHECKPOINT 8 → zip v8.0
-
-[ ] FASE 9 — Admin: config + órdenes
-      js/admin/settings.js
-      CHECKPOINT 9 → zip v9.0
-
-[ ] FASE 10 — QA + deploy
-      Bug fixes, checklist completo, Cloudflare Pages live
-      CHECKPOINT 10 → zip v10.0 (versión final)
-```
-
-**Al inicio de cada sesión nueva:** dime en qué fase quedamos y qué zip fue el último.
+### Prioridad Baja
+- Firebase Compat vs Modular — usa firebase.database() (compat) en vez de modular ESM
+- onclick="" en HTML — ~40 handlers inline, debería migrar a addEventListener
+- renderAll() re-renderiza innerHTML completo — rompe event listeners del 3D tilt
 
 ---
 
@@ -284,19 +346,22 @@ Marca con ✅ las fases que ya terminaron al inicio de sesión nueva.
 SIEMPRE:
 ✓ Leer este contexto completo antes de escribir código
 ✓ Declarar al inicio: "Scope: [archivos que voy a tocar]"
+✓ Hacer npm run build después de cambios en src/
+✓ Hacer npm test antes de reportar que algo funciona
 ✓ Generar reporte + zip después de cada cambio importante
 ✓ Parar y esperar confirmación en cada checkpoint
-✓ Decir qué se rompió ANTES de tocarlo
+✓ Push a GitHub después de cada commit exitoso
 
 NUNCA:
 ✗ Cambiar el stack sin autorización
 ✗ Tocar archivos fuera del scope declarado
 ✗ Reescribir un archivo completo para cambiar 3 líneas
-✗ Usar alert(), confirm(), prompt()
+✗ Usar alert(), confirm(), prompt() nativos
 ✗ Hardcodear colores (siempre CSS variables)
-✗ Usar window.fn = fn (siempre addEventListener)
+✗ Hacer push sin que build + tests pasen
 ✗ Continuar después de un checkpoint sin confirmación explícita
 ```
 
 ---
-*Versión de este contexto: 2.0 | Proyecto: dacewav.store | Stack: Cloudflare + Firebase + R2*
+
+*Versión de este contexto: 5.2.1 | Proyecto: dacewav.store | Stack: Cloudflare + Firebase + R2 + esbuild*
