@@ -6,6 +6,7 @@ import { ANIMS, EMOJIS } from './config.js';
 import {
   db, T, setT, siteSettings, customEmojis, floatingEls,
   _undoStack, _redoStack, _lastSavedTheme, _undoDebounce,
+  setLastSavedTheme, setUndoDebounce,
   _iframeReady, setIframeReady, _ldTheme, _ldSettings, _ldBeats,
   setLdTheme, setLdSettings, setLdBeats,
   _changeLog, _lastChangeValues,
@@ -26,14 +27,14 @@ let _lastBroadcastJSON = '';
 // ═══ UNDO/REDO ═══
 export function pushUndo() {
   clearTimeout(_undoDebounce);
-  _undoDebounce = setTimeout(() => {
+  setUndoDebounce(setTimeout(() => {
     const snap = JSON.stringify(collectTheme());
     if (_lastSavedTheme === snap) return;
     _undoStack.push(snap);
-    _lastSavedTheme = snap;
+    setLastSavedTheme(snap);
     if (_undoStack.length > 50) _undoStack.shift();
     _redoStack.length = 0;
-  }, 300);
+  }, 300));
 }
 export function undo() {
   if (_undoStack.length < 2) return;
@@ -53,7 +54,7 @@ export function pushUndoInitial() {
   const snap = JSON.stringify(collectTheme());
   _undoStack.length = 0;
   _undoStack.push(snap);
-  _lastSavedTheme = snap;
+  setLastSavedTheme(snap);
   _redoStack.length = 0;
 }
 

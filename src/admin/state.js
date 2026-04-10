@@ -43,6 +43,8 @@ export let _undoStack = [];
 export let _redoStack = [];
 export let _lastSavedTheme = null;
 export let _undoDebounce = null;
+export function setLastSavedTheme(v) { _lastSavedTheme = v; }
+export function setUndoDebounce(v) { _undoDebounce = v; }
 export let _autoSaveTimer = null;
 
 export let _ldTheme = false;
