@@ -225,6 +225,9 @@ export function updateHeroPv() {
   const eyebrowClr = v('h-eyebrow-clr', accent);
   const eyebrowSize = parseInt(v('h-eyebrow-size', '10')) || 10;
 
+  // Text color
+  const textClr = v('h-text-clr', '#f0f0f2');
+
   // Subtitle
   const subText = v('h-sub', 'Puebla, MX · Trap · R&B · Drill');
 
@@ -267,23 +270,34 @@ export function updateHeroPv() {
     pvt.style.lineHeight = String(lh);
     pvt.style.textShadow = glowOn ? '0 0 ' + glowBlur + 'px ' + hexRgba(accent, glowInt) : 'none';
 
-    // Build title HTML
-    let html = otherLines.length ? otherLines.map(l => escapeHtml(l)).join('<br>') + '<br>' : '';
+    // Build title HTML — only use glow-word when effects are active
+    const useGlowWord = strokeOn || glowOn;
+    let html = '';
+    if (otherLines.length) {
+      html += '<span style="color:' + textClr + '">' + otherLines.map(l => escapeHtml(l)).join('<br>') + '</span><br>';
+    }
     if (lastLine) {
       const escapedLine = escapeHtml(lastLine);
-      if (strokeOn) {
-        html += '<span class="glow-word" data-t="' + escapedLine + '" style="'
-          + 'color:transparent;'
-          + '-webkit-text-stroke:' + strokeW + 'px ' + strokeClr + ';'
-          + '--hw-blur:' + wordBlur + 'px;'
-          + '--hw-op:' + wordOp + '">'
-          + escapedLine + '</span>';
+      if (useGlowWord) {
+        if (strokeOn) {
+          // Outline mode: transparent fill + stroke
+          html += '<span class="glow-word" data-t="' + escapedLine + '" style="'
+            + 'color:transparent;'
+            + '-webkit-text-stroke:' + strokeW + 'px ' + strokeClr + ';'
+            + '--hw-blur:' + wordBlur + 'px;'
+            + '--hw-op:' + wordOp + '">'
+            + escapedLine + '</span>';
+        } else {
+          // Glow only: colored text with blur behind
+          html += '<span class="glow-word" data-t="' + escapedLine + '" style="'
+            + 'color:' + strokeClr + ';'
+            + '--hw-blur:' + wordBlur + 'px;'
+            + '--hw-op:' + wordOp + '">'
+            + escapedLine + '</span>';
+        }
       } else {
-        html += '<span class="glow-word" data-t="' + escapedLine + '" style="'
-          + 'color:' + strokeClr + ';'
-          + '--hw-blur:' + wordBlur + 'px;'
-          + '--hw-op:' + wordOp + '">'
-          + escapedLine + '</span>';
+        // No effects: plain text with user's chosen color
+        html += '<span style="color:' + textClr + '">' + escapedLine + '</span>';
       }
     }
     pvt.innerHTML = html;
@@ -421,6 +435,7 @@ export function collectTheme() {
     heroGradOn: checked('h-grad-on'), heroGradClr: val('h-grad-clr') || '#dc2626', heroGradOp: parseFloat(val('h-grad-op')) || 0.14, heroGradW: parseInt(val('h-grad-w')) || 80, heroGradH: parseInt(val('h-grad-h')) || 60,
     heroTitleSize: parseFloat(val('h-title-size')) || 2.8, heroPadTop: parseFloat(val('h-pad-top')) || 7, heroLetterSpacing: parseFloat(val('h-ls')) || -0.04, heroLineHeight: parseFloat(val('h-lh')) || 1,
     heroEyebrowOn: checked('h-eyebrow-on'), heroEyebrowClr: val('h-eyebrow-clr') || '#dc2626', heroEyebrowSize: parseInt(val('h-eyebrow-size')) || 10,
+    heroTextClr: val('h-text-clr') || '#f0f0f2',
     navOpacity: parseFloat(val('t-nav-op')) || 0.88,
     beatImgOpacity: parseFloat(val('t-beat-img-op')) || 1,
     textOpacity: parseFloat(val('t-text-op')) || 1,
@@ -475,6 +490,7 @@ export function loadThemeUI() {
   setChecked('h-grad-on', T.heroGradOn); s('h-grad-clr', T.heroGradClr); s('h-grad-op', T.heroGradOp); s('h-grad-w', T.heroGradW); s('h-grad-h', T.heroGradH);
   s('h-title-size', T.heroTitleSize); s('h-pad-top', T.heroPadTop); s('h-ls', T.heroLetterSpacing); s('h-lh', T.heroLineHeight);
   setChecked('h-eyebrow-on', T.heroEyebrowOn); s('h-eyebrow-clr', T.heroEyebrowClr); s('h-eyebrow-size', T.heroEyebrowSize);
+  s('h-text-clr', T.heroTextClr || '#f0f0f2');
   s('t-nav-op', T.navOpacity); s('t-beat-img-op', T.beatImgOpacity); s('t-text-op', T.textOpacity);
   s('t-hero-bg-op', T.heroBgOpacity); s('t-section-op', T.sectionOpacity);
   if (T.orbBlendMode) { var ob = g('t-orb-blend'); if (ob) ob.value = T.orbBlendMode; }

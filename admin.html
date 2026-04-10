@@ -1252,6 +1252,7 @@ body.light .batch-img-drop input[type="file"] { opacity: 0; }
           <div class="field"><label>Título <span style="font-size:8px;color:var(--hi)">(la última línea recibe el efecto glow)</span></label><textarea id="h-title" oninput="updateHeroPv();autoSave()" style="min-height:44px">Beats que
 definen géneros.</textarea></div>
           <div class="field"><label>Subtítulo</label><textarea id="h-sub" oninput="updateHeroPv();autoSave()" style="min-height:32px">Puebla, MX · Trap · R&B · Drill</textarea></div>
+          <div class="color-wrap"><label>Color texto</label><div class="color-swatch"><input type="color" id="h-text-clr" value="#f0f0f2" oninput="updateHeroPv();autoSave()"></div><input type="text" class="color-hex" id="h-text-clr-h" value="#f0f0f2" oninput="syncHeroTextColor(this.value)"></div>
           <div class="field"><label>Eyebrow <span style="font-size:8px;color:var(--hi)">(tag arriba del título)</span></label><input type="text" id="h-eyebrow" value="En vivo · Puebla, MX" oninput="updateHeroPv();autoSave()"></div>
         </div>
       </div>

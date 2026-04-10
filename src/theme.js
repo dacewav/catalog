@@ -159,16 +159,26 @@ export function applyTheme(t) {
     if (t.heroLetterSpacing != null) heroTitle.style.letterSpacing = t.heroLetterSpacing + 'em';
     if (t.heroLineHeight) heroTitle.style.lineHeight = t.heroLineHeight;
 
+    const strokeOn = t.heroStrokeOn === true;
+    const heroTextClr = t.heroTextClr || t.text || '#f0f0f2';
+    // Apply text color to non-glow-word spans (plain text lines)
+    heroTitle.querySelectorAll('span:not(.glow-word)').forEach((el) => {
+      el.style.color = heroTextClr;
+    });
     heroTitle.querySelectorAll('.glow-word').forEach((el) => {
-      if (t.heroStrokeOn === true) {
+      if (strokeOn) {
+        // Outline mode: transparent fill + stroke border
         el.style.webkitTextStroke = (t.heroStrokeW || 1) + 'px ' + heroAccent;
         el.style.color = 'transparent';
+        el.style.setProperty('--hw-blur', (t.heroWordBlur || 10) + 'px');
+        el.style.setProperty('--hw-op', t.heroWordOp != null ? t.heroWordOp : 0.35);
       } else {
+        // Filled mode: accent colored text, no blur pseudo-element
         el.style.webkitTextStroke = 'none';
         el.style.color = heroAccent;
+        el.style.setProperty('--hw-blur', '0px');
+        el.style.setProperty('--hw-op', '0');
       }
-      el.style.setProperty('--hero-word-blur', (t.heroWordBlur || 10) + 'px');
-      el.style.setProperty('--hero-word-op', t.heroWordOp != null ? t.heroWordOp : 0.35);
     });
   }
 

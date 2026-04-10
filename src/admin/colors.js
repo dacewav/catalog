@@ -2,7 +2,7 @@
 import { COLOR_DEFS } from './config.js';
 import { g } from './helpers.js';
 import { hexFromRgba, rgbaFromHex } from './helpers.js';
-import { updatePreview, autoSave } from './core.js';
+import { updatePreview, updateHeroPv, autoSave } from './core.js';
 
 export function buildColorEditor() {
   const el = g('color-editor'); if (!el) return;
@@ -58,8 +58,10 @@ export function syncWBA(v) { const t = g('tt-wbar-a'); if (t) t.value = v; apply
 export function syncBtnColor(v) { const t = g('tt-btn-clr'); if (t) t.value = v; applyColor('btnLicClr', v); }
 export function syncBtnBdr(v) { const t = g('tt-btn-bdr'); if (t) t.value = v; applyColor('btnLicBdr', v); }
 export function syncBtnBg(v) { const t = g('tt-btn-bg'); if (t) t.value = v; applyColor('btnLicBg', v); }
+export function syncHeroTextColor(v) { const h = g('h-text-clr-h'); if (h) h.value = v; const c = g('h-text-clr'); if (c) c.value = v; updateHeroPv(); autoSave(); }
 
 Object.assign(window, {
   buildColorEditor, syncColor, syncColorText, syncColorAlpha, applyColor,
-  loadColorValues, initPColors, syncGlowColor, syncWB, syncWBA, syncBtnColor, syncBtnBdr, syncBtnBg
+  loadColorValues, initPColors, syncGlowColor, syncWB, syncWBA, syncBtnColor, syncBtnBdr, syncBtnBg,
+  syncHeroTextColor
 });

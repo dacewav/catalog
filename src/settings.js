@@ -64,9 +64,14 @@ export function applySettings() {
     const lines = heroText.split('\n');
     const ht = document.getElementById('hero-title');
     if (ht) {
-      ht.innerHTML = lines.map((l, i) =>
-        i === lines.length - 1 ? `<span class="glow-word" data-t="${l}">${l}</span>` : l
-      ).join('<br>');
+      const strokeOn = T.heroStrokeOn === true;
+      const glowWordOn = T.heroGlowOn !== false || strokeOn;
+      ht.innerHTML = lines.map((l, i) => {
+        if (i === lines.length - 1 && glowWordOn) {
+          return `<span class="glow-word" data-t="${l}">${l}</span>`;
+        }
+        return l.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      }).join('<br>');
     }
   }
 
