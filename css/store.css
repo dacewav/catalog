@@ -637,6 +637,13 @@ body::before {
   margin-bottom: var(--space-xl);
 }
 
+.catalog__count {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--color-text-dim);
+  white-space: nowrap;
+}
+
 .catalog__genres {
   display: flex;
   gap: var(--space-sm);
@@ -699,6 +706,145 @@ body::before {
   border-radius: var(--radius-full);
   color: var(--color-text);
   cursor: pointer;
+}
+
+/* ── Active Filter Pills ── */
+.active-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+  margin-top: var(--space-md);
+}
+
+.active-filters:empty {
+  display: none;
+  margin: 0;
+}
+
+.active-filter-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  padding: 4px 10px;
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  background: var(--color-surface-2);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-full);
+  white-space: nowrap;
+  animation: pill-in 0.2s ease;
+}
+
+@keyframes pill-in {
+  from { opacity: 0; transform: scale(0.9); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.active-filter-pill__close {
+  width: 14px;
+  height: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 8px;
+  color: var(--color-text-dim);
+  border-radius: var(--radius-full);
+  transition: all var(--transition-fast);
+}
+
+.active-filter-pill__close:hover {
+  color: var(--color-accent);
+  background: rgba(196, 69, 105, 0.15);
+}
+
+.active-filter-pill--clear {
+  color: var(--color-accent);
+  border-color: var(--color-accent);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.active-filter-pill--clear:hover {
+  background: rgba(196, 69, 105, 0.1);
+}
+
+/* ── Tag Cloud ── */
+.tag-cloud {
+  margin-top: var(--space-md);
+}
+
+.tag-cloud:empty {
+  display: none;
+  margin: 0;
+}
+
+.tag-cloud__label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-sm);
+}
+
+.tag-cloud__label span {
+  font-size: 11px;
+  color: var(--color-text-dim);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.tag-cloud__toggle {
+  font-size: 10px;
+  color: var(--color-accent);
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: var(--font-mono);
+  padding: 2px 6px;
+  border-radius: 4px;
+  transition: opacity var(--transition-fast);
+}
+
+.tag-cloud__toggle:hover {
+  opacity: 0.8;
+}
+
+.tag-cloud__items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.tag-cloud-item {
+  font-size: 11px;
+  padding: 4px 10px;
+  color: var(--color-text-dim);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  white-space: nowrap;
+}
+
+.tag-cloud-item:hover {
+  border-color: var(--color-text-muted);
+  color: var(--color-text);
+}
+
+.tag-cloud-item--active {
+  background: var(--color-primary);
+  border-color: var(--color-primary-glow);
+  color: var(--color-text);
+}
+
+.tag-cloud-item--hidden {
+  display: none;
+}
+
+.tag-cloud-item__count {
+  font-size: 9px;
+  opacity: 0.6;
 }
 
 /* ── Card Animations ── */

@@ -15,8 +15,19 @@ const PLACEHOLDER_COVER = 'data:image/svg+xml,' + encodeURIComponent(
 let activeGenre = 'Todos';
 let searchQuery = '';
 let sortBy = 'recent';
+let activeKey = '';
+let activeMood = '';
+let activeTags = [];
+const TAG_CLOUD_MAX = 15;
 
-const GENRES = ['Todos', 'Trap', 'R&B', 'Drill', 'Reggaeton', 'Afro', 'Sample'];
+let genreGroupEl;
+let keySelectEl;
+let moodSelectEl;
+let searchInputEl;
+let sortSelectEl;
+let activeFiltersEl;
+let tagCloudEl;
+let countBadgeEl;
 
 export async function initCatalog(dbRef) {
   db = dbRef;
@@ -33,63 +44,186 @@ function buildFilters() {
   const header = document.querySelector('.catalog__header');
   if (!header) return;
 
+  // Count badge
+  countBadgeEl = document.createElement('span');
+  countBadgeEl.className = 'catalog__count';
+  countBadgeEl.textContent = '0 beats';
+  header.appendChild(countBadgeEl);
+
   // Filter bar
   const filterBar = document.createElement('div');
   filterBar.className = 'catalog__filters';
 
   // Genre buttons
-  const genreGroup = document.createElement('div');
-  genreGroup.className = 'catalog__genres';
-  GENRES.forEach(genre => {
+  genreGroupEl = document.createElement('div');
+  genreGroupEl.className = 'catalog__genres';
+  filterBar.appendChild(genreGroupEl);
+
+  // Controls row: search + key + mood + sort
+  const controls = document.createElement('div');
+  controls.className = 'catalog__controls';
+
+  searchInputEl = document.createElement('input');
+  searchInputEl.type = 'text';
+  searchInputEl.className = 'catalog__search';
+  searchInputEl.placeholder = 'Buscar beats...';
+  searchInputEl.addEventListener('input', filterAndRender);
+  controls.appendChild(searchInputEl);
+
+  keySelectEl = document.createElement('select');
+  keySelectEl.className = 'catalog__sort';
+  keySelectEl.addEventListener('change', filterAndRender);
+  controls.appendChild(keySelectEl);
+
+  moodSelectEl = document.createElement('select');
+  moodSelectEl.className = 'catalog__sort';
+  moodSelectEl.addEventListener('change', filterAndRender);
+  controls.appendChild(moodSelectEl);
+
+  sortSelectEl = document.createElement('select');
+  sortSelectEl.className = 'catalog__sort';
+  const sortOptions = [
+    { value: 'recent', label: 'Recientes' },
+    { value: 'oldest', label: 'Antiguos' },
+    { value: 'plays', label: 'Más escuchados' },
+    { value: 'alpha', label: 'A → Z' },
+    { value: 'alpha-za', label: 'Z → A' },
+    { value: 'bpm-asc', label: 'BPM ↑' },
+    { value: 'bpm-desc', label: 'BPM ↓' },
+    { value: 'price-asc', label: 'Precio ↑' },
+    { value: 'price-desc', label: 'Precio ↓' },
+  ];
+  sortOptions.forEach(o => {
+    const opt = document.createElement('option');
+    opt.value = o.value;
+    opt.textContent = o.label;
+    sortSelectEl.appendChild(opt);
+  });
+  sortSelectEl.addEventListener('change', filterAndRender);
+  controls.appendChild(sortSelectEl);
+
+  filterBar.appendChild(controls);
+
+  // Active filters pills
+  activeFiltersEl = document.createElement('div');
+  activeFiltersEl.className = 'active-filters';
+  filterBar.appendChild(activeFiltersEl);
+
+  // Tag cloud
+  tagCloudEl = document.createElement('div');
+  tagCloudEl.className = 'tag-cloud';
+  filterBar.appendChild(tagCloudEl);
+
+  header.after(filterBar);
+}
+
+function populateFilterOptions() {
+  // Genre buttons
+  const genres = ['Todos', ...new Set(beatsData.map(b => b.genre).filter(Boolean))];
+  genreGroupEl.innerHTML = '';
+  genres.forEach(genre => {
     const btn = document.createElement('button');
     btn.className = 'genre-btn';
     btn.textContent = genre;
     if (genre === activeGenre) btn.classList.add('active');
     btn.addEventListener('click', () => {
       activeGenre = genre;
-      genreGroup.querySelectorAll('.genre-btn').forEach(b => b.classList.remove('active'));
+      genreGroupEl.querySelectorAll('.genre-btn').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
       filterAndRender();
     });
-    genreGroup.appendChild(btn);
+    genreGroupEl.appendChild(btn);
   });
-  filterBar.appendChild(genreGroup);
 
-  // Search + Sort row
-  const controls = document.createElement('div');
-  controls.className = 'catalog__controls';
-
-  const searchInput = document.createElement('input');
-  searchInput.type = 'text';
-  searchInput.className = 'catalog__search';
-  searchInput.placeholder = 'Buscar beats...';
-  searchInput.addEventListener('input', () => {
-    searchQuery = searchInput.value.trim().toLowerCase();
-    filterAndRender();
-  });
-  controls.appendChild(searchInput);
-
-  const sortSelect = document.createElement('select');
-  sortSelect.className = 'catalog__sort';
-  const sortOptions = [
-    { value: 'recent', label: 'Recientes' },
-    { value: 'plays', label: 'Más escuchados' },
-    { value: 'alpha', label: 'A → Z' },
-  ];
-  sortOptions.forEach(o => {
+  // Key dropdown
+  const keys = [...new Set(beatsData.map(b => b.key).filter(Boolean))].sort();
+  const curKey = keySelectEl.value;
+  keySelectEl.innerHTML = '<option value="">🎹 Key</option>';
+  keys.forEach(k => {
     const opt = document.createElement('option');
-    opt.value = o.value;
-    opt.textContent = o.label;
-    sortSelect.appendChild(opt);
+    opt.value = k;
+    opt.textContent = k;
+    keySelectEl.appendChild(opt);
   });
-  sortSelect.addEventListener('change', () => {
-    sortBy = sortSelect.value;
-    filterAndRender();
-  });
-  controls.appendChild(sortSelect);
+  if (keys.includes(curKey)) keySelectEl.value = curKey;
 
-  filterBar.appendChild(controls);
-  header.after(filterBar);
+  // Mood dropdown (from tags)
+  const moods = new Set();
+  beatsData.forEach(b => (b.tags || []).forEach(t => moods.add(t.toLowerCase())));
+  const moodList = [...moods].sort();
+  const curMood = moodSelectEl.value;
+  moodSelectEl.innerHTML = '<option value="">✨ Mood</option>';
+  moodList.forEach(m => {
+    const opt = document.createElement('option');
+    opt.value = m;
+    opt.textContent = m.charAt(0).toUpperCase() + m.slice(1);
+    moodSelectEl.appendChild(opt);
+  });
+  if (moodList.includes(curMood)) moodSelectEl.value = curMood;
+
+  // Tag cloud
+  buildTagCloud();
+}
+
+function buildTagCloud() {
+  const tagCount = {};
+  beatsData.forEach(b => (b.tags || []).forEach(t => {
+    const tl = t.toLowerCase();
+    tagCount[tl] = (tagCount[tl] || 0) + 1;
+  }));
+
+  const sorted = Object.keys(tagCount).sort((a, b) =>
+    tagCount[b] !== tagCount[a] ? tagCount[b] - tagCount[a] : a.localeCompare(b)
+  );
+
+  if (sorted.length === 0) {
+    tagCloudEl.innerHTML = '';
+    return;
+  }
+
+  tagCloudEl.innerHTML = '';
+
+  const labelRow = document.createElement('div');
+  labelRow.className = 'tag-cloud__label';
+  labelRow.innerHTML = '<span>🏷️ Tags populares</span>';
+
+  if (sorted.length > TAG_CLOUD_MAX) {
+    const toggleBtn = document.createElement('button');
+    toggleBtn.className = 'tag-cloud__toggle';
+    toggleBtn.textContent = `ver más (${sorted.length})`;
+    toggleBtn.addEventListener('click', () => {
+      const items = tagCloudEl.querySelectorAll('.tag-cloud-item');
+      const expanded = tagCloudEl.classList.toggle('tag-cloud--expanded');
+      items.forEach((el, i) => {
+        if (i >= TAG_CLOUD_MAX) el.classList.toggle('tag-cloud-item--hidden', !expanded);
+      });
+      toggleBtn.textContent = expanded ? 'ver menos' : `ver más (${sorted.length})`;
+    });
+    labelRow.appendChild(toggleBtn);
+  }
+  tagCloudEl.appendChild(labelRow);
+
+  const itemsDiv = document.createElement('div');
+  itemsDiv.className = 'tag-cloud__items';
+
+  sorted.forEach((tag, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'tag-cloud-item';
+    if (i >= TAG_CLOUD_MAX) btn.classList.add('tag-cloud-item--hidden');
+    if (activeTags.includes(tag)) btn.classList.add('tag-cloud-item--active');
+    btn.dataset.tag = tag;
+    btn.innerHTML = `${tag.charAt(0).toUpperCase() + tag.slice(1)} <span class="tag-cloud-item__count">${tagCount[tag]}</span>`;
+    btn.addEventListener('click', () => {
+      const idx = activeTags.indexOf(tag);
+      if (idx > -1) activeTags.splice(idx, 1);
+      else activeTags.push(tag);
+      btn.classList.toggle('tag-cloud-item--active');
+      filterAndRender();
+    });
+    itemsDiv.appendChild(btn);
+  });
+
+  tagCloudEl.appendChild(itemsDiv);
 }
 
 function listenBeats() {
@@ -104,14 +238,14 @@ function listenBeats() {
 
     beatsData = Object.entries(raw)
       .map(([id, beat]) => ({ id, ...beat }))
-      .filter(b => b.status === 'active')
-      .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+      .filter(b => b.status === 'active');
 
     if (beatsData.length === 0) {
       showEmpty();
       return;
     }
 
+    populateFilterOptions();
     filterAndRender();
   }, (err) => {
     console.error('[DACEWAV] Beats listen error:', err);
@@ -121,30 +255,57 @@ function listenBeats() {
 
 // ── Filter + Sort ──
 function filterAndRender() {
-  let filtered = [...beatsData];
+  searchQuery = (searchInputEl?.value || '').trim().toLowerCase();
+  activeKey = keySelectEl?.value || '';
+  activeMood = moodSelectEl?.value || '';
+  sortBy = sortSelectEl?.value || 'recent';
 
-  // Genre filter
-  if (activeGenre !== 'Todos') {
-    filtered = filtered.filter(b => b.genre === activeGenre);
-  }
-
-  // Search filter
-  if (searchQuery) {
-    filtered = filtered.filter(b => {
+  let filtered = beatsData.filter(b => {
+    if (activeGenre !== 'Todos' && b.genre !== activeGenre) return false;
+    if (activeKey && b.key !== activeKey) return false;
+    if (activeMood) {
+      const hasMood = (b.tags || []).some(t => t.toLowerCase() === activeMood);
+      if (!hasMood) return false;
+    }
+    if (activeTags.length > 0) {
+      const beatTags = (b.tags || []).map(t => t.toLowerCase());
+      if (!activeTags.every(at => beatTags.includes(at))) return false;
+    }
+    if (searchQuery) {
       const title = (b.title || '').toLowerCase();
       const tags = (b.tags || []).join(' ').toLowerCase();
-      return title.includes(searchQuery) || tags.includes(searchQuery);
-    });
-  }
+      const desc = (b.description || '').toLowerCase();
+      const genre = (b.genre || '').toLowerCase();
+      const key = (b.key || '').toLowerCase();
+      if (!title.includes(searchQuery) && !tags.includes(searchQuery) && !desc.includes(searchQuery) && !genre.includes(searchQuery) && !key.includes(searchQuery)) return false;
+    }
+    return true;
+  });
 
   // Sort
-  if (sortBy === 'plays') {
-    filtered.sort((a, b) => (b.plays || 0) - (a.plays || 0));
-  } else if (sortBy === 'alpha') {
-    filtered.sort((a, b) => (a.title || '').localeCompare(b.title || ''));
-  } else {
-    filtered.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
-  }
+  const sorters = {
+    'recent': (a, b) => (b.createdAt || 0) - (a.createdAt || 0),
+    'oldest': (a, b) => (a.createdAt || 0) - (b.createdAt || 0),
+    'plays': (a, b) => (b.plays || 0) - (a.plays || 0),
+    'alpha': (a, b) => (a.title || '').localeCompare(b.title || ''),
+    'alpha-za': (a, b) => (b.title || '').localeCompare(a.title || ''),
+    'bpm-asc': (a, b) => (a.bpm || 0) - (b.bpm || 0),
+    'bpm-desc': (a, b) => (b.bpm || 0) - (a.bpm || 0),
+    'price-asc': (a, b) => getMinPriceNum(a) - getMinPriceNum(b),
+    'price-desc': (a, b) => getMinPriceNum(b) - getMinPriceNum(a),
+  };
+  if (sorters[sortBy]) filtered.sort(sorters[sortBy]);
+
+  // Update count badge
+  if (countBadgeEl) countBadgeEl.textContent = `${filtered.length} beat${filtered.length !== 1 ? 's' : ''}`;
+
+  // Update active filter pills
+  renderActivePills();
+
+  // Update tag cloud active state
+  tagCloudEl?.querySelectorAll('.tag-cloud-item').forEach(el => {
+    el.classList.toggle('tag-cloud-item--active', activeTags.includes(el.dataset.tag));
+  });
 
   if (filtered.length === 0) {
     gridEl.innerHTML = '<p style="grid-column:1/-1;text-align:center;color:var(--color-text-dim);padding:var(--space-3xl) 0;">Sin beats con ese filtro</p>';
@@ -152,6 +313,69 @@ function filterAndRender() {
   }
 
   renderGrid(filtered);
+}
+
+function renderActivePills() {
+  if (!activeFiltersEl) return;
+  activeFiltersEl.innerHTML = '';
+
+  const pills = [];
+  if (searchQuery) pills.push({ label: `🔍 "${searchQuery}"`, clear: () => { searchInputEl.value = ''; } });
+  if (activeGenre !== 'Todos') pills.push({ label: `🎵 ${activeGenre}`, clear: () => { activeGenre = 'Todos'; } });
+  if (activeKey) pills.push({ label: `🎹 ${activeKey}`, clear: () => { keySelectEl.value = ''; } });
+  if (activeMood) pills.push({ label: `✨ ${activeMood.charAt(0).toUpperCase() + activeMood.slice(1)}`, clear: () => { moodSelectEl.value = ''; } });
+  if (sortBy !== 'recent') pills.push({ label: `📊 ${sortSelectEl?.selectedOptions?.[0]?.text || sortBy}`, clear: () => { sortSelectEl.value = 'recent'; } });
+  activeTags.forEach(tag => {
+    pills.push({ label: `🏷️ ${tag.charAt(0).toUpperCase() + tag.slice(1)}`, clear: () => { activeTags = activeTags.filter(t => t !== tag); } });
+  });
+
+  if (pills.length === 0) return;
+
+  pills.forEach(p => {
+    const pill = document.createElement('span');
+    pill.className = 'active-filter-pill';
+
+    const text = document.createTextNode(p.label);
+    pill.appendChild(text);
+
+    const closeBtn = document.createElement('button');
+    closeBtn.className = 'active-filter-pill__close';
+    closeBtn.textContent = '✕';
+    closeBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      p.clear();
+      if (activeGenre === 'Todos') {
+        genreGroupEl.querySelectorAll('.genre-btn').forEach(b => b.classList.toggle('active', b.textContent === 'Todos'));
+      }
+      filterAndRender();
+    });
+    pill.appendChild(closeBtn);
+    activeFiltersEl.appendChild(pill);
+  });
+
+  // "Limpiar todo" button
+  if (pills.length > 1) {
+    const clearAll = document.createElement('button');
+    clearAll.className = 'active-filter-pill active-filter-pill--clear';
+    clearAll.textContent = 'Limpiar todo';
+    clearAll.addEventListener('click', resetAllFilters);
+    activeFiltersEl.appendChild(clearAll);
+  }
+}
+
+function resetAllFilters() {
+  activeGenre = 'Todos';
+  activeKey = '';
+  activeMood = '';
+  activeTags = [];
+  if (searchInputEl) searchInputEl.value = '';
+  if (keySelectEl) keySelectEl.value = '';
+  if (moodSelectEl) moodSelectEl.value = '';
+  if (sortSelectEl) sortSelectEl.value = 'recent';
+
+  genreGroupEl.querySelectorAll('.genre-btn').forEach(b => b.classList.toggle('active', b.textContent === 'Todos'));
+  tagCloudEl?.querySelectorAll('.tag-cloud-item').forEach(el => el.classList.remove('tag-cloud-item--active'));
+  filterAndRender();
 }
 
 function renderGrid(beats) {
@@ -248,6 +472,15 @@ function getMinPrice(beat) {
     return p < min ? p : min;
   }, Infinity);
   return minMxn === Infinity ? '$—' : `$${minMxn} MXN`;
+}
+
+function getMinPriceNum(beat) {
+  if (!beat.licenses) return Infinity;
+  const tiers = Object.values(beat.licenses);
+  return tiers.reduce((min, t) => {
+    const p = typeof t === 'object' ? (t.mxn || Infinity) : Infinity;
+    return p < min ? p : min;
+  }, Infinity);
 }
 
 function formatMeta(beat) {
