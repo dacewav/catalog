@@ -93,8 +93,7 @@ export function saveTestis() {
 }
 
 // ═══ SHOW ET (editor tabs) ═══
-// Defined in nav.js — re-export to avoid duplicate window assignment
-export { showEt } from './nav.js';
+// Defined in nav.js only — do NOT re-export or assign to window here
 
 // ═══ COPY CMD ═══
 export function copyCmd(inputId) {
@@ -116,5 +115,5 @@ Object.assign(window, {
   renderDefLicsEditor, addDefLicRow, rmDefLic, upDefLic, saveDefLics,
   renderLinksEditor, addLinkRow, rmLink, saveLinks,
   renderTestiEditor, addTestiRow, rmTesti, saveTestis,
-  showEt, copyCmd,
+  copyCmd,
 });
