@@ -3,7 +3,7 @@
 // ════════════════════════════════════════════════════════════
 
 import { ref, onValue } from 'https://www.gstatic.com/firebasejs/11.2.0/firebase-database.js';
-import { isWished, toggleWish } from './wishlist.js';
+import { isWished, toggleWish, syncBeats } from './wishlist.js';
 
 let db;
 let beatsData = [];
@@ -243,6 +243,7 @@ function listenBeats() {
 
     // Expose for wishlist module
     window.__daceBeats = beatsData;
+    syncBeats(beatsData);
 
     if (beatsData.length === 0) {
       showEmpty();
