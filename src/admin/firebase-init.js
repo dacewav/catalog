@@ -17,6 +17,12 @@ const _DEFAULT_ALLOWED_EMAILS = { 'daceidk@gmail.com': true, 'xiligamesz@gmail.c
 const _BOOTSTRAP_ADMINS = ['daceidk@gmail.com', 'xiligamesz@gmail.com', 'prodxce@gmail.com'];
 let _allowedEmails = [...Object.keys(_DEFAULT_ALLOWED_EMAILS)];
 
+// Firebase keys can't contain ".", "#", "$", "/", "[", "]" — encode/decode emails
+function _encodeEmailKey(email) { return email.replace(/\./g, ','); }
+function _decodeEmailKey(key) { return key.replace(/,/g, '.'); }
+function _emailsToFBObj(emails) { const obj = {}; emails.forEach(e => { obj[_encodeEmailKey(e)] = true; }); return obj; }
+function _fbObjToEmails(obj) { return Object.keys(obj || {}).map(_decodeEmailKey).filter(e => e.includes('@')); }
+
 // ═══ AUTH ═══
 async function doGoogleLogin() {
   const errEl = g('login-error'), btn = g('login-google-btn');
@@ -181,8 +187,7 @@ function addWhitelistEmail() {
   if (!email || !email.includes('@')) { showToast('Email inválido', true); return; }
   if (_allowedEmails.includes(email)) { showToast('Ya está en la lista', true); return; }
   _allowedEmails.push(email);
-  const obj = {}; _allowedEmails.forEach(e => obj[e] = true);
-  firebase.database().ref('adminWhitelist').set(obj)
+  firebase.database().ref('adminWhitelist').set(_emailsToFBObj(_allowedEmails))
     .catch(e => { showToast('Error: solo admins base pueden editar la whitelist', true); _allowedEmails.pop(); });
   input.value = '';
   renderWhitelistEditor();
@@ -193,8 +198,7 @@ async function removeWhitelistEmail(idx) {
   const email = _allowedEmails[idx];
   if (!await confirmInline('¿Eliminar ' + email + '?')) return;
   _allowedEmails.splice(idx, 1);
-  const obj = {}; _allowedEmails.forEach(e => obj[e] = true);
-  firebase.database().ref('adminWhitelist').set(obj)
+  firebase.database().ref('adminWhitelist').set(_emailsToFBObj(_allowedEmails))
     .catch(e => { showToast('Error: solo admins base pueden editar la whitelist', true); _allowedEmails.splice(idx, 0, email); renderWhitelistEditor(); });
   renderWhitelistEditor();
 }
@@ -222,12 +226,12 @@ window.addEventListener('load', () => {
   firebase.database().ref('adminWhitelist').once('value', snap => {
     const fbObj = snap.val();
     if (fbObj && typeof fbObj === 'object') {
-      _allowedEmails = Object.keys(fbObj);
+      _allowedEmails = _fbObjToEmails(fbObj);
     } else {
       // Only bootstrap admins can seed the whitelist (rules enforce this)
       const user = _auth.currentUser;
       if (user && _BOOTSTRAP_ADMINS.includes(user.email)) {
-        firebase.database().ref('adminWhitelist').set(_DEFAULT_ALLOWED_EMAILS);
+        firebase.database().ref('adminWhitelist').set(_emailsToFBObj(_BOOTSTRAP_ADMINS));
       }
     }
   });

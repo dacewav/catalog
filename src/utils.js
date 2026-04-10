@@ -48,7 +48,11 @@ export function formatTime(s) {
  * Safe JSON parse with fallback.
  */
 export function safeJSON(str, fallback = null) {
-  try { return JSON.parse(str); } catch { return fallback; }
+  try {
+    if (str == null) return fallback;
+    const parsed = JSON.parse(str);
+    return parsed != null ? parsed : fallback;
+  } catch { return fallback; }
 }
 
 /**

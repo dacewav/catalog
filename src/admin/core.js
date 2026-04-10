@@ -2,7 +2,7 @@
 // Undo/redo, auto-save, preview, theme collect/load, hero/banner preview,
 // glow, animation controls, presets, particles, emojis, change log, export/import
 
-import { ANIMS } from './config.js';
+import { ANIMS, EMOJIS } from './config.js';
 import {
   db, T, setT, siteSettings, customEmojis, floatingEls,
   _undoStack, _redoStack, _lastSavedTheme, _undoDebounce,
@@ -569,7 +569,6 @@ export function animPP(canvas) {
 }
 
 // ═══ EMOJIS ═══
-export { EMOJIS } from './config.js';
 export function renderEmojiGrid() { g('emoji-grid').innerHTML = EMOJIS.map(e => '<div class="emoji-btn" onclick="insertEmoji(\'' + e + '\')">' + e + '</div>').join(''); }
 export function insertEmoji(e) { const b = g('b-text'); if (b) { b.value += e; updateBannerPv(); autoSave(); } }
 export function renderCustomEmojis() {
