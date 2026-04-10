@@ -46,6 +46,11 @@
     <div class="hero__content">
       <h1 class="hero__title" id="hero-title">DACE BEATS</h1>
       <p class="hero__subtitle" id="hero-subtitle">Beats exclusivos para tu próximo hit</p>
+      <div class="hero__stats" id="hero-stats">
+        <div class="hero__stat"><span class="hero__stat-num" id="stat-beats">0</span><span class="hero__stat-label">beats</span></div>
+        <div class="hero__stat"><span class="hero__stat-num" id="stat-genres">0</span><span class="hero__stat-label">géneros</span></div>
+        <div class="hero__stat"><span class="hero__stat-num" id="stat-plays">0</span><span class="hero__stat-label">plays</span></div>
+      </div>
     </div>
   </section>
 
@@ -75,13 +80,19 @@
       <div class="player-bar__meta" id="player-meta">—</div>
     </div>
     <div class="player-bar__controls">
-      <button class="player-bar__btn" id="player-prev" aria-label="Anterior">
+      <button class="player-bar__btn player-bar__btn--small" id="player-prev" aria-label="Anterior">
         <svg viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg>
+      </button>
+      <button class="player-bar__btn player-bar__btn--small" id="player-skip-back" aria-label="-10s" title="-10s">
+        <svg viewBox="0 0 24 24"><path d="M12.5 3C7.26 3 3 7.26 3 12.5S7.26 22 12.5 22c4.84 0 8.9-3.57 9.4-8.22h-2.02c-.5 3.72-3.72 6.62-7.56 6.62-4.09 0-7.43-3.34-7.43-7.43S8.59 5.55 12.68 5.55c1.95 0 3.72.76 5.03 2l-3.01 3h7.05V2.5L18.03 4.5c-1.57-1.57-3.72-2.52-6.1-2.5h.57z"/><text x="9" y="15.5" font-size="7" font-weight="bold" fill="currentColor" font-family="sans-serif" text-anchor="middle">10</text></svg>
       </button>
       <button class="player-bar__btn player-bar__btn--play" id="player-play" aria-label="Play">
         <svg viewBox="0 0 24 24" id="player-play-icon"><path d="M8 5v14l11-7z"/></svg>
       </button>
-      <button class="player-bar__btn" id="player-next" aria-label="Siguiente">
+      <button class="player-bar__btn player-bar__btn--small" id="player-skip-fwd" aria-label="+10s" title="+10s">
+        <svg viewBox="0 0 24 24"><path d="M11.5 3C16.74 3 21 7.26 21 12.5S16.74 22 11.5 22c-4.84 0-8.9-3.57-9.4-8.22h2.02c.5 3.72 3.72 6.62 7.56 6.62 4.09 0 7.43-3.34 7.43-7.43S15.41 5.55 11.32 5.55c-1.95 0-3.72.76-5.03 2l3.01 3H2.25V2.5L5.97 4.5c1.57-1.57 3.72-2.52 6.1-2.5h-.57z"/><text x="15" y="15.5" font-size="7" font-weight="bold" fill="currentColor" font-family="sans-serif" text-anchor="middle">10</text></svg>
+      </button>
+      <button class="player-bar__btn player-bar__btn--small" id="player-next" aria-label="Siguiente">
         <svg viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg>
       </button>
     </div>

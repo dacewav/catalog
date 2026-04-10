@@ -12,7 +12,7 @@ let hasPlayed30s = false;
 
 // DOM refs
 let bar, coverImg, titleEl, metaEl;
-let btnPlay, btnPrev, btnNext, playIcon;
+let btnPlay, btnPrev, btnNext, btnSkipBack, btnSkipFwd, playIcon;
 let seekEl, seekFill, currentTimeEl, durationEl;
 let volumeSlider;
 
@@ -27,6 +27,8 @@ export function initPlayer() {
   btnPlay = document.getElementById('player-play');
   btnPrev = document.getElementById('player-prev');
   btnNext = document.getElementById('player-next');
+  btnSkipBack = document.getElementById('player-skip-back');
+  btnSkipFwd = document.getElementById('player-skip-fwd');
   playIcon = document.getElementById('player-play-icon');
   seekEl = document.getElementById('player-seek');
   seekFill = document.getElementById('player-seek-fill');
@@ -63,6 +65,8 @@ function bindEvents() {
   btnPlay.addEventListener('click', togglePlay);
   btnPrev.addEventListener('click', playPrev);
   btnNext.addEventListener('click', playNext);
+  btnSkipBack.addEventListener('click', () => skip(-10));
+  btnSkipFwd.addEventListener('click', () => skip(10));
 
   // Progress
   audio.addEventListener('timeupdate', updateProgress);
@@ -101,6 +105,11 @@ function playBeat(beat) {
   audio.play().catch(err => console.warn('[DACEWAV] Play failed:', err));
 
   hasPlayed30s = false;
+}
+
+function skip(seconds) {
+  if (!audio.src || isNaN(audio.duration)) return;
+  audio.currentTime = Math.max(0, Math.min(audio.duration, audio.currentTime + seconds));
 }
 
 function togglePlay() {

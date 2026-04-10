@@ -252,6 +252,7 @@ function listenBeats() {
     populateFilterOptions();
     renderFeatured();
     filterAndRender();
+    animateCounters();
   }, (err) => {
     console.error('[DACEWAV] Beats listen error:', err);
     gridEl.innerHTML = '<p class="catalog__empty">Error al cargar beats</p>';
@@ -419,6 +420,11 @@ function createBeatCard(beat) {
   card.className = 'beat-card';
   card.dataset.beatId = beat.id;
 
+  // Accent color per beat
+  if (beat.accentColor) {
+    card.style.setProperty('--card-tint', `linear-gradient(135deg, ${beat.accentColor}, transparent)`);
+  }
+
   const minPrice = getMinPrice(beat);
   const meta = formatMeta(beat);
 
@@ -468,12 +474,28 @@ function createBeatCard(beat) {
   const title = document.createElement('h3');
   title.className = 'beat-card__title';
   title.textContent = beat.title || 'Untitled';
+
+  // EXCL badge
+  if (beat.exclusive) {
+    const excl = document.createElement('span');
+    excl.className = 'beat-card__excl';
+    excl.textContent = 'EXCL';
+    title.appendChild(excl);
+  }
   info.appendChild(title);
 
   const metaSpan = document.createElement('span');
   metaSpan.className = 'beat-card__meta';
   metaSpan.textContent = meta;
   info.appendChild(metaSpan);
+
+  // Play count
+  if (beat.plays && beat.plays > 0) {
+    const plays = document.createElement('span');
+    plays.className = 'beat-card__plays';
+    plays.textContent = `▶ ${beat.plays}`;
+    info.appendChild(plays);
+  }
 
   // Footer
   const footer = document.createElement('div');
@@ -565,6 +587,40 @@ function showSkeletons(count) {
 
 function showEmpty() {
   gridEl.innerHTML = '<p class="catalog__empty" style="grid-column:1/-1;text-align:center;color:var(--color-text-dim);padding:var(--space-3xl) 0;">Sin beats disponibles</p>';
+}
+
+// ── Counter Animation ──
+function animateCounters() {
+  const totalBeats = beatsData.length;
+  const totalGenres = new Set(beatsData.map(b => b.genre).filter(Boolean)).size;
+  const totalPlays = beatsData.reduce((sum, b) => sum + (b.plays || 0), 0);
+
+  animateValue('stat-beats', totalBeats);
+  animateValue('stat-genres', totalGenres);
+  animateValue('stat-plays', totalPlays);
+}
+
+function animateValue(id, target) {
+  const el = document.getElementById(id);
+  if (!el || target === 0) {
+    if (el) el.textContent = '0';
+    return;
+  }
+
+  const duration = 1200;
+  const start = performance.now();
+
+  function tick(now) {
+    const elapsed = now - start;
+    const progress = Math.min(elapsed / duration, 1);
+    // Ease out cubic
+    const eased = 1 - Math.pow(1 - progress, 3);
+    const current = Math.round(eased * target);
+    el.textContent = current.toLocaleString();
+    if (progress < 1) requestAnimationFrame(tick);
+  }
+
+  requestAnimationFrame(tick);
 }
 
 // Export for potential external use

@@ -140,7 +140,34 @@ body::before {
   font-size: var(--text-lg);
   color: var(--color-text-muted);
   max-width: 500px;
-  margin: 0 auto;
+  margin: 0 auto var(--space-xl);
+}
+
+.hero__stats {
+  display: flex;
+  justify-content: center;
+  gap: var(--space-2xl);
+}
+
+.hero__stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.hero__stat-num {
+  font-family: var(--font-display);
+  font-size: var(--text-3xl);
+  letter-spacing: 0.05em;
+  color: var(--color-accent);
+}
+
+.hero__stat-label {
+  font-size: var(--text-xs);
+  color: var(--color-text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-top: 2px;
 }
 
 /* ── Featured Section ── */
@@ -202,12 +229,28 @@ body::before {
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
   overflow: hidden;
+  position: relative;
   transition: transform var(--transition-base), box-shadow var(--transition-base);
 }
 
 .beat-card:hover {
   transform: translateY(-4px);
   box-shadow: var(--glow-primary);
+}
+
+.beat-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--card-tint, linear-gradient(135deg, rgba(185, 28, 28, 0.15), transparent));
+  pointer-events: none;
+  border-radius: var(--radius-lg);
+  opacity: 0;
+  transition: opacity var(--transition-base);
+}
+
+.beat-card:hover::after {
+  opacity: 1;
 }
 
 .beat-card__cover {
@@ -268,6 +311,21 @@ body::before {
   font-size: var(--text-lg);
   font-weight: 500;
   margin-bottom: var(--space-xs);
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.beat-card__excl {
+  font-size: 9px;
+  font-weight: 600;
+  font-family: var(--font-mono);
+  padding: 2px 6px;
+  background: var(--color-primary);
+  color: var(--color-accent-soft);
+  border-radius: var(--radius-sm);
+  letter-spacing: 0.05em;
+  flex-shrink: 0;
 }
 
 .beat-card__meta {
@@ -275,6 +333,12 @@ body::before {
   font-size: var(--text-xs);
   color: var(--color-text-muted);
   margin-bottom: var(--space-sm);
+}
+
+.beat-card__plays {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--color-text-dim);
 }
 
 .beat-card__footer {
@@ -421,6 +485,16 @@ body::before {
 
 .player-bar__btn:hover {
   background: var(--color-surface-2);
+}
+
+.player-bar__btn--small {
+  width: 32px;
+  height: 32px;
+}
+
+.player-bar__btn--small svg {
+  width: 16px;
+  height: 16px;
 }
 
 .player-bar__btn svg {
