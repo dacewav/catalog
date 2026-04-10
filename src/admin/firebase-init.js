@@ -51,26 +51,35 @@ async function doLogout() {
 }
 
 // ═══ INIT ═══
+let _uiBuilt = false;
+
 function _checkReady() {
   const s = window.__adminState;
   if (!s || !s.theme || !s.settings || !s.beats) return;
+  if (!_uiBuilt) return; // Wait for UI to be built first
   loadThemeUI();
   g('sdot').className = 'sdot ok';
+}
+
+function _markUIBuilt() {
+  _uiBuilt = true;
+  _checkReady();
 }
 
 function initAdmin() {
   if (window._adminInitialized) return;
   window._adminInitialized = true;
 
-  // Import and call init functions
-  import('./fonts.js').then(m => m.populateFontSelects?.());
-  import('./colors.js').then(m => m.buildColorEditor?.());
-  import('./cmd-palette.js').then(m => m.buildCmdIndex?.());
+  // ── Phase 1: Build UI BEFORE loading data ──
+  // These must complete before loadThemeUI() so inputs/selects exist
+  import('./colors.js').then(m => { m.buildColorEditor?.(); }).catch(e => console.error('[colors]', e));
+  import('./fonts.js').then(m => { m.populateFontSelects?.(); }).catch(e => console.error('[fonts]', e));
+  import('./cmd-palette.js').then(m => { m.buildCmdIndex?.(); }).catch(e => console.error('[cmd]', e));
   import('./core.js').then(m => {
     m.setupHeroSync?.();
+    m.buildAnimControls?.();
     m.renderEmojiGrid?.();
     m.renderCustomEmojis?.();
-    m.updateBannerPv?.();
     m.renderPresets?.();
     m.renderCustomThemes?.();
     m.updateGlowDesc?.();
@@ -82,7 +91,9 @@ function initAdmin() {
     m.renderGradEditor?.();
     m.setupHeroDrag?.();
     m.renderChangeLog?.();
-  });
+    // Mark UI as built → triggers _checkReady() if data is already loaded
+    _markUIBuilt();
+  }).catch(e => { console.error('[core]', e); _markUIBuilt(); });
 
   renderLinksEditor();
   renderTestiEditor();
