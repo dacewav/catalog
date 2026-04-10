@@ -163,6 +163,10 @@ function _drawStar(ctx, cx, cy, r, pts) {
 }
 
 let _particlesResizeHandler = null;
+let _lastPartCount = 0;
+let _lastPartMin = 0;
+let _lastPartMax = 0;
+let _particlesInitialized = false;
 
 export function initParticles() {
   pCanvas = document.getElementById('particles-canvas');
@@ -178,24 +182,53 @@ export function initParticles() {
   };
   window.addEventListener('resize', _particlesResizeHandler);
 
-  particles = [];
   const T = state.T;
   const count = T.particlesCount || 40;
-  for (let i = 0; i < count; i++) {
-    particles.push({
-      x: Math.random() * pCanvas.width,
-      y: Math.random() * pCanvas.height,
-      r: (T.particlesMin || 2) + Math.random() * ((T.particlesMax || 6) - (T.particlesMin || 2)),
-      vx: (Math.random() - 0.5) * (T.particlesSpeed || 1),
-      vy: (Math.random() - 0.5) * (T.particlesSpeed || 1),
-      o: 0.1 + Math.random() * 0.4,
-      rot: Math.random() * Math.PI * 2,
-      rv: (Math.random() - 0.5) * 0.02,
+  const pMin = T.particlesMin || 2;
+  const pMax = T.particlesMax || 6;
+
+  // Only recreate particles if count or size range changed
+  // Otherwise just update speed on existing particles (smooth transition)
+  const needsRecreate = !_particlesInitialized
+    || count !== _lastPartCount
+    || pMin !== _lastPartMin
+    || pMax !== _lastPartMax;
+
+  if (needsRecreate) {
+    particles = [];
+    for (let i = 0; i < count; i++) {
+      particles.push({
+        x: Math.random() * pCanvas.width,
+        y: Math.random() * pCanvas.height,
+        r: pMin + Math.random() * (pMax - pMin),
+        vx: (Math.random() - 0.5) * (T.particlesSpeed || 1),
+        vy: (Math.random() - 0.5) * (T.particlesSpeed || 1),
+        o: 0.1 + Math.random() * 0.4,
+        rot: Math.random() * Math.PI * 2,
+        rv: (Math.random() - 0.5) * 0.02,
+      });
+    }
+    _lastPartCount = count;
+    _lastPartMin = pMin;
+    _lastPartMax = pMax;
+  } else {
+    // Just update speed on existing particles — no recreation
+    const speed = T.particlesSpeed || 1;
+    particles.forEach(p => {
+      const angle = Math.atan2(p.vy, p.vx);
+      const currentSpeed = Math.sqrt(p.vx * p.vx + p.vy * p.vy);
+      const newSpeed = speed * (0.5 + Math.random() * 0.5);
+      p.vx = Math.cos(angle) * newSpeed;
+      p.vy = Math.sin(angle) * newSpeed;
     });
   }
 
-  if (pAnimId) cancelAnimationFrame(pAnimId);
-  _animateParticles();
+  if (!_particlesInitialized) {
+    _particlesInitialized = true;
+    if (pAnimId) cancelAnimationFrame(pAnimId);
+    _animateParticles();
+  }
+  // If already running, the animation loop reads state.T each frame — no restart needed
 }
 
 function _animateParticles() {

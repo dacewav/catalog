@@ -20,6 +20,8 @@ import {
 import { loadColorValues } from './colors.js';
 
 let _autoSaveTimer = null;
+let _broadcastTimer = null;
+let _lastBroadcastJSON = '';
 
 // ═══ UNDO/REDO ═══
 export function pushUndo() {
@@ -38,13 +40,13 @@ export function undo() {
   if (_undoStack.length < 2) return;
   _redoStack.push(_undoStack.pop());
   const prev = _undoStack[_undoStack.length - 1];
-  if (prev) { setT(JSON.parse(prev)); loadThemeUI(); broadcastTheme(); showToast('Deshacer ↩'); }
+  if (prev) { setT(JSON.parse(prev)); loadThemeUI(); broadcastThemeNow(); showToast('Deshacer ↩'); }
 }
 export function redo() {
   if (!_redoStack.length) return;
   const next = _redoStack.pop();
   _undoStack.push(next);
-  setT(JSON.parse(next)); loadThemeUI(); broadcastTheme(); showToast('Rehacer ↪');
+  setT(JSON.parse(next)); loadThemeUI(); broadcastThemeNow(); showToast('Rehacer ↪');
 }
 
 // ═══ AUTO-SAVE ═══
@@ -52,11 +54,12 @@ export function autoSave() {
   clearTimeout(_autoSaveTimer);
   pushUndo();
   logFieldChange();
-  const theme = collectTheme();
-  localStorage.setItem('dace-theme', JSON.stringify(theme));
+  // broadcastTheme() is debounced — don't collect here, let _doBroadcast handle it
   broadcastTheme();
   const dot = g('sdot'); dot.className = 'sdot';
   _autoSaveTimer = setTimeout(() => {
+    const theme = collectTheme();
+    localStorage.setItem('dace-theme', JSON.stringify(theme));
     if (!db) { dot.className = 'sdot ok'; return; }
     _collectSiteSettings();
     const p1 = db.ref('theme').update(theme).catch(() => {});
@@ -128,11 +131,28 @@ function _postToFrame(msg) {
 }
 
 export function broadcastTheme() {
+  // Debounce: only broadcast after 80ms of no calls (smooth slider dragging)
+  clearTimeout(_broadcastTimer);
+  _broadcastTimer = setTimeout(_doBroadcast, 80);
+}
+
+function _doBroadcast() {
   const theme = collectTheme();
+  const json = JSON.stringify(theme);
+  // Dedup: skip if nothing changed
+  if (json === _lastBroadcastJSON) return;
+  _lastBroadcastJSON = json;
   _postToFrame({ type: 'theme-update', theme });
   _postToFrame({ type: 'settings-update', settings: siteSettings });
   _postToFrame({ type: 'emojis-update', emojis: customEmojis });
   _postToFrame({ type: 'floating-update', elements: floatingEls });
+}
+
+// Force broadcast immediately (for undo/redo, preset changes, etc.)
+export function broadcastThemeNow() {
+  clearTimeout(_broadcastTimer);
+  _lastBroadcastJSON = ''; // force send
+  _doBroadcast();
 }
 export function broadcastHighlight(selector) { _postToFrame({ type: 'highlight-element', selector }); }
 export function clearHighlight() { if (_iframeReady) _postToFrame({ type: 'clear-highlight' }); }
@@ -481,7 +501,7 @@ export function updatePreview() {
     if (anim !== 'none') { el.classList.add('gap-anim-' + anim); el.style.setProperty('--ga-s', speed + 's'); }
   });
   updateHeroPv();
-  broadcastTheme();
+  // Note: broadcast handled by autoSave() caller — don't duplicate here
 }
 
 // ═══ COLLECT THEME ═══
@@ -1329,7 +1349,7 @@ export function importThemeFromURL(url) {
 // ═══ WINDOW ASSIGNMENTS ═══
 Object.assign(window, {
   pushUndo, undo, redo, autoSave, saveAll,
-  broadcastTheme, broadcastHighlight, clearHighlight,
+  broadcastTheme, broadcastThemeNow, broadcastHighlight, clearHighlight,
   refreshIframe, loadPreviewURL, setViewport,
   toggleInspector, toggleAdminTheme,
   updateHeroPv, updateBannerPv, updateDividerPv, initTextColorizers,
