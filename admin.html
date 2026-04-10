@@ -877,6 +877,154 @@ body {
 }
 .preview-panel.fullscreen { position: fixed !important; inset: 0 !important; z-index: 9999 !important; width: 100% !important; }
 .tb.acc { border-color: rgba(220,38,38,0.5); color: var(--acc); }
+
+/* ═══ LIGHT MODE ═══ */
+body.light {
+  --bg: #f5f3f0; --sf: #ffffff; --sf2: #f0ece8; --abg: #faf8f6;
+  --bg2: #eee9e4; --b: rgba(0,0,0,0.08); --b2: rgba(0,0,0,0.15);
+  --tx: #1a1414; --mu: rgba(26,20,20,0.55); --hi: rgba(26,20,20,0.2);
+  --shd: 0 2px 12px rgba(0,0,0,0.08); --shl: 0 4px 24px rgba(0,0,0,0.1);
+}
+body.light input, body.light textarea, body.light select { background: rgba(0,0,0,0.04); }
+body.light .batch-img-drop input[type="file"] { opacity: 0; }
+
+/* ═══ BEAT LIST (JS-generated) ═══ */
+.beat-row {
+  display: grid; grid-template-columns: 20px 40px 1fr auto; gap: 8px;
+  align-items: center; background: var(--abg);
+  border: 1px solid var(--b); border-radius: var(--rad);
+  padding: 8px 10px; cursor: pointer; transition: var(--tr);
+  min-width: 0; overflow: hidden;
+}
+.beat-row:hover { border-color: var(--b2); background: rgba(255,255,255,0.03); }
+.beat-row-thumb {
+  width: 40px; height: 40px; border-radius: 6px;
+  background: var(--bg2); overflow: hidden;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; color: var(--hi); flex-shrink: 0;
+}
+.beat-row-thumb img { width: 100%; height: 100%; object-fit: cover; }
+.beat-row-name {
+  font-family: var(--fd); font-size: 12px; font-weight: 700;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0;
+}
+.beat-row-meta {
+  font-size: 9px; color: var(--mu);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.beat-row-acts { display: flex; gap: 4px; flex-shrink: 0; }
+.beat-row-name[data-editable], .beat-row-meta span[data-editable] {
+  cursor: text; border-bottom: 1px dashed transparent; transition: border-color 0.15s;
+}
+.beat-row-name[data-editable]:hover, .beat-row-meta span[data-editable]:hover {
+  border-bottom-color: rgba(220,38,38,0.4);
+}
+.beat-row.dragging { opacity: 0.4; border-color: var(--acc); }
+.beat-row.drag-over { border-color: var(--acc); border-style: dashed; background: rgba(220,38,38,0.05); }
+.beat-row .drag-handle {
+  cursor: grab; color: var(--hi); font-size: 11px;
+  padding: 0 4px; display: flex; align-items: center; user-select: none;
+}
+.beat-row .drag-handle:active { cursor: grabbing; }
+.beat-inline-edit {
+  background: rgba(0,0,0,0.4); border: 1px solid rgba(220,38,38,0.6);
+  border-radius: 4px; color: var(--tx); font-family: var(--fm);
+  font-size: 11px; padding: 2px 6px; outline: none; width: 100%; max-width: 120px;
+}
+.beat-inline-edit:focus { border-color: var(--acc); box-shadow: 0 0 8px rgba(220,38,38,0.3); }
+
+/* ═══ LICENSE EDITOR (JS-generated) ═══ */
+.lic-ed-row {
+  background: var(--abg); border: 1px solid var(--b);
+  border-radius: var(--rad); padding: 8px; margin-bottom: 6px;
+}
+.lic-ed-grid { display: grid; grid-template-columns: 1fr 80px 80px; gap: 6px; margin-bottom: 6px; }
+
+/* ═══ LINK EDITOR (JS-generated) ═══ */
+.link-ed-row {
+  display: grid; grid-template-columns: 1fr 2fr 80px auto; gap: 6px;
+  align-items: center; background: var(--abg);
+  border: 1px solid var(--b); border-radius: var(--rad);
+  padding: 6px 8px; margin-bottom: 4px;
+}
+
+/* ═══ TESTIMONIAL EDITOR (JS-generated) ═══ */
+.testi-ed {
+  background: var(--abg); border: 1px solid var(--b);
+  border-radius: var(--rad); padding: 8px; margin-bottom: 6px;
+}
+
+/* ═══ ANIMATION EDITOR (JS-generated) ═══ */
+.anim-ed {
+  background: var(--abg); border: 1px solid var(--b);
+  border-radius: var(--rad); padding: 10px; margin-bottom: 8px;
+}
+.anim-ed-title { font-family: var(--fd); font-size: 11px; font-weight: 700; margin-bottom: 8px; }
+
+/* ═══ PRESET CARDS (JS-generated) ═══ */
+.preset-card.active { border-color: var(--acc); box-shadow: 0 0 12px rgba(220,38,38,0.2); }
+.preset-swatches { display: flex; gap: 3px; margin-bottom: 6px; }
+.preset-swatches span { width: 18px; height: 18px; border-radius: 3px; border: 1px solid rgba(255,255,255,0.1); }
+.preset-name { font-family: var(--fd); font-size: 10px; font-weight: 700; }
+.preset-fonts { font-size: 8px; color: var(--mu); margin-top: 1px; }
+
+/* ═══ CUSTOM EMOJI (JS-generated) ═══ */
+.ce-item {
+  display: flex; align-items: center; gap: 8px;
+  background: var(--abg); border: 1px solid var(--b);
+  border-radius: var(--rad); padding: 6px 10px; margin-bottom: 4px;
+}
+.ce-item img { width: 28px; height: 28px; object-fit: contain; border-radius: 3px; }
+.ce-name { font-size: 11px; font-weight: 700; flex: 1; }
+
+/* ═══ FLOATING ELEMENT EDITOR (JS-generated) ═══ */
+.fe-ed-item { margin-bottom: 8px; }
+
+/* ═══ GLOW WORD ═══ */
+.glow-word {
+  color: var(--acc); position: relative; display: inline-block;
+}
+.glow-word::after {
+  content: attr(data-t); position: absolute; inset: 0;
+  color: var(--acc); filter: blur(var(--hw-blur, 10px));
+  opacity: var(--hw-op, 0.35);
+}
+
+/* ═══ INLINE MODAL (confirm/prompt) ═══ */
+.inline-modal-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.7);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 9999; backdrop-filter: blur(4px);
+}
+.inline-modal {
+  background: var(--sf); border: 1px solid var(--b2);
+  border-radius: var(--rlg); padding: 24px;
+  min-width: 300px; max-width: 420px; box-shadow: var(--shl);
+}
+.inline-modal p { color: var(--tx); font-size: 13px; margin: 0 0 16px; line-height: 1.5; }
+.inline-modal-input {
+  width: 100%; background: rgba(0,0,0,0.3);
+  border: 1px solid var(--b); border-radius: var(--rad);
+  color: var(--tx); padding: 8px 12px; font-size: 12px;
+  margin-bottom: 16px; outline: none; font-family: var(--fm);
+}
+.inline-modal-input:focus { border-color: var(--acc); }
+.inline-modal-btns { display: flex; gap: 8px; justify-content: flex-end; }
+
+/* ═══ TOAST ERROR VARIANT ═══ */
+.toast.err { border-color: rgba(220,50,50,0.5); color: #e05555; }
+
+/* ═══ BATCH IMG EXTRAS ═══ */
+.batch-img-drop.over { border-color: var(--acc); background: rgba(220,38,38,0.05); }
+.batch-img-item-name { font-size: 11px; flex: 1; }
+.batch-img-item select {
+  font-family: var(--fm); font-size: 10px;
+  background: rgba(0,0,0,0.3); border: 1px solid var(--b);
+  border-radius: var(--rad); color: var(--tx);
+  padding: 4px 8px; flex: 1; max-width: 180px;
+}
+.batch-img-item .remove-img { background: none; border: none; color: var(--hi); cursor: pointer; font-size: 12px; }
+.batch-img-item .remove-img:hover { color: #e05555; }
 </style>
 </head>
 
