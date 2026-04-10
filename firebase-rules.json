@@ -1,0 +1,82 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+
+    "adminWhitelist": {
+      ".read": "auth != null",
+      ".write": "auth != null && root.child('adminWhitelist').child(auth.token.email.replace('.', ',')).exists()"
+    },
+
+    "theme": {
+      ".read": true,
+      ".write": "auth != null && root.child('adminWhitelist').child(auth.token.email.replace('.', ',')).exists()"
+    },
+
+    "settings": {
+      ".read": true,
+      ".write": "auth != null && root.child('adminWhitelist').child(auth.token.email.replace('.', ',')).exists()",
+
+      "testimonials": {
+        ".read": true
+      },
+
+      "r2Config": {
+        ".read": "auth != null && root.child('adminWhitelist').child(auth.token.email.replace('.', ',')).exists()"
+      },
+
+      "lightMode": {
+        ".read": true
+      }
+    },
+
+    "beats": {
+      ".read": true,
+      ".write": "auth != null && root.child('adminWhitelist').child(auth.token.email.replace('.', ',')).exists()",
+
+      "$beatId": {
+        ".read": true,
+
+        "plays": {
+          ".write": true
+        }
+      }
+    },
+
+    "defaultLicenses": {
+      ".read": true,
+      ".write": "auth != null && root.child('adminWhitelist').child(auth.token.email.replace('.', ',')).exists()"
+    },
+
+    "customLinks": {
+      ".read": true,
+      ".write": "auth != null && root.child('adminWhitelist').child(auth.token.email.replace('.', ',')).exists()"
+    },
+
+    "customEmojis": {
+      ".read": true,
+      ".write": "auth != null && root.child('adminWhitelist').child(auth.token.email.replace('.', ',')).exists()"
+    },
+
+    "floatingElements": {
+      ".read": true,
+      ".write": "auth != null && root.child('adminWhitelist').child(auth.token.email.replace('.', ',')).exists()"
+    },
+
+    "analytics": {
+      ".read": "auth != null && root.child('adminWhitelist').child(auth.token.email.replace('.', ',')).exists()",
+
+      "counts": {
+        "$label": {
+          ".write": true
+        }
+      },
+
+      "daily": {
+        "$date": {
+          ".write": true
+        }
+      }
+    }
+  }
+}
