@@ -23,7 +23,6 @@ body{overflow-x:hidden;min-height:100vh;opacity:var(--bg-opacity)}
 @keyframes flotar{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
 @keyframes pulsar{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
 @keyframes rotar{0%{transform:rotate(-3deg)}50%{transform:rotate(3deg)}100%{transform:rotate(-3deg)}}
-@keyframes deslizar{0%{transform:translateX(-8px)}50%{transform:translateX(8px)}100%{transform:translateX(-8px)}}
 @keyframes rebotar{0%,100%{transform:translateY(0)}30%{transform:translateY(-12px)}60%{transform:translateY(-4px)}}
 @keyframes parpadeo{0%,100%{opacity:1}50%{opacity:0.4}}
 @keyframes sacudida{0%,100%{transform:translateX(0)}20%{transform:translateX(-4px)}40%{transform:translateX(4px)}60%{transform:translateX(-3px)}80%{transform:translateX(3px)}}
@@ -57,7 +56,6 @@ body{overflow-x:hidden;min-height:100vh;opacity:var(--bg-opacity)}
 .anim-flotar{animation:flotar var(--ad,2s) ease-in-out infinite;animation-delay:var(--adl,0s)}
 .anim-pulsar{animation:pulsar var(--ad,2s) ease-in-out infinite;animation-delay:var(--adl,0s)}
 .anim-rotar{animation:rotar var(--ad,2s) ease-in-out infinite;animation-delay:var(--adl,0s)}
-.anim-deslizar{animation:deslizar var(--ad,2s) ease-in-out infinite;animation-delay:var(--adl,0s)}
 .anim-rebotar{animation:rebotar var(--ad,2s) ease-in-out infinite;animation-delay:var(--adl,0s)}
 .anim-parpadeo{animation:parpadeo var(--ad,2s) ease-in-out infinite;animation-delay:var(--adl,0s)}
 .anim-sacudida{animation:sacudida var(--ad,2s) ease-in-out infinite;animation-delay:var(--adl,0s)}
@@ -93,7 +91,7 @@ body{overflow-x:hidden;min-height:100vh;opacity:var(--bg-opacity)}
 @keyframes bounce-in{0%{opacity:0;transform:scale(.3)}50%{transform:scale(1.08)}70%{transform:scale(.95)}100%{opacity:1;transform:scale(1)}}
 @keyframes elastic{0%{transform:scale(0)}55%{transform:scale(1.1)}70%{transform:scale(.95)}100%{transform:scale(1)}}
 @keyframes slide-up-fade{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
-@keyframes typing{from{width:0}to{width:100%}}
+@keyframes typing{from{clip-path:inset(0 100% 0 0)}to{clip-path:inset(0 0 0 0)}}
 /* Animation utility classes */
 .anim-deslizar-arriba{animation:deslizar-arriba var(--ad,2s) ease-in-out infinite;animation-delay:var(--adl,0s)}
 .anim-deslizar-abajo{animation:deslizar-abajo var(--ad,2s) ease-in-out infinite;animation-delay:var(--adl,0s)}
@@ -123,7 +121,7 @@ body{overflow-x:hidden;min-height:100vh;opacity:var(--bg-opacity)}
 .anim-bounce-in{animation:bounce-in var(--ad,.8s) ease-out infinite;animation-delay:var(--adl,0s)}
 .anim-elastic{animation:elastic var(--ad,1s) ease-out infinite;animation-delay:var(--adl,0s)}
 .anim-slide-up-fade{animation:slide-up-fade var(--ad,1s) ease-out infinite;animation-delay:var(--adl,0s)}
-.anim-typing{animation:typing var(--ad,2s) steps(20) infinite;animation-delay:var(--adl,0s);overflow:hidden;white-space:nowrap}
+.anim-typing{animation:typing var(--ad,2s) steps(20) infinite;animation-delay:var(--adl,0s);white-space:nowrap}
 
 /* ═══ SCROLL PROGRESS ═══ */
 #scroll-progress{position:fixed;top:0;left:0;height:2px;background:linear-gradient(90deg,var(--accent),#ff6b6b,var(--accent));z-index:99999;width:0%;transition:width .1s;box-shadow:0 0 10px var(--accent)}
