@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Cache-Control" content="public, max-age=300">
+<title>DACE · Beats</title>
+<meta name="description" content="Catálogo de beats originales · Puebla, MX">
+
+<!-- Open Graph / Social Sharing -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="DACE · Beats">
+<meta property="og:title" content="DACE · Beats que definen géneros">
+<meta property="og:description" content="Catálogo de beats originales desde Puebla, MX. Trap · R&B · Drill · Desde $350 MXN">
+<meta property="og:image" content="https://cdn.dacewav.store/og-cover.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:url" content="https://dacewav.store/">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="DACE · Beats que definen géneros">
+<meta name="twitter:description" content="Catálogo de beats originales desde Puebla, MX. Trap · R&B · Drill · Desde $350 MXN">
+<meta name="twitter:image" content="https://cdn.dacewav.store/og-cover.jpg">
+<meta name="theme-color" content="#060404">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>♦</text></svg>">
+<link rel="sitemap" type="application/xml" href="/sitemap.xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://www.gstatic.com">
+<link rel="dns-prefetch" href="https://dacewav-store-3b0f5-default-rtdb.firebaseio.com">
+<link id="gf-display" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&display=swap">
+<link id="gf-body" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="store-styles.css">
+</head>
+<body>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
+<div id="scroll-progress"></div>
+<div id="cursor-glow"></div>
+<div id="loader"><div id="loader-brand">DACE<em>&middot;</em></div><div class="ld-dots"><div class="ld"></div><div class="ld"></div><div class="ld"></div></div></div>
+<canvas id="particles-canvas"></canvas>
+<div class="orb orb1"></div><div class="orb orb2"></div><div class="orb orb3"></div>
+<div id="floating-layer"></div>
+<div class="inspector-highlight" id="inspector-hl"><div class="inspector-label" id="inspector-label"></div></div>
+
+<div id="site-banner"><div class="banner-inner" id="banner-inner"></div></div>
+<nav>
+  <a class="nav-brand" id="nav-brand" href="/"></a>
+  <div class="nav-links">
+    <a class="nav-link" href="#beats">Catálogo</a>
+    <a class="nav-link" href="#testimonials">Artistas</a>
+    <div id="nav-custom-links"></div>
+    <a class="nav-link" id="nav-wa" href="#" target="_blank">WhatsApp</a>
+    <a class="nav-cta" id="nav-ig" href="#" target="_blank">Instagram</a>
+    <button class="theme-toggle wish-nav-btn" onclick="toggleWishlist()" title="Favoritos">❤️<span class="wish-nav-badge" id="wish-nav-badge">0</span></button>
+    <button class="theme-toggle" id="theme-toggle" onclick="toggleTheme()" title="Cambiar tema">🌙</button>
+  </div>
+</nav>
+<section class="hero" id="hero-section">
+  <div class="hero-eyebrow">En vivo · Puebla, MX</div>
+  <h1 class="hero-title" id="hero-title">Beats que<br><span class="glow-word" data-t="definen géneros." style="color:var(--accent)">definen géneros.</span></h1>
+  <p class="hero-sub" id="hero-sub"></p>
+  <div id="hero-custom-links"></div>
+  <div class="hero-stats">
+    <div class="stat"><div class="stat-num" id="st-beats">—</div><div class="stat-label">beats</div></div>
+    <div class="stat"><div class="stat-num" id="st-genres">—</div><div class="stat-label">géneros</div></div>
+    <div class="stat"><div class="stat-num">5</div><div class="stat-label">licencias</div></div>
+  </div>
+</section>
+<!-- Section Divider -->
+<div class="section-divider reveal" id="section-divider">
+  <div class="section-divider-text" id="divider-title">Todo fire. <em>Zero filler.</em></div>
+  <div class="section-divider-sub" id="divider-sub">Beats profesionales desde Puebla, MX. Licencias para todos los niveles — desde bedroom producers hasta majors.</div>
+</div>
+<section class="section reveal" id="section-featured" style="display:none">
+  <div class="section-header"><h2 class="section-title">Destacados</h2><div class="section-line"></div><div class="section-badge">TOP</div></div>
+  <div class="beat-grid" id="feat-grid"></div>
+</section>
+<section class="section reveal" id="beats">
+  <div class="section-header"><h2 class="section-title">Catálogo completo</h2><div class="section-line"></div><div class="section-badge" id="ct-badge">—</div></div>
+  <div class="search-filter-bar" id="search-filter-bar">
+    <div class="search-row">
+      <div class="search-input-wrap">
+        <span class="search-icon">🔍</span>
+        <input type="text" class="search-input" id="search-input" placeholder="Buscar beats, tags, géneros..." oninput="applyFilters()">
+        <button class="search-clear" id="search-clear" onclick="clearSearch()">✕</button>
+      </div>
+      <select class="filter-select" id="filter-key" onchange="applyFilters()">
+        <option value="">Key</option>
+      </select>
+      <select class="filter-select" id="filter-mood" onchange="applyFilters()">
+        <option value="">Mood</option>
+      </select>
+      <select class="filter-select" id="filter-sort" onchange="applyFilters()">
+        <option value="order">Orden</option>
+        <option value="newest">Más recientes</option>
+        <option value="oldest">Más antiguos</option>
+        <option value="name-az">Nombre A-Z</option>
+        <option value="name-za">Nombre Z-A</option>
+        <option value="bpm-asc">BPM ↑</option>
+        <option value="bpm-desc">BPM ↓</option>
+        <option value="price-asc">Precio ↑</option>
+        <option value="price-desc">Precio ↓</option>
+      </select>
+    </div>
+    <div class="active-filters" id="active-filters"></div>
+    <div class="tag-cloud" id="tag-cloud"></div>
+    <div class="filters" id="filters"></div>
+  </div>
+  <div class="beat-grid" id="skeleton-grid">
+    <div class="skeleton-card"><div class="skeleton-img"></div><div class="skeleton-body"><div class="skeleton-line w60"></div><div class="skeleton-line w40"></div><div class="skeleton-line w80"></div></div></div>
+    <div class="skeleton-card"><div class="skeleton-img"></div><div class="skeleton-body"><div class="skeleton-line w60"></div><div class="skeleton-line w40"></div><div class="skeleton-line w80"></div></div></div>
+    <div class="skeleton-card"><div class="skeleton-img"></div><div class="skeleton-body"><div class="skeleton-line w60"></div><div class="skeleton-line w40"></div><div class="skeleton-line w80"></div></div></div>
+    <div class="skeleton-card"><div class="skeleton-img"></div><div class="skeleton-body"><div class="skeleton-line w60"></div><div class="skeleton-line w40"></div><div class="skeleton-line w80"></div></div></div>
+    <div class="skeleton-card"><div class="skeleton-img"></div><div class="skeleton-body"><div class="skeleton-line w60"></div><div class="skeleton-line w40"></div><div class="skeleton-line w80"></div></div></div>
+    <div class="skeleton-card"><div class="skeleton-img"></div><div class="skeleton-body"><div class="skeleton-line w60"></div><div class="skeleton-line w40"></div><div class="skeleton-line w80"></div></div></div>
+  </div>
+  <div class="beat-grid" id="main-grid"></div>
+</section>
+
+<section class="section reveal" id="testimonials" style="display:none">
+  <div class="section-header"><h2 class="section-title">Lo que dicen los artistas</h2><div class="section-line"></div></div>
+  <div class="testi-grid" id="testi-grid"></div>
+</section>
+<!-- CTA Section -->
+<div class="cta-section reveal">
+  <div class="cta-title">¿Listo para tu próximo hit?</div>
+  <div class="cta-sub">Contáctanos por WhatsApp y te ayudamos a encontrar el beat perfecto para tu proyecto.</div>
+  <a class="cta-btn" id="cta-wa" href="#" target="_blank">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+    Escríbenos
+  </a>
+</div>
+<footer>
+  <div><div class="footer-brand" id="footer-brand">DACE<em>·</em></div><div class="footer-sub">Todos los derechos reservados · Heroica Puebla de Zaragoza, MX</div></div>
+  <div class="footer-links">
+    <a class="footer-link" id="f-wa" href="#" target="_blank">WhatsApp</a>
+    <a class="footer-link" id="f-ig" href="#" target="_blank">Instagram</a>
+    <a class="footer-link" id="f-email" href="#">Email</a>
+    <div id="footer-custom-links"></div>
+  </div>
+</footer>
+<div id="player-bar">
+  <div class="pi-info">
+    <div class="pi-thumb" id="pi-thumb">♦</div>
+    <div><div class="pi-name" id="pi-name">—</div><div class="pi-meta" id="pi-meta">—</div></div>
+    <div class="pi-eq" id="pi-eq"><span style="--eq-h:14px"></span><span style="--eq-h:20px"></span><span style="--eq-h:10px"></span><span style="--eq-h:18px"></span><span style="--eq-h:8px"></span></div>
+  </div>
+  <div class="pi-center">
+    <div class="pi-controls">
+      <button class="ctrl" onclick="AP.prev()">⏮</button>
+      <button class="ctrl" onclick="AP.skip(-10)" style="font-size:9px">-10s</button>
+      <button class="ctrl-play" id="bar-play-btn" onclick="AP.toggle()"><svg id="bar-ic" width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><path d="M5 3l10 5-10 5V3z"/></svg></button>
+      <button class="ctrl" onclick="AP.skip(10)" style="font-size:9px">+10s</button>
+      <button class="ctrl" onclick="AP.next()">⏭</button>
+    </div>
+    <div class="prog-row"><span class="t" id="tc">0:00</span><div class="track" id="track" onclick="AP.seek(event)"><div class="track-fill" id="track-fill"></div></div><span class="t" id="td">0:00</span></div>
+  </div>
+  <div class="pi-right"><svg width="13" height="13" viewBox="0 0 16 16" fill="var(--muted)"><path d="M9 1v14l-4-4H1V5h4zm2 3a5 5 0 0 1 0 8l-.7-.7a4 4 0 0 0 0-6.6z"/></svg><input type="range" id="vol" min="0" max="1" step="0.01" value="1" oninput="AP.setVol(this.value)"></div>
+</div>
+<div class="modal-ov" id="modal-ov" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <div class="modal-hero" id="mhero"><div class="modal-hero-ph" id="mhero-ph">♦</div><div class="modal-hero-ov"><div class="modal-beat-name" id="m-name">—</div><div class="modal-beat-sub" id="m-sub"></div></div><button class="modal-close" onclick="closeModal()">&times;</button></div>
+    <div class="modal-body">
+      <div class="modal-player-wrap"><div class="modal-ctrl-row"><button class="m-play" id="m-play-btn" onclick="playModalBeat()"><svg id="m-ic" width="12" height="12" viewBox="0 0 16 16" fill="currentColor"><path d="M5 3l10 5-10 5V3z"/></svg></button><button class="m-ctrl" onclick="AP.skip(-10)">-10s</button><div class="prog-row" style="flex:1"><span class="t" id="m-tc">0:00</span><div class="track" onclick="AP.seekEl(event,this)"><div class="track-fill" id="m-fill"></div></div><span class="t" id="m-td">0:00</span></div><button class="m-ctrl" onclick="AP.skip(10)">+10s</button></div></div>
+      <p class="modal-desc" id="m-desc"></p>
+      <div class="modal-tags" id="m-tags"></div>
+      <div class="plat-links" id="m-plat"></div>
+      <div class="lic-title">Elige tu licencia</div>
+      <div class="lic-rows" id="m-lics"></div>
+      <div class="modal-acts" id="m-acts"></div>
+    </div>
+  </div>
+</div>
+<!-- Wishlist Panel -->
+<div class="wishlist-panel" id="wishlist-panel">
+  <div class="wl-drag-handle"></div>
+  <div class="wl-header">
+    <div class="wl-title">❤️ Favoritos <span class="wl-count-badge" id="wl-count">0</span></div>
+    <button class="wl-close" onclick="toggleWishlist()">✕</button>
+  </div>
+  <div class="wl-list" id="wl-list"></div>
+  <div class="wl-footer">
+    <button class="wl-send-btn" id="wl-send-btn" onclick="sendWishlistWhatsApp()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+      Enviar por WhatsApp
+    </button>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script src="dist/store-app.js"></script>
+<!-- DACEWAV.STORE v5.2.0 — 2026-04-09 — Modularized + esbuild -->
+<noscript>
+  <style>#loader{display:none!important}</style>
+  <div style="background:#060404;color:#f5eeee;font-family:monospace;padding:3rem;text-align:center;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1rem">
+    <div style="font-size:2rem;font-weight:800">DACE<span style="color:#dc2626">·</span> Beats</div>
+    <p style="color:rgba(245,238,238,0.5);max-width:400px;line-height:1.8">Este sitio necesita JavaScript para funcionar. Habilita JavaScript en tu navegador o usa uno moderno.</p>
+    <a href="https://dacewav.store" style="color:#dc2626;text-decoration:none;border:1px solid rgba(220,38,38,0.5);padding:8px 20px;border-radius:8px">Reintentar</a>
+  </div>
+</noscript>
+</body>
+</html>
