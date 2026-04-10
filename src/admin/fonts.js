@@ -2,7 +2,8 @@
 import { FONT_DISPLAY, FONT_BODY } from './config.js';
 import { _fpState } from './state.js';
 import { g, val, setVal, loadFont, showToast } from './helpers.js';
-import { updatePreview, autoSave } from './core.js';
+import { updatePreview } from './core-preview.js';
+import { autoSave } from './core-persistence.js';
 
 const FP_CATS = {
   display: { all: 'Todas', sans: 'Sans', display: 'Display', serif: 'Serif', mono: 'Mono', custom: 'Custom' },

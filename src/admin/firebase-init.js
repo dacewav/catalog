@@ -7,7 +7,7 @@ import {
   defLics, setDefLics, customLinks, setCustomLinks,
   setLdTheme, setLdSettings, setLdBeats,
 } from './state.js';
-import { loadThemeUI, loadSettingsUI } from './core.js';
+import { loadThemeUI, loadSettingsUI } from './core-ui.js';
 import { loadR2Config } from './r2.js';
 import { renderBeatList } from './beats.js';
 import { renderLinksEditor, renderTestiEditor, renderDefLicsEditor } from './features.js';

@@ -5,7 +5,7 @@ import { applyAnim } from './utils.js';
 
 export function applySettings() {
   const s = state.siteSettings;
-  const T = state.theme || {};
+  const T = state.T || {};
   const customEmojis = state.customEmojis || [];
   const brand = document.getElementById('nav-brand');
   if (brand) {

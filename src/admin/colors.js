@@ -2,7 +2,10 @@
 import { COLOR_DEFS } from './config.js';
 import { g } from './helpers.js';
 import { hexFromRgba, rgbaFromHex } from './helpers.js';
-import { updatePreview, autoSave } from './core.js';
+// Setter refs — wired by core.js to break circular dependency with core-preview/core-persistence
+let _updatePreview = () => {};
+let _autoSave = () => {};
+export function setColorRefs(up, as) { _updatePreview = up; _autoSave = as; }
 
 export function buildColorEditor() {
   const el = g('color-editor'); if (!el) return;
@@ -41,7 +44,7 @@ export function syncColorAlpha(prop, id, alpha) {
 export function applyColor(prop, hex) {
   const syncMap = { glowColor: ['tc-glow', 'tt-glow', 'h-stroke-clr'], accent: ['tc-glow'], particlesColor: ['p-color'], bannerBg: ['b-bg'], btnLicClr: ['tc-btn-clr', 'tt-btn-clr'], btnLicBdr: ['tc-btn-bdr', 'tt-btn-bdr'], btnLicBg: ['tc-btn-bg', 'tt-btn-bg'], wbarColor: ['tc-wbar', 'tt-wbar'], wbarActive: ['tc-wbar-a', 'tt-wbar-a'], cardShadowColor: ['tc-shadow'] };
   const ids = syncMap[prop]; if (ids) ids.forEach(fid => { const el = g(fid); if (el) el.value = hex; });
-  updatePreview(); autoSave();
+  _updatePreview(); _autoSave();
 }
 export function loadColorValues() {
   COLOR_DEFS.forEach(c => {

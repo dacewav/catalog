@@ -39,13 +39,6 @@ vi.mock('../src/admin/helpers.js', () => ({
   setAutoSaveRef: vi.fn(),
 }));
 
-vi.mock('../src/admin/core.js', () => ({
-  updatePreview: mockUpdatePreview,
-  autoSave: mockAutoSave,
-  computeGlowCSS: vi.fn(),
-  collectTheme: vi.fn(),
-}));
-
 vi.mock('../src/admin/config.js', () => ({
   COLOR_DEFS: [
     { id: 'tc-bg', prop: 'bg', label: 'Fondo', def: '#060404' },
@@ -59,8 +52,11 @@ vi.mock('../src/admin/config.js', () => ({
 import {
   buildColorEditor, syncColor, syncColorText, syncColorAlpha,
   applyColor, loadColorValues, syncGlowColor, syncWB, syncWBA,
-  syncBtnColor, syncBtnBdr, syncBtnBg,
+  syncBtnColor, syncBtnBdr, syncBtnBg, setColorRefs,
 } from '../src/admin/colors.js';
+
+// Wire mock refs for colors.js (replaces what core.js does in production)
+setColorRefs(mockUpdatePreview, mockAutoSave);
 
 describe('buildColorEditor', () => {
   beforeEach(() => {

@@ -15,6 +15,7 @@ vi.mock('../src/admin/helpers.js', () => ({
   setChecked: vi.fn((id, v) => { if (mockElements[id]) mockElements[id].checked = v; }),
   showToast: vi.fn(),
   showSaving: vi.fn(),
+  setAutoSaveRef: vi.fn(),
 }));
 
 vi.mock('../src/admin/state.js', () => ({

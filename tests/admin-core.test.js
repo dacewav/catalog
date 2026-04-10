@@ -52,6 +52,7 @@ vi.mock('../src/admin/config.js', () => ({
 
 vi.mock('../src/admin/colors.js', () => ({
   loadColorValues: vi.fn(),
+  setColorRefs: vi.fn(),
 }));
 
 import { computeGlowCSS, collectTheme } from '../src/admin/core.js';

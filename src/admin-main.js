@@ -1,4 +1,4 @@
-// ═══ DACEWAV.STORE — Admin Entry Point (v5.4.0) ═══
+// ═══ DACEWAV.STORE — Admin Entry Point (v5.3) ═══
 // This bundle replaces the inline <script> in admin.html
 
 // Import config & constants
@@ -25,4 +25,4 @@ import './admin/stubs.js';
 // Import auth & firebase init (bootstraps everything)
 import './admin/firebase-init.js';
 
-console.log('[DACE Admin] v5.4.0 bundle loaded');
+console.log('[DACE Admin] v5.4 bundle loaded');

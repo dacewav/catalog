@@ -1,6 +1,7 @@
 // ═══ DACEWAV Admin — Navigation ═══
 import { g } from './helpers.js';
-import { updateHeroPv, initParticlesPreview } from './core.js';
+import { updateHeroPv } from './core-preview.js';
+import { initParticlesPreview } from './core-effects.js';
 import { initPColors } from './colors.js';
 
 export function showSection(name) {

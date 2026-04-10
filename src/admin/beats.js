@@ -2,7 +2,7 @@
 import { db, allBeats, setAllBeats, editId, setEditId, defLics, _edLics, setEdLics, _dragBeatId, setDragBeatId, _batchImgQueue, setBatchImgQueue } from './state.js';
 import { g, val, setVal, checked, setChecked, showToast, showSaving } from './helpers.js';
 import { showSection } from './nav.js';
-import { autoSave } from './core.js';
+import { autoSave } from './core-persistence.js';
 import { R2_ENABLED, uploadToR2 } from './r2.js';
 
 let _beatSearchQuery = '';
@@ -74,7 +74,7 @@ function collectLics() { const lics = []; g('le-editor').querySelectorAll('.lic-
 export function loadDefaultLics() { renderLicEditor(JSON.parse(JSON.stringify(defLics))); showToast('Licencias base cargadas'); }
 
 // Upload helpers
-function prevImg() { const url = val('f-img'); g('img-prev').innerHTML = url ? '<img src="' + url + '" style="max-width:160px;max-height:100px;border-radius:6px;border:1px solid var(--b)">' : ''; }
+export function prevImg() { const url = val('f-img'); g('img-prev').innerHTML = url ? '<img src="' + url + '" style="max-width:160px;max-height:100px;border-radius:6px;border:1px solid var(--b)">' : ''; }
 export function uploadBeatImg(input) {
   const file = input.files[0]; if (!file) return;
   if (!R2_ENABLED) { showToast('R2 Worker no configurado.', true); input.value = ''; return; }
@@ -104,6 +104,24 @@ export function uploadBeatPreview(input) {
   uploadToR2(file, 'beats/' + beatId + '/previews/' + file.name.replace(/[^a-zA-Z0-9._-]/g, '_'))
     .then(r => { setVal('f-prev', r.url); updateMP(); showSaving(false); btn.disabled = false; btn.textContent = '📤'; showToast('Preview subido ✓'); })
     .catch(err => { showSaving(false); btn.disabled = false; btn.textContent = '📤'; showToast('Error: ' + err.message, true); });
+  input.value = '';
+}
+
+// Batch preview upload (multiple files)
+export function uploadPreviews(input) {
+  const files = Array.from(input.files || []); if (!files.length) return;
+  if (!R2_ENABLED) { showToast('R2 Worker no configurado.', true); input.value = ''; return; }
+  showSaving(true);
+  let done = 0, ok = 0;
+  files.forEach(file => {
+    const name = file.name.replace(/\.[^.]+$/, '');
+    const match = allBeats.find(b => b.name.toLowerCase() === name.toLowerCase());
+    if (!match) { done++; if (done >= files.length) { showSaving(false); showToast(ok + '/' + files.length + ' previews subidas ✓'); } return; }
+    uploadToR2(file, 'beats/' + match.id + '/previews/' + file.name.replace(/[^a-zA-Z0-9._-]/g, '_'))
+      .then(r => db.ref('beats/' + match.id + '/previewUrl').set(r.url))
+      .then(() => { done++; ok++; if (done >= files.length) { showSaving(false); showToast(ok + '/' + files.length + ' previews subidas ✓'); } })
+      .catch(() => { done++; if (done >= files.length) { showSaving(false); showToast(ok + '/' + files.length + ' previews subidas ✓'); } });
+  });
   input.value = '';
 }
 
@@ -231,9 +249,10 @@ export function updateMP() {
 Object.assign(window, {
   filterBeatList, renderBeatList, dragStart, dragOver, dropBeat, dragEnd,
   openEditor, upLic, addLicRow, rmLic, loadDefaultLics,
-  uploadBeatImg, uploadBeatAudio, uploadBeatPreview,
+  uploadBeatImg, uploadBeatAudio, uploadBeatPreview, uploadPreviews,
   saveBeat, deleteBeat, quickDel,
   inlineEditName, inlineEditBpm, inlineEditKey,
+  prevImg,
   openBatchImg, closeBatchImg, handleBatchImgFiles, clearBatchImgQueue, saveBatchImages,
   batchAddBeats, toggleMP, seekMP, updateMP
 });

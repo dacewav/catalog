@@ -6,7 +6,7 @@ import { g, val, setVal, showToast, showSaving } from './helpers.js';
 
 // ═══ DEFAULT LICENSES ═══
 export function renderDefLicsEditor() {
-  const el = g('def-lics-editor'); if (!el) return;
+  const el = g('deflics-editor') || g('def-lics-editor'); if (!el) return;
   el.innerHTML = (defLics || []).map((l, i) =>
     '<div class="lic-ed-row" data-idx="' + i + '"><div class="lic-ed-grid"><input type="text" placeholder="Nombre" value="' + (l.name || '') + '" onchange="upDefLic(' + i + ',\'name\',this.value)"><input type="number" placeholder="MXN" value="' + (l.priceMXN || '') + '" onchange="upDefLic(' + i + ',\'mxn\',this.value)"><input type="number" placeholder="USD" value="' + (l.priceUSD || '') + '" onchange="upDefLic(' + i + ',\'usd\',this.value)"></div><input type="text" placeholder="Descripción" value="' + (l.description || '') + '" style="font-size:10px" onchange="upDefLic(' + i + ',\'desc\',this.value)"><button class="btn btn-del" style="margin-top:4px;font-size:9px" onclick="rmDefLic(' + i + ')">✕</button></div>'
   ).join('') || '<div style="color:var(--hi);font-size:10px">Sin licencias base</div>';
