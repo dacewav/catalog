@@ -215,7 +215,19 @@ function listenBeats() {
     }
 
     const beats = Object.entries(raw)
-      .map(([id, beat]) => ({ id, ...beat }))
+      .map(([id, beat]) => ({
+        id,
+        title: beat.title || beat.name || 'Untitled',
+        bpm: beat.bpm || 0,
+        key: beat.key || '',
+        genre: beat.genre || '',
+        coverUrl: beat.coverUrl || beat.imageUrl || '',
+        audioUrl: beat.audioUrl || beat.previewUrl || '',
+        status: beat.status || (beat.active ? 'active' : 'draft'),
+        plays: beat.plays || 0,
+        featured: beat.featured || false,
+        exclusive: beat.exclusive || false,
+      }))
       .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
 
     beats.forEach(beat => {

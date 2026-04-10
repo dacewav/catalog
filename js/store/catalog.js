@@ -238,7 +238,7 @@ function listenBeats() {
     }
 
     beatsData = Object.entries(raw)
-      .map(([id, beat]) => ({ id, ...beat }))
+      .map(([id, beat]) => normalizeBeat(id, beat))
       .filter(b => b.status === 'active');
 
     // Expose for wishlist module
@@ -542,6 +542,34 @@ function getMinPriceNum(beat) {
     const p = typeof t === 'object' ? (t.mxn || Infinity) : Infinity;
     return p < min ? p : min;
   }, Infinity);
+}
+
+function normalizeBeat(id, b) {
+  return {
+    id,
+    title: b.title || b.name || 'Untitled',
+    slug: b.slug || '',
+    bpm: b.bpm || 0,
+    key: b.key || '',
+    genre: b.genre || '',
+    mood: b.mood || '',
+    tags: b.tags || [],
+    description: b.description || '',
+    audioUrl: b.audioUrl || b.previewUrl || '',
+    coverUrl: b.coverUrl || b.imageUrl || '',
+    duration: b.duration || 0,
+    plays: b.plays || 0,
+    featured: b.featured || false,
+    status: b.status || (b.active ? 'active' : 'draft'),
+    exclusive: b.exclusive || false,
+    accentColor: b.accentColor || '',
+    spotify: b.spotify || '',
+    youtube: b.youtube || '',
+    soundcloud: b.soundcloud || '',
+    licenses: b.licenses || {},
+    createdAt: b.createdAt || b.date || 0,
+    updatedAt: b.updatedAt || 0,
+  };
 }
 
 function formatMeta(beat) {
