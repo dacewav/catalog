@@ -186,7 +186,7 @@ export function updateHeroPv() {
   const v = (id, def) => { const el = $(id); return el ? el.value : def; };
   const c = (id) => { const el = $(id); return el ? el.checked : false; };
 
-  const accent = v('h-stroke-clr') || v('tc-glow') || '#dc2626';
+  const accent = v('tc-glow') || '#dc2626';
   const fd = v('t-font-d', 'Syne');
 
   // Title
@@ -201,6 +201,7 @@ export function updateHeroPv() {
   const wordBlur = parseInt(v('h-word-blur', '10')) || 10;
   const wordOp = parseFloat(v('h-word-op', '0.35'));
   const strokeClr = v('h-stroke-clr', accent);
+  const glowClr = v('h-glow-clr', accent);
 
   // Title glow
   const glowOn = c('h-glow-on');
@@ -268,29 +269,24 @@ export function updateHeroPv() {
     pvt.style.fontSize = titleSize + 'rem';
     pvt.style.letterSpacing = ls + 'em';
     pvt.style.lineHeight = String(lh);
-    pvt.style.textShadow = glowOn ? '0 0 ' + glowBlur + 'px ' + hexRgba(accent, glowInt) : 'none';
+    pvt.style.textShadow = glowOn ? '0 0 ' + glowBlur + 'px ' + hexRgba(glowClr, glowInt) : 'none';
 
-    // Build title HTML — only use glow-word when effects are active
-    const useGlowWord = strokeOn || glowOn;
+    // Build title HTML
     let html = '';
     if (otherLines.length) {
       html += '<span style="color:' + textClr + '">' + otherLines.map(l => escapeHtml(l)).join('<br>') + '</span><br>';
     }
     if (lastLine) {
       const escapedLine = escapeHtml(lastLine);
-      if (useGlowWord) {
-        const classes = ['glow-word'];
-        const styles = ['--hw-blur:' + wordBlur + 'px', '--hw-op:' + wordOp];
-        if (strokeOn) {
-          classes.push('stroke-mode');
-          styles.push('color:transparent', '-webkit-text-stroke:' + strokeW + 'px ' + strokeClr);
-        } else {
-          styles.push('color:' + strokeClr);
-        }
-        html += '<span class="' + classes.join(' ') + '" data-t="' + escapedLine + '" style="' + styles.join(';') + '">' + escapedLine + '</span>';
+      const classes = ['glow-word'];
+      const styles = ['--hw-blur:' + wordBlur + 'px', '--hw-op:' + wordOp];
+      if (strokeOn) {
+        classes.push('stroke-mode');
+        styles.push('color:transparent', '-webkit-text-stroke:' + strokeW + 'px ' + strokeClr);
       } else {
-        html += '<span style="color:' + textClr + '">' + escapedLine + '</span>';
+        styles.push('color:' + textClr);
       }
+      html += '<span class="' + classes.join(' ') + '" data-t="' + escapedLine + '" style="' + styles.join(';') + '">' + escapedLine + '</span>';
     }
     pvt.innerHTML = html;
   }
@@ -422,7 +418,7 @@ export function collectTheme() {
     animCards: collectAnim('cards'), animButtons: collectAnim('buttons'), animWaveform: collectAnim('waveform'),
     layout: { heroMarginTop: parseFloat(val('t-hero-top')) || 7, playerBottom: parseInt(val('t-player-bot')) || 0, logoOffsetX: parseInt(val('t-logo-ox')) || 0 },
     heroTitleCustom: val('h-title') || '', heroSubCustom: val('h-sub') || '', heroEyebrow: val('h-eyebrow') || '',
-    heroGlowOn: checked('h-glow-on'), heroGlowInt: parseFloat(val('h-glow-int')) || 1, heroGlowBlur: parseInt(val('h-glow-blur')) || 20,
+    heroGlowOn: checked('h-glow-on'), heroGlowInt: parseFloat(val('h-glow-int')) || 1, heroGlowBlur: parseInt(val('h-glow-blur')) || 20, heroGlowClr: val('h-glow-clr') || '#dc2626',
     heroStrokeOn: checked('h-stroke-on'), heroStrokeW: parseFloat(val('h-stroke-w')) || 1, heroWordBlur: parseInt(val('h-word-blur')) || 10, heroWordOp: parseFloat(val('h-word-op')) || 0.35, heroStrokeClr: val('h-stroke-clr') || '#dc2626',
     heroGradOn: checked('h-grad-on'), heroGradClr: val('h-grad-clr') || '#dc2626', heroGradOp: parseFloat(val('h-grad-op')) || 0.14, heroGradW: parseInt(val('h-grad-w')) || 80, heroGradH: parseInt(val('h-grad-h')) || 60,
     heroTitleSize: parseFloat(val('h-title-size')) || 2.8, heroPadTop: parseFloat(val('h-pad-top')) || 7, heroLetterSpacing: parseFloat(val('h-ls')) || -0.04, heroLineHeight: parseFloat(val('h-lh')) || 1,
@@ -476,7 +472,7 @@ export function loadThemeUI() {
   if (T.heroTitleCustom) s('h-title', T.heroTitleCustom);
   if (T.heroSubCustom) s('h-sub', T.heroSubCustom);
   if (T.heroEyebrow) s('h-eyebrow', T.heroEyebrow);
-  s('h-glow-int', T.heroGlowInt); s('h-glow-blur', T.heroGlowBlur);
+  s('h-glow-int', T.heroGlowInt); s('h-glow-blur', T.heroGlowBlur); s('h-glow-clr', T.heroGlowClr);
   setChecked('h-glow-on', T.heroGlowOn); setChecked('h-stroke-on', T.heroStrokeOn);
   s('h-stroke-w', T.heroStrokeW); s('h-word-blur', T.heroWordBlur); s('h-word-op', T.heroWordOp); s('h-stroke-clr', T.heroStrokeClr);
   setChecked('h-grad-on', T.heroGradOn); s('h-grad-clr', T.heroGradClr); s('h-grad-op', T.heroGradOp); s('h-grad-w', T.heroGradW); s('h-grad-h', T.heroGradH);
@@ -784,7 +780,7 @@ export function renderChangeLog() {
   wrap.innerHTML = _changeLog.length ? _changeLog.slice(0, 20).map(c => '<div style="display:flex;gap:6px;padding:3px 0;border-bottom:1px solid var(--b);font-size:10px"><span style="color:var(--hi);min-width:50px">' + c.time + '</span><span style="flex:1">' + c.label + '</span><span style="color:var(--mu)">' + (c.oldVal || '—') + ' → ' + (c.newVal || '—') + '</span></div>').join('') : '<div style="color:var(--hi);font-size:10px">Sin cambios registrados</div>';
 }
 export function logFieldChange() {
-  const fields = ['tc-bg', 'tc-surface', 'tc-accent', 'tc-text', 'tc-muted', 'tc-border', 't-font-d', 't-font-m', 't-font-size', 't-line-h', 't-glow', 't-glow-type', 't-glow-blur', 't-glow-int', 't-glow-op', 't-glow-anim', 't-blur', 't-card-op', 't-grain', 't-radius', 't-bg-op', 't-btn-op', 't-btn-hop', 'h-title', 'h-sub', 'h-eyebrow', 'h-title-size', 'h-ls', 'h-lh', 'h-pad-top', 'h-stroke-on', 'h-glow-on', 'h-grad-on', 'h-grad-clr', 'h-grad-w', 'h-grad-h', 'h-word-blur', 'h-word-op', 'p-on', 'p-type', 'p-count', 'p-color', 'p-speed', 'p-opacity', 'b-active', 'b-text', 'b-anim', 'b-speed', 'b-bg', 'b-txt-clr', 't-hero-top', 't-player-bot', 't-logo-ox', 't-logo-url', 't-logo-w', 't-logo-scale', 't-logo-rot', 'tt-wbar', 'tt-wbar-a', 'tt-btn-clr', 'tt-btn-bdr', 'tt-btn-bg', 's-name', 's-wa', 's-ig', 's-email', 's-hero', 's-sub'];
+  const fields = ['tc-bg', 'tc-surface', 'tc-accent', 'tc-text', 'tc-muted', 'tc-border', 't-font-d', 't-font-m', 't-font-size', 't-line-h', 't-glow', 't-glow-type', 't-glow-blur', 't-glow-int', 't-glow-op', 't-glow-anim', 't-blur', 't-card-op', 't-grain', 't-radius', 't-bg-op', 't-btn-op', 't-btn-hop', 'h-title', 'h-sub', 'h-eyebrow', 'h-title-size', 'h-ls', 'h-lh', 'h-pad-top', 'h-stroke-on', 'h-glow-on', 'h-grad-on', 'h-grad-clr', 'h-grad-w', 'h-grad-h', 'h-word-blur', 'h-word-op', 'h-glow-clr', 'h-stroke-clr', 'p-on', 'p-type', 'p-count', 'p-color', 'p-speed', 'p-opacity', 'b-active', 'b-text', 'b-anim', 'b-speed', 'b-bg', 'b-txt-clr', 't-hero-top', 't-player-bot', 't-logo-ox', 't-logo-url', 't-logo-w', 't-logo-scale', 't-logo-rot', 'tt-wbar', 'tt-wbar-a', 'tt-btn-clr', 'tt-btn-bdr', 'tt-btn-bg', 's-name', 's-wa', 's-ig', 's-email', 's-hero', 's-sub'];
   fields.forEach(id => {
     const el = g(id); if (!el) return;
     const v = el.type === 'checkbox' ? el.checked : el.value;

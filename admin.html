@@ -1230,6 +1230,7 @@ body.light .batch-img-drop input[type="file"] { opacity: 0; }
               <div class="field"><label>Intensidad título</label><div class="slider-wrap"><input type="range" id="h-glow-int" min="0" max="5" step="0.1" value="1" oninput="sv(this);updateHeroPv();autoSave()"><span class="slider-val">1.0x</span></div></div>
               <div class="field"><label>Alcance brillo</label><div class="slider-wrap"><input type="range" id="h-glow-blur" min="0" max="100" value="20" oninput="sv(this);updateHeroPv();autoSave()"><span class="slider-val">20px</span></div></div>
             </div>
+            <div class="color-wrap"><label>Color del glow</label><div class="color-swatch"><input type="color" id="h-glow-clr" value="#dc2626" oninput="updateHeroPv();autoSave()"></div></div>
             <div class="tog-row" style="margin-top:6px"><input type="checkbox" class="tog" id="h-stroke-on" onchange="updateHeroPv();autoSave()"><span class="tog-lbl">Outline (solo borde de la última palabra)</span></div>
             <div class="fg2">
               <div class="field"><label>Grosor borde</label><div class="slider-wrap"><input type="range" id="h-stroke-w" min="0" max="8" step="0.5" value="1" oninput="sv(this);updateHeroPv();autoSave()"><span class="slider-val">1.0px</span></div></div>

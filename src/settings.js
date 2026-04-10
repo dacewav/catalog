@@ -8,8 +8,10 @@ function _buildHero(s, T) {
   const ht = document.getElementById('hero-title');
   if (!ht) return;
 
-  const accent = T.heroStrokeClr || T.glowColor || T.accent || '#dc2626';
+  const accent = T.glowColor || T.accent || '#dc2626';
   const heroTextClr = T.heroTextClr || T.text || '#f0f0f2';
+  const strokeClr = T.heroStrokeClr || accent;
+  const glowClr = T.heroGlowClr || accent;
   const strokeOn = T.heroStrokeOn === true;
   const glowOn = T.heroGlowOn !== false;
   const strokeW = T.heroStrokeW || 1;
@@ -31,27 +33,16 @@ function _buildHero(s, T) {
   lines.forEach((line, i) => {
     const safe = line.replace(/</g, '&lt;').replace(/>/g, '&gt;');
     if (i < lastIdx) {
-      // Regular lines
-      html += `<span style="color:${heroTextClr}">${safe}</span>`;
-      if (i < lastIdx) html += '<br>';
+      html += `<span style="color:${heroTextClr}">${safe}</span><br>`;
     } else {
-      // Last line gets glow/stroke treatment
-      const hasEffect = strokeOn || glowOn;
-      if (hasEffect) {
-        const classes = ['glow-word'];
-        if (strokeOn) classes.push('stroke-mode');
-        const styles = [];
-        if (strokeOn) {
-          styles.push(`-webkit-text-stroke:${strokeW}px ${accent}`);
-        } else {
-          styles.push(`color:${accent}`);
-        }
-        styles.push(`--hw-blur:${wordBlur}px`);
-        styles.push(`--hw-op:${wordOp}`);
-        html += `<span class="${classes.join(' ')}" data-t="${safe}" style="${styles.join(';')}">${safe}</span>`;
-      } else {
-        html += `<span style="color:${heroTextClr}">${safe}</span>`;
-      }
+      // Last line: glow-word always (for ::after pseudo-element)
+      const classes = ['glow-word'];
+      if (strokeOn) classes.push('stroke-mode');
+      const styles = [`color:${strokeOn ? 'transparent' : heroTextClr}`];
+      if (strokeOn) styles.push(`-webkit-text-stroke:${strokeW}px ${strokeClr}`);
+      styles.push(`--hw-blur:${wordBlur}px`);
+      styles.push(`--hw-op:${wordOp}`);
+      html += `<span class="${classes.join(' ')}" data-t="${safe}" style="${styles.join(';')}">${safe}</span>`;
     }
   });
   ht.innerHTML = html;
@@ -60,7 +51,7 @@ function _buildHero(s, T) {
   if (fontSize) ht.style.fontSize = fontSize + 'rem';
   if (ls != null) ht.style.letterSpacing = ls + 'em';
   if (lh) ht.style.lineHeight = String(lh);
-  ht.style.textShadow = glowOn ? `0 0 ${glowBlur}px ${hexRgba(accent, glowInt)}` : 'none';
+  ht.style.textShadow = glowOn ? `0 0 ${glowBlur}px ${hexRgba(glowClr, glowInt)}` : 'none';
 
   // Subtitle
   const heroSub = document.getElementById('hero-sub');
