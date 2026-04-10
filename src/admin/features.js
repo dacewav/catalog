@@ -93,9 +93,14 @@ export function saveTestis() {
 }
 
 // ═══ SHOW ET (editor tabs) ═══
+// NOTE: nav.js also exports showEt. This version must match nav.js behavior
+// because esbuild may resolve the window assignment from either module.
+// The HTML uses #etp-info, #etp-lics, etc. IDs — NOT data-et/data-etp.
 export function showEt(name) {
-  document.querySelectorAll('#sec-add .et').forEach(t => t.classList.toggle('on', t.dataset.et === name));
-  document.querySelectorAll('#sec-add .etp').forEach(p => p.classList.toggle('on', p.dataset.etp === name));
+  document.querySelectorAll('#sec-add .et').forEach(t => t.classList.remove('on'));
+  document.querySelectorAll('#sec-add .etp').forEach(p => p.classList.remove('on'));
+  if (event && event.target) event.target.classList.add('on');
+  const p = g('etp-' + name); if (p) p.classList.add('on');
 }
 
 // ═══ COPY CMD ═══
