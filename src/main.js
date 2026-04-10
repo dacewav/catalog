@@ -238,7 +238,7 @@ window.addEventListener('load', () => {
     firebase.initializeApp(FC);
     state.db = firebase.database();
 
-    // Load cached theme + settings immediately so hero shows without waiting for Firebase
+    // Load cached theme + settings + beats immediately so page shows without waiting for Firebase
     const lt = localStorage.getItem('dace-theme');
     if (lt) {
       state.T = JSON.parse(lt);
@@ -249,8 +249,14 @@ window.addEventListener('load', () => {
       state.siteSettings = JSON.parse(lset);
       state.ldSettings = true;
     }
+    const lbeats = localStorage.getItem('dace-beats');
+    if (lbeats) {
+      state.allBeats = JSON.parse(lbeats);
+      state.ldBeats = true;
+    }
     if (state.T) applyTheme(state.T);
     applySettings();
+    if (state.allBeats.length) renderAll();
     _checkReady();
 
     // Firebase listeners (overwrite cache with live data)
@@ -285,6 +291,7 @@ window.addEventListener('load', () => {
         .filter((b) => b.active !== false && b.id && b.id !== 'undefined')
         .sort((a, b) => (a.order || 0) - (b.order || 0));
       renderAll();
+      localStorage.setItem('dace-beats', JSON.stringify(state.allBeats));
       state.ldBeats = true;
       _checkReady();
       clearTimeout(loaderTimeout);
@@ -303,6 +310,8 @@ window.addEventListener('load', () => {
     if (lt2) { state.T = JSON.parse(lt2); applyTheme(state.T); }
     const ls = localStorage.getItem('dace-settings');
     if (ls) { state.siteSettings = JSON.parse(ls); applySettings(); }
+    const lb2 = localStorage.getItem('dace-beats');
+    if (lb2) { state.allBeats = JSON.parse(lb2); renderAll(); }
   }
 
   observeStagger();
