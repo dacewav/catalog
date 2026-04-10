@@ -79,21 +79,24 @@ export function setupCardTilt() {
 }
 
 // ─── Staggered Reveal ───
+let _staggerObs = null;
+
 export function observeStagger() {
-  const obs = new IntersectionObserver((entries) => {
+  if (_staggerObs) _staggerObs.disconnect();
+  _staggerObs = new IntersectionObserver((entries) => {
     entries.forEach((e) => {
       if (e.isIntersecting) {
         e.target.classList.add('vis');
-        obs.unobserve(e.target);
+        _staggerObs.unobserve(e.target);
       }
     });
   }, { threshold: 0.05, rootMargin: '0px 0px -40px 0px' });
 
-  document.querySelectorAll('.reveal').forEach((el) => obs.observe(el));
+  document.querySelectorAll('.reveal').forEach((el) => _staggerObs.observe(el));
   document.querySelectorAll('.beat-card').forEach((c, i) => {
     c.style.setProperty('--si', i);
     c.classList.add('reveal', 'reveal-stagger');
-    obs.observe(c);
+    _staggerObs.observe(c);
   });
 }
 
@@ -159,6 +162,8 @@ function _drawStar(ctx, cx, cy, r, pts) {
   ctx.fill();
 }
 
+let _particlesResizeHandler = null;
+
 export function initParticles() {
   pCanvas = document.getElementById('particles-canvas');
   if (!pCanvas) return;
@@ -166,10 +171,12 @@ export function initParticles() {
   pCanvas.width = window.innerWidth;
   pCanvas.height = window.innerHeight;
 
-  window.addEventListener('resize', () => {
-    pCanvas.width = window.innerWidth;
-    pCanvas.height = window.innerHeight;
-  });
+  // Remove previous resize handler to prevent accumulation
+  if (_particlesResizeHandler) window.removeEventListener('resize', _particlesResizeHandler);
+  _particlesResizeHandler = () => {
+    if (pCanvas) { pCanvas.width = window.innerWidth; pCanvas.height = window.innerHeight; }
+  };
+  window.addEventListener('resize', _particlesResizeHandler);
 
   particles = [];
   const T = state.T;
@@ -260,7 +267,11 @@ function _animateParticles() {
 }
 
 // ─── Initialize all scroll/visual effects ───
+let _scrollInitDone = false;
+
 export function initAllEffects() {
+  if (_scrollInitDone) return;
+  _scrollInitDone = true;
   initCursorGlow();
   initScrollProgress();
   initHeroParallax();

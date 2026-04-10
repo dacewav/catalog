@@ -116,6 +116,8 @@ window.addEventListener('storage', (e) => {
 
 // ─── PostMessage bridge (admin iframe) ───
 window.addEventListener('message', (e) => {
+  const _pmOrigin = window.location?.origin || '*';
+  if (e.origin !== _pmOrigin) return;
   const d = e.data;
   if (!d || !d.type) return;
   switch (d.type) {
@@ -198,7 +200,7 @@ function setupInspector() {
     if (label) label.textContent = selector;
 
     if (window.parent !== window) {
-      window.parent.postMessage({ type: 'element-clicked', info: { tag: el.tagName, id: el.id, classes: el.className, text: (el.textContent || '').substring(0, 50) }, selector }, '*');
+      window.parent.postMessage({ type: 'element-clicked', info: { tag: el.tagName, id: el.id, classes: el.className, text: (el.textContent || '').substring(0, 50) }, selector }, window.location?.origin || '*');
     }
   }, true);
 }
@@ -207,7 +209,7 @@ function setupInspector() {
 window.addEventListener('load', () => {
   setupInspector();
   if (window.parent !== window) {
-    window.parent.postMessage({ type: 'index-ready', ver: DACE_VER }, '*');
+    window.parent.postMessage({ type: 'index-ready', ver: DACE_VER }, window.location?.origin || '*');
   }
 
   initAllEffects();

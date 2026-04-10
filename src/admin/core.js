@@ -14,7 +14,8 @@ import {
 } from './state.js';
 import {
   g, val, setVal, checked, setChecked, hexRgba, hexFromRgba, rgbaFromHex,
-  loadFont, showToast, showSaving, fmt, sv, resetSlider, toggleCard, setAutoSaveRef
+  loadFont, showToast, showSaving, fmt, sv, resetSlider, toggleCard, setAutoSaveRef,
+  confirmInline, promptInline
 } from './helpers.js';
 import { loadColorValues } from './colors.js';
 
@@ -100,24 +101,27 @@ export function _collectSiteSettings() {
 setAutoSaveRef(autoSave);
 
 // ═══ IFRAME COMMUNICATION ═══
+const PM_ORIGIN = typeof window !== 'undefined' && window.location ? window.location.origin : '*';
+
 export function broadcastTheme() {
   const frame = g('preview-frame');
   if (frame && frame.contentWindow) {
-    frame.contentWindow.postMessage({ type: 'theme-update', theme: collectTheme() }, '*');
-    frame.contentWindow.postMessage({ type: 'settings-update', settings: siteSettings }, '*');
-    frame.contentWindow.postMessage({ type: 'emojis-update', emojis: customEmojis }, '*');
-    frame.contentWindow.postMessage({ type: 'floating-update', elements: floatingEls }, '*');
+    frame.contentWindow.postMessage({ type: 'theme-update', theme: collectTheme() }, PM_ORIGIN);
+    frame.contentWindow.postMessage({ type: 'settings-update', settings: siteSettings }, PM_ORIGIN);
+    frame.contentWindow.postMessage({ type: 'emojis-update', emojis: customEmojis }, PM_ORIGIN);
+    frame.contentWindow.postMessage({ type: 'floating-update', elements: floatingEls }, PM_ORIGIN);
   }
 }
 export function broadcastHighlight(selector) {
   const frame = g('preview-frame');
-  if (frame && frame.contentWindow) frame.contentWindow.postMessage({ type: 'highlight-element', selector }, '*');
+  if (frame && frame.contentWindow) frame.contentWindow.postMessage({ type: 'highlight-element', selector }, PM_ORIGIN);
 }
 export function clearHighlight() {
   const frame = g('preview-frame');
-  if (frame && _iframeReady) frame.contentWindow.postMessage({ type: 'clear-highlight' }, '*');
+  if (frame && _iframeReady) frame.contentWindow.postMessage({ type: 'clear-highlight' }, PM_ORIGIN);
 }
 window.addEventListener('message', function (e) {
+  if (e.origin !== PM_ORIGIN && PM_ORIGIN !== '*') return;
   const d = e.data; if (!d || !d.type) return;
   if (d.type === 'index-ready') { setIframeReady(true); broadcastTheme(); }
   if (d.type === 'element-clicked' && d.info) {
@@ -146,7 +150,7 @@ export function toggleInspector() {
   const btn = g('inspector-btn');
   const isActive = btn.classList.toggle('acc');
   const frame = g('preview-frame');
-  if (frame && frame.contentWindow) frame.contentWindow.postMessage({ type: 'inspector-mode', enabled: isActive }, '*');
+  if (frame && frame.contentWindow) frame.contentWindow.postMessage({ type: 'inspector-mode', enabled: isActive }, PM_ORIGIN);
   showToast(isActive ? 'Inspector ON — haz clic en el preview' : 'Inspector OFF');
 }
 
@@ -501,8 +505,8 @@ export function renderSaveSlots() {
     return '<div class="slot" onclick="slotAction(' + i + ')"><div class="slot-label">Slot ' + i + '</div><div class="slot-name">' + name + '</div></div>';
   }).join('');
 }
-export function slotAction(i) {
-  if (event.shiftKey) { const name = prompt('Nombre:', 'Tema ' + i); if (!name) return; localStorage.setItem('dace-slot-' + i, JSON.stringify({ name, theme: collectTheme() })); showToast('Guardado slot ' + i); renderSaveSlots(); }
+export async function slotAction(i) {
+  if (event.shiftKey) { const name = await promptInline('Nombre:', 'Tema ' + i); if (!name) return; localStorage.setItem('dace-slot-' + i, JSON.stringify({ name, theme: collectTheme() })); showToast('Guardado slot ' + i); renderSaveSlots(); }
   else { const s = localStorage.getItem('dace-slot-' + i); if (!s) { showToast('Slot vacío', true); return; } setT(JSON.parse(s).theme); loadThemeUI(); autoSave(); showToast('Cargado slot ' + i); }
 }
 
@@ -525,8 +529,8 @@ export function deleteCustomTheme(i) {
   const c = JSON.parse(localStorage.getItem('dace-custom-themes') || '[]'); c.splice(i, 1);
   localStorage.setItem('dace-custom-themes', JSON.stringify(c)); renderCustomThemes();
 }
-export function resetTheme() {
-  if (!confirm('¿Resetear a DACE DARK?')) return;
+export async function resetTheme() {
+  if (!await confirmInline('¿Resetear a DACE DARK?')) return;
   setT({}); localStorage.removeItem('dace-theme');
   if (db) db.ref('theme').remove().then(() => location.reload()); else location.reload();
 }
@@ -595,9 +599,9 @@ export function exportAll() {
 export function importAll(e) {
   const f = e.target.files[0]; if (!f) return;
   const r = new FileReader();
-  r.onload = ev => {
+  r.onload = async ev => {
     try {
-      const data = JSON.parse(ev.target.result); if (!confirm('¿Importar? Sobreescribirá todo.')) return;
+      const data = JSON.parse(ev.target.result); if (!await confirmInline('¿Importar? Sobreescribirá todo.')) return;
       showSaving(true); const updates = {};
       if (data.beats) data.beats.forEach(b => updates['beats/' + b.id] = b);
       if (data.theme) updates['theme'] = data.theme;
@@ -875,8 +879,8 @@ export function updateDiff() {
 }
 
 // ═══ IMPORT URL ═══
-export function promptImportURL() {
-  const url = prompt('URL del tema JSON:\n(Ej: https://mi-servidor.com/tema.json)');
+export async function promptImportURL() {
+  const url = await promptInline('URL del tema JSON (Ej: https://mi-servidor.com/tema.json)');
   if (!url || !url.trim()) return; importThemeFromURL(url.trim());
 }
 export function importThemeFromURL(url) {

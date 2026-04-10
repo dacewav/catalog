@@ -1,6 +1,6 @@
 // ═══ DACEWAV Admin — Firebase Init & Data Loading ═══
 import { FC } from './config.js';
-import { g, showToast } from './helpers.js';
+import { g, showToast, confirmInline } from './helpers.js';
 import {
   db, setDb, T, setT, siteSettings, allBeats, setAllBeats,
   customEmojis, setCustomEmojis, floatingEls, setFloatingEls,
@@ -39,7 +39,7 @@ async function doGoogleLogin() {
 }
 
 async function doLogout() {
-  if (!confirm('¿Cerrar sesión?')) return;
+  if (!await confirmInline('¿Cerrar sesión?')) return;
   await _auth.signOut();
   location.reload();
 }
@@ -189,9 +189,9 @@ function addWhitelistEmail() {
   showToast('Email agregado: ' + email);
 }
 
-function removeWhitelistEmail(idx) {
+async function removeWhitelistEmail(idx) {
   const email = _allowedEmails[idx];
-  if (!confirm('¿Eliminar ' + email + '?')) return;
+  if (!await confirmInline('¿Eliminar ' + email + '?')) return;
   _allowedEmails.splice(idx, 1);
   const obj = {}; _allowedEmails.forEach(e => obj[e] = true);
   firebase.database().ref('adminWhitelist').set(obj)

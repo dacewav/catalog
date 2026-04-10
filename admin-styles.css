@@ -424,3 +424,12 @@ body.light input,body.light textarea,body.light select{background:rgba(0,0,0,0.0
   .topbar-brand{font-size:12px}
 }
 
+/* Inline Modal (replaces native confirm/prompt) */
+.inline-modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);display:flex;align-items:center;justify-content:center;z-index:9999;backdrop-filter:blur(4px)}
+.inline-modal{background:#1a1a1a;border:1px solid #333;border-radius:12px;padding:24px;min-width:300px;max-width:420px;box-shadow:0 8px 32px rgba(0,0,0,.5)}
+.inline-modal p{color:#f0eae2;font-size:13px;margin:0 0 16px;line-height:1.5}
+.inline-modal-input{width:100%;background:#111;border:1px solid #333;border-radius:6px;color:#f0eae2;padding:8px 12px;font-size:12px;margin-bottom:16px;outline:none;font-family:inherit}
+.inline-modal-input:focus{border-color:#6b1a2a}
+.inline-modal-btns{display:flex;gap:8px;justify-content:flex-end}
+
+

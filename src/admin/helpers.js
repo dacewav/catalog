@@ -73,9 +73,37 @@ export function toggleCard(title) {
   title.classList.toggle('collapsed', collapsed);
 }
 
+// ─── Inline Confirm/Prompt (replaces native confirm/prompt) ───
+export function confirmInline(msg) {
+  return new Promise((resolve) => {
+    const overlay = document.createElement('div');
+    overlay.className = 'inline-modal-overlay';
+    overlay.innerHTML = '<div class="inline-modal"><p>' + msg + '</p><div class="inline-modal-btns"><button class="btn btn-g" id="ic-ok">Confirmar</button><button class="btn btn-del" id="ic-cancel">Cancelar</button></div></div>';
+    document.body.appendChild(overlay);
+    overlay.querySelector('#ic-ok').onclick = () => { overlay.remove(); resolve(true); };
+    overlay.querySelector('#ic-cancel').onclick = () => { overlay.remove(); resolve(false); };
+  });
+}
+
+export function promptInline(msg, defVal) {
+  return new Promise((resolve) => {
+    const overlay = document.createElement('div');
+    overlay.className = 'inline-modal-overlay';
+    overlay.innerHTML = '<div class="inline-modal"><p>' + msg + '</p><input type="text" class="inline-modal-input" value="' + (defVal || '') + '"><div class="inline-modal-btns"><button class="btn btn-g" id="ip-ok">Aceptar</button><button class="btn btn-del" id="ip-cancel">Cancelar</button></div></div>';
+    document.body.appendChild(overlay);
+    const inp = overlay.querySelector('.inline-modal-input');
+    inp.focus(); inp.select();
+    const submit = () => { const v = inp.value; overlay.remove(); resolve(v || null); };
+    overlay.querySelector('#ip-ok').onclick = submit;
+    overlay.querySelector('#ip-cancel').onclick = () => { overlay.remove(); resolve(null); };
+    inp.addEventListener('keydown', e => { if (e.key === 'Enter') submit(); if (e.key === 'Escape') { overlay.remove(); resolve(null); } });
+  });
+}
+
 // Assign to window for onclick handlers
 Object.assign(window, {
   g, val, setVal, checked, setChecked,
   hexRgba, hexFromRgba, rgbaFromHex, loadFont,
-  showToast, showSaving, fmt, sv, resetSlider, toggleCard
+  showToast, showSaving, fmt, sv, resetSlider, toggleCard,
+  confirmInline, promptInline
 });

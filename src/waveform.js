@@ -3,6 +3,7 @@ import { state } from './state.js';
 import { logError } from './error-handler.js';
 
 const WAVEFORM_BARS = 40;
+const MAX_WAVEFORM_CACHE = 50; // max entries before pruning
 
 /**
  * Generate waveform data from audio URL. Uses cache if available.
@@ -40,10 +41,19 @@ export function generateWaveform(audioUrl, beatId, callback) {
           const normalized = wave.map((v) => v / max);
           state.waveformCache[beatId] = normalized;
 
+          // Prune cache if too large
+          const keys = Object.keys(state.waveformCache);
+          if (keys.length > MAX_WAVEFORM_CACHE) {
+            keys.slice(0, keys.length - MAX_WAVEFORM_CACHE).forEach(k => delete state.waveformCache[k]);
+          }
+
           try {
             localStorage.setItem('dace-waveforms', JSON.stringify(state.waveformCache));
           } catch (e) {
-            // localStorage full — silently ignore
+            // localStorage full — drop half the cache and retry
+            const k2 = Object.keys(state.waveformCache);
+            k2.slice(0, Math.floor(k2.length / 2)).forEach(k => delete state.waveformCache[k]);
+            try { localStorage.setItem('dace-waveforms', JSON.stringify(state.waveformCache)); } catch {}
           }
 
           callback(normalized);

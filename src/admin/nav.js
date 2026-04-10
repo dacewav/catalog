@@ -15,7 +15,8 @@ export function showSection(name) {
 export function showEt(name) {
   document.querySelectorAll('#sec-add .et').forEach(t => t.classList.remove('on'));
   document.querySelectorAll('#sec-add .etp').forEach(p => p.classList.remove('on'));
-  if (typeof event !== 'undefined' && event && event.currentTarget) event.currentTarget.classList.add('on');
+  const btn = document.querySelector('#sec-add .et[data-et="' + name + '"]');
+  if (btn) btn.classList.add('on');
   const p = g('etp-' + name); if (p) p.classList.add('on');
 }
 

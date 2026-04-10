@@ -17,6 +17,7 @@ function _create(url) {
   _audio.volume = vol ? parseFloat(vol.value) : 1;
   _audio.addEventListener('timeupdate', _onTime);
   _audio.addEventListener('ended', _next);
+  _audio.addEventListener('error', () => { _playing = false; stopEQ(); _updateIcons(); });
 }
 
 function _onTime() {

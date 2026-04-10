@@ -93,16 +93,8 @@ export function saveTestis() {
 }
 
 // ═══ SHOW ET (editor tabs) ═══
-// NOTE: nav.js also exports showEt. This version must match nav.js behavior
-// because esbuild may resolve the window assignment from either module.
-// The HTML uses #etp-info, #etp-lics, etc. IDs — NOT data-et/data-etp.
-export function showEt(name) {
-  document.querySelectorAll('#sec-add .et').forEach(t => t.classList.remove('on'));
-  document.querySelectorAll('#sec-add .etp').forEach(p => p.classList.remove('on'));
-  // Use currentTarget (the element with onclick) not target (could be child SVG)
-  if (typeof event !== 'undefined' && event && event.currentTarget) event.currentTarget.classList.add('on');
-  const p = g('etp-' + name); if (p) p.classList.add('on');
-}
+// Defined in nav.js — re-export to avoid duplicate window assignment
+export { showEt } from './nav.js';
 
 // ═══ COPY CMD ═══
 export function copyCmd(inputId) {

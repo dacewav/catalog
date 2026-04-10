@@ -1,6 +1,6 @@
 // ═══ DACEWAV Admin — Beats CRUD ═══
 import { db, allBeats, setAllBeats, editId, setEditId, defLics, _edLics, setEdLics, _dragBeatId, setDragBeatId, _batchImgQueue, setBatchImgQueue } from './state.js';
-import { g, val, setVal, checked, setChecked, showToast, showSaving } from './helpers.js';
+import { g, val, setVal, checked, setChecked, showToast, showSaving, confirmInline, promptInline, fmt } from './helpers.js';
 import { showSection } from './nav.js';
 import { autoSave } from './core.js';
 import { R2_ENABLED, uploadToR2 } from './r2.js';
@@ -115,14 +115,14 @@ export function saveBeat() {
   const beat = { id, name, genre: val('f-genre'), genreCustom: val('f-genre-c'), bpm: parseInt(val('f-bpm')) || 0, key: val('f-key'), description: val('f-desc'), tags: val('f-tags').split(',').map(t => t.trim()).filter(Boolean), imageUrl: val('f-img'), audioUrl: val('f-audio'), previewUrl: val('f-prev'), spotify: val('f-spotify'), youtube: val('f-youtube'), soundcloud: val('f-soundcloud'), date: val('f-date'), order: parseInt(val('f-order')) || 0, plays: parseInt(val('f-plays')) || 0, featured: checked('f-feat'), exclusive: checked('f-excl'), active: checked('f-active'), available: checked('f-avail'), licenses: _edLics.filter(l => l.name) };
   showSaving(true); db.ref('beats/' + id).set(beat).then(() => { showSaving(false); showToast('Beat guardado ✓'); showSection('beats'); }).catch(err => { showSaving(false); showToast('Error: ' + err.message, true); });
 }
-export function deleteBeat() {
+export async function deleteBeat() {
   var delId = editId || val('f-id');
   if (!delId) { showToast('No hay beat seleccionado', true); return; }
-  if (!confirm('¿Eliminar beat "' + delId + '"?')) return;
+  if (!await confirmInline('¿Eliminar beat "' + delId + '"?')) return;
   showSaving(true); db.ref('beats/' + delId).remove().then(() => { showSaving(false); showToast('Eliminado ✓'); setEditId(null); showSection('beats'); }).catch(err => { showSaving(false); showToast('Error: ' + (err.message || err.code), true); });
 }
-export function quickDel(id) {
-  if (!confirm('¿Eliminar este beat?')) return;
+export async function quickDel(id) {
+  if (!await confirmInline('¿Eliminar este beat?')) return;
   showSaving(true); db.ref('beats/' + id).remove().then(() => { showSaving(false); showToast('Eliminado ✓'); }).catch(err => { showSaving(false); showToast('Error: ' + (err.message || err.code), true); });
 }
 
@@ -198,8 +198,8 @@ export function saveBatchImages() {
     }
   });
 }
-export function batchAddBeats() {
-  var count = prompt('¿Cuántos beats? (máx 20)', '3'); if (!count) return;
+export async function batchAddBeats() {
+  var count = await promptInline('¿Cuántos beats? (máx 20)', '3'); if (!count) return;
   count = parseInt(count); if (isNaN(count) || count < 1 || count > 20) { showToast('Máximo 20', true); return; }
   var base = allBeats.length; showSaving(true); var promises = [];
   for (var i = 0; i < count; i++) {
@@ -219,7 +219,6 @@ export function toggleMP() {
   mpAudio2.addEventListener('timeupdate', () => { if (!mpAudio2.duration) return; const pct = (mpAudio2.currentTime / mpAudio2.duration) * 100; g('mp-fill').style.width = pct + '%'; g('mp-t').textContent = fmt(mpAudio2.currentTime) + ' / ' + fmt(mpAudio2.duration); });
   mpAudio2.play().catch(() => {});
 }
-function fmt(s) { return Math.floor(s / 60) + ':' + Math.floor(s % 60).toString().padStart(2, '0'); }
 export function seekMP(e) { if (!mpAudio2 || !mpAudio2.duration) return; const r = e.currentTarget.getBoundingClientRect(); mpAudio2.currentTime = ((e.clientX - r.left) / r.width) * mpAudio2.duration; }
 
 Object.assign(window, {
