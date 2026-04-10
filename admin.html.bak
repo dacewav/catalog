@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DACE · Admin Pro</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<link rel="stylesheet" href="admin-styles.css">
+</head>
+<body>
+
+<!-- ═══ LOGIN OVERLAY ═══ -->
+<div class="login-overlay" id="login-overlay">
+  <div class="login-box">
+    <div class="login-brand">DACE<em>·</em> Admin</div>
+    <div class="login-sub">Acceso restringido</div>
+    <button class="login-btn" id="login-google-btn" onclick="doGoogleLogin()" style="display:flex;align-items:center;justify-content:center;gap:10px;font-size:12px">
+      <svg width="18" height="18" viewBox="0 0 18 18"><path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844a4.14 4.14 0 01-1.796 2.716v2.259h2.908c1.702-1.567 2.684-3.875 2.684-6.615z"/><path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 009 18z"/><path fill="#FBBC05" d="M3.964 10.71A5.41 5.41 0 013.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 000 9c0 1.452.348 2.827.957 4.042l3.007-2.332z"/><path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 00.957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58z"/></svg>
+      Iniciar sesión con Google
+    </button>
+    <div class="login-error" id="login-error" style="margin-top:12px"></div>
+    <div class="login-lockout" id="login-lockout"></div>
+  </div>
+</div>
+
+<!-- ═══ TOP BAR ═══ -->
+<div class="topbar">
+  <div class="topbar-brand">DACE<em>·</em> Admin</div>
+  <div class="topbar-center">
+    <button class="tb" onclick="undo()" title="Deshacer (Ctrl+Z)"><i class="fas fa-undo"></i></button>
+    <button class="tb" onclick="redo()" title="Rehacer (Ctrl+Shift+Z)"><i class="fas fa-redo"></i></button>
+    <button class="tb" onclick="openCmdPalette()" title="Buscar (Ctrl+K)"><i class="fas fa-search"></i> <span style="font-size:9px;color:var(--hi)">Ctrl+K</span></button>
+  </div>
+  <div class="topbar-right">
+    <span class="sdot" id="sdot"></span>
+    <button class="tb gn" onclick="saveAll()"><i class="fas fa-save"></i> Guardar</button>
+    <button class="tb" onclick="exportAll()"><i class="fas fa-download"></i></button>
+    <button class="tb" onclick="document.getElementById('imp-f').click()"><i class="fas fa-upload"></i></button>
+    <input type="file" id="imp-f" accept=".json" style="display:none" onchange="importAll(event)">
+    <button class="tb" id="theme-toggle" onclick="toggleAdminTheme()"><i class="fas fa-moon"></i></button>
+    <button class="tb" id="inspector-btn" onclick="toggleInspector()"><i class="fas fa-crosshairs"></i></button>
+    <button class="tb" onclick="doLogout()" title="Cerrar sesión"><i class="fas fa-sign-out-alt"></i></button>
+  </div>
+</div>
+
+<!-- ═══ MAIN LAYOUT ═══ -->
+<div class="split">
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="si on" data-s="global" onclick="showSection('global')"><i class="fas fa-globe"></i><span>Global</span></div>
+    <div class="si" data-s="hero" onclick="showSection('hero')"><i class="fas fa-star"></i><span>Hero</span></div>
+    <div class="si" data-s="layout" onclick="showSection('layout')"><i class="fas fa-th-large"></i><span>Layout</span></div>
+    <div class="sidebar-sep"></div>
+    <div class="si" data-s="beats" onclick="showSection('beats')"><i class="fas fa-music"></i><span>Beats</span></div>
+    <div class="si" data-s="elements" onclick="showSection('elements')"><i class="fas fa-shopping-bag"></i><span>Elementos</span></div>
+    <div class="si" data-s="animations" onclick="showSection('animations')"><i class="fas fa-magic"></i><span>Anim</span></div>
+    <div class="si" data-s="floating" onclick="showSection('floating')"><i class="fas fa-arrows-alt"></i><span>Float</span></div>
+    <div class="sidebar-sep"></div>
+    <div class="si" data-s="themes" onclick="showSection('themes')"><i class="fas fa-palette"></i><span>Temas</span></div>
+    <div class="si" data-s="settings" onclick="showSection('settings')"><i class="fas fa-cog"></i><span>Ajustes</span></div>
+    <div class="si" data-s="team" onclick="showSection('team')"><i class="fas fa-users"></i><span>Equipo</span></div>
+    <div class="sidebar-sep"></div>
+    <div class="si" data-s="stats" onclick="showSection('stats')"><i class="fas fa-chart-bar"></i><span>Stats</span></div>
+  </div>
+
+  <!-- ═══ CONTROLS ═══ -->
+  <div class="controls" id="controls-area">
+
+    <!-- ═══ GLOBAL ═══ -->
+    <div class="section on" id="sec-global">
+      <div class="section-title"><i class="fas fa-globe"></i> Global</div>
+
+      <!-- Colors -->
+      <div class="card">
+        <div class="card-title" onclick="toggleCard(this)"><span>Colores base</span><i class="fas fa-chevron-down"></i></div>
+        <div class="card-body" id="color-editor"></div>
+      </div>
+
+      <!-- Fonts -->
+      <div class="card">
+        <div class="card-title" onclick="toggleCard(this)"><span>Tipografía</span><i class="fas fa-chevron-down"></i></div>
+        <div class="card-body">
+          <div class="btn-row" style="flex-wrap:wrap">
+            <button class="btn btn-g" onclick="applyTypo('industrial')" style="font-size:9px">Industrial</button>
+            <button class="btn btn-g" onclick="applyTypo('brutalista')" style="font-size:9px">Brutalista</button>
+            <button class="btn btn-g" onclick="applyTypo('minimal')" style="font-size:9px">Minimal</button>
+            <button class="btn btn-g" onclick="applyTypo('scifi')" style="font-size:9px">Sci-fi</button>
+            <button class="btn btn-g" onclick="applyTypo('elegant')" style="font-size:9px">Elegant</button>
+            <button class="btn btn-g" onclick="applyTypo('modern')" style="font-size:9px">Modern</button>
+          </div>
+          <div class="field">
+            <label>Fuente display <span class="tip" title="Para títulos y nombres">?</span></label>
+            <div class="font-picker" id="fp-display-wrap">
+              <button class="font-picker-btn" id="fp-display-btn" onclick="toggleFontPicker('display')">Syne</button>
+              <div class="font-picker-dd" id="fp-display-dd">
+                <input type="text" class="font-picker-search" id="fp-display-search" placeholder="Buscar fuente..." oninput="filterFontPicker('display',this.value)">
+                <div class="font-picker-tabs" id="fp-display-tabs"></div>
+                <div class="font-picker-list" id="fp-display-list"></div>
+                <div class="fp-more-row"><button class="fp-more-btn" id="fp-display-more" onclick="loadMoreFonts('display')">🔍 Buscar más fuentes en Google Fonts</button></div>
+                <div class="fp-custom-row">
+                  <input type="text" class="fp-custom-input" id="fp-display-custom" placeholder="Nombre exacto de fuente..." onkeydown="if(event.key==='Enter')applyCustomFont('display')">
+                  <button class="fp-custom-btn" onclick="applyCustomFont('display')">Usar</button>
+                </div>
+              </div>
+            </div>
+            <input type="hidden" id="t-font-d" value="Syne">
+          </div>
+          <div class="field">
+            <label>Fuente cuerpo</label>
+            <div class="font-picker" id="fp-body-wrap">
+              <button class="font-picker-btn" id="fp-body-btn" onclick="toggleFontPicker('body')">DM Mono</button>
+              <div class="font-picker-dd" id="fp-body-dd">
+                <input type="text" class="font-picker-search" id="fp-body-search" placeholder="Buscar fuente..." oninput="filterFontPicker('body',this.value)">
+                <div class="font-picker-tabs" id="fp-body-tabs"></div>
+                <div class="font-picker-list" id="fp-body-list"></div>
+                <div class="fp-more-row"><button class="fp-more-btn" id="fp-body-more" onclick="loadMoreFonts('body')">🔍 Buscar más fuentes en Google Fonts</button></div>
+                <div class="fp-custom-row">
+                  <input type="text" class="fp-custom-input" id="fp-body-custom" placeholder="Nombre exacto de fuente..." onkeydown="if(event.key==='Enter')applyCustomFont('body')">
+                  <button class="fp-custom-btn" onclick="applyCustomFont('body')">Usar</button>
+                </div>
+              </div>
+            </div>
+            <input type="hidden" id="t-font-m" value="DM Mono">
+          </div>
+          <div class="font-preview">
+            <div class="font-preview-display" id="fp-display">Beats que definen géneros.</div>
+            <div class="font-preview-body" id="fp-body">140 BPM · Am · Trap · Desde $350 MXN</div>
+          </div>
+          <div class="field" style="margin-top:8px">
+            <label>Tamaño base</label>
+            <div class="slider-wrap"><input type="range" id="t-font-size" min="8" max="24" value="14" oninput="sv(this);autoSave()"><span class="slider-val">14px</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,14)">↺</button></div>
+          </div>
+          <div class="field">
+            <label>Altura de línea</label>
+            <div class="slider-wrap"><input type="range" id="t-line-h" min="1" max="2.5" step="0.05" value="1.7" oninput="sv(this);autoSave()"><span class="slider-val">1.70</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,1.7)">↺</button></div>
+          </div>
+          <div class="field">
+            <label>Peso título</label>
+            <div class="slider-wrap"><select id="t-font-weight" onchange="autoSave()" style="font-family:var(--fm);font-size:10px;background:var(--as);color:var(--tx);border:1px solid var(--b);border-radius:var(--rad);padding:3px 6px"><option value="400">400</option><option value="700">700</option><option value="800" selected>800</option><option value="900">900</option></select></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Effects -->
+      <div class="card">
+        <div class="card-title" onclick="toggleCard(this)"><span>🎛️ Efectos visuales</span><i class="fas fa-chevron-down"></i></div>
+        <div class="card-body">
+          <p style="font-size:9px;color:var(--hi);margin-bottom:10px">Ajustes generales de apariencia. Más opacidad = más visible.</p>
+          <div class="field"><label>Blur fondo</label><div class="slider-wrap"><input type="range" id="t-blur" min="0" max="80" value="24" oninput="sv(this);autoSave()"><span class="slider-val">24px</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,24)">↺</button></div></div>
+          <div class="field"><label>Opacidad tarjetas</label><div class="slider-wrap"><input type="range" id="t-card-op" min="0" max="1" step="0.05" value="1" oninput="sv(this);autoSave()"><span class="slider-val">1.00</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,1)">↺</button></div></div>
+          <div class="field"><label>Grano</label><div class="slider-wrap"><input type="range" id="t-grain" min="0" max="1" step="0.05" value="0.3" oninput="sv(this);autoSave()"><span class="slider-val">0.30</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,0.3)">↺</button></div></div>
+          <div class="field"><label>Border radius</label><div class="slider-wrap"><input type="range" id="t-radius" min="0" max="40" value="10" oninput="sv(this);autoSave()"><span class="slider-val">10px</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,10)">↺</button></div></div>
+
+          <div class="field"><label>Opacidad nav</label><div class="slider-wrap"><input type="range" id="t-nav-op" min="0" max="1" step="0.05" value="0.88" oninput="sv(this);autoSave()"><span class="slider-val">0.88</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,0.88)">↺</button></div></div>
+          <div class="field"><label>Opacidad beat img</label><div class="slider-wrap"><input type="range" id="t-beat-img-op" min="0" max="1" step="0.05" value="1" oninput="sv(this);autoSave()"><span class="slider-val">1.00</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,1)">↺</button></div></div>
+          <div class="field"><label>Opacidad texto</label><div class="slider-wrap"><input type="range" id="t-text-op" min="0" max="1" step="0.05" value="1" oninput="sv(this);autoSave()"><span class="slider-val">1.00</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,1)">↺</button></div></div>
+          <div class="field"><label>Opacidad hero bg</label><div class="slider-wrap"><input type="range" id="t-hero-bg-op" min="0" max="1" step="0.05" value="1" oninput="sv(this);autoSave()"><span class="slider-val">1.00</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,1)">↺</button></div></div>
+          <div class="field"><label>Opacidad secciones</label><div class="slider-wrap"><input type="range" id="t-section-op" min="0" max="1" step="0.05" value="1" oninput="sv(this);autoSave()"><span class="slider-val">1.00</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,1)">↺</button></div></div>
+          <div class="field"><label>Mix-blend orbs</label><div class="slider-wrap"><select id="t-orb-blend" onchange="autoSave()" style="font-family:var(--fm);font-size:10px;background:var(--as);color:var(--tx);border:1px solid var(--b);border-radius:var(--rad);padding:3px 6px"><option value="normal">normal</option><option value="screen">screen</option><option value="overlay">overlay</option><option value="multiply">multiply</option><option value="soft-light">soft-light</option><option value="color-dodge">color-dodge</option><option value="hard-light">hard-light</option><option value="exclusion">exclusion</option></select></div></div>
+          <div class="field"><label>Mix-blend grain</label><div class="slider-wrap"><select id="t-grain-blend" onchange="autoSave()" style="font-family:var(--fm);font-size:10px;background:var(--as);color:var(--tx);border:1px solid var(--b);border-radius:var(--rad);padding:3px 6px"><option value="overlay">overlay</option><option value="soft-light">soft-light</option><option value="multiply">multiply</option><option value="normal">normal</option><option value="screen">screen</option><option value="color-dodge">color-dodge</option></select></div></div>
+
+        </div>
+      </div>
+
+      <!-- Spacing -->
+      <div class="card">
+        <div class="card-title" onclick="toggleCard(this)"><span>Espaciado</span><i class="fas fa-chevron-down"></i></div>
+        <div class="card-body">
+          <div class="field"><label>Padding secciones</label><div class="slider-wrap"><input type="range" id="t-pad" min="0" max="12" step="0.5" value="4" oninput="sv(this);autoSave()"><span class="slider-val">4.0rem</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,4)">↺</button></div></div>
+          <div class="field"><label>Gap entre beats</label><div class="slider-wrap"><input type="range" id="t-gap" min="0" max="60" value="16" oninput="sv(this);autoSave()"><span class="slider-val">16px</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,16)">↺</button></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ HERO ═══ -->
+    <div class="section" id="sec-hero">
+      <div class="section-title"><i class="fas fa-star"></i> Hero & Banner</div>
+
+      <!-- Hero Preview -->
+      <div class="hero-pv" id="hero-pv">
+        <div class="hero-pv-grad" id="hpv-grad"></div>
+        <div class="hero-pv-eyebrow" id="hpv-eyebrow"><span class="hero-pv-eyebrow-dot"></span><span id="hpv-eyebrow-text">En vivo · Puebla, MX</span></div>
+        <div class="hero-pv-title" id="hpv-title">Beats que<br><span class="glow-word" data-t="definen géneros.">definen géneros.</span></div>
+        <div class="hero-pv-sub" id="hpv-sub">Puebla, MX · Trap · R&B · Drill</div>
+      </div>
+      <div style="font-size:9px;color:var(--hi);margin-bottom:12px;text-align:center">👆 Preview en tiempo real. Los cambios se reflejan aquí y en la tienda.</div>
+
+      <!-- ═══ GLOW UNIFICADO ═══ -->
+      <div class="card">
+        <div class="card-title" onclick="toggleCard(this)"><span>💡 Sistema Glow — Todo en uno</span><i class="fas fa-chevron-down"></i></div>
+        <div class="card-body">
+          <p style="font-size:9px;color:var(--hi);margin-bottom:10px">El color de abajo se usa en toda la tienda: botones, títulos, tarjetas, y el hero.</p>
+
+          <!-- Color principal -->
+          <div class="color-wrap"><label>Color principal</label><div class="color-swatch" id="gc-swatch"><input type="color" id="tc-glow" value="#dc2626" oninput="syncGlowColor(this.value)"></div><input type="text" class="color-hex" id="tt-glow" value="#dc2626" oninput="syncGlowColor(this.value)"></div>
+
+          <!-- Toggle global -->
+          <div class="tog-row"><input type="checkbox" class="tog" id="t-glow" checked onchange="updatePreview();autoSave()"><span class="tog-lbl">Activar glow global</span></div>
+
+          <!-- Tipo y animación -->
+          <div class="fg2">
+            <div class="field"><label>Tipo de efecto</label><select id="t-glow-type" onchange="updatePreview();autoSave();updateGlowDesc()"><option value="text-shadow">text-shadow</option><option value="box-shadow">box-shadow</option><option value="drop-shadow">drop-shadow</option><option value="neon-blur">neon-blur</option><option value="neon-sign">neon-sign</option><option value="outer-glow">outer-glow</option><option value="inner-glow">inner-glow</option></select><div id="glow-desc" style="font-size:9px;color:var(--hi);margin-top:3px;line-height:1.4"></div></div>
+            <div class="field"><label>Animación</label><select id="t-glow-anim" onchange="updatePreview();autoSave();updateGlowAnimDesc()"><option value="none">Ninguna</option><option value="pulse">Pulse</option><option value="breathe">Breathe</option><option value="flicker">Flicker</option><option value="rainbow">Rainbow</option><option value="wave">Wave</option></select><div id="glow-anim-desc" style="font-size:9px;color:var(--hi);margin-top:3px;line-height:1.4"></div></div>
+          </div>
+
+          <!-- Sliders -->
+          <div class="fg3">
+            <div class="field"><label>Opacidad</label><div class="slider-wrap"><input type="range" id="t-glow-op" min="0" max="1" step="0.05" value="1" oninput="sv(this);autoSave()"><span class="slider-val">1.00</span></div></div>
+            <div class="field"><label>Difuminado</label><div class="slider-wrap"><input type="range" id="t-glow-blur" min="0" max="100" value="20" oninput="sv(this);autoSave()"><span class="slider-val">20px</span></div></div>
+            <div class="field"><label>Intensidad</label><div class="slider-wrap"><input type="range" id="t-glow-int" min="0" max="5" step="0.1" value="1" oninput="sv(this);autoSave()"><span class="slider-val">1.0x</span></div></div>
+          </div>
+
+          <!-- Preview -->
+          <div class="glow-pv-row">
+            <div class="glow-pv-el" id="gp-box" style="background:var(--abg);color:var(--acc);border:1px solid var(--b)">Box</div>
+            <div class="glow-pv-el" id="gp-text" style="color:var(--tx)">Texto</div>
+            <div class="glow-pv-el" id="gp-btn" style="border:1px solid rgba(185,28,28,0.5);color:var(--acc);background:rgba(185,28,28,0.1)">Botón</div>
+          </div>
+
+          <!-- Separador -->
+          <div style="border-top:1px solid var(--b);margin-top:12px;padding-top:12px">
+            <p style="font-size:9px;color:var(--mu);margin-bottom:8px">⬇️ Efectos específicos del título del hero</p>
+
+            <div class="tog-row"><input type="checkbox" class="tog" id="h-glow-on" checked onchange="updateHeroPv();autoSave()"><span class="tog-lbl">Glow en el título</span></div>
+            <div class="fg2">
+              <div class="field"><label>Intensidad título</label><div class="slider-wrap"><input type="range" id="h-glow-int" min="0" max="5" step="0.1" value="1" oninput="sv(this);updateHeroPv();autoSave()"><span class="slider-val">1.0x</span></div></div>
+              <div class="field"><label>Alcance brillo</label><div class="slider-wrap"><input type="range" id="h-glow-blur" min="0" max="100" value="20" oninput="sv(this);updateHeroPv();autoSave()"><span class="slider-val">20px</span></div></div>
+            </div>
+
+            <div class="tog-row" style="margin-top:6px"><input type="checkbox" class="tog" id="h-stroke-on" onchange="updateHeroPv();autoSave()"><span class="tog-lbl">Outline (solo borde de la última palabra)</span></div>
+            <div class="fg2">
+              <div class="field"><label>Grosor borde</label><div class="slider-wrap"><input type="range" id="h-stroke-w" min="0" max="8" step="0.5" value="1" oninput="sv(this);updateHeroPv();autoSave()"><span class="slider-val">1.0px</span></div></div>
+              <div class="field"><label>Blur del brillo</label><div class="slider-wrap"><input type="range" id="h-word-blur" min="0" max="60" value="10" oninput="sv(this);updateHeroPv();autoSave()"><span class="slider-val">10px</span></div></div>
+            </div>
+            <div class="fg2">
+              <div class="field"><label>Opacidad brillo</label><div class="slider-wrap"><input type="range" id="h-word-op" min="0" max="1" step="0.05" value="0.35" oninput="sv(this);updateHeroPv();autoSave()"><span class="slider-val">0.35</span></div></div>
+              <div class="color-wrap"><label>Color</label><div class="color-swatch"><input type="color" id="h-stroke-clr" value="#dc2626" oninput="updateHeroPv();autoSave()"></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Hero Text -->
+      <div class="card">
+        <div class="card-title" onclick="toggleCard(this)"><span>📝 Texto principal</span><i class="fas fa-chevron-down"></i></div>
+        <div class="card-body">
+          <div class="field"><label>Título <span style="font-size:8px;color:var(--hi)">(la última línea recibe el efecto glow)</span></label><textarea id="h-title" oninput="updateHeroPv();autoSave()" style="min-height:44px">Beats que
+definen géneros.</textarea></div>
+          <div class="field"><label>Subtítulo</label><textarea id="h-sub" oninput="updateHeroPv();autoSave()" style="min-height:32px">Puebla, MX · Trap · R&B · Drill</textarea></div>
+          <div class="field"><label>Eyebrow <span style="font-size:8px;color:var(--hi)">(tag arriba del título)</span></label><input type="text" id="h-eyebrow" value="En vivo · Puebla, MX" oninput="updateHeroPv();autoSave()"></div>
+        </div>
+      </div>
+
+      <!-- Hero Background -->
+      <div class="card">
+        <div class="card-title" onclick="toggleCard(this)"><span>🌅 Fondo del hero</span><i class="fas fa-chevron-down"></i></div>
+        <div class="card-body">
+          <div class="tog-row"><input type="checkbox" class="tog" id="h-grad-on" checked onchange="updateHeroPv();autoSave()"><span class="tog-lbl">Degradado radial</span></div>
+          <p style="font-size:9px;color:var(--hi);margin-bottom:8px">Mancha de color detrás del título. Más opacidad = más intenso.</p>
+          <div class="fg2">
+            <div class="color-wrap"><label>Color</label><div class="color-swatch"><input type="color" id="h-grad-clr" value="#dc2626" oninput="updateHeroPv();autoSave()"></div></div>
+            <div class="field"><label>Opacidad del degradado</label><div class="slider-wrap"><input type="range" id="h-grad-op" min="0" max="1" step="0.01" value="0.14" oninput="sv(this);updateHeroPv();autoSave()"><span class="slider-val">0.14</span></div></div>
+          </div>
+          <div class="fg2">
+            <div class="field"><label>Ancho (qué tan ancha)</label><div class="slider-wrap"><input type="range" id="h-grad-w" min="30" max="100" value="80" oninput="sv(this);updateHeroPv();autoSave()"><span class="slider-val">80%</span></div></div>
+            <div class="field"><label>Alto (qué tan alta)</label><div class="slider-wrap"><input type="range" id="h-grad-h" min="20" max="100" value="60" oninput="sv(this);updateHeroPv();autoSave()"><span class="slider-val">60%</span></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Gradient Editor -->
+      <div class="card">
+        <div class="card-title collapsed" onclick="toggleCard(this)"><span>🎨 Editor degradado avanzado</span><i class="fas fa-chevron-down"></i></div>
+        <div class="card-body collapsed">
+          <p style="font-size:10px;color:var(--mu);margin-bottom:8px">Click en la barra para añadir stops. Arrastra para mover.</p>
+          <div id="grad-stops"></div>
+          <button class="btn btn-g" onclick="_gradStops=[{pos:0,color:'#dc2626',opacity:0.14},{pos:100,color:'#dc2626',opacity:0}];renderGradEditor();applyGradToHero()" style="font-size:9px;margin-top:4px">Resetear</button>
+        </div>
+      </div>
+      <!-- Hero Typography -->
+      <div class="card">
+        <div class="card-title" onclick="toggleCard(this)"><span>🔤 Tamaño y espaciado</span><i class="fas fa-chevron-down"></i></div>
+        <div class="card-body">
+          <div class="field"><label>Tamaño del título</label><div class="slider-wrap"><input type="range" id="h-title-size" min="1" max="8" step="0.1" value="2.8" oninput="sv(this);updateHeroPv();autoSave()"><span class="slider-val">2.8rem</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,2.8)">↺</button></div></div>
+          <div class="field"><label>Espacio entre letras <span style="font-size:8px;color:var(--hi)">(negativo = más junto)</span></label><div class="slider-wrap"><input type="range" id="h-ls" min="-0.15" max="0.2" step="0.01" value="-0.04" oninput="sv(this);updateHeroPv();autoSave()"><span class="slider-val">-0.04</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,-0.04)">↺</button></div></div>
+          <div class="field"><label>Altura de línea <span style="font-size:8px;color:var(--hi)">(espacio entre renglones)</span></label><div class="slider-wrap"><input type="range" id="h-lh" min="0.5" max="2" step="0.05" value="1" oninput="sv(this);updateHeroPv();autoSave()"><span class="slider-val">1.00</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,1)">↺</button></div></div>
+          <div class="field"><label>Espacio arriba del hero</label><div class="slider-wrap"><input type="range" id="h-pad-top" min="0" max="20" step="0.5" value="7" oninput="sv(this);autoSave()"><span class="slider-val">7.0rem</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,7)">↺</button></div></div>
+        </div>
+      </div>
+
+      <!-- Eyebrow settings (separate from glow) -->
+      <div class="card">
+        <div class="card-title" onclick="toggleCard(this)"><span>🏷️ Tag (eyebrow)</span><i class="fas fa-chevron-down"></i></div>
+        <div class="card-body">
+          <p style="font-size:9px;color:var(--hi);margin-bottom:8px">El pill/badge arriba del título. Ej: "En vivo · Puebla, MX"</p>
+          <div class="tog-row"><input type="checkbox" class="tog" id="h-eyebrow-on" checked onchange="updateHeroPv();autoSave()"><span class="tog-lbl">Mostrar tag</span></div>
+          <div class="fg2">
+            <div class="color-wrap"><label>Color del tag</label><div class="color-swatch"><input type="color" id="h-eyebrow-clr" value="#dc2626" oninput="updateHeroPv();autoSave()"></div></div>
+            <div class="field"><label>Tamaño del texto</label><div class="slider-wrap"><input type="range" id="h-eyebrow-size" min="6" max="24" value="10" oninput="sv(this);updateHeroPv();autoSave()"><span class="slider-val">10px</span></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Particles -->
+      <div class="card">
+        <div class="card-title" onclick="toggleCard(this)"><span>Partículas</span><i class="fas fa-chevron-down"></i></div>
+        <div class="card-body">
+          <div class="tog-row"><input type="checkbox" class="tog" id="p-on" checked onchange="autoSave()"><span class="tog-lbl">Activar</span></div>
+          <div class="color-wrap"><label>Color</label><div class="color-swatch"><input type="color" id="p-color" value="#dc2626" oninput="autoSave()"></div></div>
+          <div class="field"><label>Tipo</label><select id="p-type" onchange="togglePFields();autoSave()"><option value="circle">Círculos</option><option value="square">Cuadrados</option><option value="star">Estrellas</option><option value="text">Texto</option><option value="image">Imagen/GIF</option></select></div>
+          <div class="field" id="p-text-wrap" style="display:none"><label>Texto</label><input type="text" id="p-text" placeholder="♪ ★" oninput="autoSave()"></div>
+          <div class="field" id="p-img-wrap" style="display:none"><label>URL imagen</label><input type="url" id="p-img-url" placeholder="https://..." oninput="autoSave()"></div>
+          <div class="field"><label>Cantidad</label><div class="slider-wrap"><input type="range" id="p-count" min="1" max="200" value="40" oninput="sv(this);autoSave()"><span class="slider-val">40</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,40)">↺</button></div></div>
+          <div class="fg2">
+            <div class="field"><label>Tamaño mín</label><div class="slider-wrap"><input type="range" id="p-min" min="1" max="30" value="2" oninput="sv(this);autoSave()"><span class="slider-val">2</span></div></div>
+            <div class="field"><label>Tamaño máx</label><div class="slider-wrap"><input type="range" id="p-max" min="2" max="80" value="6" oninput="sv(this);autoSave()"><span class="slider-val">6</span></div></div>
+          </div>
+          <div class="field"><label>Velocidad</label><div class="slider-wrap"><input type="range" id="p-speed" min="0.1" max="5" step="0.1" value="1" oninput="sv(this);autoSave()"><span class="slider-val">1.0</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,1)">↺</button></div></div>
+          <div class="field"><label>Opacidad</label><div class="slider-wrap"><input type="range" id="p-opacity" min="0" max="1" step="0.05" value="0.5" oninput="sv(this);autoSave()"><span class="slider-val">0.50</span></div></div>
+          <div class="particles-pv" id="particles-pv"></div>
+        </div>
+      </div>
+
+      <!-- Banner -->
+      <div class="card">
+        <div class="card-title" onclick="toggleCard(this)"><span>Banner</span><i class="fas fa-chevron-down"></i></div>
+        <div class="card-body">
+          <div class="tog-row"><input type="checkbox" class="tog" id="b-active" onchange="autoSave()"><span class="tog-lbl">Mostrar banner</span></div>
+          <div class="field"><label>Texto (usa :nombre: para emojis custom)</label><textarea id="b-text" oninput="updateBannerPv();autoSave()"></textarea></div>
+          <div class="fg2">
+            <div class="color-wrap"><label>Fondo</label><div class="color-swatch"><input type="color" id="b-bg" value="#7f1d1d" oninput="updateBannerPv();autoSave()"></div></div>
+            <div class="color-wrap"><label>Texto</label><div class="color-swatch"><input type="color" id="b-txt-clr" value="#ffffff" oninput="updateBannerPv();autoSave()"></div></div>
+          </div>
+          <div class="field"><label>Animación</label><select id="b-anim" onchange="updateBannerPv();autoSave()"><option value="scroll">Scroll</option><option value="fade-pulse">Fade pulse</option><option value="bounce">Bounce</option><option value="glow-pulse">Glow pulse</option><option value="static">Estático</option></select></div>
+          <div class="fg2">
+            <div class="field"><label>Velocidad</label><div class="slider-wrap"><input type="range" id="b-speed" min="1" max="120" value="20" oninput="sv(this);updateBannerPv();autoSave()"><span class="slider-val">20s</span></div></div>
+            <div class="field"><label>Delay</label><div class="slider-wrap"><input type="range" id="b-delay" min="0" max="10" step="0.5" value="0" oninput="sv(this);updateBannerPv();autoSave()"><span class="slider-val">0.0s</span></div></div>
+          </div>
+          <div class="fg2">
+            <div class="field"><label>Easing</label><select id="b-easing" onchange="updateBannerPv();autoSave()"><option value="linear">Linear</option><option value="ease">Ease</option><option value="ease-in">Ease-in</option><option value="ease-out">Ease-out</option><option value="ease-in-out">Ease-in-out</option></select></div>
+            <div class="field"><label>Dirección</label><select id="b-dir" onchange="updateBannerPv();autoSave()"><option value="normal">Normal</option><option value="reverse">Reverse</option><option value="alternate">Alternate</option></select></div>
+          </div>
+          <div class="banner-pv" id="banner-pv"></div>
+        </div>
+      </div>
+
+      <!-- Emojis -->
+      <div class="card">
+        <div class="card-title" onclick="toggleCard(this)"><span>Emojis</span><i class="fas fa-chevron-down"></i></div>
+        <div class="card-body">
+          <div class="emoji-grid" id="emoji-grid"></div>
+          <div style="font-size:10px;color:var(--mu);margin-bottom:6px;font-weight:700">Personalizados</div>
+          <div class="custom-emoji-list" id="ce-list"></div>
+          <div class="fg2">
+            <div class="field"><label>Nombre</label><input type="text" id="ce-name" placeholder="fire-gif"></div>
+            <div class="field"><label>URL</label><input type="url" id="ce-url" placeholder="https://..."></div>
+          </div>
+          <div class="fg3">
+            <div class="field"><label>Ancho</label><input type="number" id="ce-w" value="24"></div>
+            <div class="field"><label>Alto</label><input type="number" id="ce-h" value="24"></div>
+            <div class="field"><label>Anim</label><select id="ce-anim"><option value="none">Ninguna</option><option value="flotar">Flotar</option><option value="pulsar">Pulsar</option><option value="rotar">Rotar</option><option value="rebotar">Rebotar</option></select></div>
+          </div>
+          <button class="btn btn-ok" onclick="addCustomEmoji()" style="margin-top:6px"><i class="fas fa-plus"></i> Añadir</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ LAYOUT ═══ -->
+    <div class="section" id="sec-layout">
+      <div class="section-title"><i class="fas fa-th-large"></i> Layout</div>
+      <div class="card">
+        <div class="card-title" onclick="toggleCard(this)"><span>Posiciones</span><i class="fas fa-chevron-down"></i></div>
+        <div class="card-body">
+          <div class="field"><label>Hero top</label><div class="slider-wrap"><input type="range" id="t-hero-top" min="0" max="20" step="0.5" value="7" oninput="sv(this);autoSave()"><span class="slider-val">7.0rem</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,7)">↺</button></div></div>
+          <div class="field"><label>Player bottom</label><div class="slider-wrap"><input type="range" id="t-player-bot" min="0" max="40" value="0" oninput="sv(this);autoSave()"><span class="slider-val">0px</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,0)">↺</button></div></div>
+          <div class="field"><label>Logo offset X</label><div class="slider-wrap"><input type="range" id="t-logo-ox" min="-300" max="300" value="0" oninput="sv(this);autoSave()"><span class="slider-val">0px</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,0)">↺</button></div></div>
+        </div>
+      </div>
+      <!-- Layout Canvas -->
+      <div class="card">
+        <div class="card-title" onclick="toggleCard(this)"><span>Layout Canvas</span><i class="fas fa-chevron-down"></i></div>
+        <div class="card-body">
+          <p style="font-size:10px;color:var(--mu);margin-bottom:8px">Arrastra los bloques verticalmente para reorganizar</p>
+          <div id="layout-canvas" style="margin-bottom:8px"></div>
+          <button class="btn btn-g" onclick="initLayoutCanvas()" style="font-size:9px"><i class="fas fa-sync-alt"></i> Reiniciar</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title" onclick="toggleCard(this)"><span>Logo</span><i class="fas fa-chevron-down"></i></div>
+        <div class="card-body">
+          <div class="field"><label>URL logo</label><input type="url" id="t-logo-url" placeholder="https://..." oninput="autoSave()"></div>
+          <div class="tog-row"><input type="checkbox" class="tog" id="t-logo-text" onchange="autoSave()"><span class="tog-lbl">Mostrar texto + logo</span></div>
+          <div class="fg2">
+            <div class="field"><label>Ancho</label><div class="slider-wrap"><input type="range" id="t-logo-w" min="10" max="500" value="80" oninput="sv(this);autoSave()"><span class="slider-val">80px</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,80)">↺</button></div></div>
+            <div class="field"><label>Escala</label><div class="slider-wrap"><input type="range" id="t-logo-scale" min="0.1" max="5" step="0.01" value="1" oninput="sv(this);autoSave()"><span class="slider-val">1.00x</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,1)">↺</button></div></div>
+          </div>
+          <div class="fg2">
+            <div class="field"><label>Rotación</label><div class="slider-wrap"><input type="range" id="t-logo-rot" min="-180" max="180" value="0" oninput="sv(this);autoSave()"><span class="slider-val">0°</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,0)">↺</button></div></div>
+            <div class="field"><label>Gap logo↔texto</label><div class="slider-wrap"><input type="range" id="t-logo-gap" min="0" max="80" value="12" oninput="sv(this);autoSave()"><span class="slider-val">12px</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,12)">↺</button></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ BEATS ═══ -->
+    <div class="section" id="sec-beats">
+      <div class="section-title"><i class="fas fa-music"></i> Beats</div>
+      <div class="btn-row"><button class="btn" onclick="openEditor(null)"><i class="fas fa-plus"></i> Nuevo beat</button><button class="btn btn-g" onclick="batchAddBeats()"><i class="fas fa-layer-group"></i> Batch</button><button class="btn btn-g" onclick="openBatchImg()"><i class="fas fa-images"></i> Imágenes</button><button class="btn btn-g" onclick="openKbdPanel()" title="Atajos (Ctrl+/)"><i class="fas fa-keyboard"></i></button></div>
+      <div class="beat-search"><span class="bs-icon"><i class="fas fa-search"></i></span><input type="text" id="beat-search-input" placeholder="Buscar beats..." oninput="filterBeatList(this.value)"><div class="beat-search-count" id="beat-search-count"></div></div>
+      <div class="beat-list" id="beat-list"><div style="color:var(--hi);padding:12px 0">Cargando...</div></div>
+      <!-- Beat Editor (hidden by default, shown in sec-add) -->
+    </div>
+
+    <!-- ═══ BEAT EDITOR ═══ -->
+    <div class="section" id="sec-add">
+      <div class="section-title" id="editor-title"><i class="fas fa-edit"></i> Nuevo beat</div>
+      <div class="etabs">
+        <div class="et on" data-et="info" onclick="showEt('info')">Info</div>
+        <div class="et" data-et="lics" onclick="showEt('lics')">Licencias</div>
+        <div class="et" data-et="media" onclick="showEt('media')">Media</div>
+        <div class="et" data-et="plat" onclick="showEt('plat')">Plataformas</div>
+        <div class="et" data-et="extras" onclick="showEt('extras')">Extras</div>
+      </div>
+      <div class="etp on" id="etp-info">
+        <div class="fg2">
+          <div class="field"><label>ID</label><input type="text" id="f-id" placeholder="001"></div>
+          <div class="field"><label>Nombre</label><input type="text" id="f-name" placeholder="Fantasma"></div>
+          <div class="field"><label>Género</label><select id="f-genre"><option>Trap</option><option>R&B</option><option>Corrido</option><option>Drill</option><option>Ambient</option><option>Pop</option><option>Hip-Hop</option><option>Reggaeton</option><option>Otro</option></select></div>
+          <div class="field"><label>Custom</label><input type="text" id="f-genre-c" placeholder="Cumbia Drill"></div>
+          <div class="field"><label>BPM</label><input type="number" id="f-bpm" placeholder="140"></div>
+          <div class="field"><label>Key</label><input type="text" id="f-key" placeholder="Am"></div>
+          <div class="field full"><label>Descripción</label><textarea id="f-desc"></textarea></div>
+          <div class="field full"><label>Tags</label><input type="text" id="f-tags" placeholder="Trap, Dark, Cinematic"></div>
+        </div>
+      </div>
+      <div class="etp" id="etp-lics">
+        <p style="font-size:10px;color:var(--mu);margin-bottom:8px">Licencias <button class="btn btn-g" onclick="loadDefaultLics()" style="font-size:9px">↓ Cargar base</button></p>
+        <div class="lic-ed" id="le-editor"></div>
+        <button class="btn btn-g" onclick="addLicRow()"><i class="fas fa-plus"></i></button>
+      </div>
+      <div class="etp" id="etp-media">
+        <div class="field"><label>Imagen URL</label><div style="display:flex;gap:6px;align-items:center"><input type="url" id="f-img" placeholder="https://..." oninput="prevImg()" style="flex:1"><input type="file" id="f-img-file" accept="image/*" style="display:none" onchange="uploadBeatImg(this)"><button class="btn btn-g" onclick="document.getElementById('f-img-file').click()" style="font-size:9px" title="Subir a R2">📤</button></div></div>
+        <div id="img-prev" style="margin-bottom:8px"></div>
+        <div class="field"><label>Audio WAV URL</label><div style="display:flex;gap:6px;align-items:center"><input type="url" id="f-audio" placeholder="https://..." style="flex:1"><input type="file" id="f-audio-file" accept=".wav,.mp3,.flac" style="display:none" onchange="uploadBeatAudio(this)"><button class="btn btn-g" onclick="document.getElementById('f-audio-file').click()" style="font-size:9px" title="Subir WAV a R2">📤</button></div></div>
+        <div class="field"><label>Preview MP3 URL</label><div style="display:flex;gap:6px;align-items:center"><input type="url" id="f-prev" placeholder="https://..." oninput="updateMP()" style="flex:1"><input type="file" id="f-prev-file" accept=".mp3,.wav,.ogg,.m4a" style="display:none" onchange="uploadBeatPreview(this)"><button class="btn btn-g" onclick="document.getElementById('f-prev-file').click()" style="font-size:9px" title="Subir Preview a R2">📤</button></div></div>
+        <div class="mp"><button class="mp-btn" onclick="toggleMP()"><svg id="mp-ic" width="10" height="10" viewBox="0 0 16 16" fill="currentColor"><path d="M5 3l10 5-10 5V3z"/></svg></button><div class="mp-prog" onclick="seekMP(event)"><div class="mp-fill" id="mp-fill"></div></div><span class="mp-t" id="mp-t">0:00 / 0:00</span></div>
+      </div>
+      <div class="etp" id="etp-plat">
+        <div class="field"><label style="color:#1db954">🎵 Spotify</label><input type="url" id="f-spotify" placeholder="https://open.spotify.com/..."></div>
+        <div class="field"><label style="color:#ff0000">▶ YouTube</label><input type="url" id="f-youtube" placeholder="https://youtube.com/..."></div>
+        <div class="field"><label style="color:#ff5500">☁ SoundCloud</label><input type="url" id="f-soundcloud" placeholder="https://soundcloud.com/..."></div>
+      </div>
+      <div class="etp" id="etp-extras">
+        <div class="fg2">
+          <div class="field"><label>Fecha</label><input type="date" id="f-date"></div>
+          <div class="field"><label>Orden</label><input type="number" id="f-order" value="0"></div>
+        </div>
+        <div class="field"><label>Reproducciones</label><input type="number" id="f-plays" value="0"></div>
+        <div class="tog-row"><input type="checkbox" class="tog" id="f-feat"><span class="tog-lbl">Destacado (TOP)</span></div>
+        <div class="tog-row"><input type="checkbox" class="tog" id="f-excl"><span class="tog-lbl">Exclusiva</span></div>
+        <div class="tog-row"><input type="checkbox" class="tog" id="f-active" checked><span class="tog-lbl">Activo</span></div>
+        <div class="tog-row"><input type="checkbox" class="tog" id="f-avail" checked><span class="tog-lbl">Disponible</span></div>
+      </div>
+      <div style="margin-top:12px" class="btn-row">
+        <button class="btn btn-ok" onclick="saveBeat()"><i class="fas fa-save"></i> Guardar</button>
+        <button class="btn btn-g" onclick="showSection('beats')">Cancelar</button>
+        <button class="btn btn-del" id="btn-del" style="display:none" onclick="deleteBeat()"><i class="fas fa-trash"></i></button>
+      </div>
+    </div>
+
+    <!-- ═══ ELEMENTS ═══ -->
+    <div class="section" id="sec-elements">
+      <div class="section-title"><i class="fas fa-shopping-bag"></i> Elementos</div>
+
+      <div class="card">
+        <div class="card-title" onclick="toggleCard(this)"><span>Waveform</span><i class="fas fa-chevron-down"></i></div>
+        <div class="card-body">
+          <div class="color-wrap"><label>Color normal</label><div class="color-swatch"><input type="color" id="tc-wbar" value="#ffffff" oninput="syncWB(this.value)"></div><input type="text" class="color-hex" id="tt-wbar" value="#ffffff33" oninput="syncWB(this.value)"></div>
+          <div class="color-wrap"><label>Color activo</label><div class="color-swatch"><input type="color" id="tc-wbar-a" value="#dc2626" oninput="syncWBA(this.value)"></div><input type="text" class="color-hex" id="tt-wbar-a" value="#dc2626" oninput="syncWBA(this.value)"></div>
+          <div class="field"><label>Opacidad inactivo</label><div class="slider-wrap"><input type="range" id="t-wbar-op" min="0" max="1" step="0.05" value="0.18" oninput="sv(this);autoSave()"><span class="slider-val">0.18</span></div></div>
+          <div class="field"><label>Opacidad activo</label><div class="slider-wrap"><input type="range" id="t-wbar-aop" min="0" max="1" step="0.05" value="1" oninput="sv(this);autoSave()"><span class="slider-val">1.00</span></div></div>
+          <div class="field"><label>Altura barras</label><div class="slider-wrap"><input type="range" id="t-wbar-h" min="4" max="30" value="12" oninput="sv(this);autoSave()"><span class="slider-val">12px</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,12)">↺</button></div></div>
+          <div class="field"><label>Radio barras</label><div class="slider-wrap"><input type="range" id="t-wbar-r" min="0" max="10" value="2" oninput="sv(this);autoSave()"><span class="slider-val">2px</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,2)">↺</button></div></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title" onclick="toggleCard(this)"><span>Botón licencias</span><i class="fas fa-chevron-down"></i></div>
+        <div class="card-body">
+          <div class="color-wrap"><label>Texto</label><div class="color-swatch"><input type="color" id="tc-btn-clr" value="#dc2626" oninput="syncBtnColor(this.value)"></div><input type="text" class="color-hex" id="tt-btn-clr" value="#dc2626"></div>
+          <div class="color-wrap"><label>Borde</label><div class="color-swatch"><input type="color" id="tc-btn-bdr" value="#b91c1c" oninput="syncBtnBdr(this.value)"></div><input type="text" class="color-hex" id="tt-btn-bdr" value="#b91c1c"></div>
+          <div class="color-wrap"><label>Fondo</label><div class="color-swatch"><input type="color" id="tc-btn-bg" value="#1e0808" oninput="syncBtnBg(this.value)"></div><input type="text" class="color-hex" id="tt-btn-bg" value="#1e0808"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title" onclick="toggleCard(this)"><span>Opacidades</span><i class="fas fa-chevron-down"></i></div>
+        <div class="card-body">
+          <div class="field"><label>Fondo general</label><div class="slider-wrap"><input type="range" id="t-bg-op" min="0" max="1" step="0.05" value="1" oninput="sv(this);autoSave()"><span class="slider-val">1.00</span></div></div>
+          <div class="fg2">
+            <div class="field"><label>Botón normal</label><div class="slider-wrap"><input type="range" id="t-btn-op" min="0" max="1" step="0.05" value="1" oninput="sv(this);autoSave()"><span class="slider-val">1.00</span></div></div>
+            <div class="field"><label>Botón hover</label><div class="slider-wrap"><input type="range" id="t-btn-hop" min="0" max="1" step="0.05" value="1" oninput="sv(this);autoSave()"><span class="slider-val">1.00</span></div></div>
+          </div>
+          <div class="fg2">
+            <div class="color-wrap"><label>Sombra</label><div class="color-swatch"><input type="color" id="tc-shadow" value="#000000" oninput="autoSave()"></div></div>
+            <div class="field"><label>Intensidad</label><div class="slider-wrap"><input type="range" id="t-shadow-int" min="0" max="1" step="0.05" value="0.5" oninput="sv(this);autoSave()"><span class="slider-val">0.50</span></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Def Licenses -->
+      <div class="card">
+        <div class="card-title" onclick="toggleCard(this)"><span>Licencias base</span><i class="fas fa-chevron-down"></i></div>
+        <div class="card-body">
+          <p style="font-size:10px;color:var(--mu);margin-bottom:6px">Predeterminadas para nuevos beats</p>
+          <div class="lic-ed" id="deflics-editor"></div>
+          <div class="btn-row"><button class="btn btn-g" onclick="addDefLicRow()"><i class="fas fa-plus"></i></button><button class="btn btn-ok" onclick="saveDefLics()">Guardar</button></div>
+        </div>
+      </div>
+
+      <!-- Links -->
+      <div class="card">
+        <div class="card-title" onclick="toggleCard(this)"><span>Links personalizados</span><i class="fas fa-chevron-down"></i></div>
+        <div class="card-body">
+          <div id="links-editor"></div>
+          <div class="btn-row" style="margin-top:6px"><button class="btn btn-g" onclick="addLinkRow()"><i class="fas fa-plus"></i></button><button class="btn btn-ok" onclick="saveLinks()">Guardar</button></div>
+        </div>
+      </div>
+
+      <!-- Testimonials -->
+      <div class="card">
+        <div class="card-title" onclick="toggleCard(this)"><span>Artistas / Testimonios</span><i class="fas fa-chevron-down"></i></div>
+        <div class="card-body">
+          <div class="tog-row"><input type="checkbox" class="tog" id="s-testi" onchange="autoSave()"><span class="tog-lbl">Mostrar sección</span></div>
+          <div id="testi-editor"></div>
+          <div class="btn-row" style="margin-top:6px"><button class="btn btn-g" onclick="addTestiRow()"><i class="fas fa-plus"></i></button><button class="btn btn-ok" onclick="saveTestis()">Guardar</button></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ ANIMATIONS ═══ -->
+    <div class="section" id="sec-animations">
+      <div class="section-title"><i class="fas fa-magic"></i> Animaciones</div>
+      <p style="font-size:10px;color:var(--mu);margin-bottom:12px">Asigna animaciones por elemento</p>
+      <div id="anim-controls"></div>
+    </div>
+
+    <!-- ═══ FLOATING ═══ -->
+    <div class="section" id="sec-floating">
+      <div class="section-title"><i class="fas fa-arrows-alt"></i> Elementos Flotantes</div>
+      <div class="card">
+        <div class="card-title" onclick="toggleCard(this)"><span>Canvas flotante</span><i class="fas fa-chevron-down"></i></div>
+        <div class="card-body">
+          <p style="font-size:10px;color:var(--mu);margin-bottom:8px">Imágenes y texto flotantes sobre la tienda</p>
+          <div id="floating-preview" style="width:100%;height:120px;border:1px solid var(--b);border-radius:var(--rlg);position:relative;overflow:hidden;background:var(--as);margin-bottom:8px"></div>
+          <div id="floating-editor"></div>
+          <button class="btn btn-ok" onclick="addFE()" style="margin-top:8px"><i class="fas fa-plus"></i> Añadir elemento</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ THEMES ═══ -->
+    <div class="section" id="sec-themes">
+      <div class="section-title"><i class="fas fa-palette"></i> Temas</div>
+
+      <div class="card">
+        <div class="card-title">Slots de guardado</div>
+        <div class="slot-row" id="save-slots"></div>
+      </div>
+
+      <div class="preset-grid" id="preset-grid"></div>
+
+      <div class="card">
+        <div class="card-title" onclick="toggleCard(this)"><span>Mi tema personalizado</span><i class="fas fa-chevron-down"></i></div>
+        <div class="card-body">
+          <div class="field"><label>Nombre</label><input type="text" id="custom-theme-name" placeholder="Mi tema"></div>
+          <button class="btn btn-ok" onclick="saveCustomTheme()"><i class="fas fa-save"></i> Guardar como tema</button>
+          <div id="custom-themes-list" style="margin-top:8px"></div>
+        </div>
+      </div>
+
+      <!-- Snapshots -->
+      <div class="card">
+        <div class="card-title" onclick="toggleCard(this)"><span>Snapshots</span><i class="fas fa-chevron-down"></i></div>
+        <div class="card-body">
+          <p style="font-size:10px;color:var(--mu);margin-bottom:8px">Compara antes/después de cambios</p>
+          <div class="fg2">
+            <div class="field"><label>Nombre</label><input type="text" id="snap-name" placeholder="Antes del cambio"></div>
+            <div style="display:flex;align-items:flex-end"><button class="btn btn-ok" onclick="takeSnapshot()" style="font-size:9px"><i class="fas fa-camera"></i> Capturar</button></div>
+          </div>
+          <div id="snapshots-list" style="margin-top:8px"></div>
+        </div>
+      </div>
+
+      <!-- Visual Diff -->
+      <div class="card">
+        <div class="card-title" onclick="toggleCard(this)"><span>Visual Diff</span><i class="fas fa-columns"></i></div>
+        <div class="card-body">
+          <p style="font-size:10px;color:var(--mu);margin-bottom:8px">Compara lado a lado dos snapshots</p>
+          <div class="fg2">
+            <div class="field"><label>Snapshot A</label><select id="diff-a" onchange="updateDiff()"><option value="">—</option></select></div>
+            <div class="field"><label>Snapshot B</label><select id="diff-b" onchange="updateDiff()"><option value="">—</option></select></div>
+          </div>
+          <div id="diff-result" style="margin-top:8px"></div>
+        </div>
+      </div>
+
+      <div class="btn-row" style="margin-top:8px">
+        <button class="btn btn-ok" onclick="saveAll()"><i class="fas fa-save"></i> Guardar tema</button>
+        <button class="btn" onclick="exportCSS()"><i class="fas fa-code"></i> Export CSS</button>
+        <button class="btn btn-g" onclick="promptImportURL()"><i class="fas fa-link"></i> Import URL</button>
+        <button class="btn btn-del" onclick="resetTheme()"><i class="fas fa-undo"></i> Reset a DACE DARK</button>
+      </div>
+    </div>
+
+    <!-- ═══ SETTINGS ═══ -->
+    <div class="section" id="sec-settings">
+      <div class="section-title"><i class="fas fa-cog"></i> Ajustes</div>
+
+      <!-- Cloudflare R2 Config -->
+      <div class="card">
+        <div class="card-title" onclick="toggleCard(this)"><span>☁️ Cloudflare R2</span><i class="fas fa-chevron-down"></i></div>
+        <div class="card-body">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+            <span class="sdot" id="r2-status-dot"></span>
+            <span id="r2-status-text" style="font-size:11px;color:var(--mu)">No configurado</span>
+          </div>
+          <div class="field">
+            <label>Worker URL</label>
+            <input type="url" id="r2-worker-url" placeholder="https://dacewav-upload.xxx.workers.dev" oninput="autoSave()">
+          </div>
+          <div class="field">
+            <label>Upload Token <span style="font-size:8px;color:var(--hi)">(se guarda en Firebase, no en el HTML)</span></label>
+            <input type="password" id="r2-upload-token" placeholder="Token del Worker" oninput="autoSave()">
+          </div>
+          <div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap">
+            <button class="btn btn-g" onclick="saveR2Config()" style="font-size:9px"><i class="fas fa-save"></i> Guardar</button>
+            <button class="btn btn-g" onclick="testR2Connection()" style="font-size:9px"><i class="fas fa-plug"></i> Probar</button>
+            <button class="btn btn-g" onclick="purgeCache()" style="font-size:9px"><i class="fas fa-broom"></i> Purge Cache</button>
+          </div>
+          <p style="font-size:9px;color:var(--hi);line-height:1.6;margin-top:8px">
+            Los uploads irán a <code style="background:var(--as2);padding:2px 4px;border-radius:3px">cdn.dacewav.store</code>.
+            Sin configurar, las imágenes se guardan como base64 en Firebase.
+          </p>
+        </div>
+      </div>
+
+      <!-- Utilidades (v5.1 — ejecuta vía Worker, no CLI) -->
+      <div class="card">
+        <div class="card-title" onclick="toggleCard(this)"><span>🛠️ Utilidades</span><i class="fas fa-chevron-down"></i></div>
+        <div class="card-body">
+          <p style="font-size:9px;color:var(--hi);margin-bottom:10px">Acciones que se ejecutan en el servidor vía Worker. Requiere R2 configurado.</p>
+
+          <!-- Backup -->
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+            <button class="btn btn-g" onclick="runBackup()" style="flex:1"><i class="fas fa-download"></i> Backup ahora</button>
+          </div>
+          <div id="backup-status" style="font-size:9px;color:var(--mu);margin-bottom:12px"></div>
+
+          <!-- Sitemap -->
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+            <button class="btn btn-g" onclick="runSitemap()" style="flex:1"><i class="fas fa-sitemap"></i> Generar Sitemap</button>
+          </div>
+          <div id="sitemap-status" style="font-size:9px;color:var(--mu);margin-bottom:12px"></div>
+
+          <!-- Previews upload -->
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+            <input type="file" id="previews-input" accept=".mp3,.wav,.ogg,.m4a" multiple style="display:none" onchange="uploadPreviews(this)">
+            <button class="btn btn-g" onclick="document.getElementById('previews-input').click()" style="flex:1"><i class="fas fa-headphones"></i> Subir Previews MP3</button>
+          </div>
+          <div id="previews-status" style="font-size:9px;color:var(--mu);margin-bottom:12px"></div>
+
+          <!-- Restore (se mantiene como CLI — necesita Firebase Admin SDK) -->
+          <div style="border-top:1px solid var(--b);padding-top:10px;margin-top:4px">
+            <p style="font-size:9px;color:var(--hi);margin-bottom:8px">⚠️ Restore requiere Firebase Admin SDK — solo funciona desde CLI</p>
+            <div style="display:flex;gap:6px">
+              <input type="text" id="cmd-restore" readonly value="node firebase-backup.js --restore" style="flex:1;font-size:10px;opacity:.7;cursor:text">
+              <button class="btn btn-g" onclick="copyCmd('cmd-restore')" style="font-size:9px;flex-shrink:0"><i class="fas fa-copy"></i></button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title" onclick="toggleCard(this)"><span>Sitio</span><i class="fas fa-chevron-down"></i></div>
+        <div class="card-body">
+          <div class="fg2">
+            <div class="field"><label>Nombre</label><input type="text" id="s-name" placeholder="DACE" oninput="autoSave()"></div>
+            <div class="field"><label>WhatsApp</label><input type="text" id="s-wa" placeholder="521234567890" oninput="autoSave()"></div>
+            <div class="field"><label>Instagram</label><input type="text" id="s-ig" placeholder="dace.wav" oninput="autoSave()"></div>
+            <div class="field"><label>Email</label><input type="email" id="s-email" placeholder="hola@dace.com" oninput="autoSave()"></div>
+          </div>
+          <div class="field full"><label>Título hero</label><textarea id="s-hero" oninput="autoSave()">Beats que
+definen géneros.</textarea></div>
+          <div class="field full"><label>Subtítulo hero</label><textarea id="s-sub" oninput="autoSave()"></textarea></div>
+        </div>
+      </div>
+
+      <!-- Section Divider -->
+      <div class="card">
+        <div class="card-title" onclick="toggleCard(this)"><span>Section Divider</span><i class="fas fa-chevron-down"></i></div>
+        <div class="card-body">
+          <p style="font-size:10px;color:var(--mu);margin-bottom:8px">Texto bold entre el hero y el catálogo. Usa &lt;em&gt;texto&lt;/em&gt; para texto en color accent.</p>
+          <div class="field"><label>Título</label><input type="text" id="s-div-title" placeholder="Todo fire. <em>Zero filler.</em>" oninput="autoSave()"></div>
+          <div class="field"><label>Subtítulo</label><textarea id="s-div-sub" oninput="autoSave()" style="min-height:40px" placeholder="Beats profesionales desde Puebla, MX..."></textarea></div>
+        </div>
+      </div>
+
+      <!-- Historial de cambios -->
+      <div class="card">
+        <div class="card-title" onclick="toggleCard(this)"><span>Historial de cambios</span><i class="fas fa-chevron-down"></i></div>
+        <div class="card-body">
+          <div id="change-log"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Exportar / Importar</div>
+        <div class="btn-row">
+          <button class="btn" onclick="exportAll()"><i class="fas fa-download"></i> Exportar JSON</button>
+          <button class="btn" onclick="exportCSS()"><i class="fas fa-code"></i> Export CSS</button>
+          <button class="btn btn-g" onclick="document.getElementById('imp-f').click()"><i class="fas fa-upload"></i> Importar JSON</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ EQUIPO / WHITELIST ═══ -->
+    <div class="section" id="sec-team">
+      <div class="section-title"><i class="fas fa-users"></i> Equipo</div>
+      <p style="font-size:10px;color:var(--mu);margin-bottom:12px">Solo estas cuentas de Google pueden acceder al admin. Los cambios se guardan en Firebase automáticamente.</p>
+      <div class="card">
+        <div class="card-title"><span>Emails autorizados</span></div>
+        <div class="card-body">
+          <div id="whitelist-list"></div>
+          <div style="display:flex;gap:6px;margin-top:10px">
+            <input type="email" id="wl-new-email" placeholder="nuevo@email.com" style="flex:1;background:rgba(0,0,0,0.3);border:1px solid var(--b2);border-radius:var(--rad);color:var(--tx);font-family:var(--fm);font-size:11px;padding:6px 10px;outline:none">
+            <button class="tb gn" onclick="addWhitelistEmail()" style="flex-shrink:0"><i class="fas fa-plus"></i> Agregar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ STATS ═══ -->
+    <div class="section" id="sec-stats">
+      <div class="section-title"><i class="fas fa-chart-bar"></i> Estadísticas</div>
+      <div style="display:flex;gap:6px;margin-bottom:16px">
+        <button class="tb" onclick="loadStats()"><i class="fas fa-sync-alt"></i> Actualizar</button>
+        <button class="tb" onclick="runStats()" title="Cargar vía Worker (más seguro)"><i class="fas fa-server"></i> vía Worker</button>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:20px">
+        <div class="card" style="text-align:center;padding:16px"><div id="stat-total-visits" style="font-size:1.6rem;font-weight:800;color:var(--acc);font-family:var(--fd)">—</div><div style="font-size:9px;color:var(--mu);text-transform:uppercase;letter-spacing:.5px;margin-top:4px">Visitas (7d)</div></div>
+        <div class="card" style="text-align:center;padding:16px"><div id="stat-total-clicks" style="font-size:1.6rem;font-weight:800;color:var(--acc);font-family:var(--fd)">—</div><div style="font-size:9px;color:var(--mu);text-transform:uppercase;letter-spacing:.5px;margin-top:4px">Clicks Beats</div></div>
+        <div class="card" style="text-align:center;padding:16px"><div id="stat-total-wa" style="font-size:1.6rem;font-weight:800;color:var(--acc);font-family:var(--fd)">—</div><div style="font-size:9px;color:var(--mu);text-transform:uppercase;letter-spacing:.5px;margin-top:4px">WhatsApp</div></div>
+        <div class="card" style="text-align:center;padding:16px"><div id="stat-total-searches" style="font-size:1.6rem;font-weight:800;color:var(--acc);font-family:var(--fd)">—</div><div style="font-size:9px;color:var(--mu);text-transform:uppercase;letter-spacing:.5px;margin-top:4px">Búsquedas</div></div>
+      </div>
+      <div class="card"><div class="card-title"><span>📅 Visitas Diarias (7 días)</span></div><div class="card-body"><div id="daily-visits-chart" style="display:flex;flex-direction:column;gap:6px"><div style="color:var(--hi);font-size:10px;text-align:center;padding:16px">Click "Actualizar" para cargar datos</div></div></div></div>
+      <div class="card"><div class="card-title"><span>👁️ Top 10 — Vistas</span></div><div class="card-body"><div id="top-views-chart" style="display:flex;flex-direction:column;gap:6px"><div style="color:var(--hi);font-size:10px;text-align:center;padding:16px">Sin datos aún</div></div></div></div>
+      <div class="card"><div class="card-title"><span>📱 Top 10 — WhatsApp</span></div><div class="card-body"><div id="top-wa-chart" style="display:flex;flex-direction:column;gap:6px"><div style="color:var(--hi);font-size:10px;text-align:center;padding:16px">Sin datos aún</div></div></div></div>
+      <div class="card"><div class="card-title"><span>📊 Todos los Beats</span></div><div class="card-body"><div id="counts-table"><div style="color:var(--hi);font-size:10px;text-align:center;padding:16px">Sin datos aún</div></div></div></div>
+    </div>
+
+  </div><!-- end controls -->
+
+  <!-- ═══ RESIZE HANDLE ═══ -->
+  <div class="resize-handle-h" id="resize-handle"></div>
+
+  <!-- ═══ PREVIEW PANEL ═══ -->
+  <div class="preview-panel" id="preview-panel">
+    <div class="preview-bar">
+      <div class="preview-bar-left"><span class="preview-label"><i class="fas fa-eye"></i> Vista previa</span></div>
+      <div class="preview-bar-center">
+        <button class="vp-btn" onclick="setViewport('mobile')" title="Móvil"><i class="fas fa-mobile-alt"></i></button>
+        <button class="vp-btn" onclick="setViewport('tablet')" title="Tablet"><i class="fas fa-tablet-alt"></i></button>
+        <button class="vp-btn on" onclick="setViewport('desktop')" title="Escritorio"><i class="fas fa-desktop"></i></button>
+      </div>
+      <div class="preview-bar-right">
+        <input type="url" id="preview-url" value="https://dacewav.store/" placeholder="URL del preview..." style="width:180px;font-family:var(--fm);font-size:9px;background:rgba(0,0,0,0.3);border:1px solid var(--b);border-radius:var(--rad);color:var(--tx);padding:3px 8px;outline:none" onkeydown="if(event.key==='Enter')loadPreviewURL()">
+        <button class="vp-btn" onclick="loadPreviewURL()" title="Cargar URL"><i class="fas fa-arrow-right"></i></button>
+        <button class="vp-btn" onclick="refreshIframe()" title="Recargar"><i class="fas fa-sync-alt"></i></button>
+        <button class="vp-btn" onclick="toggleFullscreenPreview()" title="Fullscreen (F)"><i class="fas fa-expand"></i></button>
+        <button class="vp-btn" onclick="openQRPanel()" title="QR para móvil"><i class="fas fa-qrcode"></i></button>
+      </div>
+    </div>
+    <div class="preview-iframe-wrap">
+      <iframe id="preview-frame" src="index.html" class="desktop"></iframe>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ COMMAND PALETTE ═══ -->
+<div class="cmd-overlay" id="cmd-overlay" onclick="if(event.target===this)closeCmdPalette()">
+  <div class="cmd-box">
+    <input type="text" class="cmd-input" id="cmd-input" placeholder="Buscar control... (glow, fuente, margen...)" oninput="filterCmds(this.value)">
+    <div class="cmd-results" id="cmd-results"></div>
+  </div>
+</div>
+
+<!-- Keyboard Shortcuts Panel -->
+<div class="kbd-overlay" id="kbd-overlay" onclick="if(event.target===this)closeKbdPanel()">
+  <div class="kbd-box">
+    <div class="kbd-title"><span>⌨️ Atajos de teclado</span><button onclick="closeKbdPanel()">✕</button></div>
+    <div class="kbd-group">
+      <div class="kbd-group-title">General</div>
+      <div class="kbd-row"><span>Buscar / Command Palette</span><div class="kbd-keys"><span class="kbd-key">Ctrl</span><span class="kbd-key">K</span></div></div>
+      <div class="kbd-row"><span>Guardar todo</span><div class="kbd-keys"><span class="kbd-key">Ctrl</span><span class="kbd-key">S</span></div></div>
+      <div class="kbd-row"><span>Deshacer</span><div class="kbd-keys"><span class="kbd-key">Ctrl</span><span class="kbd-key">Z</span></div></div>
+      <div class="kbd-row"><span>Rehacer</span><div class="kbd-keys"><span class="kbd-key">Ctrl</span><span class="kbd-key">⇧</span><span class="kbd-key">Z</span></div></div>
+      <div class="kbd-row"><span>Ver atajos</span><div class="kbd-keys"><span class="kbd-key">Ctrl</span><span class="kbd-key">/</span></div></div>
+      <div class="kbd-row"><span>Cerrar panel/modal</span><div class="kbd-keys"><span class="kbd-key">Esc</span></div></div>
+    </div>
+    <div class="kbd-group">
+      <div class="kbd-group-title">Preview</div>
+      <div class="kbd-row"><span>Play / Pausa</span><div class="kbd-keys"><span class="kbd-key">Espacio</span></div></div>
+      <div class="kbd-row"><span>Beat anterior</span><div class="kbd-keys"><span class="kbd-key">←</span></div></div>
+      <div class="kbd-row"><span>Beat siguiente</span><div class="kbd-keys"><span class="kbd-key">→</span></div></div>
+    </div>
+    <div class="kbd-group">
+      <div class="kbd-group-title">Navegación</div>
+      <div class="kbd-row"><span>Sección Global</span><div class="kbd-keys"><span class="kbd-key">1</span></div></div>
+      <div class="kbd-row"><span>Sección Hero</span><div class="kbd-keys"><span class="kbd-key">2</span></div></div>
+      <div class="kbd-row"><span>Sección Beats</span><div class="kbd-keys"><span class="kbd-key">3</span></div></div>
+      <div class="kbd-row"><span>Sección Temas</span><div class="kbd-keys"><span class="kbd-key">4</span></div></div>
+      <div class="kbd-row"><span>Sección Ajustes</span><div class="kbd-keys"><span class="kbd-key">5</span></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- QR Code Panel -->
+<div class="kbd-overlay" id="qr-overlay" onclick="if(event.target===this)closeQRPanel()">
+  <div class="kbd-box">
+    <div class="kbd-title"><span>📱 Preview en móvil</span><button onclick="closeQRPanel()">✕</button></div>
+    <div class="qr-section">
+      <canvas id="qr-canvas" class="qr-canvas" width="200" height="200"></canvas>
+      <div class="qr-url" id="qr-url"></div>
+      <button class="btn qr-copy-btn" onclick="copyQRUrl()"><i class="fas fa-copy"></i> Copiar link</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ BATCH IMAGE UPLOAD ═══ -->
+<div class="batch-img-overlay" id="batch-img-overlay" onclick="if(event.target===this)closeBatchImg()">
+  <div class="batch-img-box">
+    <div class="batch-img-title"><span>🖼️ Batch Upload Imágenes</span><button onclick="closeBatchImg()">✕</button></div>
+    <div class="batch-img-drop" id="batch-img-drop">
+      <input type="file" id="batch-img-input" accept="image/*" multiple onchange="handleBatchImgFiles(this.files)">
+      <div style="font-size:24px;margin-bottom:8px">📁</div>
+      Arrastra imágenes aquí o click para seleccionar<br><span style="font-size:9px;color:var(--hi)">JPG, PNG, WebP — máx 20 imágenes</span>
+    </div>
+    <div class="batch-img-list" id="batch-img-list"></div>
+    <div class="btn-row">
+      <button class="btn btn-ok" id="batch-img-save" onclick="saveBatchImages()" style="display:none"><i class="fas fa-upload"></i> Subir y asignar</button>
+      <button class="btn btn-g" onclick="clearBatchImgQueue()">Limpiar</button>
+    </div>
+    <div style="font-size:10px;color:var(--hi);margin-top:8px">💡 Nombra las imágenes igual que el beat (ej: "Mi Beat.jpg") para auto-asignar</div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<div class="saving" id="saving-ind">Guardando...</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     JAVASCRIPT
+     ═══════════════════════════════════════════════════════════ -->
+<script src="dist/admin-app.js"></script>
+</body>
+</html>
