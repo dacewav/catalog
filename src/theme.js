@@ -5,6 +5,10 @@ import { ANIMS } from './config.js';
 import { fbCatch } from './error-handler.js';
 import { initParticles } from './effects.js';
 
+// Change detection: only re-init expensive things when their settings actually change
+let _lastParticleJSON = '';
+let _lastAnimJSON = '';
+
 export function toggleTheme() {
   state.isLightMode = !state.isLightMode;
   applyLightMode();
@@ -206,13 +210,21 @@ export function applyTheme(t) {
   if (t.wbarRadius != null) r.style.setProperty('--wbar-r', t.wbarRadius + 'px');
   if (t.fontWeight) r.style.setProperty('--font-w', t.fontWeight);
 
-  // Animations
-  applyAnim(document.querySelector('.nav-brand'), t.animLogo, ANIMS);
-  applyAnim(document.getElementById('hero-title'), t.animTitle, ANIMS);
-  applyAnim(document.getElementById('player-bar'), t.animPlayer, ANIMS);
-  document.querySelectorAll('.beat-card').forEach((c) => applyAnim(c, t.animCards, ANIMS));
-  document.querySelectorAll('.btn-lic,.nav-cta,.btn-wa').forEach((b) => applyAnim(b, t.animButtons, ANIMS));
+  // Animations — only re-apply when anim settings actually changed
+  const animKey = JSON.stringify([t.animLogo, t.animTitle, t.animPlayer, t.animCards, t.animButtons, t.animWaveform]);
+  if (animKey !== _lastAnimJSON) {
+    _lastAnimJSON = animKey;
+    applyAnim(document.querySelector('.nav-brand'), t.animLogo, ANIMS);
+    applyAnim(document.getElementById('hero-title'), t.animTitle, ANIMS);
+    applyAnim(document.getElementById('player-bar'), t.animPlayer, ANIMS);
+    document.querySelectorAll('.beat-card').forEach((c) => applyAnim(c, t.animCards, ANIMS));
+    document.querySelectorAll('.btn-lic,.nav-cta,.btn-wa').forEach((b) => applyAnim(b, t.animButtons, ANIMS));
+  }
 
-  // Particles
-  initParticles();
+  // Particles — only re-init when particle settings actually changed
+  const partKey = JSON.stringify([t.particlesOn, t.particlesCount, t.particlesMin, t.particlesMax, t.particlesSpeed, t.particlesType, t.particlesColor, t.particlesOpacity, t.particlesText, t.particlesImgUrl]);
+  if (partKey !== _lastParticleJSON) {
+    _lastParticleJSON = partKey;
+    initParticles();
+  }
 }

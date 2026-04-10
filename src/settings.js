@@ -3,6 +3,10 @@ import { state } from './state.js';
 import { applyAnim, hexRgba } from './utils.js';
 import { ANIMS } from './config.js';
 
+// Change detection for expensive operations
+let _lastHeroKey = '';
+let _lastDividerKey = '';
+
 // ─── Hero Builder — Single source of truth ───
 function _buildHero(s, T) {
   const ht = document.getElementById('hero-title');
@@ -149,7 +153,19 @@ export function applySettings() {
   }
 
   // ─── Hero: Single source of truth ───
-  _buildHero(s, T);
+  // Only rebuild when hero-related settings actually changed
+  const heroKey = JSON.stringify([
+    s.heroTitle, T.heroTitleCustom, T.heroGlowOn, T.heroGlowInt, T.heroGlowBlur, T.heroGlowClr,
+    T.heroStrokeOn, T.heroStrokeW, T.heroWordBlur, T.heroWordOp, T.heroStrokeClr,
+    T.heroTitleSize, T.heroLetterSpacing, T.heroLineHeight, T.heroTextClr,
+    T.heroEyebrowOn, T.heroEyebrow, T.heroEyebrowClr, T.heroEyebrowSize,
+    T.heroGradOn, T.heroGradClr, T.heroGradOp, T.heroGradW, T.heroGradH,
+    T.heroPadTop, T.fontDisplay, T.glowColor, T.accent, T.heroTitleSegments
+  ]);
+  if (heroKey !== _lastHeroKey) {
+    _lastHeroKey = heroKey;
+    _buildHero(s, T);
+  }
 
   // Social links
   if (s.whatsapp) {
@@ -173,31 +189,37 @@ export function applySettings() {
     if (fEmail) fEmail.href = 'mailto:' + s.email;
   }
 
-  // Section divider
-  const dt = document.getElementById('divider-title');
-  const ds = document.getElementById('divider-sub');
-  if (dt) {
-    if (s.dividerTitleSegments && s.dividerTitleSegments.length) {
-      // Render from colorizer segments
-      dt.innerHTML = s.dividerTitleSegments.map(seg => {
-        if (seg.c) return '<span style="color:' + seg.c + '">' + seg.text + '</span>';
-        return seg.text;
-      }).join('');
-    } else if (s.dividerTitle) {
-      dt.innerHTML = s.dividerTitle; // fallback to old <em> approach
+  // Section divider — only rebuild when divider settings changed
+  const divKey = JSON.stringify([
+    s.dividerTitle, s.dividerTitleSegments, s.dividerTitleSize, s.dividerLetterSpacing,
+    s.dividerSub, s.dividerSubColor, s.dividerSubSize,
+    s.dividerGlowOn, s.dividerGlowInt, s.dividerGlowBlur
+  ]);
+  if (divKey !== _lastDividerKey) {
+    _lastDividerKey = divKey;
+    const dt = document.getElementById('divider-title');
+    const ds = document.getElementById('divider-sub');
+    if (dt) {
+      if (s.dividerTitleSegments && s.dividerTitleSegments.length) {
+        dt.innerHTML = s.dividerTitleSegments.map(seg => {
+          if (seg.c) return '<span style="color:' + seg.c + '">' + seg.text + '</span>';
+          return seg.text;
+        }).join('');
+      } else if (s.dividerTitle) {
+        dt.innerHTML = s.dividerTitle;
+      }
+      if (s.dividerTitleSize) dt.style.fontSize = s.dividerTitleSize + 'rem';
+      if (s.dividerLetterSpacing != null) dt.style.letterSpacing = s.dividerLetterSpacing + 'em';
+      if (s.dividerGlowOn) {
+        const accent = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#dc2626';
+        dt.style.textShadow = '0 0 ' + (s.dividerGlowBlur || 20) + 'px ' + hexRgba(accent, (s.dividerGlowInt || 1) * 0.5);
+      }
     }
-    // Apply divider styling
-    if (s.dividerTitleSize) dt.style.fontSize = s.dividerTitleSize + 'rem';
-    if (s.dividerLetterSpacing != null) dt.style.letterSpacing = s.dividerLetterSpacing + 'em';
-    if (s.dividerGlowOn) {
-      const accent = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#dc2626';
-      dt.style.textShadow = '0 0 ' + (s.dividerGlowBlur || 20) + 'px ' + hexRgba(accent, (s.dividerGlowInt || 1) * 0.5);
+    if (ds && s.dividerSub) {
+      ds.textContent = s.dividerSub;
+      if (s.dividerSubColor) ds.style.color = s.dividerSubColor;
+      if (s.dividerSubSize) ds.style.fontSize = s.dividerSubSize + 'px';
     }
-  }
-  if (ds && s.dividerSub) {
-    ds.textContent = s.dividerSub;
-    if (s.dividerSubColor) ds.style.color = s.dividerSubColor;
-    if (s.dividerSubSize) ds.style.fontSize = s.dividerSubSize + 'px';
   }
 
   // Testimonials
