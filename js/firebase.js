@@ -7,13 +7,13 @@ import { getDatabase } from 'https://www.gstatic.com/firebasejs/11.2.0/firebase-
 import { getAuth } from 'https://www.gstatic.com/firebasejs/11.2.0/firebase-auth.js';
 
 const firebaseConfig = {
-  apiKey: 'YOUR_API_KEY',
-  authDomain: 'YOUR_PROJECT.firebaseapp.com',
-  databaseURL: 'https://YOUR_PROJECT-default-rtdb.firebaseio.com',
-  projectId: 'YOUR_PROJECT',
-  storageBucket: 'YOUR_PROJECT.appspot.com',
-  messagingSenderId: '000000000000',
-  appId: '1:000000000000:web:000000000000'
+  apiKey: 'AIzaSyCr2dekkLLifIg0_JlLfEleaV32b5XdvIQ',
+  authDomain: 'dacewav-store-3b0f5.firebaseapp.com',
+  databaseURL: 'https://dacewav-store-3b0f5-default-rtdb.firebaseio.com',
+  projectId: 'dacewav-store-3b0f5',
+  storageBucket: 'dacewav-store-3b0f5.firebasestorage.app',
+  messagingSenderId: '163354805352',
+  appId: '1:163354805352:web:d8a99d1d71323de1ed27dd'
 };
 
 const app = initializeApp(firebaseConfig);
