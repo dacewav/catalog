@@ -4,4 +4,4 @@ compatibility_date = "2024-12-01"
 
 [[r2_buckets]]
 binding = "AUDIO_BUCKET"
-bucket_name = "dace-beats"
+bucket_name = "dacewav-audio"

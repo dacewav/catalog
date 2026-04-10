@@ -46,19 +46,7 @@ async function loadBeatsList() {
     if (!snap.exists()) return;
     const raw = snap.val();
     beatsList = Object.entries(raw)
-      .map(([id, beat]) => ({
-        id,
-        title: beat.title || beat.name || 'Untitled',
-        bpm: beat.bpm || 0,
-        key: beat.key || '',
-        genre: beat.genre || '',
-        audioUrl: beat.audioUrl || beat.previewUrl || '',
-        coverUrl: beat.coverUrl || beat.imageUrl || '',
-        status: beat.status || (beat.active ? 'active' : 'draft'),
-        exclusive: beat.exclusive || false,
-        plays: beat.plays || 0,
-        createdAt: beat.createdAt || 0,
-      }))
+      .map(([id, beat]) => ({ id, ...beat }))
       .filter(b => b.status === 'active' && b.audioUrl)
       .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
   } catch (err) {

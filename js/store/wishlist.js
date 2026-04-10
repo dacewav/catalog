@@ -228,15 +228,8 @@ async function loadConfig() {
 }
 
 // ── Helpers ──
-// Local copy synced from catalog
-let localBeats = [];
-
-export function syncBeats(beats) {
-  localBeats = beats;
-}
-
 function findBeat(id) {
-  return localBeats.find(b => b.id === id) || window.__daceBeats?.find(b => b.id === id) || null;
+  return window.__daceBeats?.find(b => b.id === id) || null;
 }
 
 function getMinPrice(beat) {

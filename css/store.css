@@ -231,7 +231,6 @@ body::before {
   overflow: hidden;
   position: relative;
   transition: transform var(--transition-base), box-shadow var(--transition-base);
-  animation: card-enter 0.4s ease both;
 }
 
 .beat-card:hover {
@@ -1323,6 +1322,14 @@ body::before {
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+.beat-card {
+  animation: card-enter 0.4s ease both;
+}
+
+.beat-card__cover {
+  position: relative;
 }
 
 .beat-card__cover img {

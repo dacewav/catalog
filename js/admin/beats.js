@@ -111,10 +111,6 @@ function buildEditor() {
         </div>
       </div>
       <div class="form-group">
-        <label for="beat-description">Descripción</label>
-        <textarea id="beat-description" placeholder="Describe el beat..." rows="3"></textarea>
-      </div>
-      <div class="form-group">
         <label for="beat-tags">Tags (separados por coma)</label>
         <input type="text" id="beat-tags" placeholder="dark, trap, 808">
       </div>
@@ -152,18 +148,6 @@ function buildEditor() {
           <option value="false">No</option>
           <option value="true">Sí</option>
         </select>
-      </div>
-      <div class="form-group">
-        <label for="beat-spotify">Spotify URL</label>
-        <input type="url" id="beat-spotify" placeholder="https://open.spotify.com/...">
-      </div>
-      <div class="form-group">
-        <label for="beat-youtube">YouTube URL</label>
-        <input type="url" id="beat-youtube" placeholder="https://youtube.com/...">
-      </div>
-      <div class="form-group">
-        <label for="beat-soundcloud">SoundCloud URL</label>
-        <input type="url" id="beat-soundcloud" placeholder="https://soundcloud.com/...">
       </div>
       <div class="editor-panel__actions">
         <button type="submit" class="btn-primary" style="flex:1">Guardar</button>
@@ -215,19 +199,7 @@ function listenBeats() {
     }
 
     const beats = Object.entries(raw)
-      .map(([id, beat]) => ({
-        id,
-        title: beat.title || beat.name || 'Untitled',
-        bpm: beat.bpm || 0,
-        key: beat.key || '',
-        genre: beat.genre || '',
-        coverUrl: beat.coverUrl || beat.imageUrl || '',
-        audioUrl: beat.audioUrl || beat.previewUrl || '',
-        status: beat.status || (beat.active ? 'active' : 'draft'),
-        plays: beat.plays || 0,
-        featured: beat.featured || false,
-        exclusive: beat.exclusive || false,
-      }))
+      .map(([id, beat]) => ({ id, ...beat }))
       .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
 
     beats.forEach(beat => {
@@ -352,10 +324,6 @@ function openEditor(beat = null) {
   document.getElementById('beat-tags').value = beat?.tags ? beat.tags.join(', ') : '';
   document.getElementById('beat-cover').value = beat?.coverUrl || '';
   document.getElementById('beat-audio').value = beat?.audioUrl || '';
-  document.getElementById('beat-description').value = beat?.description || '';
-  document.getElementById('beat-spotify').value = beat?.spotify || '';
-  document.getElementById('beat-youtube').value = beat?.youtube || '';
-  document.getElementById('beat-soundcloud').value = beat?.soundcloud || '';
   document.getElementById('beat-status').value = beat?.status || 'active';
   document.getElementById('beat-featured').value = beat?.featured ? 'true' : 'false';
   document.getElementById('beat-exclusive').value = beat?.exclusive ? 'true' : 'false';
@@ -404,12 +372,8 @@ async function handleSave(e) {
       .split(',')
       .map(t => t.trim())
       .filter(Boolean),
-    description: document.getElementById('beat-description').value.trim(),
     coverUrl: document.getElementById('beat-cover').value.trim(),
     audioUrl: document.getElementById('beat-audio').value.trim(),
-    spotify: document.getElementById('beat-spotify').value.trim(),
-    youtube: document.getElementById('beat-youtube').value.trim(),
-    soundcloud: document.getElementById('beat-soundcloud').value.trim(),
     status: document.getElementById('beat-status').value,
     featured: document.getElementById('beat-featured').value === 'true',
     exclusive: document.getElementById('beat-exclusive').value === 'true',
