@@ -54,7 +54,7 @@ vi.mock('../src/admin/colors.js', () => ({
   loadColorValues: vi.fn(),
 }));
 
-import { computeGlowCSS, collectTheme } from '../src/admin/core.js';
+import { computeGlowCSS, collectTheme, segmentsToHTML, tczGetSegments } from '../src/admin/core.js';
 
 describe('computeGlowCSS', () => {
   it('text-shadow type returns textShadow property', () => {
@@ -176,5 +176,79 @@ describe('collectTheme', () => {
     expect(theme.particlesOn).toBe(true);
     expect(theme.particlesColor).toBe('#dc2626');
     expect(theme.particlesCount).toBe(40);
+  });
+
+  it('collects hero title custom fields', () => {
+    mockVal.mockImplementation(id => {
+      if (id === 'h-title') return 'Custom Title';
+      if (id === 'h-sub') return 'Custom Sub';
+      if (id === 'h-text-clr') return '#aabbcc';
+      return '';
+    });
+    const theme = collectTheme();
+    expect(theme.heroTitleCustom).toBe('Custom Title');
+    expect(theme.heroSubCustom).toBe('Custom Sub');
+    expect(theme.heroTextClr).toBe('#aabbcc');
+  });
+
+  it('collects divider settings', () => {
+    mockVal.mockImplementation(id => {
+      if (id === 's-div-title') return 'Divider Title';
+      return '';
+    });
+    const theme = collectTheme();
+    expect(theme).toHaveProperty('heroTitleSize');
+    expect(theme).toHaveProperty('heroLetterSpacing');
+    expect(theme).toHaveProperty('heroLineHeight');
+  });
+});
+
+describe('segmentsToHTML', () => {
+  it('returns empty string for empty/null segments', () => {
+    expect(segmentsToHTML([])).toBe('');
+    expect(segmentsToHTML(null)).toBe('');
+    expect(segmentsToHTML(undefined)).toBe('');
+  });
+
+  it('renders plain text segments without color', () => {
+    const segs = [{ text: 'Hello World', c: '' }];
+    expect(segmentsToHTML(segs)).toBe('Hello World');
+  });
+
+  it('wraps colored segments in span with style', () => {
+    const segs = [{ text: 'Red', c: '#ff0000' }];
+    const html = segmentsToHTML(segs);
+    expect(html).toContain('color:#ff0000');
+    expect(html).toContain('>Red<');
+  });
+
+  it('handles mixed colored and plain segments', () => {
+    const segs = [
+      { text: 'Hello ', c: '' },
+      { text: 'Red', c: '#ff0000' },
+      { text: ' World', c: '' },
+    ];
+    const html = segmentsToHTML(segs);
+    expect(html).toBe('Hello <span style="color:#ff0000">Red</span> World');
+  });
+
+  it('escapes HTML in text content', () => {
+    const segs = [{ text: '<script>alert("xss")</script>', c: '' }];
+    const html = segmentsToHTML(segs);
+    expect(html).not.toContain('<script>');
+    expect(html).toContain('&lt;script&gt;');
+  });
+
+  it('converts newlines to <br>', () => {
+    const segs = [{ text: 'Line1\nLine2', c: '' }];
+    const html = segmentsToHTML(segs);
+    expect(html).toContain('<br>');
+  });
+});
+
+describe('tczGetSegments', () => {
+  it('returns empty array for unknown container', () => {
+    const result = tczGetSegments('nonexistent');
+    expect(result).toEqual([]);
   });
 });
