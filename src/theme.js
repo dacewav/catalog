@@ -142,45 +142,9 @@ export function applyTheme(t) {
   if (t.fontSize) r.style.fontSize = t.fontSize + 'px';
   if (t.lineHeight) r.style.lineHeight = t.lineHeight;
 
-  // Hero
-  const heroTitle = document.getElementById('hero-title');
+  // Hero section-level styles (title HTML is managed by settings.js _buildHero)
   const heroSection = document.getElementById('hero-section');
-  if (heroTitle) {
-    const hGlowOn = t.heroGlowOn !== false;
-    const hGlowInt = t.heroGlowInt || t.glowIntensity || 1;
-    const hGlowBlur = t.heroGlowBlur || t.glowBlur || 20;
-    const heroAccent = t.heroStrokeClr || t.glowColor || a;
-    if (hGlowOn) {
-      heroTitle.style.textShadow = `0 0 ${hGlowBlur}px ${hexRgba(heroAccent, hGlowInt)}`;
-    } else {
-      heroTitle.style.textShadow = 'none';
-    }
-    if (t.heroTitleSize) heroTitle.style.fontSize = t.heroTitleSize + 'rem';
-    if (t.heroLetterSpacing != null) heroTitle.style.letterSpacing = t.heroLetterSpacing + 'em';
-    if (t.heroLineHeight) heroTitle.style.lineHeight = t.heroLineHeight;
-
-    const strokeOn = t.heroStrokeOn === true;
-    const heroTextClr = t.heroTextClr || t.text || '#f0f0f2';
-    // Apply text color to non-glow-word spans (plain text lines)
-    heroTitle.querySelectorAll('span:not(.glow-word)').forEach((el) => {
-      el.style.color = heroTextClr;
-    });
-    heroTitle.querySelectorAll('.glow-word').forEach((el) => {
-      if (strokeOn) {
-        // Outline mode: transparent fill + stroke border
-        el.style.webkitTextStroke = (t.heroStrokeW || 1) + 'px ' + heroAccent;
-        el.style.color = 'transparent';
-        el.style.setProperty('--hw-blur', (t.heroWordBlur || 10) + 'px');
-        el.style.setProperty('--hw-op', t.heroWordOp != null ? t.heroWordOp : 0.35);
-      } else {
-        // Filled mode: accent colored text, no blur pseudo-element
-        el.style.webkitTextStroke = 'none';
-        el.style.color = heroAccent;
-        el.style.setProperty('--hw-blur', '0px');
-        el.style.setProperty('--hw-op', '0');
-      }
-    });
-  }
+  const heroAccent = t.heroStrokeClr || t.glowColor || a;
 
   if (heroSection) {
     const gradOn = t.heroGradOn !== false;
@@ -194,15 +158,19 @@ export function applyTheme(t) {
     if (t.heroPadTop != null) heroSection.style.setProperty('--hero-pad-top', t.heroPadTop + 'rem');
   }
 
-  // Eyebrow
-  const eyebrow = document.querySelector('.hero-eyebrow');
+  // Eyebrow styling (text is set by settings.js)
+  const eyebrow = document.getElementById('hero-eyebrow');
   if (eyebrow) {
-    eyebrow.style.display = t.heroEyebrowOn === false ? 'none' : 'inline-flex';
-    const eyClr = t.heroEyebrowClr || a;
-    eyebrow.style.color = eyClr;
-    eyebrow.style.borderColor = hexRgba(eyClr, 0.3);
-    eyebrow.style.background = hexRgba(eyClr, 0.08);
-    if (t.heroEyebrowSize) eyebrow.style.fontSize = t.heroEyebrowSize + 'px';
+    if (t.heroEyebrowOn === false) {
+      eyebrow.style.display = 'none';
+    } else {
+      eyebrow.style.display = '';
+      const eyClr = t.heroEyebrowClr || heroAccent;
+      eyebrow.style.color = eyClr;
+      eyebrow.style.borderColor = hexRgba(eyClr, 0.3);
+      eyebrow.style.background = hexRgba(eyClr, 0.08);
+      if (t.heroEyebrowSize) eyebrow.style.fontSize = t.heroEyebrowSize + 'px';
+    }
   }
 
   // Loader brand

@@ -279,24 +279,16 @@ export function updateHeroPv() {
     if (lastLine) {
       const escapedLine = escapeHtml(lastLine);
       if (useGlowWord) {
+        const classes = ['glow-word'];
+        const styles = ['--hw-blur:' + wordBlur + 'px', '--hw-op:' + wordOp];
         if (strokeOn) {
-          // Outline mode: transparent fill + stroke
-          html += '<span class="glow-word" data-t="' + escapedLine + '" style="'
-            + 'color:transparent;'
-            + '-webkit-text-stroke:' + strokeW + 'px ' + strokeClr + ';'
-            + '--hw-blur:' + wordBlur + 'px;'
-            + '--hw-op:' + wordOp + '">'
-            + escapedLine + '</span>';
+          classes.push('stroke-mode');
+          styles.push('color:transparent', '-webkit-text-stroke:' + strokeW + 'px ' + strokeClr);
         } else {
-          // Glow only: colored text with blur behind
-          html += '<span class="glow-word" data-t="' + escapedLine + '" style="'
-            + 'color:' + strokeClr + ';'
-            + '--hw-blur:' + wordBlur + 'px;'
-            + '--hw-op:' + wordOp + '">'
-            + escapedLine + '</span>';
+          styles.push('color:' + strokeClr);
         }
+        html += '<span class="' + classes.join(' ') + '" data-t="' + escapedLine + '" style="' + styles.join(';') + '">' + escapedLine + '</span>';
       } else {
-        // No effects: plain text with user's chosen color
         html += '<span style="color:' + textClr + '">' + escapedLine + '</span>';
       }
     }

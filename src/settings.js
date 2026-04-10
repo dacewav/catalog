@@ -1,7 +1,84 @@
 // ═══ DACEWAV.STORE — Settings & Dynamic Content ═══
 import { state } from './state.js';
-import { applyAnim } from './utils.js';
+import { applyAnim, hexRgba } from './utils.js';
 import { ANIMS } from './config.js';
+
+// ─── Hero Builder — Single source of truth ───
+function _buildHero(s, T) {
+  const ht = document.getElementById('hero-title');
+  if (!ht) return;
+
+  const accent = T.heroStrokeClr || T.glowColor || T.accent || '#dc2626';
+  const heroTextClr = T.heroTextClr || T.text || '#f0f0f2';
+  const strokeOn = T.heroStrokeOn === true;
+  const glowOn = T.heroGlowOn !== false;
+  const strokeW = T.heroStrokeW || 1;
+  const wordBlur = T.heroWordBlur || 10;
+  const wordOp = T.heroWordOp != null ? T.heroWordOp : 0.35;
+  const glowBlur = T.heroGlowBlur || T.glowBlur || 20;
+  const glowInt = T.heroGlowInt || T.glowIntensity || 1;
+  const fontSize = T.heroTitleSize;
+  const ls = T.heroLetterSpacing;
+  const lh = T.heroLineHeight;
+
+  // Title text: Firebase setting > theme custom > default
+  const raw = s.heroTitle || T.heroTitleCustom || 'Beats que\ndefinen géneros.';
+  const lines = raw.split('\n');
+  const lastIdx = lines.length - 1;
+
+  // Build HTML
+  let html = '';
+  lines.forEach((line, i) => {
+    const safe = line.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    if (i < lastIdx) {
+      // Regular lines
+      html += `<span style="color:${heroTextClr}">${safe}</span>`;
+      if (i < lastIdx) html += '<br>';
+    } else {
+      // Last line gets glow/stroke treatment
+      const hasEffect = strokeOn || glowOn;
+      if (hasEffect) {
+        const classes = ['glow-word'];
+        if (strokeOn) classes.push('stroke-mode');
+        const styles = [];
+        if (strokeOn) {
+          styles.push(`-webkit-text-stroke:${strokeW}px ${accent}`);
+        } else {
+          styles.push(`color:${accent}`);
+        }
+        styles.push(`--hw-blur:${wordBlur}px`);
+        styles.push(`--hw-op:${wordOp}`);
+        html += `<span class="${classes.join(' ')}" data-t="${safe}" style="${styles.join(';')}">${safe}</span>`;
+      } else {
+        html += `<span style="color:${heroTextClr}">${safe}</span>`;
+      }
+    }
+  });
+  ht.innerHTML = html;
+
+  // Title-level styles
+  if (fontSize) ht.style.fontSize = fontSize + 'rem';
+  if (ls != null) ht.style.letterSpacing = ls + 'em';
+  if (lh) ht.style.lineHeight = String(lh);
+  ht.style.textShadow = glowOn ? `0 0 ${glowBlur}px ${hexRgba(accent, glowInt)}` : 'none';
+
+  // Subtitle
+  const heroSub = document.getElementById('hero-sub');
+  if (heroSub) heroSub.textContent = s.heroSubtitle || T.heroSubCustom || '';
+
+  // Eyebrow
+  const eyebrow = document.getElementById('hero-eyebrow');
+  if (eyebrow) {
+    if (T.heroEyebrowOn === false) {
+      eyebrow.style.display = 'none';
+    } else {
+      eyebrow.style.display = '';
+      const eyText = T.heroEyebrow || 'En vivo · Puebla, MX';
+      eyebrow.textContent = '';
+      eyebrow.appendChild(document.createTextNode(eyText));
+    }
+  }
+}
 
 export function applySettings() {
   const s = state.siteSettings;
@@ -58,31 +135,8 @@ export function applySettings() {
     }
   }
 
-  // Hero text
-  const heroText = s.heroTitle || T.heroTitleCustom;
-  if (heroText) {
-    const lines = heroText.split('\n');
-    const ht = document.getElementById('hero-title');
-    if (ht) {
-      const strokeOn = T.heroStrokeOn === true;
-      const glowWordOn = T.heroGlowOn !== false || strokeOn;
-      ht.innerHTML = lines.map((l, i) => {
-        if (i === lines.length - 1 && glowWordOn) {
-          return `<span class="glow-word" data-t="${l}">${l}</span>`;
-        }
-        return l.replace(/</g, '&lt;').replace(/>/g, '&gt;');
-      }).join('<br>');
-    }
-  }
-
-  const heroSub = document.getElementById('hero-sub');
-  if (heroSub) heroSub.textContent = s.heroSubtitle || T.heroSubCustom || '';
-
-  const eyebrow = document.querySelector('.hero-eyebrow');
-  if (eyebrow && T.heroEyebrow) {
-    eyebrow.textContent = '';
-    eyebrow.appendChild(document.createTextNode(T.heroEyebrow));
-  }
+  // ─── Hero: Single source of truth ───
+  _buildHero(s, T);
 
   // Social links
   if (s.whatsapp) {

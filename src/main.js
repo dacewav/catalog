@@ -97,11 +97,12 @@ window.addEventListener('storage', (e) => {
   if (e.key === 'dace-theme' && e.newValue) {
     state.T = JSON.parse(e.newValue);
     applyTheme(state.T);
+    applySettings();
   }
   if (e.key === 'dace-theme-broadcast' && e.newValue) {
     try {
       const d = JSON.parse(e.newValue);
-      if (d.theme) { state.T = d.theme; applyTheme(state.T); }
+      if (d.theme) { state.T = d.theme; applyTheme(state.T); applySettings(); }
     } catch {}
   }
   if (e.key === 'dace-custom-emojis' && e.newValue) {
@@ -125,7 +126,7 @@ window.addEventListener('message', (e) => {
   const d = e.data;
   if (!d || !d.type) return;
   switch (d.type) {
-    case 'theme-update': if (d.theme) { state.T = d.theme; applyTheme(state.T); } break;
+    case 'theme-update': if (d.theme) { state.T = d.theme; applyTheme(state.T); applySettings(); } break;
     case 'settings-update': if (d.settings) { state.siteSettings = d.settings; applySettings(); } break;
     case 'emojis-update': if (d.emojis) { state.customEmojis = d.emojis; applySettings(); } break;
     case 'floating-update': if (d.elements) { state.floatingEls = d.elements; renderFloating(state.floatingEls); } break;
@@ -251,6 +252,7 @@ window.addEventListener('load', () => {
       const t = snap.val() || {};
       state.T = t;
       applyTheme(t);
+      if (state.ldSettings) applySettings();
       localStorage.setItem('dace-theme', JSON.stringify(t));
       state.ldTheme = true;
       _checkReady();
