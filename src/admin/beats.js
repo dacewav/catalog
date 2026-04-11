@@ -286,6 +286,63 @@ export function applyPreset(id) {
   const preset = STYLE_PRESETS.find(p => p.id === id); if (!preset) return;
   const cs = preset.apply();
 
+  // RESET ALL FIELDS FIRST — so old values from previous preset don't leak
+  // Filters
+  setVal('f-cs-fb', 1); setVal('f-cs-fc', 1); setVal('f-cs-fs', 1);
+  setVal('f-cs-fg', 0); setVal('f-cs-fse', 0); setVal('f-cs-fh', 0);
+  setVal('f-cs-fbl', 0); setVal('f-cs-fi', 0);
+  // Glow off
+  setChecked('f-glow-on', false); setChecked('f-glow-hover', false);
+  (function(){ var e = g('f-glow-type'); if (e) e.value = 'active'; })();
+  setVal('f-glow-color', '#dc2626'); setVal('f-glow-color-h', '#dc2626');
+  setVal('f-glow-speed', 3); setVal('f-glow-int', 1);
+  setVal('f-glow-blur', 20); setVal('f-glow-spread', 0); setVal('f-glow-op', 1);
+  // Animation none
+  (function(){ var e = g('f-anim-type'); if (e) e.value = ''; })();
+  (function(){ var e = g('f-anim-type2'); if (e) e.value = ''; })();
+  setVal('f-anim-dur', 2); setVal('f-anim-del', 0);
+  (function(){ var e = g('f-anim-ease'); if (e) e.value = 'ease-in-out'; })();
+  (function(){ var e = g('f-anim-dir'); if (e) e.value = 'normal'; })();
+  (function(){ var e = g('f-anim-iter'); if (e) e.value = 'infinite'; })();
+  setVal('f-anim-int', 100); setVal('f-anim-hue-start', 0); setVal('f-anim-hue-end', 360);
+  _setHoloColors(['#ff0080','#00ff80','#0080ff']);
+  setVal('f-anim-holo-bright-min', 0.9); setVal('f-anim-holo-bright-max', 1.4);
+  setVal('f-anim-holo-sat-min', 0.8); setVal('f-anim-holo-sat-max', 2);
+  setVal('f-anim-holo-glow', 0); setVal('f-anim-holo-blur', 0);
+  (function(){ var e = g('f-anim-holo-dir'); if (e) e.value = 'hue'; })();
+  setVal('f-anim-brillo-min', 0.8); setVal('f-anim-brillo-max', 1.5);
+  setVal('f-anim-glitch-x', 4); setVal('f-anim-glitch-y', 4); setVal('f-anim-glitch-rot', 0);
+  setChecked('f-anim-glitch-chromatic', false);
+  setVal('f-anim-translate-x', 0); setVal('f-anim-translate-y', 12); setVal('f-anim-translate-rot', 0);
+  setVal('f-anim-neon-min', 0.4); setVal('f-anim-neon-max', 1); setVal('f-anim-neon-bright', 1);
+  setVal('f-anim-parpadeo-min', 0.3); setVal('f-anim-parpadeo-max', 1);
+  setVal('f-anim-rotate-angle', 5); setVal('f-anim-rotate-scale', 1);
+  setVal('f-anim-scale-min', 1); setVal('f-anim-scale-max', 1.06); setVal('f-anim-scale-opacity', 0.8);
+  setVal('f-anim-shake-x', 4); setVal('f-anim-shake-y', 4);
+  setVal('f-anim-cs-hue-start', 0); setVal('f-anim-cs-hue-end', 360); setVal('f-anim-cs-sat', 1);
+  // Style defaults
+  setVal('f-accent-color', '#dc2626'); setVal('f-accent-color-h', '#dc2626');
+  setChecked('f-shimmer', false); setVal('f-cs-radius', 0); setVal('f-cs-opacity', 1);
+  // Border off
+  setChecked('f-border-on', false); setVal('f-border-color', '#dc2626'); setVal('f-border-width', 1);
+  (function(){ var e = g('f-border-style'); if (e) e.value = 'solid'; })();
+  // Shadow off
+  setChecked('f-shadow-on', false); setChecked('f-shadow-inset', false);
+  setVal('f-shadow-color', '#000000'); setVal('f-shadow-op', 0.35);
+  setVal('f-shadow-x', 0); setVal('f-shadow-y', 4); setVal('f-shadow-blur', 12); setVal('f-shadow-spread', 0);
+  // Hover defaults
+  setVal('f-hov-scale', 1); setVal('f-hov-bright', 1); setVal('f-hov-sat', 1);
+  setVal('f-hov-shadow', 0); setVal('f-hov-trans', 0.3);
+  setVal('f-hov-border', '#dc2626'); setChecked('f-hov-glow', false);
+  setVal('f-hov-blur', 0); setVal('f-hov-sib-blur', 0); setVal('f-hov-hue', 0); setVal('f-hov-opacity', 1);
+  setChecked('f-hov-anim-on', false);
+  (function(){ var e = g('f-hov-anim-type'); if (e) e.value = ''; })();
+  setVal('f-hov-anim-dur', 1);
+  // Transform identity
+  setVal('f-tf-rotate', 0); setVal('f-tf-scale', 1);
+  setVal('f-tf-skewX', 0); setVal('f-tf-skewY', 0); setVal('f-tf-x', 0); setVal('f-tf-y', 0);
+
+  // NOW APPLY PRESET VALUES
   // Highlight active preset
   document.querySelectorAll('.preset-card').forEach(c => c.classList.toggle('active', c.dataset.preset === id));
 

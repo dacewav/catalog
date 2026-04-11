@@ -98,6 +98,15 @@ export function beatCard(b, globalIdx) {
       if (csA.holoSatMax != null && csA.holoSatMax !== 2) animStyle += `;--anim-holo-sat-max:${csA.holoSatMax}`;
       if (csA.holoGlow) animStyle += `;--anim-holo-glow:${csA.holoGlow}px`;
       if (csA.holoBlur) animStyle += `;--anim-holo-blur:${csA.holoBlur}px`;
+      // Custom holograma colors
+      let hc = csA.holoColors;
+      // Firebase may return object instead of array
+      if (hc && typeof hc === 'object' && !Array.isArray(hc)) hc = Object.values(hc);
+      if (hc && hc.length >= 2) {
+        animStyle += `;--holo-c0:${hc[0]};--holo-c1:${hc[1]}`;
+        if (hc[2]) animStyle += `;--holo-c2:${hc[2]}`; else animStyle += `;--holo-c2:${hc[0]}`;
+        if (hc[3]) animStyle += `;--holo-c3:${hc[3]}`; else animStyle += `;--holo-c3:${hc[1]}`;
+      }
     }
     if (csA.type === 'cambio-color') {
       if (csA.csHueStart != null) animStyle += `;--anim-cs-hue-start:${csA.csHueStart}deg`;
