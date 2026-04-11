@@ -70,8 +70,19 @@ window._syncPanel = syncPanel;
 window._updateViewportBtns = updateViewportBtns;
 
 // Self-initialize on DOM ready
+function initHandlePos() {
+  var preview = g('preview-panel');
+  var handle = g('resize-handle');
+  if (preview && handle) {
+    var w = preview.offsetWidth || Math.round(window.innerWidth * 0.5);
+    handle.style.right = w + 'px';
+    document.documentElement.style.setProperty('--pw', w + 'px');
+  }
+}
+
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', initResize);
+  document.addEventListener('DOMContentLoaded', function() { initResize(); initHandlePos(); });
 } else {
   initResize();
+  initHandlePos();
 }
