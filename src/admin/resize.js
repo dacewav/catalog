@@ -45,3 +45,10 @@ function updateViewportBtns(w) {
   else if (w < 800 && btns[1]) btns[1].classList.add('on');
   else if (btns[2]) btns[2].classList.add('on');
 }
+
+// Self-initialize on DOM ready
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initResize);
+} else {
+  initResize();
+}
