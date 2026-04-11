@@ -224,11 +224,13 @@
       "events": {
         "$date": {
           "$eventId": {
-            ".write": "auth != null",
+            ".write": true,
             ".validate": "newData.hasChildren(['ts', 'cat', 'act'])",
             "ts":   { ".validate": "newData.isNumber()" },
             "cat":  { ".validate": "newData.isString() && newData.val().length <= 50" },
             "act":  { ".validate": "newData.isString() && newData.val().length <= 100" },
+            "lbl":  { ".validate": "!newData.exists() || (newData.isString() && newData.val().length <= 200)" },
+            "val":  { ".validate": "!newData.exists() || newData.isNumber()" },
             "meta": { ".validate": "!newData.exists() || (newData.isString() && newData.val().length <= 500)" }
           }
         }
@@ -236,7 +238,7 @@
 
       "counts": {
         "$beatId": {
-          ".write": "auth != null",
+          ".write": true,
           "clicks":   { ".validate": "newData.isNumber() && newData.val() >= 0" },
           "views":    { ".validate": "newData.isNumber() && newData.val() >= 0" },
           "waClicks": { ".validate": "newData.isNumber() && newData.val() >= 0" }
@@ -245,7 +247,7 @@
 
       "daily": {
         "$date": {
-          ".write": "auth != null",
+          ".write": true,
           "total": { ".validate": "newData.isNumber() && newData.val() >= 0" },
           "actions": {
             "$action": { ".validate": "newData.isNumber() && newData.val() >= 0" }

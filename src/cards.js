@@ -185,7 +185,8 @@ export function beatCard(b, globalIdx) {
     // Hover classes
     ((csH.scale && csH.scale !== 1) || (csH.brightness && csH.brightness !== 1) || (csH.saturate && csH.saturate !== 1) || csH.shadowBlur || csH.borderColor || csH.glowIntensify || csH.blur || csH.siblingsBlur || csH.hueRotate || (csH.opacity != null && csH.opacity !== 1)) ? 'has-hover-fx' : '',
     csH.glowIntensify ? 'hov-glow-int' : '',
-    (csH.enableAnim && csH.animType) ? 'has-hover-anim' : ''
+    (csH.enableAnim && csH.animType) ? 'has-hover-anim' : '',
+    csSh.enabled ? 'has-custom-shadow' : ''
   ].filter(Boolean).join(' ');
 
   // Build inline styles
@@ -209,6 +210,14 @@ export function beatCard(b, globalIdx) {
   if (animStyle) styleParts.push(animStyle);
   if (borderStyle) styleParts.push(borderStyle);
 
+  // Build inner card styles (shadow goes here, not on .beat-card, because .beat-card-inner owns the default box-shadow)
+  const innerStyleParts = [];
+  if (csSh.enabled) {
+    const rgba = `rgba(${parseInt((csSh.color||'#000000').replace('#','').substring(0,2),16)||0},${parseInt((csSh.color||'#000000').replace('#','').substring(2,4),16)||0},${parseInt((csSh.color||'#000000').replace('#','').substring(4,6),16)||0},${csSh.opacity != null ? csSh.opacity : 0.35})`;
+    const prefix = csSh.inset ? 'inset ' : '';
+    innerStyleParts.push(`box-shadow:${prefix}${csSh.x||0}px ${csSh.y!=null?csSh.y:4}px ${csSh.blur!=null?csSh.blur:12}px ${csSh.spread||0}px ${rgba}`);
+  }
+
   // CSS Filters
   const filters = [];
   if (csF.brightness != null && csF.brightness !== 1) filters.push(`brightness(${csF.brightness})`);
@@ -224,12 +233,7 @@ export function beatCard(b, globalIdx) {
   // Opacity
   if (csS.opacity != null && csS.opacity < 1) styleParts.push(`opacity:${csS.opacity}`);
 
-  // Box shadow
-  if (csSh.enabled) {
-    const rgba = `rgba(${parseInt((csSh.color||'#000000').replace('#','').substring(0,2),16)||0},${parseInt((csSh.color||'#000000').replace('#','').substring(2,4),16)||0},${parseInt((csSh.color||'#000000').replace('#','').substring(4,6),16)||0},${csSh.opacity != null ? csSh.opacity : 0.35})`;
-    const prefix = csSh.inset ? 'inset ' : '';
-    styleParts.push(`box-shadow:${prefix}${csSh.x||0}px ${csSh.y!=null?csSh.y:4}px ${csSh.blur!=null?csSh.blur:12}px ${csSh.spread||0}px ${rgba}`);
-  }
+  // Box shadow — moved to innerStyleParts (applied on .beat-card-inner, not .beat-card)
 
   // Transform
   const tfParts = [];
@@ -264,7 +268,7 @@ export function beatCard(b, globalIdx) {
     style="${allStyles}">
     <div class="shimmer-overlay"></div>
     <button class="wish-btn${isWished ? ' active' : ''}" data-id="${b.id}" onclick="toggleWish('${b.id}',event)">${isWished ? '♥' : '♡'}</button>
-    <div class="beat-card-inner">
+    <div class="beat-card-inner"${innerStyleParts.length ? ' style="' + innerStyleParts.join(';') + '"' : ''}>
       <div class="beat-img">${imgH}
         <div class="beat-wave-row">${bars}</div>
         <div class="play-hint"><div class="play-circle"><svg width="16" height="16" viewBox="0 0 16 16" fill="white"><path d="${isPlay ? 'M4 2h2v12H4zM10 2h2v12h-2z' : 'M5 3l10 5-10 5V3z'}"/></svg></div></div>

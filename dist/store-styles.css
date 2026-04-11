@@ -302,7 +302,8 @@ nav.nav-scrolled{background:rgba(6,4,4,0.95);border-bottom-color:rgba(185,28,28,
 .beat-card::before{display:none}
 .beat-card[class*="anim2-"]::before{display:block}
 .beat-card-inner{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);height:100%;transition:border-color .35s,box-shadow .35s;box-shadow:var(--card-shadow);transform-style:preserve-3d;will-change:transform;display:flex;flex-direction:column}
-.beat-card:hover .beat-card-inner{border-color:rgba(185,28,28,0.35);box-shadow:0 20px 60px rgba(0,0,0,0.4),0 0 30px rgba(185,28,28,0.08)}
+.beat-card:hover .beat-card-inner{border-color:rgba(185,28,28,0.35)}
+.beat-card:not(.has-custom-shadow):hover .beat-card-inner{box-shadow:0 20px 60px rgba(0,0,0,0.4),0 0 30px rgba(185,28,28,0.08)}
 .beat-card.is-playing .beat-card-inner{border-color:rgba(185,28,28,0.9);box-shadow:var(--glow-md)}
 /* Disable glow animation when playing to avoid conflicts */
 .beat-card.is-playing.glow-active .beat-card-inner,
@@ -313,7 +314,7 @@ nav.nav-scrolled{background:rgba(6,4,4,0.95);border-bottom-color:rgba(185,28,28,
 .beat-card .shimmer-overlay{position:absolute;inset:0;border-radius:var(--r-lg);pointer-events:none;overflow:hidden;z-index:2;opacity:0;transition:opacity .3s}
 .beat-card:hover .shimmer-overlay{opacity:1}
 .beat-card.shimmer-on .shimmer-overlay{opacity:1}
-.shimmer-overlay::after{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:linear-gradient(45deg,transparent 40%,rgba(255,255,255,0.03) 50%,transparent 60%);animation:shimmer 3s infinite}
+.shimmer-overlay::after{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:linear-gradient(45deg,transparent 35%,rgba(255,255,255,0.06) 50%,transparent 65%);animation:shimmer 3s infinite}
 .beat-card.featured::after{content:'TOP';position:absolute;top:10px;left:10px;font-size:9px;letter-spacing:.14em;padding:3px 8px;border-radius:999px;background:rgba(185,28,28,0.9);color:var(--text);z-index:3}
 
 /* ═══ PER-BEAT GLOW ANIMATION ═══ */

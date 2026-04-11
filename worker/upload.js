@@ -76,6 +76,29 @@ export default {
       });
     }
 
+    // Serve files from R2 (GET /:key) with CORS
+    if (request.method === 'GET') {
+      const key = decodeURIComponent(url.pathname.slice(1));
+      if (!key) {
+        return new Response(JSON.stringify({ error: 'Missing key' }), {
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+      const object = await env.R2_BUCKET.get(key);
+      if (!object) {
+        return new Response(JSON.stringify({ error: 'Not found' }), {
+          status: 404,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+      const headers = new Headers(corsHeaders);
+      object.writeHttpMetadata(headers);
+      headers.set('etag', object.httpEtag);
+      headers.set('Cache-Control', 'public, max-age=31536000');
+      return new Response(object.body, { headers });
+    }
+
     return new Response(JSON.stringify({ error: 'Not found' }), {
       status: 404,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
