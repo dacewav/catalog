@@ -942,7 +942,13 @@ function _applyCardStyleToPreview(pv, cs) {
   // 4. Style
   const st = cs.style || {};
   if (st.accentColor) pv.style.setProperty('--card-tint', 'linear-gradient(135deg,' + st.accentColor + ',transparent)');
-  if (st.shimmer) pv.classList.add('shimmer-on');
+  if (st.shimmer) {
+    pv.classList.add('shimmer-on');
+    var shimSpeed = parseFloat(val('f-shimmer-speed')) || 3;
+    var shimOp = parseFloat(val('f-shimmer-op')) || 0.04;
+    pv.style.setProperty('--shim-speed', shimSpeed + 's');
+    pv.style.setProperty('--shim-op', shimOp);
+  }
   if (st.borderRadius && inner) inner.style.borderRadius = st.borderRadius + 'px';
   if (st.opacity < 1) pv.style.opacity = st.opacity;
 
@@ -1080,6 +1086,13 @@ window._buildCardHTML = function(cs, opts) {
   s.push('--accent:'+accentColor+';--btn-lic-clr:'+accentColor+';--btn-lic-bdr:rgba('+ar+','+ag+','+ab+',0.5);--btn-lic-bg:rgba('+ar+','+ag+','+ab+',0.1)');
   if (!gc.enabled) s.push('--glow-clr:'+accentColor);
 
+  // Shimmer
+  if (csS.shimmer) {
+    var shimSpeed = parseFloat(val('f-shimmer-speed')) || 3;
+    var shimOp = parseFloat(val('f-shimmer-op')) || 0.04;
+    s.push('--shim-speed:'+shimSpeed+'s;--shim-op:'+shimOp);
+  }
+
   // Glow
   if (gc.enabled && gc.color) {
     const hex = gc.color.replace('#','');
@@ -1191,7 +1204,7 @@ window._buildCardHTML = function(cs, opts) {
 
   return '<div class="'+allClasses+'" style="'+s.join(';')+';cursor:default">'
     +'<div class="shimmer-overlay"></div>'
-    +'<div class="beat-card-inner">'
+    +'<div class="beat-card-inner"'+(csBd.enabled ? '' : ' style="border:none"')+'>'
     +'<div class="beat-img">'+(imgUrl ? '<img src="'+imgUrl+'" alt="" loading="lazy">' : '<div class="beat-img-ph">♪</div>')
     +'<div class="beat-wave-row">'+bars+'</div>'
     +'<div class="play-hint"><div class="play-circle"><svg width="16" height="16" viewBox="0 0 16 16" fill="white"><path d="M5 3l10 5-10 5V3z"/></svg></div></div>'

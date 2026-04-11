@@ -1442,6 +1442,8 @@ body.light .batch-img-drop input[type="file"] { opacity: 0; }
 #pv-full-card-container .beat-card { max-width: 260px; }
 #pv-full-card-container .beat-card-inner,
 #pv-store-card .beat-card-inner { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-lg); height: 100%; box-shadow: var(--card-shadow); display: flex; flex-direction: column; }
+#pv-full-card-container .beat-card:hover .beat-card-inner,
+#pv-store-card .beat-card:hover .beat-card-inner { border-color: var(--border); box-shadow: var(--card-shadow); }
 #pv-full-card-container .shimmer-overlay,
 #pv-store-card .shimmer-overlay { position: absolute; inset: 0; border-radius: var(--r-lg); pointer-events: none; overflow: hidden; z-index: 2; opacity: 0; transition: opacity .3s; }
 #pv-full-card-container .shimmer-on .shimmer-overlay,
