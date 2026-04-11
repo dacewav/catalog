@@ -881,11 +881,9 @@ window._renderFullPvCard = function() {
 
 // ═══ Render full card in embedded container (Extras tab) ═══
 window.renderFullPvInCard = function() {
-  var c1 = document.getElementById('pv-full-card-container');
-  var c2 = document.getElementById('pv-store-card');
-  console.log('[PvRender] containers:', {extras: !!c1, panel: !!c2});
-  var cs = _buildCardStyleFromInputs();
-  var opts = {
+  var container = document.getElementById('pv-full-card-container');
+  if (!container) return;
+  container.innerHTML = window._buildCardHTML(_buildCardStyleFromInputs(), {
     name: val('f-name') || 'Nombre del Beat',
     bpm: val('f-bpm') || '140',
     key: val('f-key') || 'Am',
@@ -893,11 +891,7 @@ window.renderFullPvInCard = function() {
     imgUrl: val('f-img'),
     tags: (val('f-tags') || '').split(',').map(function(t) { return t.trim(); }).filter(Boolean),
     isExcl: checked('f-excl')
-  };
-  var html = window._buildCardHTML(cs, opts);
-  if (c1) c1.innerHTML = html;
-  if (c2) c2.innerHTML = html;
-  console.log('[PvRender] done, html length:', html.length);
+  });
 };
 
 var pvDetached = false;
