@@ -82,6 +82,11 @@ export function beatCard(b, globalIdx) {
   let animStyle = '';
   if (csA && csA.type) {
     animClass = 'anim-' + csA.type;
+    // Holograma sub-variant (gradient/pulse use custom colors, hue uses rainbow)
+    if (csA.type === 'holograma' && csA.holoDir) {
+      if (csA.holoDir === 'gradient') animClass = 'anim-holograma-gradient';
+      else if (csA.holoDir === 'pulse') animClass = 'anim-holograma-pulse';
+    }
     animStyle = `--ad:${csA.dur || 2}s;--adl:${csA.del || 0}s`;
     if (csA.easing && csA.easing !== 'ease-in-out') animStyle += `;--aease:${csA.easing}`;
     if (csA.direction && csA.direction !== 'normal') animStyle += `;--adir:${csA.direction}`;
