@@ -1038,11 +1038,6 @@ body > * { position: relative; z-index: 1; }
 .snap-name { font-size: 11px; color: var(--hi); }
 .snap-date { font-size: 9px; color: var(--mu); font-family: var(--fx); }
 
-/* ═══ FLOATING PREVIEW ═══ */
-#floating-preview {
-  border: 1px solid var(--b); border-radius: var(--rlg);
-  background: var(--abg); position: relative; overflow: hidden;
-}
 
 /* ═══ RESPONSIVE ═══ */
 @media (max-width: 1100px) {
@@ -2368,7 +2363,43 @@ definen géneros.</textarea></div>
 
       </div>
 
-      <!-- Sticky Live Preview -->
+      <!-- Preview Card (inside editor, collapsible + detachable) -->
+      <div class="card" style="margin-top:8px" id="pv-card-embed">
+        <div class="card-title" onclick="toggleCard(this)" style="position:relative">
+          <span>👁️ Vista previa</span>
+          <div style="display:flex;gap:4px;align-items:center;margin-left:auto;margin-right:8px">
+            <button onclick="event.stopPropagation();toggleDetachPv()" id="pv-detach-btn" title="Desprender/adjuntar" style="background:none;border:1px solid var(--b);border-radius:4px;color:var(--mu);cursor:pointer;font-size:10px;padding:2px 8px;font-family:var(--fm)">📌 Fijado</button>
+          </div>
+          <i class="fas fa-chevron-down"></i>
+        </div>
+        <div class="card-body" id="pv-card-body">
+          <div style="display:flex;gap:12px;align-items:flex-start">
+            <!-- Mini card preview -->
+            <div style="flex:0 0 180px">
+              <div class="bcpv" id="beat-card-pv" style="width:100%">
+                <div class="bcpv-shimmer"></div>
+                <div class="bcpv-inner">
+                  <div class="bcpv-img" id="bcpv-img"><div class="bcpv-img-ph">♪</div></div>
+                  <div class="bcpv-body">
+                    <div class="bcpv-name" id="bcpv-name">Nombre del Beat</div>
+                    <div class="bcpv-meta">
+                      <span id="bcpv-bpm">140 BPM</span>
+                      <span id="bcpv-key">Am</span>
+                      <span id="bcpv-genre">Trap</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- Full store card preview (togglable) -->
+            <div style="flex:1;min-width:0">
+              <div style="font-size:9px;color:var(--mu);margin-bottom:6px;font-family:var(--fm);text-transform:uppercase;letter-spacing:.06em">Vista tienda</div>
+              <div id="pv-full-card-container" style="border-radius:var(--rad);overflow:hidden;border:1px solid var(--b)"></div>
+              <button onclick="renderFullPvInCard()" style="margin-top:6px;font-size:9px;padding:3px 8px;border:1px solid var(--b);border-radius:var(--rad);background:none;color:var(--tx2);cursor:pointer;font-family:var(--fm)">↻ Actualizar vista tienda</button>
+            </div>
+          </div>
+        </div>
+      </div>
 
       <div style="margin-top:12px" class="btn-row">
         <button class="btn btn-ok" onclick="saveBeat()"><i class="fas fa-save"></i> Guardar</button>
@@ -2792,168 +2823,6 @@ definen géneros.</textarea></div>
      JAVASCRIPT
      ═══════════════════════════════════════════════════════════ -->
 <script src="dist/admin-app.js"></script>
-<!-- ═══ FLOATING PREVIEW TOGGLE (always visible when editing) ═══ -->
-<button id="float-pv-reopen" onclick="showFloatPv()" style="display:none;position:fixed;z-index:8999;bottom:20px;right:20px;width:40px;height:40px;border-radius:50%;background:rgba(185,28,28,0.9);border:1px solid rgba(255,255,255,0.15);color:#fff;cursor:pointer;font-size:16px;box-shadow:0 4px 20px rgba(0,0,0,0.4);backdrop-filter:blur(10px);display:none;align-items:center;justify-content:center;transition:transform .2s,opacity .2s" onmouseenter="this.style.transform='scale(1.1)'" onmouseleave="this.style.transform='scale(1)'">👁️</button>
-
-<!-- ═══ FLOATING CARD PREVIEW (draggable + resizable from all edges) ═══ -->
-<div id="float-pv" style="display:none;position:fixed;z-index:9000;width:220px;height:auto;border-radius:12px;overflow:hidden;background:rgba(10,8,14,0.95);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,0.08);box-shadow:0 20px 60px rgba(0,0,0,0.6);right:40px;top:80px">
-  <!-- Resize handles (all 8 directions) -->
-  <div class="fpv-rz" data-rz="n" style="position:absolute;top:-4px;left:10px;right:10px;height:8px;cursor:n-resize;z-index:10"></div>
-  <div class="fpv-rz" data-rz="s" style="position:absolute;bottom:-4px;left:10px;right:10px;height:8px;cursor:s-resize;z-index:10"></div>
-  <div class="fpv-rz" data-rz="e" style="position:absolute;right:-4px;top:10px;bottom:10px;width:8px;cursor:e-resize;z-index:10"></div>
-  <div class="fpv-rz" data-rz="w" style="position:absolute;left:-4px;top:10px;bottom:10px;width:8px;cursor:w-resize;z-index:10"></div>
-  <div class="fpv-rz" data-rz="ne" style="position:absolute;top:-4px;right:-4px;width:14px;height:14px;cursor:ne-resize;z-index:11"></div>
-  <div class="fpv-rz" data-rz="nw" style="position:absolute;top:-4px;left:-4px;width:14px;height:14px;cursor:nw-resize;z-index:11"></div>
-  <div class="fpv-rz" data-rz="se" style="position:absolute;bottom:-4px;right:-4px;width:14px;height:14px;cursor:se-resize;z-index:11"></div>
-  <div class="fpv-rz" data-rz="sw" style="position:absolute;bottom:-4px;left:-4px;width:14px;height:14px;cursor:sw-resize;z-index:11"></div>
-  <!-- Title bar (drag handle) -->
-  <div id="float-pv-handle" style="display:flex;align-items:center;justify-content:space-between;padding:6px 10px;cursor:grab;background:rgba(255,255,255,0.03);border-bottom:1px solid rgba(255,255,255,0.05);user-select:none;border-radius:12px 12px 0 0">
-    <span style="font-size:9px;color:var(--mu);font-family:var(--fm);text-transform:uppercase;letter-spacing:.08em">👁️ Preview</span>
-    <div style="display:flex;gap:4px;align-items:center">
-      <button id="float-pv-pin" onclick="toggleFloatPvPin()" title="Fijar/desfijar posición" style="background:none;border:none;color:var(--mu);cursor:pointer;font-size:11px;padding:2px 6px;border-radius:4px">📌</button>
-      <button id="float-pv-toggle" onclick="toggleFloatPvMode()" title="Cambiar vista" style="background:none;border:none;color:var(--mu);cursor:pointer;font-size:10px;padding:2px 6px;border-radius:4px">◫</button>
-      <button onclick="hideFloatPv()" style="background:none;border:none;color:var(--mu);cursor:pointer;font-size:11px;padding:2px 4px">✕</button>
-    </div>
-  </div>
-  <div id="float-pv-body" style="padding:10px;overflow:auto;/* no fixed height — card sizes naturally */">
-    <!-- Mini preview (default) -->
-    <div id="float-pv-mini">
-      <div class="bcpv" id="beat-card-pv" style="width:100%">
-        <div class="bcpv-shimmer"></div>
-        <div class="bcpv-inner">
-          <div class="bcpv-img" id="bcpv-img"><div class="bcpv-img-ph">♪</div></div>
-          <div class="bcpv-body">
-            <div class="bcpv-name" id="bcpv-name">Nombre del Beat</div>
-            <div class="bcpv-meta">
-              <span id="bcpv-bpm">140 BPM</span>
-              <span id="bcpv-key">Am</span>
-              <span id="bcpv-genre">Trap</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <!-- Full card preview (when expanded) -->
-    <div id="float-pv-full" style="display:none">
-      <div id="float-pv-full-card"></div>
-    </div>
-  </div>
-</div>
-<script>
-(function(){
-  const el = document.getElementById('float-pv');
-  if (!el) return;
-  const handle = document.getElementById('float-pv-handle');
-  const reopenBtn = document.getElementById('float-pv-reopen');
-  const minW = 160, minH = 80, maxW = 500, maxH = 650;
-  const DEFAULT_POS = { right: 40, top: 80 }; // default position from right/top
-  let state = '', rzDir = '', startX, startY, origRect;
-  let pinned = false; // when pinned, can't drag
-
-  function onDown(e, type, dir) {
-    if (pinned && type === 'drag') return;
-    const cx = e.clientX || (e.touches && e.touches[0].clientX);
-    const cy = e.clientY || (e.touches && e.touches[0].clientY);
-    if (cx == null) return;
-    state = type;
-    rzDir = dir || '';
-    startX = cx; startY = cy;
-    origRect = { left: el.offsetLeft, top: el.offsetTop, width: el.offsetWidth, height: el.offsetHeight };
-    document.body.style.userSelect = 'none';
-    document.body.style.pointerEvents = 'none';
-    el.style.pointerEvents = 'auto';
-    if (e.pointerId != null && el.setPointerCapture) el.setPointerCapture(e.pointerId);
-    e.preventDefault();
-    e.stopPropagation();
-  }
-
-  function onMove(e) {
-    if (!state) return;
-    const cx = e.clientX || (e.touches && e.touches[0].clientX);
-    const cy = e.clientY || (e.touches && e.touches[0].clientY);
-    if (cx == null) return;
-    const dx = cx - startX, dy = cy - startY;
-    if (state === 'drag') {
-      el.style.left = (origRect.left + dx) + 'px';
-      el.style.top = (origRect.top + dy) + 'px';
-      el.style.right = 'auto'; el.style.bottom = 'auto';
-    } else if (state === 'resize') {
-      let newW = origRect.width, newH = origRect.height;
-      let newL = origRect.left, newT = origRect.top;
-      if (rzDir.includes('e')) newW = Math.min(maxW, Math.max(minW, origRect.width + dx));
-      if (rzDir.includes('w')) { newW = Math.min(maxW, Math.max(minW, origRect.width - dx)); newL = origRect.left + dx; }
-      if (rzDir.includes('s')) newH = Math.min(maxH, Math.max(minH, origRect.height + dy));
-      if (rzDir.includes('n')) { newH = Math.min(maxH, Math.max(minH, origRect.height - dy)); newT = origRect.top + dy; }
-      el.style.width = newW + 'px'; el.style.height = newH + 'px';
-      el.style.left = newL + 'px'; el.style.top = newT + 'px';
-      el.style.right = 'auto'; el.style.bottom = 'auto';
-      checkMode(newW);
-    }
-  }
-
-  function onUp() {
-    if (!state) return;
-    state = ''; rzDir = '';
-    document.body.style.userSelect = '';
-    document.body.style.pointerEvents = '';
-    el.style.pointerEvents = '';
-    if (handle) handle.style.cursor = pinned ? 'default' : 'grab';
-  }
-
-  // Pointer events
-  if (handle) handle.addEventListener('pointerdown', e => { if (e.target.tagName === 'BUTTON') return; handle.style.cursor = 'grabbing'; onDown(e, 'drag'); });
-  el.querySelectorAll('.fpv-rz').forEach(h => h.addEventListener('pointerdown', e => { const isEdge = h.dataset.rz.length === 1; onDown(e, isEdge ? 'resize' : 'resize', h.dataset.rz); }));
-  window.addEventListener('pointermove', onMove);
-  window.addEventListener('pointerup', onUp);
-  window.addEventListener('pointercancel', onUp);
-  document.addEventListener('mouseleave', onUp);
-
-  function checkMode(w) {
-    const fullEl = document.getElementById('float-pv-full');
-    const miniEl = document.getElementById('float-pv-mini');
-    if (!fullEl || !miniEl) return;
-    if (w >= 350) { fullEl.style.display = 'block'; miniEl.style.display = 'none'; el.dataset.mode = 'full'; if (typeof window._renderFullPvCard === 'function') window._renderFullPvCard(); }
-    else { fullEl.style.display = 'none'; miniEl.style.display = 'block'; el.dataset.mode = 'mini'; }
-  }
-
-  // ─── Hide / Show / Pin ───
-  window.hideFloatPv = function() {
-    el.style.display = 'none';
-    if (reopenBtn) reopenBtn.style.display = 'flex';
-  };
-  window.showFloatPv = function() {
-    // Reset to default position
-    el.style.right = DEFAULT_POS.right + 'px';
-    el.style.top = DEFAULT_POS.top + 'px';
-    el.style.left = 'auto';
-    el.style.bottom = 'auto';
-    el.style.width = '220px';
-    el.style.height = 'auto';
-    el.style.display = 'block';
-    el.dataset.mode = 'mini';
-    const fullEl = document.getElementById('float-pv-full');
-    const miniEl = document.getElementById('float-pv-mini');
-    if (fullEl) fullEl.style.display = 'none';
-    if (miniEl) miniEl.style.display = 'block';
-    if (reopenBtn) reopenBtn.style.display = 'none';
-    if (typeof window._renderFullPvCard === 'function') window._renderFullPvCard();
-  };
-  window.toggleFloatPvPin = function() {
-    pinned = !pinned;
-    const btn = document.getElementById('float-pv-pin');
-    if (btn) { btn.textContent = pinned ? '📍' : '📌'; btn.style.color = pinned ? 'var(--acc)' : 'var(--mu)'; }
-    if (handle) handle.style.cursor = pinned ? 'default' : 'grab';
-    handle.style.opacity = pinned ? '0.5' : '1';
-  };
-})();
-// Toggle between mini and full card mode
-window.toggleFloatPvMode = function() {
-  const el = document.getElementById('float-pv');
-  if (!el) return;
-  el.style.width = el.dataset.mode === 'full' ? '220px' : '420px';
-  el.style.height = 'auto';
-};
-</script>
 
 </body>
 </html>

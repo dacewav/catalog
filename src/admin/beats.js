@@ -689,8 +689,8 @@ function updateCardPreview() {
   const animTypeVal = val('f-anim-type');
   _toggleAnimSubsettings(animTypeVal);
 
-  // Update full card preview
-  _renderFullPvCard();
+  // Update full card preview (in embedded container)
+  if (typeof window.renderFullPvInCard === 'function') window.renderFullPvInCard();
 }
 
 // ═══ Render full beat card (store-style) in floating preview ═══
@@ -859,6 +859,148 @@ window._renderFullPvCard = function() {
     </div>
   </div>`;
 };
+
+// ═══ Render full card preview in embedded container ═══
+window.renderFullPvInCard = function() {
+  const container = document.getElementById('pv-full-card-container');
+  if (!container) return;
+  // Temporarily point _renderFullPvCard output to this container
+  const origTarget = document.getElementById('float-pv-full-card');
+  // Reuse _renderFullPvCard logic but target the embedded container
+  const cs = _buildCardStyleFromInputs();
+  const name = val('f-name') || 'Nombre del Beat';
+  const bpm = val('f-bpm') || '140';
+  const key = val('f-key') || 'Am';
+  const genre = g('f-genre')?.value || 'Trap';
+  const imgUrl = val('f-img');
+  const tags = (val('f-tags') || '').split(',').map(t => t.trim()).filter(Boolean);
+  const isExcl = checked('f-excl');
+  // Build classes and styles (same as _renderFullPvCard)
+  const f = cs.filter || {};
+  const gc = cs.glow || {};
+  const ca = cs.anim || {};
+  const csH = cs.hover || {};
+  const csS = cs.style || {};
+  const csSh = cs.shadow || {};
+  const csTf = cs.transform || {};
+  const csBd = cs.border || {};
+  const animClass = ca.type ? 'anim-' + ca.type : '';
+  const anim2Class = ca.type2 ? 'anim2-' + ca.type2 : '';
+  const glowClass = gc.enabled ? 'glow-' + (gc.type || 'active') : '';
+  const shimmerClass = csS.shimmer ? 'shimmer-on' : '';
+  const hasHoverFx = ((csH.scale && csH.scale !== 1) || (csH.brightness && csH.brightness !== 1) || (csH.saturate && csH.saturate !== 1) || csH.shadowBlur || csH.borderColor || csH.glowIntensify || csH.blur || csH.siblingsBlur || csH.hueRotate || (csH.opacity != null && csH.opacity !== 1)) ? 'has-hover-fx' : '';
+  const allClasses = ['beat-card', glowClass, animClass, shimmerClass, anim2Class, hasHoverFx, csH.glowIntensify ? 'hov-glow-int' : '', (csH.enableAnim && csH.animType) ? 'has-hover-anim' : ''].filter(Boolean).join(' ');
+  const styleParts = [];
+  const accentColor = csS.accentColor || '#dc2626';
+  styleParts.push('--card-tint:linear-gradient(135deg,' + accentColor + ',transparent)');
+  if (gc.enabled && gc.color) {
+    const hex = gc.color.replace('#','');
+    styleParts.push('--glow-clr:'+gc.color+';--glow-r:'+(parseInt(hex.substring(0,2),16)||220)+';--glow-g:'+(parseInt(hex.substring(2,4),16)||38)+';--glow-b:'+(parseInt(hex.substring(4,6),16)||38)+';--glow-speed:'+(gc.speed||3)+'s');
+  }
+  if (ca.type) {
+    styleParts.push('--ad:'+(ca.dur||2)+'s;--adl:'+(ca.del||0)+'s');
+    const animInt = (ca.intensity != null ? ca.intensity : 100) / 100;
+    if (animInt !== 1) styleParts.push('--anim-int:'+animInt);
+    if (ca.type === 'holograma') styleParts.push('--anim-hue-start:'+(ca.hueStart||0)+'deg;--anim-hue-end:'+(ca.hueEnd||360)+'deg;--anim-holo-bright-min:'+(ca.holoBrightMin||0.9)+';--anim-holo-bright-max:'+(ca.holoBrightMax||1.4)+';--anim-holo-sat-min:'+(ca.holoSatMin||0.8)+';--anim-holo-sat-max:'+(ca.holoSatMax||2));
+    if (ca.type === 'brillo') styleParts.push('--anim-brillo-min:'+(ca.brilloMin||0.8)+';--anim-brillo-max:'+(ca.brilloMax||1.5));
+    if (ca.type === 'pulsar' || ca.type === 'respirar' || ca.type === 'latido') styleParts.push('--anim-scale-min:'+(ca.scaleMin||1)+';--anim-scale-max:'+(ca.scaleMax||1.06));
+  }
+  if (csBd.enabled) styleParts.push('border:'+(csBd.width||1)+'px '+(csBd.style||'solid')+' '+(csBd.color||'#dc2626'));
+  const filters = [];
+  if (f.brightness != null && f.brightness !== 1) filters.push('brightness('+f.brightness+')');
+  if (f.contrast != null && f.contrast !== 1) filters.push('contrast('+f.contrast+')');
+  if (f.saturate != null && f.saturate !== 1) filters.push('saturate('+f.saturate+')');
+  if (f.grayscale) filters.push('grayscale('+f.grayscale+')');
+  if (f.sepia) filters.push('sepia('+f.sepia+')');
+  if (f.hueRotate) filters.push('hue-rotate('+f.hueRotate+'deg)');
+  if (f.blur) filters.push('blur('+f.blur+'px)');
+  if (f.invert) filters.push('invert('+f.invert+')');
+  if (filters.length) styleParts.push('filter:'+filters.join(' '));
+  if (csS.opacity != null && csS.opacity < 1) styleParts.push('opacity:'+csS.opacity);
+  if (csSh.enabled) {
+    const hex = (csSh.color||'#000000').replace('#','');
+    styleParts.push('box-shadow:'+(csSh.inset?'inset ':'')+(csSh.x||0)+'px '+(csSh.y!=null?csSh.y:4)+'px '+(csSh.blur!=null?csSh.blur:12)+'px '+(csSh.spread||0)+'px rgba('+(parseInt(hex.substring(0,2),16)||0)+','+(parseInt(hex.substring(2,4),16)||0)+','+(parseInt(hex.substring(4,6),16)||0)+','+(csSh.opacity!=null?csSh.opacity:0.35)+')');
+  }
+  if (csS.borderRadius) styleParts.push('--card-radius:'+csS.borderRadius+'px');
+  // Hover vars
+  if (csH.scale && csH.scale !== 1) styleParts.push('--hov-scale:'+csH.scale);
+  if (csH.brightness && csH.brightness !== 1) styleParts.push('--hov-bright:'+csH.brightness);
+  if (csH.saturate && csH.saturate !== 1) styleParts.push('--hov-sat:'+csH.saturate);
+  if (csH.transition != null) styleParts.push('--hov-trans:'+(csH.transition||0.3)+'s');
+  // Waveform
+  const bars = Array.from({length: 20}, (_, i) => {
+    const h = 4 + Math.random() * 16;
+    return '<div class="wbar" style="height:'+h+'px;--wd:0.5s;animation-delay:'+((i*0.05).toFixed(2))+'s"></div>';
+  }).join('');
+  const wfActive = gc.color || '#dc2626';
+  const tagsHtml = tags.map(t => '<span class="tag">'+t+'</span>').join('');
+  container.innerHTML = '<div class="'+allClasses+'" style="'+styleParts.join(';')+';cursor:default;--wbar:#ffffff33;--wbar-active:'+wfActive+';--wave-opacity:0.18;--wave-opacity-on:1"><div class="shimmer-overlay"></div><div class="beat-card-inner"><div class="beat-img">'+(imgUrl ? '<img src="'+imgUrl+'" alt="" loading="lazy">' : '<div class="beat-img-ph">♪</div>')+'<div class="beat-wave-row">'+bars+'</div><div class="play-hint"><div class="play-circle"><svg width="16" height="16" viewBox="0 0 16 16" fill="white"><path d="M5 3l10 5-10 5V3z"/></svg></div></div></div><div class="beat-body"><div class="beat-name">'+name+(isExcl ? '<span class="tag" style="border-color:rgba(185,28,28,.5);color:var(--accent);margin-left:6px">EXCL</span>' : '')+'</div><div class="beat-meta-row"><span>'+bpm+' BPM</span><span>'+key+'</span><span>'+genre+'</span></div>'+(tagsHtml ? '<div class="beat-tags-row">'+tagsHtml+'</div>' : '')+'<div class="beat-foot"><div><div class="price-from">desde</div><div class="price-main">$350 <span style="font-size:11px;color:var(--muted);font-weight:400">MXN</span><span class="price-usd">· $18 USD</span></div></div><div class="btn-lic">Ver licencias</div></div></div></div></div>';
+};
+
+// ═══ Detach/Attach preview ═══
+let pvDetached = false;
+window.toggleDetachPv = function() {
+  pvDetached = !pvDetached;
+  const btn = document.getElementById('pv-detach-btn');
+  const card = document.getElementById('pv-card-embed');
+  if (pvDetached) {
+    // Float the card
+    if (btn) btn.textContent = '📎 Desfijado';
+    if (card) {
+      card.style.position = 'fixed';
+      card.style.zIndex = '9000';
+      card.style.right = '20px';
+      card.style.top = '60px';
+      card.style.width = '420px';
+      card.style.boxShadow = '0 20px 60px rgba(0,0,0,0.5)';
+      card.style.left = 'auto';
+      card.style.bottom = 'auto';
+      card.style.marginTop = '0';
+      // Make draggable
+      makePvDraggable(card);
+    }
+  } else {
+    // Re-embed
+    if (btn) btn.textContent = '📌 Fijado';
+    if (card) {
+      card.style.position = '';
+      card.style.zIndex = '';
+      card.style.right = '';
+      card.style.top = '';
+      card.style.left = '';
+      card.style.bottom = '';
+      card.style.width = '';
+      card.style.boxShadow = '';
+      card.style.marginTop = '8px';
+      card.style.cursor = '';
+    }
+  }
+};
+
+function makePvDraggable(el) {
+  const title = el.querySelector('.card-title');
+  if (!title || title._draggable) return;
+  title._draggable = true;
+  title.style.cursor = 'grab';
+  let dragging = false, sx, sy, oL, oT;
+  title.addEventListener('pointerdown', e => {
+    if (e.target.tagName === 'BUTTON') return;
+    dragging = true; sx = e.clientX; sy = e.clientY;
+    oL = el.offsetLeft; oT = el.offsetTop;
+    title.style.cursor = 'grabbing';
+    el.style.left = oL + 'px'; el.style.top = oT + 'px'; el.style.right = 'auto';
+    e.preventDefault();
+  });
+  window.addEventListener('pointermove', e => {
+    if (!dragging) return;
+    el.style.left = (oL + e.clientX - sx) + 'px';
+    el.style.top = (oT + e.clientY - sy) + 'px';
+  });
+  const up = () => { if (dragging) { dragging = false; title.style.cursor = 'grab'; } };
+  window.addEventListener('pointerup', up);
+  window.addEventListener('pointercancel', up);
+}
+
 function syncBorderColor(source) {
   const picker = g('f-border-color');
   if (!picker) return;
@@ -1032,9 +1174,8 @@ export function openEditor(id) {
   }
   prevImg();
   updateCardPreview();
-  // Show floating card preview
-  const fpv = document.getElementById('float-pv');
-  if (fpv) fpv.style.display = 'block';
+  // Render full card preview in container
+  renderFullPvInCard();
   document.querySelectorAll('#sec-add .et').forEach((t, i) => t.classList.toggle('on', i === 0));
   document.querySelectorAll('#sec-add .etp').forEach((p, i) => p.classList.toggle('on', i === 0));
 }
