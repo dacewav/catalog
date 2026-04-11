@@ -2792,43 +2792,55 @@ definen géneros.</textarea></div>
      JAVASCRIPT
      ═══════════════════════════════════════════════════════════ -->
 <script src="dist/admin-app.js"></script>
-<!-- ═══ FLOATING CARD PREVIEW (draggable, shows on beat edit) ═══ -->
-<div id="float-pv" style="display:none;position:fixed;z-index:9000;width:220px;border-radius:12px;overflow:hidden;background:rgba(10,8,14,0.95);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,0.08);box-shadow:0 20px 60px rgba(0,0,0,0.6);right:40px;top:80px">
-  <div id="float-pv-handle" style="display:flex;align-items:center;justify-content:space-between;padding:6px 10px;cursor:grab;background:rgba(255,255,255,0.03);border-bottom:1px solid rgba(255,255,255,0.05);user-select:none">
+<!-- ═══ FLOATING CARD PREVIEW (draggable + resizable, shows full card when large) ═══ -->
+<div id="float-pv" style="display:none;position:fixed;z-index:9000;width:220px;min-width:160px;min-height:100px;border-radius:12px;overflow:visible;background:rgba(10,8,14,0.95);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,0.08);box-shadow:0 20px 60px rgba(0,0,0,0.6);right:40px;top:80px;resize:both">
+  <div id="float-pv-handle" style="display:flex;align-items:center;justify-content:space-between;padding:6px 10px;cursor:grab;background:rgba(255,255,255,0.03);border-bottom:1px solid rgba(255,255,255,0.05);user-select:none;border-radius:12px 12px 0 0">
     <span style="font-size:9px;color:var(--mu);font-family:var(--fm);text-transform:uppercase;letter-spacing:.08em">👁️ Preview</span>
     <div style="display:flex;gap:4px;align-items:center">
+      <button id="float-pv-toggle" onclick="toggleFloatPvMode()" title="Cambiar vista" style="background:none;border:none;color:var(--mu);cursor:pointer;font-size:10px;padding:2px 6px;border-radius:4px">◫</button>
       <button onclick="document.getElementById('float-pv').style.display='none'" style="background:none;border:none;color:var(--mu);cursor:pointer;font-size:11px;padding:2px 4px">✕</button>
     </div>
   </div>
-  <div style="padding:10px">
-    <div class="bcpv" id="beat-card-pv" style="width:100%">
-      <div class="bcpv-shimmer"></div>
-      <div class="bcpv-inner">
-        <div class="bcpv-img" id="bcpv-img"><div class="bcpv-img-ph">♪</div></div>
-        <div class="bcpv-body">
-          <div class="bcpv-name" id="bcpv-name">Nombre del Beat</div>
-          <div class="bcpv-meta">
-            <span id="bcpv-bpm">140 BPM</span>
-            <span id="bcpv-key">Am</span>
-            <span id="bcpv-genre">Trap</span>
+  <div id="float-pv-body" style="padding:10px;overflow:auto;height:calc(100% - 34px)">
+    <!-- Mini preview (default) -->
+    <div id="float-pv-mini">
+      <div class="bcpv" id="beat-card-pv" style="width:100%">
+        <div class="bcpv-shimmer"></div>
+        <div class="bcpv-inner">
+          <div class="bcpv-img" id="bcpv-img"><div class="bcpv-img-ph">♪</div></div>
+          <div class="bcpv-body">
+            <div class="bcpv-name" id="bcpv-name">Nombre del Beat</div>
+            <div class="bcpv-meta">
+              <span id="bcpv-bpm">140 BPM</span>
+              <span id="bcpv-key">Am</span>
+              <span id="bcpv-genre">Trap</span>
+            </div>
           </div>
         </div>
       </div>
     </div>
+    <!-- Full card preview (when expanded) -->
+    <div id="float-pv-full" style="display:none">
+      <div id="float-pv-full-card"></div>
+    </div>
   </div>
+  <!-- Resize indicator -->
+  <div style="position:absolute;bottom:2px;right:6px;font-size:8px;color:rgba(255,255,255,0.15);pointer-events:none">⋰⋱</div>
 </div>
 <script>
-// Draggable floating preview
+// Draggable + resizable floating preview
 (function(){
   const el = document.getElementById('float-pv');
   const handle = document.getElementById('float-pv-handle');
   if (!el || !handle) return;
   let dragging = false, startX, startY, origX, origY;
   handle.addEventListener('mousedown', e => {
+    if (e.target.tagName === 'BUTTON') return;
     dragging = true;
     startX = e.clientX; startY = e.clientY;
     const r = el.getBoundingClientRect();
     origX = r.left; origY = r.top;
+    el.style.resize = 'both';
     handle.style.cursor = 'grabbing';
     e.preventDefault();
   });
@@ -2845,6 +2857,7 @@ definen géneros.</textarea></div>
   });
   // Touch support
   handle.addEventListener('touchstart', e => {
+    if (e.target.tagName === 'BUTTON') return;
     const t = e.touches[0];
     dragging = true;
     startX = t.clientX; startY = t.clientY;
@@ -2860,7 +2873,41 @@ definen géneros.</textarea></div>
     el.style.right = 'auto';
   }, {passive: true});
   document.addEventListener('touchend', () => { dragging = false; });
+  // Auto-switch to full card when resized large
+  const ro = new ResizeObserver(entries => {
+    for (const entry of entries) {
+      const w = entry.contentRect.width;
+      const fullEl = document.getElementById('float-pv-full');
+      const miniEl = document.getElementById('float-pv-mini');
+      if (!fullEl || !miniEl) return;
+      if (w >= 350) {
+        fullEl.style.display = 'block';
+        miniEl.style.display = 'none';
+        el.dataset.mode = 'full';
+        // Trigger full card render
+        if (typeof window._renderFullPvCard === 'function') window._renderFullPvCard();
+      } else {
+        fullEl.style.display = 'none';
+        miniEl.style.display = 'block';
+        el.dataset.mode = 'mini';
+      }
+    }
+  });
+  ro.observe(el);
 })();
+// Toggle between mini and full card mode
+window.toggleFloatPvMode = function() {
+  const el = document.getElementById('float-pv');
+  if (!el) return;
+  const isFull = el.dataset.mode === 'full';
+  if (isFull) {
+    el.style.width = '220px';
+    el.style.height = 'auto';
+  } else {
+    el.style.width = '420px';
+    el.style.height = 'auto';
+  }
+};
 </script>
 
 </body>
