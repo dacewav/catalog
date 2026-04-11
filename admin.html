@@ -787,10 +787,27 @@ body > * { position: relative; z-index: 1; }
 /* ═══ RESIZE HANDLE ═══ */
 .resize-handle-h {
   position: absolute;
-  right: 0; top: 0; bottom: 0;
-  width: 6px; cursor: col-resize;
-  background: var(--b); transition: background var(--tr);
-  z-index: 101;
+  right: 50%; top: 0; bottom: 0;
+  width: 8px;
+  cursor: col-resize;
+  background: rgba(255,255,255,0.06);
+  z-index: 200;
+  transition: background 0.15s;
+}
+.resize-handle-h::after {
+  content: '';
+  position: absolute;
+  left: 50%; top: 50%;
+  transform: translate(-50%, -50%);
+  width: 2px; height: 40px;
+  background: rgba(255,255,255,0.2);
+  border-radius: 2px;
+}
+.resize-handle-h:hover, .resize-handle-h.active {
+  background: rgba(220,38,38,0.3);
+}
+.resize-handle-h:hover::after, .resize-handle-h.active::after {
+  background: rgba(220,38,38,0.7);
 }
 }
 .resize-handle-h:hover, .resize-handle-h.active { background: var(--acc); }
