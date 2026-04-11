@@ -4,17 +4,23 @@ import { g } from './helpers.js';
 export function initResize() {
   const handle = g('resize-handle'); if (!handle) return;
   let dragging = false, startX, startPreviewW;
-  handle.addEventListener('mousedown', e => {
-    dragging = true; startX = e.clientX;
+
+  function onDown(e) {
+    dragging = true;
+    startX = e.clientX;
     const preview = g('preview-panel');
     startPreviewW = preview ? preview.offsetWidth : 380;
-    handle.classList.add('active'); document.body.style.cursor = 'col-resize'; document.body.style.userSelect = 'none';
+    handle.classList.add('active');
+    document.body.style.userSelect = 'none';
+    document.body.style.cursor = 'col-resize';
+    if (e.pointerId != null && handle.setPointerCapture) {
+      handle.setPointerCapture(e.pointerId);
+    }
     e.preventDefault();
-  });
-  document.addEventListener('mousemove', e => {
+  }
+
+  function onMove(e) {
     if (!dragging) return;
-    // Dragging left = smaller preview, dragging right = bigger preview
-    // We invert: moving mouse left shrinks preview, moving right grows it
     const diff = startX - e.clientX;
     const newW = Math.max(280, Math.min(window.innerWidth - 400, startPreviewW + diff));
     const preview = g('preview-panel');
@@ -22,20 +28,28 @@ export function initResize() {
       preview.style.width = newW + 'px';
       preview.style.flexShrink = '0';
     }
-    // Update viewport class based on width
     const frame = document.getElementById('preview-frame');
     if (frame) {
       if (newW < 450) frame.className = 'mobile';
       else if (newW < 800) frame.className = 'tablet';
       else frame.className = 'desktop';
     }
-    // Update viewport buttons
     updateViewportBtns(newW);
-  });
-  document.addEventListener('mouseup', () => {
-    if (!dragging) return; dragging = false;
-    handle.classList.remove('active'); document.body.style.cursor = ''; document.body.style.userSelect = '';
-  });
+  }
+
+  function onUp() {
+    if (!dragging) return;
+    dragging = false;
+    handle.classList.remove('active');
+    document.body.style.userSelect = '';
+    document.body.style.cursor = '';
+  }
+
+  handle.addEventListener('pointerdown', onDown);
+  window.addEventListener('pointermove', onMove);
+  window.addEventListener('pointerup', onUp);
+  window.addEventListener('pointercancel', onUp);
+  document.addEventListener('mouseleave', onUp);
 }
 
 function updateViewportBtns(w) {

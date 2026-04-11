@@ -706,118 +706,158 @@ window._renderFullPvCard = function() {
   const key = val('f-key') || 'Am';
   const genre = g('f-genre')?.value || 'Trap';
   const imgUrl = val('f-img');
+  const tags = (val('f-tags') || '').split(',').map(t => t.trim()).filter(Boolean);
+  const isExcl = checked('f-excl');
 
-  // Build CSS vars from cardStyle
-  const styleParts = [];
+  // Build classes (matching cards.js structure)
   const f = cs.filter || {};
-  const filters = [];
-  if (f.brightness !== 1) filters.push('brightness(' + f.brightness + ')');
-  if (f.contrast !== 1) filters.push('contrast(' + f.contrast + ')');
-  if (f.saturate !== 1) filters.push('saturate(' + f.saturate + ')');
-  if (f.grayscale) filters.push('grayscale(' + f.grayscale + ')');
-  if (f.sepia) filters.push('sepia(' + f.sepia + ')');
-  if (f.hueRotate) filters.push('hue-rotate(' + f.hueRotate + 'deg)');
-  if (f.blur) filters.push('blur(' + f.blur + 'px)');
-  if (f.invert) filters.push('invert(' + f.invert + ')');
-
-  // Animation classes
-  const ca = cs.anim || {};
-  let animClass = ca.type ? 'anim-' + ca.type : '';
-  let anim2Class = ca.type2 ? 'anim2-' + ca.type2 : '';
-
-  // Glow
   const gc = cs.glow || {};
-  let glowClass = gc.enabled ? 'glow-' + (gc.type || 'active') : '';
+  const ca = cs.anim || {};
+  const csH = cs.hover || {};
+  const csS = cs.style || {};
+  const csSh = cs.shadow || {};
+  const csTf = cs.transform || {};
+  const csBd = cs.border || {};
 
-  // Inline styles
-  if (filters.length) styleParts.push('filter:' + filters.join(' '));
-  const st = cs.style || {};
-  if (st.accentColor) styleParts.push('--card-tint:linear-gradient(135deg,' + st.accentColor + ',transparent)');
-  if (st.opacity != null && st.opacity < 1) styleParts.push('opacity:' + st.opacity);
+  const animClass = ca.type ? 'anim-' + ca.type : '';
+  const anim2Class = ca.type2 ? 'anim2-' + ca.type2 : '';
+  const glowClass = gc.enabled ? 'glow-' + (gc.type || 'active') : '';
+  const shimmerClass = csS.shimmer ? 'shimmer-on' : '';
+  const hasHoverFx = ((csH.scale && csH.scale !== 1) || (csH.brightness && csH.brightness !== 1) || (csH.saturate && csH.saturate !== 1) || csH.shadowBlur || csH.borderColor || csH.glowIntensify || csH.blur || csH.siblingsBlur || csH.hueRotate || (csH.opacity != null && csH.opacity !== 1)) ? 'has-hover-fx' : '';
+  const hovGlowInt = csH.glowIntensify ? 'hov-glow-int' : '';
+  const hovAnimClass = (csH.enableAnim && csH.animType) ? 'has-hover-anim' : '';
+
+  const allClasses = ['beat-card', glowClass, animClass, shimmerClass, anim2Class, hasHoverFx, hovGlowInt, hovAnimClass].filter(Boolean).join(' ');
+
+  // Build inline styles (matching cards.js)
+  const styleParts = [];
+  const accentColor = csS.accentColor || '#dc2626';
+  styleParts.push(`--card-tint:linear-gradient(135deg,${accentColor},transparent)`);
+
+  // Glow style
+  if (gc.enabled && gc.color) {
+    const hex = gc.color.replace('#','');
+    const r = parseInt(hex.substring(0,2),16)||220;
+    const gv = parseInt(hex.substring(2,4),16)||38;
+    const b = parseInt(hex.substring(4,6),16)||38;
+    styleParts.push(`--glow-clr:${gc.color};--glow-r:${r};--glow-g:${gv};--glow-b:${b};--glow-speed:${gc.speed||3}s`);
+    if (gc.intensity != null && gc.intensity !== 1) styleParts.push(`--glow-int:${gc.intensity}`);
+    if (gc.blur != null && gc.blur !== 20) styleParts.push(`--glow-blur:${gc.blur}px`);
+    if (gc.spread) styleParts.push(`--glow-spread:${gc.spread}px`);
+    if (gc.opacity != null && gc.opacity !== 1) styleParts.push(`--glow-op:${gc.opacity}`);
+  }
+
+  // Animation vars
+  if (ca.type) {
+    styleParts.push(`--ad:${ca.dur||2}s;--adl:${ca.del||0}s`);
+    if (ca.easing && ca.easing !== 'ease-in-out') styleParts.push(`--aease:${ca.easing}`);
+    if (ca.direction && ca.direction !== 'normal') styleParts.push(`--adir:${ca.direction}`);
+    const animInt = (ca.intensity != null ? ca.intensity : 100) / 100;
+    if (animInt !== 1) styleParts.push(`--anim-int:${animInt}`);
+    if (ca.type === 'holograma') {
+      styleParts.push(`--anim-hue-start:${ca.hueStart||0}deg;--anim-hue-end:${ca.hueEnd||360}deg`);
+      styleParts.push(`--anim-holo-bright-min:${ca.holoBrightMin||0.9};--anim-holo-bright-max:${ca.holoBrightMax||1.4}`);
+      styleParts.push(`--anim-holo-sat-min:${ca.holoSatMin||0.8};--anim-holo-sat-max:${ca.holoSatMax||2}`);
+      if (ca.holoBlur) styleParts.push(`--anim-holo-blur:${ca.holoBlur}px`);
+    }
+    if (ca.type === 'brillo') styleParts.push(`--anim-brillo-min:${ca.brilloMin||0.8};--anim-brillo-max:${ca.brilloMax||1.5}`);
+    if (ca.type === 'glitch') styleParts.push(`--anim-glitch-x:${ca.glitchX||4}px;--anim-glitch-y:${ca.glitchY||4}px;--anim-glitch-rot:${ca.glitchRot||0}deg`);
+    if (ca.type === 'pulsar' || ca.type === 'respirar' || ca.type === 'latido') styleParts.push(`--anim-scale-min:${ca.scaleMin||1};--anim-scale-max:${ca.scaleMax||1.06};--anim-scale-opacity:${ca.scaleOpacity||0.8}`);
+    if (ca.type === 'flotar' || ca.type === 'rebotar' || ca.type === 'drift' || (ca.type && ca.type.startsWith('deslizar-'))) {
+      styleParts.push(`--anim-translate-x:${ca.translateX||0}px;--anim-translate-y:${ca.translateY||12}px`);
+    }
+    if (ca.type === 'neon-flicker') styleParts.push(`--anim-neon-min:${ca.neonMin||0.4};--anim-neon-max:${ca.neonMax||1};--anim-neon-bright:${ca.neonBright||1}`);
+    if (ca.type === 'parpadeo') styleParts.push(`--anim-parpadeo-min:${ca.parpadeoMin||0.3};--anim-parpadeo-max:${ca.parpadeoMax||1}`);
+    if (ca.type === 'rotar' || ca.type === 'wobble' || ca.type === 'balanceo' || ca.type === 'swing') styleParts.push(`--anim-rotate-angle:${ca.rotateAngle||5}deg;--anim-rotate-scale:${ca.rotateScale||1}`);
+    if (ca.type === 'cambio-color') styleParts.push(`--anim-cs-hue-start:${ca.csHueStart||0}deg;--anim-cs-hue-end:${ca.csHueEnd||360}deg;--anim-cs-sat:${ca.csSat||1}`);
+    if (ca.type === 'sacudida' || ca.type === 'temblor' || ca.type === 'shake-x') styleParts.push(`--anim-shake-x:${ca.shakeX||4}px;--anim-shake-y:${ca.shakeY||4}px`);
+    if (ca.iterations && ca.iterations !== 'infinite') styleParts.push(`--aiter:${ca.iterations}`);
+  }
+
+  // Border
+  let borderStyle = '';
+  if (csBd.enabled) borderStyle = `border:${csBd.width||1}px ${csBd.style||'solid'} ${csBd.color||'#dc2626'}`;
+  if (borderStyle) styleParts.push(borderStyle);
+
+  // Filters
+  const filters = [];
+  if (f.brightness != null && f.brightness !== 1) filters.push(`brightness(${f.brightness})`);
+  if (f.contrast != null && f.contrast !== 1) filters.push(`contrast(${f.contrast})`);
+  if (f.saturate != null && f.saturate !== 1) filters.push(`saturate(${f.saturate})`);
+  if (f.grayscale) filters.push(`grayscale(${f.grayscale})`);
+  if (f.sepia) filters.push(`sepia(${f.sepia})`);
+  if (f.hueRotate) filters.push(`hue-rotate(${f.hueRotate}deg)`);
+  if (f.blur) filters.push(`blur(${f.blur}px)`);
+  if (f.invert) filters.push(`invert(${f.invert})`);
+  if (filters.length) styleParts.push(`filter:${filters.join(' ')}`);
+
+  // Opacity
+  if (csS.opacity != null && csS.opacity < 1) styleParts.push(`opacity:${csS.opacity}`);
 
   // Shadow
-  const sh = cs.shadow || {};
-  if (sh.enabled) {
-    const hex = (sh.color || '#000000').replace('#','');
+  if (csSh.enabled) {
+    const hex = (csSh.color||'#000000').replace('#','');
     const r = parseInt(hex.substring(0,2),16)||0, g2 = parseInt(hex.substring(2,4),16)||0, b = parseInt(hex.substring(4,6),16)||0;
-    const rgba = `rgba(${r},${g2},${b},${sh.opacity != null ? sh.opacity : 0.35})`;
-    styleParts.push('box-shadow:' + (sh.inset?'inset ':'') + `${sh.x||0}px ${sh.y!=null?sh.y:4}px ${sh.blur!=null?sh.blur:12}px ${sh.spread||0}px ${rgba}`);
+    const rgba = `rgba(${r},${g2},${b},${csSh.opacity!=null?csSh.opacity:0.35})`;
+    styleParts.push(`box-shadow:${csSh.inset?'inset ':''}${csSh.x||0}px ${csSh.y!=null?csSh.y:4}px ${csSh.blur!=null?csSh.blur:12}px ${csSh.spread||0}px ${rgba}`);
   }
 
   // Transform
-  const tf = cs.transform || {};
-  const tfs = [];
-  if (tf.rotate) tfs.push('rotate(' + tf.rotate + 'deg)');
-  if (tf.scale && tf.scale !== 1) tfs.push('scale(' + tf.scale + ')');
-  if (tf.skewX) tfs.push('skewX(' + tf.skewX + 'deg)');
-  if (tf.skewY) tfs.push('skewY(' + tf.skewY + 'deg)');
-  if (tf.x) tfs.push('translateX(' + tf.x + 'px)');
-  if (tf.y) tfs.push('translateY(' + tf.y + 'px)');
-  if (tfs.length) styleParts.push('transform:' + tfs.join(' '));
+  const tfParts = [];
+  if (csTf.rotate) tfParts.push(`rotate(${csTf.rotate}deg)`);
+  if (csTf.scale && csTf.scale !== 1) tfParts.push(`scale(${csTf.scale})`);
+  if (csTf.skewX) tfParts.push(`skewX(${csTf.skewX}deg)`);
+  if (csTf.skewY) tfParts.push(`skewY(${csTf.skewY}deg)`);
+  if (csTf.x) tfParts.push(`translateX(${csTf.x}px)`);
+  if (csTf.y) tfParts.push(`translateY(${csTf.y}px)`);
+  if (tfParts.length) styleParts.push(`transform:${tfParts.join(' ')}`);
 
-  // Border
-  const bd = cs.border || {};
-  let borderStyle = '';
-  if (bd.enabled) borderStyle = `border:${bd.width||1}px ${bd.style||'solid'} ${bd.color||'#dc2626'}`;
+  // Hover CSS vars
+  if (csH.scale && csH.scale !== 1) styleParts.push(`--hov-scale:${csH.scale}`);
+  if (csH.brightness && csH.brightness !== 1) styleParts.push(`--hov-bright:${csH.brightness}`);
+  if (csH.saturate && csH.saturate !== 1) styleParts.push(`--hov-sat:${csH.saturate}`);
+  if (csH.shadowBlur) styleParts.push(`--hov-shadow:${csH.shadowBlur}px`);
+  if (csH.transition != null) styleParts.push(`--hov-trans:${csH.transition}s`);
+  if (csH.borderColor) styleParts.push(`--hov-bdr:${csH.borderColor}`);
+  if (csH.blur) styleParts.push(`--hov-blur:${csH.blur}px`);
+  if (csH.siblingsBlur) styleParts.push(`--hov-sib-blur:${csH.siblingsBlur}px`);
+  if (csH.hueRotate) styleParts.push(`--hov-hue:${csH.hueRotate}deg`);
+  if (csH.opacity != null && csH.opacity !== 1) styleParts.push(`--hov-opacity:${csH.opacity}`);
+  if (csH.enableAnim && csH.animType) { styleParts.push(`--hov-anim-name:anim-${csH.animType}`); styleParts.push(`--hov-anim-dur:${csH.animDur||1}s`); }
+  if (csS.borderRadius) styleParts.push(`--card-radius:${csS.borderRadius}px`);
 
-  // Animation inline styles
-  let animStyle = '';
-  if (ca.type) {
-    animStyle = `--ad:${ca.dur||2}s;--adl:${ca.del||0}s`;
-    if (ca.easing && ca.easing !== 'ease-in-out') animStyle += `;--aease:${ca.easing}`;
-    if (ca.direction && ca.direction !== 'normal') animStyle += `;--adir:${ca.direction}`;
-    const animInt = (ca.intensity != null ? ca.intensity : 100) / 100;
-    if (animInt !== 1) animStyle += `;--anim-int:${animInt}`;
-    // Sub-settings CSS vars (simplified)
-    if (ca.type === 'holograma') {
-      animStyle += `;--anim-hue-start:${ca.hueStart||0}deg;--anim-hue-end:${ca.hueEnd||360}deg`;
-      animStyle += `;--anim-holo-bright-min:${ca.holoBrightMin||0.9};--anim-holo-bright-max:${ca.holoBrightMax||1.4}`;
-      animStyle += `;--anim-holo-sat-min:${ca.holoSatMin||0.8};--anim-holo-sat-max:${ca.holoSatMax||2}`;
-    }
-    if (ca.type === 'brillo') {
-      animStyle += `;--anim-brillo-min:${ca.brilloMin||0.8};--anim-brillo-max:${ca.brilloMax||1.5}`;
-    }
-    if (ca.type === 'pulsar' || ca.type === 'respirar' || ca.type === 'latido') {
-      animStyle += `;--anim-scale-min:${ca.scaleMin||1};--anim-scale-max:${ca.scaleMax||1.06}`;
-    }
-  }
-
-  // Shimmer
-  const shimmerClass = st.shimmer ? 'shimmer-on' : '';
-
-  // Generate waveform bars
-  const wfBars = Array.from({length: 20}, (_, i) => {
+  // Waveform bars
+  const wfColor = '#ffffff33';
+  const wfActive = gc.color || '#dc2626';
+  const bars = Array.from({length: 20}, (_, i) => {
     const h = 4 + Math.random() * 16;
     return `<div class="wbar" style="height:${h}px;--wd:0.5s;animation-delay:${(i*0.05).toFixed(2)}s"></div>`;
   }).join('');
 
-  // Waveform colors
-  const wfColor = '#ffffff33';
-  const wfActive = cs.glow?.color || '#dc2626';
+  const allStyles = styleParts.join(';');
 
-  // Build full card HTML
-  container.innerHTML = `
-    <div class="beat-card ${animClass} ${anim2Class} ${glowClass} ${shimmerClass}" 
-         style="${styleParts.join(';')};${animStyle};--wbar:${wfColor};--wbar-active:${wfActive};--wave-opacity:0.18;--wave-opacity-on:1;--wave-r:2px;--wave-h:12px;cursor:default">
-      <div class="shimmer-overlay"></div>
-      <div class="beat-card-inner" style="${borderStyle}${st.borderRadius ? ';border-radius:'+st.borderRadius+'px' : ''}">
-        <div class="beat-card-img" style="position:relative;overflow:hidden;aspect-ratio:16/9">
-          ${imgUrl ? '<img src="'+imgUrl+'" alt="" style="width:100%;height:100%;object-fit:cover">' : '<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,0.03);font-size:28px;color:rgba(255,255,255,0.2)">♪</div>'}
-          <div class="play-hint"><div class="play-circle"><svg width="16" height="16" viewBox="0 0 16 16" fill="white"><path d="M5 3l10 5-10 5V3z"/></svg></div></div>
-        </div>
-        <div class="beat-card-body" style="padding:12px;flex:1;display:flex;flex-direction:column">
-          <div class="beat-card-name" style="font-size:14px;font-weight:600;margin-bottom:4px;color:var(--tx,var(--text,#fff))">${name}</div>
-          <div class="beat-card-meta" style="font-size:11px;color:var(--mu,var(--muted,#888));margin-bottom:8px">${bpm} BPM · ${key} · ${genre}</div>
-          <div style="flex:1"></div>
-          <div class="beat-card-waveform" style="display:flex;align-items:end;gap:1.5px;height:24px;margin-bottom:8px">${wfBars}</div>
-          <div class="beat-card-bottom" style="display:flex;align-items:center;justify-content:space-between">
-            <div style="font-size:11px;color:var(--tx,var(--text,#fff))"><span style="font-size:9px;color:var(--mu)">desde</span> <strong>$350</strong> <span style="font-size:9px;color:var(--mu)">MXN</span></div>
-            <div style="font-size:9px;padding:4px 10px;border-radius:999px;background:rgba(185,28,28,0.15);border:1px solid rgba(185,28,28,0.3);color:var(--acc,#dc2626);cursor:pointer">Ver licencias</div>
-          </div>
+  // Build tags HTML
+  const tagsHtml = tags.map(t => `<span class="tag">${t}</span>`).join('');
+
+  // Build full card matching store structure exactly
+  container.innerHTML = `<div class="${allClasses}" style="${allStyles};cursor:default">
+    <div class="shimmer-overlay"></div>
+    <div class="beat-card-inner">
+      <div class="beat-img">${imgUrl ? '<img src="'+imgUrl+'" alt="" loading="lazy">' : '<div class="beat-img-ph">♪</div>'}
+        <div class="beat-wave-row">${bars}</div>
+        <div class="play-hint"><div class="play-circle"><svg width="16" height="16" viewBox="0 0 16 16" fill="white"><path d="M5 3l10 5-10 5V3z"/></svg></div></div>
+      </div>
+      <div class="beat-body">
+        <div class="beat-name">${name}${isExcl ? '<span class="tag" style="border-color:rgba(185,28,28,.5);color:var(--accent);margin-left:6px">EXCL</span>' : ''}</div>
+        <div class="beat-meta-row"><span>${bpm} BPM</span><span>${key}</span><span>${genre}</span></div>
+        ${tagsHtml ? '<div class="beat-tags-row">'+tagsHtml+'</div>' : ''}
+        <div class="beat-foot">
+          <div><div class="price-from">desde</div><div class="price-main">$350 <span style="font-size:11px;color:var(--muted);font-weight:400">MXN</span><span class="price-usd">· $18 USD</span></div></div>
+          <div class="btn-lic">Ver licencias</div>
         </div>
       </div>
     </div>
-  `;
+  </div>`;
 };
 function syncBorderColor(source) {
   const picker = g('f-border-color');

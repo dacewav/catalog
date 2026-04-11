@@ -2841,69 +2841,85 @@ definen géneros.</textarea></div>
   if (!el) return;
   const handle = document.getElementById('float-pv-handle');
   const minW = 160, minH = 100;
+  let state = ''; // 'drag' | 'resize'
+  let rzDir = '';
+  let startX, startY, origRect;
 
-  // ─── Drag to move ───
-  let dragging = false, dStartX, dStartY, dOrigX, dOrigY;
-  if (handle) {
-    handle.addEventListener('mousedown', e => {
-      if (e.target.tagName === 'BUTTON') return;
-      dragging = true;
-      dStartX = e.clientX; dStartY = e.clientY;
-      const r = el.getBoundingClientRect();
-      dOrigX = r.left; dOrigY = r.top;
-      el.style.resize = 'none';
-      handle.style.cursor = 'grabbing';
-      e.preventDefault();
-    });
+  function onDown(e, type, dir) {
+    const cx = e.clientX || (e.touches && e.touches[0].clientX);
+    const cy = e.clientY || (e.touches && e.touches[0].clientY);
+    if (cx == null) return;
+    state = type;
+    rzDir = dir || '';
+    startX = cx; startY = cy;
+    origRect = { left: el.offsetLeft, top: el.offsetTop, width: el.offsetWidth, height: el.offsetHeight };
+    document.body.style.userSelect = 'none';
+    document.body.style.pointerEvents = 'none';
+    el.style.pointerEvents = 'auto';
+    // Use setPointerCapture if available
+    if (e.pointerId != null && el.setPointerCapture) {
+      el.setPointerCapture(e.pointerId);
+    }
+    e.preventDefault();
+    e.stopPropagation();
   }
-  document.addEventListener('mousemove', e => {
-    if (dragging) {
-      el.style.left = (dOrigX + e.clientX - dStartX) + 'px';
-      el.style.top = (dOrigY + e.clientY - dStartY) + 'px';
+
+  function onMove(e) {
+    if (!state) return;
+    const cx = e.clientX || (e.touches && e.touches[0].clientX);
+    const cy = e.clientY || (e.touches && e.touches[0].clientY);
+    if (cx == null) return;
+    const dx = cx - startX;
+    const dy = cy - startY;
+
+    if (state === 'drag') {
+      el.style.left = (origRect.left + dx) + 'px';
+      el.style.top = (origRect.top + dy) + 'px';
       el.style.right = 'auto';
       el.style.bottom = 'auto';
+    } else if (state === 'resize') {
+      let newW = origRect.width, newH = origRect.height;
+      let newL = origRect.left, newT = origRect.top;
+      if (rzDir.includes('e')) newW = Math.max(minW, origRect.width + dx);
+      if (rzDir.includes('w')) { newW = Math.max(minW, origRect.width - dx); newL = origRect.left + dx; }
+      if (rzDir.includes('s')) newH = Math.max(minH, origRect.height + dy);
+      if (rzDir.includes('n')) { newH = Math.max(minH, origRect.height - dy); newT = origRect.top + dy; }
+      el.style.width = newW + 'px';
+      el.style.height = newH + 'px';
+      el.style.left = newL + 'px';
+      el.style.top = newT + 'px';
+      el.style.right = 'auto';
+      el.style.bottom = 'auto';
+      checkMode(newW);
     }
-  });
-  document.addEventListener('mouseup', () => {
-    if (dragging) { dragging = false; if (handle) handle.style.cursor = 'grab'; }
-    if (resizing) { resizing = false; rzDir = ''; document.body.style.cursor = ''; document.body.style.userSelect = ''; }
-  });
+  }
 
-  // ─── Resize from any edge/corner ───
-  let resizing = false, rzDir = '', rzStartX, rzStartY, rzOrigRect;
-  el.querySelectorAll('.fpv-rz').forEach(h => {
-    h.addEventListener('mousedown', e => {
-      resizing = true;
-      rzDir = h.dataset.rz;
-      rzStartX = e.clientX; rzStartY = e.clientY;
-      rzOrigRect = el.getBoundingClientRect();
-      document.body.style.userSelect = 'none';
-      e.preventDefault();
-      e.stopPropagation();
+  function onUp() {
+    if (!state) return;
+    state = '';
+    rzDir = '';
+    document.body.style.userSelect = '';
+    document.body.style.pointerEvents = '';
+    el.style.pointerEvents = '';
+    if (handle) handle.style.cursor = 'grab';
+  }
+
+  // Mouse events (on window to catch everything)
+  if (handle) {
+    handle.addEventListener('pointerdown', e => {
+      if (e.target.tagName === 'BUTTON') return;
+      handle.style.cursor = 'grabbing';
+      onDown(e, 'drag');
     });
+  }
+  el.querySelectorAll('.fpv-rz').forEach(h => {
+    h.addEventListener('pointerdown', e => onDown(e, 'resize', h.dataset.rz));
   });
-  document.addEventListener('mousemove', e => {
-    if (!resizing) return;
-    const dx = e.clientX - rzStartX;
-    const dy = e.clientY - rzStartY;
-    let newW = rzOrigRect.width, newH = rzOrigRect.height;
-    let newL = rzOrigRect.left, newT = rzOrigRect.top;
-
-    if (rzDir.includes('e')) newW = Math.max(minW, rzOrigRect.width + dx);
-    if (rzDir.includes('w')) { newW = Math.max(minW, rzOrigRect.width - dx); newL = rzOrigRect.left + dx; }
-    if (rzDir.includes('s')) newH = Math.max(minH, rzOrigRect.height + dy);
-    if (rzDir.includes('n')) { newH = Math.max(minH, rzOrigRect.height - dy); newT = rzOrigRect.top + dy; }
-
-    el.style.width = newW + 'px';
-    el.style.height = newH + 'px';
-    el.style.left = newL + 'px';
-    el.style.top = newT + 'px';
-    el.style.right = 'auto';
-    el.style.bottom = 'auto';
-
-    // Auto-switch mode
-    checkMode(newW);
-  });
+  window.addEventListener('pointermove', onMove);
+  window.addEventListener('pointerup', onUp);
+  window.addEventListener('pointercancel', onUp);
+  // Safety: if mouse leaves window while dragging
+  document.addEventListener('mouseleave', onUp);
 
   function checkMode(w) {
     const fullEl = document.getElementById('float-pv-full');
@@ -2920,39 +2936,14 @@ definen géneros.</textarea></div>
       el.dataset.mode = 'mini';
     }
   }
-
-  // ─── Touch support for drag ───
-  if (handle) {
-    handle.addEventListener('touchstart', e => {
-      if (e.target.tagName === 'BUTTON') return;
-      const t = e.touches[0];
-      dragging = true;
-      dStartX = t.clientX; dStartY = t.clientY;
-      const r = el.getBoundingClientRect();
-      dOrigX = r.left; dOrigY = r.top;
-      e.preventDefault();
-    }, {passive: false});
-  }
-  document.addEventListener('touchmove', e => {
-    if (dragging) {
-      const t = e.touches[0];
-      el.style.left = (dOrigX + t.clientX - dStartX) + 'px';
-      el.style.top = (dOrigY + t.clientY - dStartY) + 'px';
-      el.style.right = 'auto'; el.style.bottom = 'auto';
-    }
-  }, {passive: true});
-  document.addEventListener('touchend', () => { dragging = false; });
 })();
 // Toggle between mini and full card mode
 window.toggleFloatPvMode = function() {
   const el = document.getElementById('float-pv');
   if (!el) return;
   const isFull = el.dataset.mode === 'full';
-  if (isFull) {
-    el.style.width = '220px'; el.style.height = 'auto';
-  } else {
-    el.style.width = '420px'; el.style.height = 'auto';
-  }
+  el.style.width = isFull ? '220px' : '420px';
+  el.style.height = 'auto';
 };
 </script>
 
