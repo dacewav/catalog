@@ -1957,6 +1957,37 @@ definen géneros.</textarea></div>
       </div>
       <div class="etp" id="etp-extras">
 
+        <!-- Preview Card -->
+        <div class="card" id="pv-card-embed" style="margin-bottom:12px">
+          <div class="card-title" onclick="toggleCard(this)" style="position:relative">
+            <span>👁️ Vista previa</span>
+            <div style="display:flex;gap:4px;align-items:center;margin-left:auto;margin-right:8px">
+              <button onclick="event.stopPropagation();toggleDetachPv()" id="pv-detach-btn" title="Desprender/adjuntar" style="background:none;border:1px solid var(--b);border-radius:4px;color:var(--mu);cursor:pointer;font-size:10px;padding:2px 8px;font-family:var(--fm)">📌 Fijado</button>
+            </div>
+            <i class="fas fa-chevron-down"></i>
+          </div>
+          <div class="card-body" id="pv-card-body">
+            <div style="display:flex;gap:10px;align-items:flex-start">
+              <div style="flex:0 0 150px">
+                <div class="bcpv" id="beat-card-pv" style="width:100%">
+                  <div class="bcpv-shimmer"></div>
+                  <div class="bcpv-inner">
+                    <div class="bcpv-img" id="bcpv-img"><div class="bcpv-img-ph">♪</div></div>
+                    <div class="bcpv-body">
+                      <div class="bcpv-name" id="bcpv-name">Nombre del Beat</div>
+                      <div class="bcpv-meta"><span id="bcpv-bpm">140 BPM</span> <span id="bcpv-key">Am</span> <span id="bcpv-genre">Trap</span></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div style="flex:0 0 260px;min-width:0">
+                <div style="font-size:9px;color:var(--mu);margin-bottom:4px;font-family:var(--fm);text-transform:uppercase;letter-spacing:.06em">Vista tienda</div>
+                <div id="pv-full-card-container" style="border-radius:var(--rad);overflow:hidden;border:1px solid var(--b);max-width:260px"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <div class="fg2">
           <div class="field"><label>Fecha</label><input type="date" id="f-date"></div>
           <div class="field"><label>Orden</label><input type="number" id="f-order" value="0"></div>
@@ -2364,43 +2395,6 @@ definen géneros.</textarea></div>
       </div>
 
       <!-- Preview Card (inside editor, collapsible + detachable) -->
-      <div class="card" style="margin-top:8px" id="pv-card-embed">
-        <div class="card-title" onclick="toggleCard(this)" style="position:relative">
-          <span>👁️ Vista previa</span>
-          <div style="display:flex;gap:4px;align-items:center;margin-left:auto;margin-right:8px">
-            <button onclick="event.stopPropagation();toggleDetachPv()" id="pv-detach-btn" title="Desprender/adjuntar" style="background:none;border:1px solid var(--b);border-radius:4px;color:var(--mu);cursor:pointer;font-size:10px;padding:2px 8px;font-family:var(--fm)">📌 Fijado</button>
-          </div>
-          <i class="fas fa-chevron-down"></i>
-        </div>
-        <div class="card-body" id="pv-card-body">
-          <div style="display:flex;gap:12px;align-items:flex-start;max-width:500px">
-            <!-- Mini card preview -->
-            <div style="flex:0 0 150px">
-              <div class="bcpv" id="beat-card-pv" style="width:100%">
-                <div class="bcpv-shimmer"></div>
-                <div class="bcpv-inner">
-                  <div class="bcpv-img" id="bcpv-img"><div class="bcpv-img-ph">♪</div></div>
-                  <div class="bcpv-body">
-                    <div class="bcpv-name" id="bcpv-name">Nombre del Beat</div>
-                    <div class="bcpv-meta">
-                      <span id="bcpv-bpm">140 BPM</span>
-                      <span id="bcpv-key">Am</span>
-                      <span id="bcpv-genre">Trap</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <!-- Full store card preview (togglable) -->
-            <div style="flex:0 0 280px;min-width:0">
-              <div style="font-size:9px;color:var(--mu);margin-bottom:4px;font-family:var(--fm);text-transform:uppercase;letter-spacing:.06em">Vista tienda</div>
-              <div id="pv-full-card-container" style="border-radius:var(--rad);overflow:hidden;border:1px solid var(--b);max-width:280px"></div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div style="margin-top:12px" class="btn-row">
         <button class="btn btn-ok" onclick="saveBeat()"><i class="fas fa-save"></i> Guardar</button>
         <button class="btn btn-g" onclick="showSection('beats')">Cancelar</button>
         <button class="btn btn-del" id="btn-del" style="display:none" onclick="deleteBeat()"><i class="fas fa-trash"></i></button>
