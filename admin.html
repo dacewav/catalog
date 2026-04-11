@@ -1274,13 +1274,15 @@ body.light .batch-img-drop input[type="file"] { opacity: 0; }
 .bcpv.anim-wobble{animation:bcpv-wobble var(--ad,2s) ease-in-out infinite;animation-delay:var(--adl,0s)}
 
 /* ═══ Secondary animations for preview (anim2 via ::after) ═══ */
+/* Filter-based animations (holograma, cambio-color, brillo, neon-flicker) excluded —
+   they create stacking context artifacts on transparent ::after overlays */
 .bcpv.anim2-flotar::after,.bcpv.anim2-pulsar::after,.bcpv.anim2-respirar::after,
 .bcpv.anim2-latido::after,.bcpv.anim2-rebotar::after,.bcpv.anim2-balanceo::after,
-.bcpv.anim2-brillo::after,.bcpv.anim2-cambio-color::after,.bcpv.anim2-holograma::after,
-.bcpv.anim2-neon-flicker::after,.bcpv.anim2-glitch::after,.bcpv.anim2-drift::after,
+.bcpv.anim2-glitch::after,.bcpv.anim2-drift::after,
 .bcpv.anim2-zoom-in::after,.bcpv.anim2-pop::after,.bcpv.anim2-rubber-band::after,
 .bcpv.anim2-jello::after,.bcpv.anim2-wobble::after{
-  content:'';position:absolute;inset:0;border-radius:inherit;pointer-events:none;z-index:1
+  content:'';position:absolute;inset:0;border-radius:inherit;pointer-events:none;z-index:1;
+  background:transparent;border:none;outline:none;box-shadow:none
 }
 .bcpv.anim2-flotar::after{animation:bcpv-flotar var(--ad,2s) ease-in-out infinite;animation-delay:var(--adl,0s)}
 .bcpv.anim2-pulsar::after{animation:bcpv-pulsar var(--ad,2s) ease-in-out infinite;animation-delay:var(--adl,0s)}
@@ -1288,10 +1290,6 @@ body.light .batch-img-drop input[type="file"] { opacity: 0; }
 .bcpv.anim2-latido::after{animation:bcpv-latido var(--ad,1.5s) ease-in-out infinite;animation-delay:var(--adl,0s)}
 .bcpv.anim2-rebotar::after{animation:bcpv-rebotar var(--ad,2s) ease-in-out infinite;animation-delay:var(--adl,0s)}
 .bcpv.anim2-balanceo::after{animation:bcpv-balanceo var(--ad,2s) ease-in-out infinite;animation-delay:var(--adl,0s)}
-.bcpv.anim2-brillo::after{animation:bcpv-brillo var(--ad,2s) ease-in-out infinite;animation-delay:var(--adl,0s)}
-.bcpv.anim2-cambio-color::after{animation:bcpv-cambio-color var(--ad,4s) linear infinite;animation-delay:var(--adl,0s)}
-.bcpv.anim2-holograma::after{animation:bcpv-holograma var(--ad,4s) linear infinite;animation-delay:var(--adl,0s)}
-.bcpv.anim2-neon-flicker::after{animation:bcpv-neon-flicker var(--ad,3s) linear infinite;animation-delay:var(--adl,0s)}
 .bcpv.anim2-glitch::after{animation:bcpv-glitch var(--ad,1s) linear infinite;animation-delay:var(--adl,0s)}
 .bcpv.anim2-drift::after{animation:bcpv-drift var(--ad,4s) ease-in-out infinite;animation-delay:var(--adl,0s)}
 .bcpv.anim2-zoom-in::after{animation:bcpv-zoom-in var(--ad,1s) ease-out infinite;animation-delay:var(--adl,0s)}
