@@ -23,10 +23,9 @@ export function initResize() {
     if (!dragging) return;
     const diff = e.clientX - startX;
     const newW = Math.max(280, Math.min(window.innerWidth - 400, startPreviewW + diff));
-    const preview = g('preview-panel');
-    if (preview) {
-      preview.style.flexBasis = newW + 'px';
-      preview.style.flexShrink = '0';
+    const split = document.querySelector('.split');
+    if (split) {
+      split.style.gridTemplateColumns = 'var(--sbw) 1fr 4px ' + newW + 'px';
     }
     const frame = document.getElementById('preview-frame');
     if (frame) {

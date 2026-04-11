@@ -190,11 +190,11 @@ export function loadPreviewURL() {
 export function setViewport(mode) {
   const f = g('preview-frame'); if (!f) return;
   f.className = mode;
-  const panel = g('preview-panel');
-  if (panel) {
+  const split = document.querySelector('.split');
+  if (split) {
     const widths = { mobile: 375, tablet: 768, desktop: Math.max(800, window.innerWidth * 0.5) };
-    panel.style.flexBasis = (widths[mode] || 380) + 'px';
-    panel.style.flexShrink = '0';
+    const w = widths[mode] || 380;
+    split.style.gridTemplateColumns = 'var(--sbw) 1fr 4px ' + w + 'px';
   }
   document.querySelectorAll('.preview-bar-center .vp-btn').forEach(b => b.classList.remove('on'));
   const btnMap = { mobile: 0, tablet: 1, desktop: 2 };
