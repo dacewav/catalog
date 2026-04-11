@@ -1412,19 +1412,13 @@ renderHoverPresets();
   // Attach when editor opens (fields might not exist at page load)
   window._attachLiveListeners = _attachLiveListeners;
 
-  // ═══ LIVE EDIT: postMessage to store iframe ═══
+  // ═══ LIVE EDIT: localStorage → store iframe ═══
   var PM_ORIGIN = window.location.origin || '*';
   window._liveEditId = null;
   window._liveEditOriginal = null;
 
-  function _getPreviewFrame() {
-    return document.getElementById('preview-frame');
-  }
-
   function _sendLiveUpdate() {
     if (!window._liveEditId) return;
-    var frame = _getPreviewFrame();
-    if (!frame || !frame.contentWindow) { console.warn('[LiveEdit] no preview frame'); return; }
     var data = {
       name: val('f-name') || '',
       genre: val('f-genre') || 'Trap',
@@ -1442,26 +1436,29 @@ renderHoverPresets();
       available: checked('f-avail'),
       cardStyle: _buildCardStyleFromInputs()
     };
-    frame.contentWindow.postMessage({ type: 'beat-update', beatId: window._liveEditId, data: data }, PM_ORIGIN);
-    console.log('[LiveEdit] sent beat-update for', window._liveEditId);
+    var payload = { beatId: window._liveEditId, data: data, ts: Date.now() };
+    localStorage.setItem('dace-live-edit', JSON.stringify(payload));
+    console.log('[LiveEdit] saved to localStorage:', window._liveEditId);
   }
 
   window._sendBeatRevert = function() {
     if (!window._liveEditId || !window._liveEditOriginal) return;
-    var frame = _getPreviewFrame();
-    if (!frame || !frame.contentWindow) return;
-    frame.contentWindow.postMessage({ type: 'beat-revert', beatId: window._liveEditId, original: window._liveEditOriginal }, PM_ORIGIN);
+    localStorage.setItem('dace-live-edit-revert', JSON.stringify({ beatId: window._liveEditId, original: window._liveEditOriginal, ts: Date.now() }));
+    // Clean up
+    localStorage.removeItem('dace-live-edit');
+    console.log('[LiveEdit] revert saved:', window._liveEditId);
     window._liveEditId = null;
     window._liveEditOriginal = null;
   };
 
   window._startLiveEdit = function(beat) {
     window._liveEditId = beat.id;
-    // Deep clone the original beat for revert
     window._liveEditOriginal = JSON.parse(JSON.stringify(beat));
   };
 
   window._clearLiveEdit = function() {
+    localStorage.removeItem('dace-live-edit');
+    localStorage.removeItem('dace-live-edit-revert');
     window._liveEditId = null;
     window._liveEditOriginal = null;
   };

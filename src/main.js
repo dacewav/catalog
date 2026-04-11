@@ -176,15 +176,33 @@ window.addEventListener('message', (e) => {
     }
     return;
   }
+});
 
-  // SINGLE shared debounce: batch all updates and run once after messages stop arriving
-  clearTimeout(window._applyDebounce);
-  window._applyDebounce = setTimeout(() => {
-    if (state.T) {
-      applyTheme(state.T);
-      applySettings();
-    }
-  }, 100); // increased from 60ms — gives more time for admin to send all 4 message types
+// ═══ LIVE EDIT via localStorage ═══
+window.addEventListener('storage', (e) => {
+  if (e.key === 'dace-live-edit' && e.newValue) {
+    try {
+      const d = JSON.parse(e.newValue);
+      if (!d.beatId || !d.data) return;
+      const bi = state.allBeats.findIndex(x => x.id === d.beatId);
+      console.log('[LiveEdit] storage beat-update:', d.beatId, 'index:', bi);
+      if (bi > -1) {
+        Object.assign(state.allBeats[bi], d.data);
+        renderAll();
+      }
+    } catch(err) {}
+  } else if (e.key === 'dace-live-edit-revert' && e.newValue) {
+    try {
+      const d = JSON.parse(e.newValue);
+      if (!d.beatId || !d.original) return;
+      const bi = state.allBeats.findIndex(x => x.id === d.beatId);
+      console.log('[LiveEdit] storage beat-revert:', d.beatId, 'index:', bi);
+      if (bi > -1) {
+        Object.assign(state.allBeats[bi], d.original);
+        renderAll();
+      }
+    } catch(err) {}
+  }
 });
 
 // ─── Audio error recovery ───
