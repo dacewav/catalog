@@ -283,7 +283,7 @@ nav.nav-scrolled{background:rgba(6,4,4,0.95);border-bottom-color:rgba(185,28,28,
 
 /* ═══ BEAT GRID & CARDS (3D tilt + shimmer + gradient border) ═══ */
 .beat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:var(--beat-gap);align-items:start}
-.beat-card{position:relative;border-radius:var(--r-lg);overflow:visible;cursor:pointer;transition:transform .35s cubic-bezier(.4,0,.2,1),box-shadow .35s}
+.beat-card{position:relative;border-radius:var(--r-lg);overflow:hidden;cursor:pointer;transition:transform .35s cubic-bezier(.4,0,.2,1),box-shadow .35s}
 .beat-card::before{content:'';position:absolute;inset:-1px;border-radius:calc(var(--r-lg) + 1px);background:linear-gradient(135deg,rgba(185,28,28,0.3),transparent 40%,transparent 60%,rgba(185,28,28,0.15));opacity:0;transition:opacity .35s;z-index:-1}
 .beat-card:hover::before{opacity:1}
 .beat-card-inner{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);height:100%;transition:border-color .35s,box-shadow .35s;box-shadow:var(--card-shadow);transform-style:preserve-3d;will-change:transform;display:flex;flex-direction:column}
