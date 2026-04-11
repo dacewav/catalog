@@ -1846,7 +1846,16 @@ renderHoverPresets();
     // localStorage fallback (cross-tab)
     localStorage.setItem('dace-live-edit', JSON.stringify(payload));
     // postMessage to iframe (same-tab admin preview)
-    postToFrame({ type: 'beat-update', beatId: payload.beatId, data: payload.data });
+    var frame = document.getElementById('preview-frame');
+    if (frame && frame.contentWindow) {
+      try {
+        frame.contentWindow.postMessage({ type: 'beat-update', beatId: payload.beatId, data: payload.data }, '*');
+        console.log('[LiveEdit] postMessage sent to iframe, beat:', payload.beatId);
+      } catch(e) { console.error('[LiveEdit] postMessage FAIL:', e); }
+    } else {
+      console.warn('[LiveEdit] preview-frame not found or no contentWindow');
+      postToFrame({ type: 'beat-update', beatId: payload.beatId, data: payload.data });
+    }
     // Firebase — reaches the live store at dacewav.store (separate window)
     var _db = window._db || (typeof db !== 'undefined' ? db : null);
     console.log('[LiveEdit] _db:', !!_db, 'id:', window._liveEditId);
