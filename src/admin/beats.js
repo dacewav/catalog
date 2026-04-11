@@ -894,6 +894,7 @@ window.renderFullPvInCard = function() {
   });
 };
 
+var pvDetached = false;
 window.toggleDetachPv = function() {
   pvDetached = !pvDetached;
   const btn = document.getElementById('pv-detach-btn');
