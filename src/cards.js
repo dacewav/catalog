@@ -71,14 +71,56 @@ export function beatCard(b, globalIdx) {
     const animInt = (csA.intensity != null ? csA.intensity : 100) / 100;
     if (animInt !== 1) animStyle += `;--anim-int:${animInt}`;
     // Per-type sub-settings CSS vars
-    if (csA.type === 'holograma' || csA.type === 'cambio-color') {
+    if (csA.type === 'holograma') {
       if (csA.hueStart != null) animStyle += `;--anim-hue-start:${csA.hueStart}deg`;
       if (csA.hueEnd != null) animStyle += `;--anim-hue-end:${csA.hueEnd}deg`;
-      if (csA.holoBright && csA.holoBright !== 1.3) animStyle += `;--anim-holo-bright:${csA.holoBright}`;
-      if (csA.holoSat && csA.holoSat !== 1.5) animStyle += `;--anim-holo-sat:${csA.holoSat}`;
+      if (csA.holoBrightMin != null && csA.holoBrightMin !== 0.9) animStyle += `;--anim-holo-bright-min:${csA.holoBrightMin}`;
+      if (csA.holoBrightMax != null && csA.holoBrightMax !== 1.4) animStyle += `;--anim-holo-bright-max:${csA.holoBrightMax}`;
+      if (csA.holoSatMin != null && csA.holoSatMin !== 0.8) animStyle += `;--anim-holo-sat-min:${csA.holoSatMin}`;
+      if (csA.holoSatMax != null && csA.holoSatMax !== 2) animStyle += `;--anim-holo-sat-max:${csA.holoSatMax}`;
+      if (csA.holoGlow) animStyle += `;--anim-holo-glow:${csA.holoGlow}px`;
+      if (csA.holoBlur) animStyle += `;--anim-holo-blur:${csA.holoBlur}px`;
     }
-    if (csA.type === 'brillo' && csA.brilloMax && csA.brilloMax !== 1.4) {
-      animStyle += `;--anim-brillo-max:${csA.brilloMax}`;
+    if (csA.type === 'cambio-color') {
+      if (csA.csHueStart != null) animStyle += `;--anim-cs-hue-start:${csA.csHueStart}deg`;
+      if (csA.csHueEnd != null) animStyle += `;--anim-cs-hue-end:${csA.csHueEnd}deg`;
+      if (csA.csSat != null && csA.csSat !== 1) animStyle += `;--anim-cs-sat:${csA.csSat}`;
+    }
+    if (csA.type === 'brillo') {
+      if (csA.brilloMin != null && csA.brilloMin !== 0.8) animStyle += `;--anim-brillo-min:${csA.brilloMin}`;
+      if (csA.brilloMax != null && csA.brilloMax !== 1.5) animStyle += `;--anim-brillo-max:${csA.brilloMax}`;
+    }
+    if (csA.type === 'glitch') {
+      if (csA.glitchX) animStyle += `;--anim-glitch-x:${csA.glitchX}px`;
+      if (csA.glitchY) animStyle += `;--anim-glitch-y:${csA.glitchY}px`;
+      if (csA.glitchRot) animStyle += `;--anim-glitch-rot:${csA.glitchRot}deg`;
+    }
+    if (csA.type === 'neon-flicker') {
+      if (csA.neonMin != null && csA.neonMin !== 0.4) animStyle += `;--anim-neon-min:${csA.neonMin}`;
+      if (csA.neonMax != null && csA.neonMax !== 1) animStyle += `;--anim-neon-max:${csA.neonMax}`;
+      if (csA.neonBright != null && csA.neonBright !== 1) animStyle += `;--anim-neon-bright:${csA.neonBright}`;
+    }
+    if (csA.type === 'parpadeo') {
+      if (csA.parpadeoMin != null && csA.parpadeoMin !== 0.3) animStyle += `;--anim-parpadeo-min:${csA.parpadeoMin}`;
+      if (csA.parpadeoMax != null && csA.parpadeoMax !== 1) animStyle += `;--anim-parpadeo-max:${csA.parpadeoMax}`;
+    }
+    if (csA.type === 'rotar' || csA.type === 'wobble' || csA.type === 'balanceo' || csA.type === 'swing') {
+      if (csA.rotateAngle != null && csA.rotateAngle !== 5) animStyle += `;--anim-rotate-angle:${csA.rotateAngle}deg`;
+      if (csA.rotateScale != null && csA.rotateScale !== 1) animStyle += `;--anim-rotate-scale:${csA.rotateScale}`;
+    }
+    if (csA.type === 'pulsar' || csA.type === 'respirar' || csA.type === 'latido') {
+      if (csA.scaleMin != null && csA.scaleMin !== 1) animStyle += `;--anim-scale-min:${csA.scaleMin}`;
+      if (csA.scaleMax != null && csA.scaleMax !== 1.06) animStyle += `;--anim-scale-max:${csA.scaleMax}`;
+      if (csA.scaleOpacity != null && csA.scaleOpacity !== 0.8) animStyle += `;--anim-scale-opacity:${csA.scaleOpacity}`;
+    }
+    if (csA.type === 'flotar' || csA.type === 'rebotar' || csA.type === 'drift' || (csA.type && csA.type.startsWith('deslizar-'))) {
+      if (csA.translateX) animStyle += `;--anim-translate-x:${csA.translateX}px`;
+      if (csA.translateY != null && csA.translateY !== 12) animStyle += `;--anim-translate-y:${csA.translateY}px`;
+      if (csA.translateRot) animStyle += `;--anim-translate-rot:${csA.translateRot}deg`;
+    }
+    if (csA.type === 'sacudida' || csA.type === 'temblor' || csA.type === 'shake-x') {
+      if (csA.shakeX != null && csA.shakeX !== 4) animStyle += `;--anim-shake-x:${csA.shakeX}px`;
+      if (csA.shakeY != null && csA.shakeY !== 4) animStyle += `;--anim-shake-y:${csA.shakeY}px`;
     }
     if (csA.iterations && csA.iterations !== 'infinite') animStyle += `;--aiter:${csA.iterations}`;
   }

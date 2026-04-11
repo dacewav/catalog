@@ -176,16 +176,38 @@ export function applyPreset(id) {
   setVal('f-anim-hue-start', ca ? (ca.hueStart != null ? ca.hueStart : 0) : 0);
   setVal('f-anim-hue-end', ca ? (ca.hueEnd != null ? ca.hueEnd : 360) : 360);
   // Per-type sub-settings
-  setVal('f-anim-holo-c1', ca ? (ca.holoColor1 || '#ff0080') : '#ff0080');
-  setVal('f-anim-holo-c2', ca ? (ca.holoColor2 || '#00ff80') : '#00ff80');
-  setVal('f-anim-holo-bright', ca ? (ca.holoBright || 1.3) : 1.3);
-  setVal('f-anim-holo-sat', ca ? (ca.holoSat || 1.5) : 1.5);
-  setVal('f-anim-brillo-max', ca ? (ca.brilloMax || 1.4) : 1.4);
-  setVal('f-anim-glitch-dist', ca ? (ca.glitchDist || 4) : 4);
-  setVal('f-anim-translate-dist', ca ? (ca.translateDist || 12) : 12);
-  setVal('f-anim-neon-min', ca ? (ca.neonMin || 0.5) : 0.5);
-  setVal('f-anim-parpadeo-min', ca ? (ca.parpadeoMin || 0.4) : 0.4);
+  _setHoloColors(ca ? (ca.holoColors || ['#ff0080','#00ff80','#0080ff']) : ['#ff0080','#00ff80','#0080ff']);
+  setVal('f-anim-holo-bright-min', ca ? (ca.holoBrightMin || 0.9) : 0.9);
+  setVal('f-anim-holo-bright-max', ca ? (ca.holoBrightMax || 1.4) : 1.4);
+  setVal('f-anim-holo-sat-min', ca ? (ca.holoSatMin || 0.8) : 0.8);
+  setVal('f-anim-holo-sat-max', ca ? (ca.holoSatMax || 2) : 2);
+  setVal('f-anim-holo-glow', ca ? (ca.holoGlow || 0) : 0);
+  setVal('f-anim-holo-blur', ca ? (ca.holoBlur || 0) : 0);
+  const holoDirEl = g('f-anim-holo-dir'); if (holoDirEl) holoDirEl.value = ca ? (ca.holoDir || 'hue') : 'hue';
+  setVal('f-anim-brillo-min', ca ? (ca.brilloMin || 0.8) : 0.8);
+  setVal('f-anim-brillo-max', ca ? (ca.brilloMax || 1.5) : 1.5);
+  setVal('f-anim-glitch-x', ca ? (ca.glitchX || 4) : 4);
+  setVal('f-anim-glitch-y', ca ? (ca.glitchY || 4) : 4);
+  setVal('f-anim-glitch-rot', ca ? (ca.glitchRot || 0) : 0);
+  setChecked('f-anim-glitch-chromatic', ca ? (ca.glitchChromatic || false) : false);
+  setVal('f-anim-translate-x', ca ? (ca.translateX || 0) : 0);
+  setVal('f-anim-translate-y', ca ? (ca.translateY || 12) : 12);
+  setVal('f-anim-translate-rot', ca ? (ca.translateRot || 0) : 0);
+  setVal('f-anim-neon-min', ca ? (ca.neonMin || 0.4) : 0.4);
+  setVal('f-anim-neon-max', ca ? (ca.neonMax || 1) : 1);
+  setVal('f-anim-neon-bright', ca ? (ca.neonBright || 1) : 1);
+  setVal('f-anim-parpadeo-min', ca ? (ca.parpadeoMin || 0.3) : 0.3);
+  setVal('f-anim-parpadeo-max', ca ? (ca.parpadeoMax || 1) : 1);
   setVal('f-anim-rotate-angle', ca ? (ca.rotateAngle || 5) : 5);
+  setVal('f-anim-rotate-scale', ca ? (ca.rotateScale || 1) : 1);
+  setVal('f-anim-scale-min', ca ? (ca.scaleMin || 1) : 1);
+  setVal('f-anim-scale-max', ca ? (ca.scaleMax || 1.06) : 1.06);
+  setVal('f-anim-scale-opacity', ca ? (ca.scaleOpacity || 0.8) : 0.8);
+  setVal('f-anim-shake-x', ca ? (ca.shakeX || 4) : 4);
+  setVal('f-anim-shake-y', ca ? (ca.shakeY || 4) : 4);
+  setVal('f-anim-cs-hue-start', ca ? (ca.csHueStart || 0) : 0);
+  setVal('f-anim-cs-hue-end', ca ? (ca.csHueEnd || 360) : 360);
+  setVal('f-anim-cs-sat', ca ? (ca.csSat || 1) : 1);
   // Show correct sub-panel
   _toggleAnimSubsettings(ca ? ca.type : '');
 
@@ -275,30 +297,62 @@ function _toggleAnimSubsettings(type) {
   // Map animation types to sub-settings panels
   const map = {
     'holograma': 'sub-holograma',
-    'cambio-color': 'sub-holograma', // reuse hue/color controls
+    'cambio-color': 'sub-color-shift',
     'brillo': 'sub-brillo',
     'glitch': 'sub-glitch',
-    'temblor': 'sub-glitch', // reuse distance
+    'temblor': 'sub-shake',
     'flotar': 'sub-translate',
+    'pulsar': 'sub-scale',
+    'respirar': 'sub-scale',
+    'latido': 'sub-scale',
     'rebotar': 'sub-translate',
     'deslizar-arriba': 'sub-translate',
     'deslizar-abajo': 'sub-translate',
     'deslizar-izq': 'sub-translate',
     'deslizar-der': 'sub-translate',
-    'sacudida': 'sub-translate',
+    'sacudida': 'sub-shake',
     'neon-flicker': 'sub-neon',
     'parpadeo': 'sub-parpadeo',
     'rotar': 'sub-rotate',
     'wobble': 'sub-rotate',
     'balanceo': 'sub-rotate',
     'swing': 'sub-rotate',
-    'drift': 'sub-translate'
+    'drift': 'sub-translate',
+    'shake-x': 'sub-shake'
   };
   const panelId = map[type];
   if (panelId) {
     const panel = document.getElementById(panelId);
     if (panel) panel.style.display = 'block';
   }
+}
+
+// ═══ HELPER: add holograma color stop ═══
+window.addHoloColor = function() {
+  const list = document.getElementById('holo-colors-list');
+  if (!list) return;
+  const colors = ['#ffff00','#ff00ff','#00ffff','#ff8800','#8800ff'];
+  const randomColor = colors[Math.floor(Math.random() * colors.length)];
+  const div = document.createElement('div');
+  div.className = 'holo-cs';
+  div.style.cssText = 'display:flex;align-items:center;gap:4px';
+  div.innerHTML = `<input type="color" value="${randomColor}" oninput="updateCardPreview()" style="width:32px;height:24px;border:1px solid var(--b);border-radius:4px;background:none;cursor:pointer;padding:0"><button onclick="this.parentElement.remove();updateCardPreview()" style="background:none;border:none;color:var(--acc);cursor:pointer;font-size:12px">✕</button>`;
+  list.appendChild(div);
+  updateCardPreview();
+};
+
+// ═══ HELPER: get holograma colors from DOM ═══
+function _getHoloColors() {
+  const list = document.getElementById('holo-colors-list');
+  if (!list) return ['#ff0080','#00ff80','#0080ff'];
+  return Array.from(list.querySelectorAll('input[type=color]')).map(i => i.value);
+}
+
+// ═══ HELPER: set holograma colors in DOM ═══
+function _setHoloColors(colors) {
+  const list = document.getElementById('holo-colors-list');
+  if (!list || !colors || !colors.length) return;
+  list.innerHTML = colors.map(c => `<div class="holo-cs" style="display:flex;align-items:center;gap:4px"><input type="color" value="${c}" oninput="updateCardPreview()" style="width:32px;height:24px;border:1px solid var(--b);border-radius:4px;background:none;cursor:pointer;padding:0"><button onclick="this.parentElement.remove();updateCardPreview()" style="background:none;border:none;color:var(--acc);cursor:pointer;font-size:12px">✕</button></div>`).join('');
 }
 
 // ═══ HELPER: build cardStyle from inputs ═══
@@ -337,17 +391,48 @@ function _buildCardStyleFromInputs() {
       intensity: parseInt(val('f-anim-int')) || 100,
       hueStart: parseInt(val('f-anim-hue-start')) || 0,
       hueEnd: parseInt(val('f-anim-hue-end')) || 360,
-      // Per-type sub-settings
-      holoColor1: val('f-anim-holo-c1') || '#ff0080',
-      holoColor2: val('f-anim-holo-c2') || '#00ff80',
-      holoBright: parseFloat(val('f-anim-holo-bright')) || 1.3,
-      holoSat: parseFloat(val('f-anim-holo-sat')) || 1.5,
-      brilloMax: parseFloat(val('f-anim-brillo-max')) || 1.4,
-      glitchDist: parseInt(val('f-anim-glitch-dist')) || 4,
-      translateDist: parseInt(val('f-anim-translate-dist')) || 12,
-      neonMin: parseFloat(val('f-anim-neon-min')) || 0.5,
-      parpadeoMin: parseFloat(val('f-anim-parpadeo-min')) || 0.4,
-      rotateAngle: parseInt(val('f-anim-rotate-angle')) || 5
+      // Holograma
+      holoColors: _getHoloColors(),
+      holoBrightMin: parseFloat(val('f-anim-holo-bright-min')) || 0.9,
+      holoBrightMax: parseFloat(val('f-anim-holo-bright-max')) || 1.4,
+      holoSatMin: parseFloat(val('f-anim-holo-sat-min')) || 0.8,
+      holoSatMax: parseFloat(val('f-anim-holo-sat-max')) || 2,
+      holoGlow: parseInt(val('f-anim-holo-glow')) || 0,
+      holoBlur: parseFloat(val('f-anim-holo-blur')) || 0,
+      holoDir: val('f-anim-holo-dir') || 'hue',
+      // Brillo
+      brilloMin: parseFloat(val('f-anim-brillo-min')) || 0.8,
+      brilloMax: parseFloat(val('f-anim-brillo-max')) || 1.5,
+      // Glitch
+      glitchX: parseInt(val('f-anim-glitch-x')) || 4,
+      glitchY: parseInt(val('f-anim-glitch-y')) || 4,
+      glitchRot: parseFloat(val('f-anim-glitch-rot')) || 0,
+      glitchChromatic: checked('f-anim-glitch-chromatic'),
+      // Translate
+      translateX: parseInt(val('f-anim-translate-x')) || 0,
+      translateY: parseInt(val('f-anim-translate-y')) || 12,
+      translateRot: parseFloat(val('f-anim-translate-rot')) || 0,
+      // Neon
+      neonMin: parseFloat(val('f-anim-neon-min')) || 0.4,
+      neonMax: parseFloat(val('f-anim-neon-max')) || 1,
+      neonBright: parseFloat(val('f-anim-neon-bright')) || 1,
+      // Parpadeo
+      parpadeoMin: parseFloat(val('f-anim-parpadeo-min')) || 0.3,
+      parpadeoMax: parseFloat(val('f-anim-parpadeo-max')) || 1,
+      // Rotate
+      rotateAngle: parseInt(val('f-anim-rotate-angle')) || 5,
+      rotateScale: parseFloat(val('f-anim-rotate-scale')) || 1,
+      // Scale (pulsar/respirar/latido)
+      scaleMin: parseFloat(val('f-anim-scale-min')) || 1,
+      scaleMax: parseFloat(val('f-anim-scale-max')) || 1.06,
+      scaleOpacity: parseFloat(val('f-anim-scale-opacity')) || 0.8,
+      // Shake
+      shakeX: parseInt(val('f-anim-shake-x')) || 4,
+      shakeY: parseInt(val('f-anim-shake-y')) || 4,
+      // Cambio-color
+      csHueStart: parseInt(val('f-anim-cs-hue-start')) || 0,
+      csHueEnd: parseInt(val('f-anim-cs-hue-end')) || 360,
+      csSat: parseFloat(val('f-anim-cs-sat')) || 1
     } : null,
     style: {
       accentColor: val('f-accent-color') || '',
@@ -447,14 +532,56 @@ function _applyCardStyleToPreview(pv, cs) {
     const intVal = (ca.intensity != null ? ca.intensity : 100) / 100;
     pv.style.setProperty('--anim-int', intVal);
     // Per-type sub-settings as CSS vars
-    if (ca.type === 'holograma' || ca.type === 'cambio-color') {
-      pv.style.setProperty('--anim-hue-start', (ca.hueStart != null ? ca.hueStart : 0) + 'deg');
-      pv.style.setProperty('--anim-hue-end', (ca.hueEnd != null ? ca.hueEnd : 360) + 'deg');
-      pv.style.setProperty('--anim-holo-bright', ca.holoBright || 1.3);
-      pv.style.setProperty('--anim-holo-sat', ca.holoSat || 1.5);
+    if (ca.type === 'holograma') {
+      pv.style.setProperty('--anim-hue-start', (ca.hueStart || 0) + 'deg');
+      pv.style.setProperty('--anim-hue-end', (ca.hueEnd || 360) + 'deg');
+      pv.style.setProperty('--anim-holo-bright-min', ca.holoBrightMin || 0.9);
+      pv.style.setProperty('--anim-holo-bright-max', ca.holoBrightMax || 1.4);
+      pv.style.setProperty('--anim-holo-sat-min', ca.holoSatMin || 0.8);
+      pv.style.setProperty('--anim-holo-sat-max', ca.holoSatMax || 2);
+      pv.style.setProperty('--anim-holo-glow', (ca.holoGlow || 0) + 'px');
+      pv.style.setProperty('--anim-holo-blur', (ca.holoBlur || 0) + 'px');
+    }
+    if (ca.type === 'cambio-color') {
+      pv.style.setProperty('--anim-cs-hue-start', (ca.csHueStart || 0) + 'deg');
+      pv.style.setProperty('--anim-cs-hue-end', (ca.csHueEnd || 360) + 'deg');
+      pv.style.setProperty('--anim-cs-sat', ca.csSat || 1);
     }
     if (ca.type === 'brillo') {
-      pv.style.setProperty('--anim-brillo-max', ca.brilloMax || 1.4);
+      pv.style.setProperty('--anim-brillo-min', ca.brilloMin || 0.8);
+      pv.style.setProperty('--anim-brillo-max', ca.brilloMax || 1.5);
+    }
+    if (ca.type === 'glitch') {
+      pv.style.setProperty('--anim-glitch-x', (ca.glitchX || 4) + 'px');
+      pv.style.setProperty('--anim-glitch-y', (ca.glitchY || 4) + 'px');
+      pv.style.setProperty('--anim-glitch-rot', (ca.glitchRot || 0) + 'deg');
+    }
+    if (ca.type === 'neon-flicker') {
+      pv.style.setProperty('--anim-neon-min', ca.neonMin || 0.4);
+      pv.style.setProperty('--anim-neon-max', ca.neonMax || 1);
+      pv.style.setProperty('--anim-neon-bright', ca.neonBright || 1);
+    }
+    if (ca.type === 'parpadeo') {
+      pv.style.setProperty('--anim-parpadeo-min', ca.parpadeoMin || 0.3);
+      pv.style.setProperty('--anim-parpadeo-max', ca.parpadeoMax || 1);
+    }
+    if (ca.type === 'rotar' || ca.type === 'wobble' || ca.type === 'balanceo' || ca.type === 'swing') {
+      pv.style.setProperty('--anim-rotate-angle', (ca.rotateAngle || 5) + 'deg');
+      pv.style.setProperty('--anim-rotate-scale', ca.rotateScale || 1);
+    }
+    if (ca.type === 'pulsar' || ca.type === 'respirar' || ca.type === 'latido') {
+      pv.style.setProperty('--anim-scale-min', ca.scaleMin || 1);
+      pv.style.setProperty('--anim-scale-max', ca.scaleMax || 1.06);
+      pv.style.setProperty('--anim-scale-opacity', ca.scaleOpacity || 0.8);
+    }
+    if (ca.type === 'flotar' || ca.type === 'rebotar' || ca.type === 'drift' || ca.type.startsWith('deslizar-')) {
+      pv.style.setProperty('--anim-translate-x', (ca.translateX || 0) + 'px');
+      pv.style.setProperty('--anim-translate-y', (ca.translateY || 12) + 'px');
+      pv.style.setProperty('--anim-translate-rot', (ca.translateRot || 0) + 'deg');
+    }
+    if (ca.type === 'sacudida' || ca.type === 'temblor' || ca.type === 'shake-x') {
+      pv.style.setProperty('--anim-shake-x', (ca.shakeX || 4) + 'px');
+      pv.style.setProperty('--anim-shake-y', (ca.shakeY || 4) + 'px');
     }
     // Secondary animation on ::before pseudo-element
     if (ca.type2) {
