@@ -2796,7 +2796,7 @@ definen géneros.</textarea></div>
 <button id="float-pv-reopen" onclick="showFloatPv()" style="display:none;position:fixed;z-index:8999;bottom:20px;right:20px;width:40px;height:40px;border-radius:50%;background:rgba(185,28,28,0.9);border:1px solid rgba(255,255,255,0.15);color:#fff;cursor:pointer;font-size:16px;box-shadow:0 4px 20px rgba(0,0,0,0.4);backdrop-filter:blur(10px);display:none;align-items:center;justify-content:center;transition:transform .2s,opacity .2s" onmouseenter="this.style.transform='scale(1.1)'" onmouseleave="this.style.transform='scale(1)'">👁️</button>
 
 <!-- ═══ FLOATING CARD PREVIEW (draggable + resizable from all edges) ═══ -->
-<div id="float-pv" style="display:none;position:fixed;z-index:9000;width:220px;height:auto;border-radius:12px;overflow:visible;background:rgba(10,8,14,0.95);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,0.08);box-shadow:0 20px 60px rgba(0,0,0,0.6);right:40px;top:80px">
+<div id="float-pv" style="display:none;position:fixed;z-index:9000;width:220px;height:auto;border-radius:12px;overflow:hidden;background:rgba(10,8,14,0.95);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,0.08);box-shadow:0 20px 60px rgba(0,0,0,0.6);right:40px;top:80px">
   <!-- Resize handles (all 8 directions) -->
   <div class="fpv-rz" data-rz="n" style="position:absolute;top:-4px;left:10px;right:10px;height:8px;cursor:n-resize;z-index:10"></div>
   <div class="fpv-rz" data-rz="s" style="position:absolute;bottom:-4px;left:10px;right:10px;height:8px;cursor:s-resize;z-index:10"></div>
@@ -2815,7 +2815,7 @@ definen géneros.</textarea></div>
       <button onclick="hideFloatPv()" style="background:none;border:none;color:var(--mu);cursor:pointer;font-size:11px;padding:2px 4px">✕</button>
     </div>
   </div>
-  <div id="float-pv-body" style="padding:10px;overflow:auto;height:calc(100% - 34px);min-height:60px">
+  <div id="float-pv-body" style="padding:10px;overflow:auto;/* no fixed height — card sizes naturally */">
     <!-- Mini preview (default) -->
     <div id="float-pv-mini">
       <div class="bcpv" id="beat-card-pv" style="width:100%">
@@ -2845,7 +2845,7 @@ definen géneros.</textarea></div>
   if (!el) return;
   const handle = document.getElementById('float-pv-handle');
   const reopenBtn = document.getElementById('float-pv-reopen');
-  const minW = 160, minH = 100;
+  const minW = 160, minH = 80, maxW = 500, maxH = 650;
   const DEFAULT_POS = { right: 40, top: 80 }; // default position from right/top
   let state = '', rzDir = '', startX, startY, origRect;
   let pinned = false; // when pinned, can't drag
@@ -2880,10 +2880,10 @@ definen géneros.</textarea></div>
     } else if (state === 'resize') {
       let newW = origRect.width, newH = origRect.height;
       let newL = origRect.left, newT = origRect.top;
-      if (rzDir.includes('e')) newW = Math.max(minW, origRect.width + dx);
-      if (rzDir.includes('w')) { newW = Math.max(minW, origRect.width - dx); newL = origRect.left + dx; }
-      if (rzDir.includes('s')) newH = Math.max(minH, origRect.height + dy);
-      if (rzDir.includes('n')) { newH = Math.max(minH, origRect.height - dy); newT = origRect.top + dy; }
+      if (rzDir.includes('e')) newW = Math.min(maxW, Math.max(minW, origRect.width + dx));
+      if (rzDir.includes('w')) { newW = Math.min(maxW, Math.max(minW, origRect.width - dx)); newL = origRect.left + dx; }
+      if (rzDir.includes('s')) newH = Math.min(maxH, Math.max(minH, origRect.height + dy));
+      if (rzDir.includes('n')) { newH = Math.min(maxH, Math.max(minH, origRect.height - dy)); newT = origRect.top + dy; }
       el.style.width = newW + 'px'; el.style.height = newH + 'px';
       el.style.left = newL + 'px'; el.style.top = newT + 'px';
       el.style.right = 'auto'; el.style.bottom = 'auto';
@@ -2902,7 +2902,7 @@ definen géneros.</textarea></div>
 
   // Pointer events
   if (handle) handle.addEventListener('pointerdown', e => { if (e.target.tagName === 'BUTTON') return; handle.style.cursor = 'grabbing'; onDown(e, 'drag'); });
-  el.querySelectorAll('.fpv-rz').forEach(h => h.addEventListener('pointerdown', e => onDown(e, 'resize', h.dataset.rz)));
+  el.querySelectorAll('.fpv-rz').forEach(h => h.addEventListener('pointerdown', e => { const isEdge = h.dataset.rz.length === 1; onDown(e, isEdge ? 'resize' : 'resize', h.dataset.rz); }));
   window.addEventListener('pointermove', onMove);
   window.addEventListener('pointerup', onUp);
   window.addEventListener('pointercancel', onUp);
