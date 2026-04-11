@@ -1057,6 +1057,8 @@ export function dragEnd(e) { e.currentTarget.classList.remove('dragging'); setDr
 // Editor
 export function openEditor(id) {
   setEditId(id); showSection('add');
+  // Attach live listeners on first open
+  if (typeof window._attachLiveListeners === 'function') window._attachLiveListeners();
   g('editor-title').innerHTML = '<i class="fas fa-edit"></i> ' + (id ? 'Editar' : 'Nuevo') + ' beat';
   g('btn-del').style.display = id ? 'inline-flex' : 'none';
   const idField = g('f-id');
@@ -1383,6 +1385,8 @@ renderHoverPresets();
 // Debounced re-render of store card preview when beat fields change
 (function() {
   var _pvTimer = null;
+  var _liveListenersAttached = false;
+
   function _debouncedPv() {
     clearTimeout(_pvTimer);
     _pvTimer = setTimeout(function() {
@@ -1390,20 +1394,23 @@ renderHoverPresets();
       _sendLiveUpdate();
     }, 250);
   }
+
   var pvFields = ['f-name','f-bpm','f-key','f-genre','f-genre-c','f-img','f-tags','f-desc','f-excl','f-active','f-avail'];
-  function _setupLivePv() {
+
+  function _attachLiveListeners() {
+    if (_liveListenersAttached) return;
+    _liveListenersAttached = true;
     pvFields.forEach(function(id) {
       var el = document.getElementById(id);
-      if (!el) return;
+      if (!el) { console.warn('[LiveEdit] field not found:', id); return; }
       el.addEventListener('input', _debouncedPv);
       el.addEventListener('change', _debouncedPv);
     });
+    console.log('[LiveEdit] listeners attached');
   }
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', _setupLivePv);
-  } else {
-    _setupLivePv();
-  }
+
+  // Attach when editor opens (fields might not exist at page load)
+  window._attachLiveListeners = _attachLiveListeners;
 
   // ═══ LIVE EDIT: postMessage to store iframe ═══
   var PM_ORIGIN = window.location.origin || '*';
