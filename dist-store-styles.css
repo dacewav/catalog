@@ -20,14 +20,16 @@
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html{background:var(--bg);color:var(--text);font-family:var(--font-m);font-size:14px;line-height:1.7;scroll-behavior:smooth;scrollbar-width:thin;scrollbar-color:rgba(185,28,28,0.2) transparent}
 body{overflow-x:hidden;min-height:100vh;opacity:var(--bg-opacity)}
-@keyframes flotar{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
-@keyframes pulsar{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
-@keyframes rotar{0%{transform:rotate(-3deg)}50%{transform:rotate(3deg)}100%{transform:rotate(-3deg)}}
-@keyframes rebotar{0%,100%{transform:translateY(0)}30%{transform:translateY(-12px)}60%{transform:translateY(-4px)}}
-@keyframes parpadeo{0%,100%{opacity:1}50%{opacity:0.4}}
-@keyframes sacudida{0%,100%{transform:translateX(0)}20%{transform:translateX(-4px)}40%{transform:translateX(4px)}60%{transform:translateX(-3px)}80%{transform:translateX(3px)}}
-@keyframes cambio-color{0%{filter:hue-rotate(var(--anim-hue-start,0deg))}100%{filter:hue-rotate(var(--anim-hue-end,360deg))}}
-@keyframes brillo{0%,100%{filter:brightness(1)}50%{filter:brightness(1.4)}}
+/* ═══ Animation Intensity System ═══ */
+/* --anim-int: 0-1, controls how strong the animation is. Set per-card from admin slider. */
+@keyframes flotar{0%,100%{transform:translate(0)}50%{transform:translate(calc(var(--anim-translate-x,0px) * var(--anim-int,1)),calc(-1 * var(--anim-translate-y,12px) * var(--anim-int,1)))}}
+@keyframes pulsar{0%,100%{transform:scale(var(--anim-scale-min,1));opacity:var(--anim-scale-opacity,0.8)}50%{transform:scale(var(--anim-scale-max,1.06));opacity:1}}
+@keyframes rotar{0%{transform:rotate(calc(-1 * var(--anim-rotate-angle,5deg))) scale(var(--anim-rotate-scale,1))}50%{transform:rotate(calc(var(--anim-rotate-angle,5deg))) scale(var(--anim-rotate-scale,1))}100%{transform:rotate(calc(-1 * var(--anim-rotate-angle,5deg))) scale(var(--anim-rotate-scale,1))}}
+@keyframes rebotar{0%,100%{transform:translate(0)}30%{transform:translate(calc(var(--anim-translate-x,0px) * var(--anim-int,1)),calc(-1 * var(--anim-translate-y,14px) * var(--anim-int,1)))}60%{transform:translate(calc(var(--anim-translate-x,0px) * var(--anim-int,1) * 0.3),calc(-1 * var(--anim-translate-y,4px) * var(--anim-int,1)))}}
+@keyframes parpadeo{0%,100%{opacity:var(--anim-parpadeo-max,1)}50%{opacity:var(--anim-parpadeo-min,0.3)}}
+@keyframes sacudida{0%,100%{transform:translate(0)}20%{transform:translate(calc(-1*var(--anim-shake-x,5px)),0)}40%{transform:translate(var(--anim-shake-x,5px),0)}60%{transform:translate(calc(-0.6*var(--anim-shake-x,5px)),0)}80%{transform:translate(calc(0.6*var(--anim-shake-x,5px)),0)}}
+@keyframes cambio-color{0%{filter:hue-rotate(var(--anim-cs-hue-start,0deg)) saturate(var(--anim-cs-sat,1))}100%{filter:hue-rotate(var(--anim-cs-hue-end,360deg)) saturate(var(--anim-cs-sat,1))}}
+@keyframes brillo{0%,100%{filter:brightness(var(--anim-brillo-min,0.8))}50%{filter:brightness(var(--anim-brillo-max,1.5))}}
 @keyframes spin-lento{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
 @keyframes banner-scroll{from{transform:translateX(100%)}to{transform:translateX(-100%)}}
 @keyframes banner-fade-pulse{0%,100%{opacity:.4}50%{opacity:1}}
@@ -53,6 +55,11 @@ body{overflow-x:hidden;min-height:100vh;opacity:var(--bg-opacity)}
 @keyframes marquee{from{transform:translateX(0)}to{transform:translateX(-50%)}}
 @keyframes slideUp{from{opacity:0;transform:translateY(60px)}to{opacity:1;transform:none}}
 @keyframes scaleIn{from{opacity:0;transform:scale(.9)}to{opacity:1;transform:scale(1)}}
+@keyframes play-pulse-ring{0%{box-shadow:0 0 0 0 rgba(185,28,28,0.4)}70%{box-shadow:0 0 0 12px rgba(185,28,28,0)}100%{box-shadow:0 0 0 0 rgba(185,28,28,0)}}
+@keyframes play-blink{0%,100%{opacity:1}50%{opacity:.7}}
+/* Play pulse — non-disruptive effect on click, does NOT restart card animation */
+.beat-card.play-pulse .beat-card-inner{animation:play-pulse-ring .6s ease-out 1;will-change:box-shadow}
+.beat-card.play-pulse .play-hint{animation:play-blink .3s ease 2}
 .anim-flotar{animation:flotar var(--ad,2s) ease-in-out infinite;animation-delay:var(--adl,0s)}
 .anim-pulsar{animation:pulsar var(--ad,2s) ease-in-out infinite;animation-delay:var(--adl,0s)}
 .anim-rotar{animation:rotar var(--ad,2s) ease-in-out infinite;animation-delay:var(--adl,0s)}
@@ -63,33 +70,37 @@ body{overflow-x:hidden;min-height:100vh;opacity:var(--bg-opacity)}
 .anim-brillo{animation:brillo var(--ad,2s) ease-in-out infinite;animation-delay:var(--adl,0s)}
 .anim-spin-lento{animation:spin-lento var(--ad,8s) linear infinite;animation-delay:var(--adl,0s)}
 /* ═══ Extended Animations ═══ */
-@keyframes deslizar-arriba{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
-@keyframes deslizar-abajo{0%,100%{transform:translateY(0)}50%{transform:translateY(10px)}}
-@keyframes deslizar-izq{0%,100%{transform:translateX(0)}50%{transform:translateX(-10px)}}
-@keyframes deslizar-der{0%,100%{transform:translateX(0)}50%{transform:translateX(10px)}}
-@keyframes temblor{0%,100%{transform:translate(0)}10%{transform:translate(-2px,-2px)}20%{transform:translate(2px,-2px)}30%{transform:translate(-2px,2px)}40%{transform:translate(2px,2px)}50%{transform:translate(-1px,1px)}60%{transform:translate(1px,-1px)}70%{transform:translate(-1px,-1px)}80%{transform:translate(1px,1px)}90%{transform:translate(-1px,2px)}}
-@keyframes balanceo{0%{transform:rotate(0deg)}25%{transform:rotate(5deg)}50%{transform:rotate(0deg)}75%{transform:rotate(-5deg)}100%{transform:rotate(0deg)}}
-@keyframes drift{0%,100%{transform:translate(0,0) rotate(0deg)}25%{transform:translate(6px,-6px) rotate(1deg)}50%{transform:translate(-4px,4px) rotate(-1deg)}75%{transform:translate(4px,2px) rotate(0.5deg)}}
+@keyframes deslizar-arriba{0%,100%{transform:translate(0)}50%{transform:translate(calc(var(--anim-translate-x,0px) * var(--anim-int,1)),calc(-1 * var(--anim-translate-y,12px) * var(--anim-int,1)))}}
+@keyframes deslizar-abajo{0%,100%{transform:translate(0)}50%{transform:translate(calc(var(--anim-translate-x,0px) * var(--anim-int,1)),calc(var(--anim-translate-y,12px) * var(--anim-int,1)))}}
+@keyframes deslizar-izq{0%,100%{transform:translate(0)}50%{transform:translate(calc(-1 * var(--anim-translate-x,12px) * var(--anim-int,1)),calc(var(--anim-translate-y,0px) * var(--anim-int,1)))}}
+@keyframes deslizar-der{0%,100%{transform:translate(0)}50%{transform:translate(calc(var(--anim-translate-x,12px) * var(--anim-int,1)),calc(var(--anim-translate-y,0px) * var(--anim-int,1)))}}
+@keyframes temblor{0%,100%{transform:translate(0)}10%{transform:translate(calc(-1*var(--anim-shake-x,4px)),calc(-1*var(--anim-shake-y,4px)))}20%{transform:translate(var(--anim-shake-x,4px),calc(-1*var(--anim-shake-y,4px)))}30%{transform:translate(calc(-1*var(--anim-shake-x,4px)),var(--anim-shake-y,4px))}40%{transform:translate(var(--anim-shake-x,4px),var(--anim-shake-y,4px))}50%{transform:translate(calc(-0.5*var(--anim-shake-x,4px)),calc(0.5*var(--anim-shake-y,4px)))}60%{transform:translate(calc(0.5*var(--anim-shake-x,4px)),calc(-0.5*var(--anim-shake-y,4px)))}70%{transform:translate(calc(-0.5*var(--anim-shake-x,4px)),calc(-0.5*var(--anim-shake-y,4px)))}80%{transform:translate(calc(0.5*var(--anim-shake-x,4px)),calc(0.5*var(--anim-shake-y,4px)))}90%{transform:translate(calc(-0.3*var(--anim-shake-x,4px)),calc(0.3*var(--anim-shake-y,4px)))}}
+@keyframes balanceo{0%{transform:rotate(0deg)}25%{transform:rotate(var(--anim-rotate-angle,6deg))}50%{transform:rotate(0deg)}75%{transform:rotate(calc(-1*var(--anim-rotate-angle,6deg)))}100%{transform:rotate(0deg)}}
+@keyframes drift{0%,100%{transform:translate(0,0) rotate(0deg)}25%{transform:translate(calc(var(--anim-translate-x,8px)*var(--anim-int,1)),calc(-1*var(--anim-translate-y,8px)*var(--anim-int,1))) rotate(calc(var(--anim-translate-rot,2deg)*var(--anim-int,1)))}50%{transform:translate(calc(-1*var(--anim-translate-x,6px)*var(--anim-int,1)),calc(var(--anim-translate-y,6px)*var(--anim-int,1))) rotate(calc(-1*var(--anim-translate-rot,2deg)*var(--anim-int,1)))}75%{transform:translate(calc(var(--anim-translate-x,5px)*var(--anim-int,1)),calc(var(--anim-translate-y,3px)*var(--anim-int,1)*0.5)) rotate(calc(var(--anim-translate-rot,1deg)*var(--anim-int,1)))}}
 @keyframes spin-rapido{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
-@keyframes wobble{0%{transform:rotate(0deg)}15%{transform:rotate(5deg)}30%{transform:rotate(-4deg)}45%{transform:rotate(3deg)}60%{transform:rotate(-2deg)}75%{transform:rotate(1deg)}100%{transform:rotate(0deg)}}
+@keyframes wobble{0%{transform:rotate(0deg)}15%{transform:rotate(var(--anim-rotate-angle,7deg))}30%{transform:rotate(calc(-0.7*var(--anim-rotate-angle,7deg)))}45%{transform:rotate(calc(0.5*var(--anim-rotate-angle,7deg)))}60%{transform:rotate(calc(-0.3*var(--anim-rotate-angle,7deg)))}75%{transform:rotate(calc(0.15*var(--anim-rotate-angle,7deg)))}100%{transform:rotate(0deg)}}
 @keyframes fade-in{from{opacity:0}to{opacity:1}}
-@keyframes respirar{0%,100%{transform:scale(1);opacity:.8}50%{transform:scale(1.03);opacity:1}}
-@keyframes latido{0%,100%{transform:scale(1)}14%{transform:scale(1.1)}28%{transform:scale(1)}42%{transform:scale(1.1)}70%{transform:scale(1)}}
-@keyframes zoom-in{0%{transform:scale(.8);opacity:.5}100%{transform:scale(1);opacity:1}}
-@keyframes zoom-out{0%{transform:scale(1.2);opacity:.5}100%{transform:scale(1);opacity:1}}
-@keyframes pop{0%{transform:scale(0)}60%{transform:scale(1.15)}100%{transform:scale(1)}}
-@keyframes rubber-band{0%{transform:scaleX(1) scaleY(1)}30%{transform:scaleX(1.25) scaleY(0.75)}40%{transform:scaleX(0.75) scaleY(1.25)}50%{transform:scaleX(1.15) scaleY(0.85)}65%{transform:scaleX(0.95) scaleY(1.05)}75%{transform:scaleX(1.05) scaleY(0.95)}100%{transform:scaleX(1) scaleY(1)}}
-@keyframes jello{0%,100%{transform:translateX(0)}11.1%{transform:translateX(-6px) skewX(-5deg)}22.2%{transform:translateX(4px) skewX(3deg)}33.3%{transform:translateX(-3px) skewX(-2deg)}44.4%{transform:translateX(2px) skewX(1deg)}55.5%{transform:translateX(-1px)}}
-@keyframes neon-flicker{0%,100%{opacity:1}7%{opacity:.7}10%{opacity:1}12%{opacity:.6}15%{opacity:1}20%{opacity:.8}50%{opacity:1}55%{opacity:.5}57%{opacity:1}}
-@keyframes glitch{0%,100%{transform:translate(0)}20%{transform:translate(-3px,3px)}40%{transform:translate(-3px,-3px)}60%{transform:translate(3px,3px)}80%{transform:translate(3px,-3px)}}
-@keyframes holograma{0%,100%{filter:hue-rotate(var(--anim-hue-start,0deg)) brightness(1)}25%{filter:hue-rotate(calc((var(--anim-hue-start,0deg)*3 + var(--anim-hue-end,360deg))/4)) brightness(1.2)}50%{filter:hue-rotate(calc((var(--anim-hue-start,0deg) + var(--anim-hue-end,360deg))/2)) brightness(1)}75%{filter:hue-rotate(calc((var(--anim-hue-start,0deg) + var(--anim-hue-end,360deg)*3)/4)) brightness(1.2)}}
-@keyframes shake-x{0%,100%{transform:translateX(0)}10%{transform:translateX(-8px)}20%{transform:translateX(8px)}30%{transform:translateX(-6px)}40%{transform:translateX(6px)}50%{transform:translateX(-3px)}60%{transform:translateX(3px)}70%{transform:translateX(-1px)}80%{transform:translateX(1px)}}
-@keyframes heartbeat{0%,100%{transform:scale(1)}10%{transform:scale(1.15)}20%{transform:scale(1)}30%{transform:scale(1.15)}40%{transform:scale(1)}}
-@keyframes flip{0%{transform:perspective(400px) rotateY(0)}100%{transform:perspective(400px) rotateY(360deg)}}
-@keyframes swing{20%{transform:rotate(15deg)}40%{transform:rotate(-10deg)}60%{transform:rotate(5deg)}80%{transform:rotate(-5deg)}100%{transform:rotate(0deg)}}
-@keyframes tada{0%{transform:scale(1)}10%,20%{transform:scale(.9) rotate(-3deg)}30%,50%,70%,90%{transform:scale(1.1) rotate(3deg)}40%,60%,80%{transform:scale(1.1) rotate(-3deg)}100%{transform:scale(1) rotate(0)}}
-@keyframes bounce-in{0%{opacity:0;transform:scale(.3)}50%{transform:scale(1.08)}70%{transform:scale(.95)}100%{opacity:1;transform:scale(1)}}
-@keyframes elastic{0%{transform:scale(0)}55%{transform:scale(1.1)}70%{transform:scale(.95)}100%{transform:scale(1)}}
+@keyframes respirar{0%,100%{transform:scale(1);opacity:.8}50%{transform:scale(calc(1 + 0.04 * var(--anim-int,1)));opacity:1}}
+@keyframes latido{0%,100%{transform:scale(1)}14%{transform:scale(calc(1 + 0.12 * var(--anim-int,1)))}28%{transform:scale(1)}42%{transform:scale(calc(1 + 0.12 * var(--anim-int,1)))}70%{transform:scale(1)}}
+@keyframes zoom-in{0%{transform:scale(calc(1 - 0.25 * var(--anim-int,1)));opacity:.5}100%{transform:scale(1);opacity:1}}
+@keyframes zoom-out{0%{transform:scale(calc(1 + 0.25 * var(--anim-int,1)));opacity:.5}100%{transform:scale(1);opacity:1}}
+@keyframes pop{0%{transform:scale(0)}60%{transform:scale(calc(1 + 0.2 * var(--anim-int,1)))}100%{transform:scale(1)}}
+@keyframes rubber-band{0%{transform:scaleX(1) scaleY(1)}30%{transform:scaleX(calc(1 + 0.3 * var(--anim-int,1))) scaleY(calc(1 - 0.3 * var(--anim-int,1)))}40%{transform:scaleX(calc(1 - 0.3 * var(--anim-int,1))) scaleY(calc(1 + 0.3 * var(--anim-int,1)))}50%{transform:scaleX(calc(1 + 0.18 * var(--anim-int,1))) scaleY(calc(1 - 0.18 * var(--anim-int,1)))}65%{transform:scaleX(calc(1 - 0.05 * var(--anim-int,1))) scaleY(calc(1 + 0.05 * var(--anim-int,1)))}75%{transform:scaleX(calc(1 + 0.05 * var(--anim-int,1))) scaleY(calc(1 - 0.05 * var(--anim-int,1)))}100%{transform:scaleX(1) scaleY(1)}}
+@keyframes jello{0%,100%{transform:translateX(0)}11.1%{transform:translateX(calc(-8px * var(--anim-int,1))) skewX(calc(-7deg * var(--anim-int,1)))}22.2%{transform:translateX(calc(5px * var(--anim-int,1))) skewX(calc(4deg * var(--anim-int,1)))}33.3%{transform:translateX(calc(-4px * var(--anim-int,1))) skewX(calc(-3deg * var(--anim-int,1)))}44.4%{transform:translateX(calc(3px * var(--anim-int,1))) skewX(calc(1deg * var(--anim-int,1)))}55.5%{transform:translateX(calc(-1px * var(--anim-int,1)))}}
+@keyframes neon-flicker{0%,100%{opacity:var(--anim-neon-max,1);filter:brightness(1)}7%{opacity:var(--anim-neon-min,0.4);filter:brightness(var(--anim-neon-bright,1))}10%{opacity:var(--anim-neon-max,1);filter:brightness(1)}12%{opacity:var(--anim-neon-min,0.4);filter:brightness(var(--anim-neon-bright,1))}15%{opacity:var(--anim-neon-max,1)}20%{opacity:calc((var(--anim-neon-max,1) + var(--anim-neon-min,0.4))/2)}50%{opacity:var(--anim-neon-max,1)}55%{opacity:var(--anim-neon-min,0.4);filter:brightness(var(--anim-neon-bright,1))}57%{opacity:var(--anim-neon-max,1);filter:brightness(1)}}
+@keyframes glitch{0%,100%{transform:translate(0)}20%{transform:translate(calc(-1 * var(--anim-glitch-x,4px) * var(--anim-int,1)),calc(var(--anim-glitch-y,4px) * var(--anim-int,1))) rotate(calc(var(--anim-glitch-rot,0deg) * var(--anim-int,1)))}40%{transform:translate(calc(-1 * var(--anim-glitch-x,4px) * var(--anim-int,1)),calc(-1 * var(--anim-glitch-y,4px) * var(--anim-int,1))) rotate(calc(-1 * var(--anim-glitch-rot,0deg) * var(--anim-int,1)))}60%{transform:translate(calc(var(--anim-glitch-x,4px) * var(--anim-int,1)),calc(var(--anim-glitch-y,4px) * var(--anim-int,1))) rotate(calc(var(--anim-glitch-rot,0deg) * var(--anim-int,1)))}80%{transform:translate(calc(var(--anim-glitch-x,4px) * var(--anim-int,1)),calc(-1 * var(--anim-glitch-y,4px) * var(--anim-int,1)))}}
+@keyframes holograma{0%,100%{filter:hue-rotate(var(--anim-hue-start,0deg)) brightness(var(--anim-holo-bright-min,0.9)) saturate(var(--anim-holo-sat-min,0.8)) blur(var(--anim-holo-blur,0px))}25%{filter:hue-rotate(calc((var(--anim-hue-start,0deg)*3 + var(--anim-hue-end,360deg))/4)) brightness(var(--anim-holo-bright-max,1.4)) saturate(var(--anim-holo-sat-max,2)) blur(var(--anim-holo-blur,0px))}50%{filter:hue-rotate(calc((var(--anim-hue-start,0deg) + var(--anim-hue-end,360deg))/2)) brightness(var(--anim-holo-bright-min,0.9)) saturate(var(--anim-holo-sat-min,0.8)) blur(var(--anim-holo-blur,0px))}75%{filter:hue-rotate(calc((var(--anim-hue-start,0deg) + var(--anim-hue-end,360deg)*3)/4)) brightness(var(--anim-holo-bright-max,1.4)) saturate(var(--anim-holo-sat-max,2)) blur(var(--anim-holo-blur,0px))}}
+@keyframes holograma-gradient{0%{filter:hue-rotate(0deg) brightness(var(--anim-holo-bright-min,0.9)) saturate(var(--anim-holo-sat-min,0.8)) blur(var(--anim-holo-blur,0px))}50%{filter:hue-rotate(180deg) brightness(var(--anim-holo-bright-max,1.4)) saturate(var(--anim-holo-sat-max,2)) blur(var(--anim-holo-blur,0px))}100%{filter:hue-rotate(360deg) brightness(var(--anim-holo-bright-min,0.9)) saturate(var(--anim-holo-sat-min,0.8)) blur(var(--anim-holo-blur,0px))}}
+@keyframes holograma-pulse{0%,100%{filter:brightness(var(--anim-holo-bright-min,0.9)) saturate(var(--anim-holo-sat-min,0.8)) blur(var(--anim-holo-blur,0px))}50%{filter:brightness(var(--anim-holo-bright-max,1.4)) saturate(var(--anim-holo-sat-max,2)) blur(var(--anim-holo-blur,0px))}}
+@keyframes holo-bg-shift{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+@keyframes holo-pulse-color{0%,100%{background:var(--holo-c0,#ff0080)}33%{background:var(--holo-c1,#00ff80)}66%{background:var(--holo-c2,#0080ff)}}
+@keyframes heartbeat{0%,100%{transform:scale(1)}10%{transform:scale(calc(1 + 0.18 * var(--anim-int,1)))}20%{transform:scale(1)}30%{transform:scale(calc(1 + 0.18 * var(--anim-int,1)))}40%{transform:scale(1)}}
+@keyframes shake-x{0%,100%{transform:translateX(0)}10%{transform:translateX(calc(-1*var(--anim-shake-x,8px)))}20%{transform:translateX(var(--anim-shake-x,8px))}30%{transform:translateX(calc(-0.75*var(--anim-shake-x,8px)))}40%{transform:translateX(calc(0.75*var(--anim-shake-x,8px)))}50%{transform:translateX(calc(-0.5*var(--anim-shake-x,8px)))}60%{transform:translateX(calc(0.5*var(--anim-shake-x,8px)))}70%{transform:translateX(calc(-0.25*var(--anim-shake-x,8px)))}80%{transform:translateX(calc(0.25*var(--anim-shake-x,8px)))}90%{transform:translateX(calc(-0.1*var(--anim-shake-x,8px)))}}
+@keyframes flip{0%{transform:perspective(400px) rotateY(0)}100%{transform:perspective(400px) rotateY(calc(360deg * var(--anim-int,1)))}}
+@keyframes swing{20%{transform:rotate(calc(3*var(--anim-rotate-angle,5deg)))}40%{transform:rotate(calc(-2*var(--anim-rotate-angle,5deg)))}60%{transform:rotate(calc(var(--anim-rotate-angle,5deg)))}80%{transform:rotate(calc(-1*var(--anim-rotate-angle,5deg)))}100%{transform:rotate(0deg)}}
+@keyframes tada{0%{transform:scale(1)}10%,20%{transform:scale(calc(1 - 0.1 * var(--anim-int,1))) rotate(calc(-3deg * var(--anim-int,1)))}30%,50%,70%,90%{transform:scale(calc(1 + 0.1 * var(--anim-int,1))) rotate(calc(3deg * var(--anim-int,1)))}40%,60%,80%{transform:scale(calc(1 + 0.1 * var(--anim-int,1))) rotate(calc(-3deg * var(--anim-int,1)))}100%{transform:scale(1)}}
+@keyframes bounce-in{0%{opacity:0;transform:scale(calc(0.3 * var(--anim-int,1)))}50%{opacity:1;transform:scale(calc(1 + 0.1 * var(--anim-int,1)))}70%{transform:scale(calc(1 - 0.05 * var(--anim-int,1)))}100%{transform:scale(1)}}
+@keyframes elastic{0%{transform:scale(0)}55%{transform:scale(calc(1 + 0.15 * var(--anim-int,1)))}70%{transform:scale(calc(1 - 0.05 * var(--anim-int,1)))}100%{transform:scale(1)}}
 @keyframes slide-up-fade{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
 @keyframes typing{from{clip-path:inset(0 100% 0 0)}to{clip-path:inset(0 0 0 0)}}
 /* Animation utility classes */
@@ -113,6 +124,10 @@ body{overflow-x:hidden;min-height:100vh;opacity:var(--bg-opacity)}
 .anim-neon-flicker{animation:neon-flicker var(--ad,3s) linear infinite;animation-delay:var(--adl,0s)}
 .anim-glitch{animation:glitch var(--ad,1s) linear infinite;animation-delay:var(--adl,0s)}
 .anim-holograma{animation:holograma var(--ad,4s) linear infinite;animation-delay:var(--adl,0s)}
+.anim-holograma-gradient{animation:holograma-gradient var(--ad,4s) linear infinite;animation-delay:var(--adl,0s)}
+.anim-holograma-gradient .beat-card-inner::after{opacity:1 !important;background:linear-gradient(135deg,var(--holo-c0,#ff0080),var(--holo-c1,#00ff80),var(--holo-c2,#0080ff),var(--holo-c3,#ff0080));background-size:400% 400%;mix-blend-mode:overlay;animation:holo-bg-shift var(--ad,4s) ease infinite}
+.anim-holograma-pulse{animation:holograma-pulse var(--ad,4s) linear infinite;animation-delay:var(--adl,0s)}
+.anim-holograma-pulse .beat-card-inner::after{opacity:0.6 !important;background:var(--holo-c0,#ff0080);mix-blend-mode:overlay;animation:holo-pulse-color var(--ad,4s) linear infinite}
 .anim-shake-x{animation:shake-x var(--ad,1s) ease-in-out infinite;animation-delay:var(--adl,0s)}
 .anim-heartbeat{animation:heartbeat var(--ad,1.5s) ease-in-out infinite;animation-delay:var(--adl,0s)}
 .anim-flip{animation:flip var(--ad,1s) ease-in-out infinite;animation-delay:var(--adl,0s)}
@@ -285,6 +300,7 @@ nav.nav-scrolled{background:rgba(6,4,4,0.95);border-bottom-color:rgba(185,28,28,
 .beat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:var(--beat-gap);align-items:start}
 .beat-card{position:relative;border-radius:var(--r-lg);overflow:hidden;cursor:pointer;transition:transform .35s cubic-bezier(.4,0,.2,1),box-shadow .35s}
 .beat-card::before{display:none}
+.beat-card[class*="anim2-"]::before{display:block}
 .beat-card-inner{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);height:100%;transition:border-color .35s,box-shadow .35s;box-shadow:var(--card-shadow);transform-style:preserve-3d;will-change:transform;display:flex;flex-direction:column}
 .beat-card:hover .beat-card-inner{border-color:rgba(185,28,28,0.35);box-shadow:0 20px 60px rgba(0,0,0,0.4),0 0 30px rgba(185,28,28,0.08)}
 .beat-card.is-playing .beat-card-inner{border-color:rgba(185,28,28,0.9);box-shadow:var(--glow-md)}
@@ -582,6 +598,7 @@ footer::before{content:'';position:absolute;top:0;left:10%;right:10%;height:1px;
   .modal-acts{flex-direction:column}
   #cursor-glow{display:none}
   .beat-card::before{display:none}
+  .beat-card[class*="anim2-"]::before{display:block}
   .beat-card .shimmer-overlay{display:none}
   /* Wishlist bottom-sheet on small screens */
   .wishlist-panel{width:100%;max-width:100%;top:auto;right:auto;left:0;bottom:0;height:70vh;border-left:none;border-top:1px solid rgba(185,28,28,0.2);border-radius:16px 16px 0 0;animation:slideUpSheet .35s cubic-bezier(.4,0,.2,1)}
@@ -684,11 +701,13 @@ body.light-mode .pi-meta{color:#666}
 .beat-card{border-radius:var(--card-radius,10px);overflow:hidden}
 
 /* ── Hover Effects System ── */
-.beat-card.has-hover-fx{transition:transform var(--hov-trans,0.3s) ease,filter var(--hov-trans,0.3s) ease,box-shadow var(--hov-trans,0.3s) ease,border-color var(--hov-trans,0.3s) ease,opacity var(--hov-trans,0.3s) ease}
+.beat-card.has-hover-fx{transition:transform var(--hov-trans,0.3s) ease,filter var(--hov-trans,0.3s) ease,box-shadow var(--hov-trans,0.3s) ease,border-color var(--hov-trans,0.3s) ease,opacity var(--hov-trans,0.3s) ease;will-change:transform,filter,opacity}
 .beat-card.has-hover-fx:hover{transform:scale(var(--hov-scale,1));filter:brightness(var(--hov-bright,1)) saturate(var(--hov-sat,1)) blur(var(--hov-blur,0px)) hue-rotate(var(--hov-hue,0deg));box-shadow:0 0 var(--hov-shadow,0px) rgba(0,0,0,.3);opacity:var(--hov-opacity,1)}
 .beat-card.has-hover-fx:hover .beat-card-inner{border-color:var(--hov-bdr,transparent)}
 
-/* Siblings blur on hover — when hovering a card, blur the rest */
+/* Siblings blur on hover — JS-driven class for performance (avoids :has() on large grids) */
+.beat-grid.hovering .beat-card.has-hover-fx:not(.hover-active){filter:blur(var(--hov-sib-blur,0px));transition:filter var(--hov-trans,0.3s) ease}
+/* Fallback CSS :has() for when JS hasn't initialized yet */
 .beat-grid:has(.beat-card.has-hover-fx:hover) .beat-card.has-hover-fx:not(:hover){filter:blur(var(--hov-sib-blur,0px));transition:filter var(--hov-trans,0.3s) ease}
 
 /* Hover animation — play animation only on hover */

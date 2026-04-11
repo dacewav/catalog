@@ -7,6 +7,31 @@ import { siteSettings } from './state.js';
 import { R2_ENABLED, uploadToR2 } from './r2.js';
 
 // ═══ STYLE PRESETS ═══
+// Complete list of all beat editor slider IDs (used by syncSliderDisplay)
+const ALL_SLIDER_IDS = [
+  'f-anim-brillo-max','f-anim-brillo-min','f-anim-cs-hue-end','f-anim-cs-hue-start','f-anim-cs-sat',
+  'f-anim-del','f-anim-dur','f-anim-glitch-rot','f-anim-glitch-x','f-anim-glitch-y',
+  'f-anim-holo-blur','f-anim-holo-bright-max','f-anim-holo-bright-min','f-anim-holo-glow',
+  'f-anim-holo-sat-max','f-anim-holo-sat-min','f-anim-hue-end','f-anim-hue-start','f-anim-int',
+  'f-anim-neon-bright','f-anim-neon-max','f-anim-neon-min',
+  'f-anim-parpadeo-max','f-anim-parpadeo-min','f-anim-rotate-angle','f-anim-rotate-scale',
+  'f-anim-scale-max','f-anim-scale-min','f-anim-scale-opacity',
+  'f-anim-shake-x','f-anim-shake-y','f-anim-translate-rot','f-anim-translate-x','f-anim-translate-y',
+  'f-border-width','f-cs-fb','f-cs-fbl','f-cs-fc','f-cs-fg','f-cs-fh','f-cs-fi','f-cs-fs','f-cs-fse',
+  'f-cs-opacity','f-cs-radius','f-glow-blur','f-glow-int','f-glow-op','f-glow-speed','f-glow-spread',
+  'f-hov-anim-dur','f-hov-blur','f-hov-bright','f-hov-hue','f-hov-opacity','f-hov-sat','f-hov-scale',
+  'f-hov-shadow','f-hov-sib-blur','f-hov-trans',
+  'f-shadow-blur','f-shadow-op','f-shadow-spread','f-shadow-x','f-shadow-y',
+  'f-shimmer-op','f-shimmer-speed',
+  'f-tf-rotate','f-tf-scale','f-tf-skewX','f-tf-skewY','f-tf-x','f-tf-y'
+];
+
+// Helper to trigger live update + preview
+function _triggerLiveUpdate() {
+  updateCardPreview();
+  if (typeof window._sendLiveUpdate === 'function') window._sendLiveUpdate();
+}
+
 const STYLE_PRESETS = [
   {
     id: 'brutalist',
@@ -128,11 +153,9 @@ export function applyHoverPreset(id) {
   setChecked('f-hov-anim-on', hv.enableAnim);
   const hovAnimEl = g('f-hov-anim-type'); if (hovAnimEl) hovAnimEl.value = hv.animType || '';
   setVal('f-hov-anim-dur', hv.animDur || 1);
-  // Sync slider displays
-  ['f-hov-scale','f-hov-bright','f-hov-sat','f-hov-shadow','f-hov-trans','f-hov-blur','f-hov-sib-blur','f-hov-hue','f-hov-opacity','f-hov-anim-dur'].forEach(syncSliderDisplay);
-  updateCardPreview();
-  // Trigger live update to store — setVal() doesn't fire events, so force it
-  if (typeof window._sendLiveUpdate === 'function') window._sendLiveUpdate();
+  // Sync all slider displays
+  ALL_SLIDER_IDS.forEach(syncSliderDisplay);
+  _triggerLiveUpdate();
   showToast('Hover preset "' + preset.name.replace(/[^\w\s]/g, '').trim() + '" aplicado ✓');
 }
 
@@ -167,7 +190,22 @@ export function resetCardStyle() {
   const animEaseEl = g('f-anim-ease'); if (animEaseEl) animEaseEl.value = 'ease-in-out';
   const animDirEl = g('f-anim-dir'); if (animDirEl) animDirEl.value = 'normal';
   const animIterEl = g('f-anim-iter'); if (animIterEl) animIterEl.value = 'infinite';
-  setVal('f-anim-int', 100);
+  setVal('f-anim-int', 100); setVal('f-anim-hue-start', 0); setVal('f-anim-hue-end', 360);
+  _setHoloColors(['#ff0080','#00ff80','#0080ff']);
+  setVal('f-anim-holo-bright-min', 0.9); setVal('f-anim-holo-bright-max', 1.4);
+  setVal('f-anim-holo-sat-min', 0.8); setVal('f-anim-holo-sat-max', 2);
+  setVal('f-anim-holo-glow', 0); setVal('f-anim-holo-blur', 0);
+  const holoDirEl = g('f-anim-holo-dir'); if (holoDirEl) holoDirEl.value = 'hue';
+  setVal('f-anim-brillo-min', 0.8); setVal('f-anim-brillo-max', 1.5);
+  setVal('f-anim-glitch-x', 4); setVal('f-anim-glitch-y', 4); setVal('f-anim-glitch-rot', 0);
+  setChecked('f-anim-glitch-chromatic', false);
+  setVal('f-anim-translate-x', 0); setVal('f-anim-translate-y', 12); setVal('f-anim-translate-rot', 0);
+  setVal('f-anim-neon-min', 0.4); setVal('f-anim-neon-max', 1); setVal('f-anim-neon-bright', 1);
+  setVal('f-anim-parpadeo-min', 0.3); setVal('f-anim-parpadeo-max', 1);
+  setVal('f-anim-rotate-angle', 5); setVal('f-anim-rotate-scale', 1);
+  setVal('f-anim-scale-min', 1); setVal('f-anim-scale-max', 1.06); setVal('f-anim-scale-opacity', 0.8);
+  setVal('f-anim-shake-x', 4); setVal('f-anim-shake-y', 4);
+  setVal('f-anim-cs-hue-start', 0); setVal('f-anim-cs-hue-end', 360); setVal('f-anim-cs-sat', 1);
   // Style — defaults
   setVal('f-accent-color', '#dc2626'); setVal('f-accent-color-h', '#dc2626');
   setChecked('f-shimmer', false);
@@ -195,18 +233,11 @@ export function resetCardStyle() {
   setVal('f-tf-rotate', 0); setVal('f-tf-scale', 1);
   setVal('f-tf-skewX', 0); setVal('f-tf-skewY', 0);
   setVal('f-tf-x', 0); setVal('f-tf-y', 0);
-  // Sync slider displays
-  ['f-anim-dur','f-anim-del','f-border-width','f-glow-speed','f-glow-int','f-glow-blur','f-glow-spread','f-glow-op',
-   'f-cs-fb','f-cs-fc','f-cs-fs','f-cs-fg','f-cs-fse','f-cs-fh','f-cs-fbl','f-cs-fi','f-cs-radius','f-cs-opacity',
-   'f-shadow-op','f-shadow-x','f-shadow-y','f-shadow-blur','f-shadow-spread',
-   'f-hov-scale','f-hov-bright','f-hov-sat','f-hov-shadow','f-hov-trans','f-hov-blur','f-hov-sib-blur','f-hov-hue','f-hov-opacity','f-hov-anim-dur',
-   'f-tf-rotate','f-tf-scale','f-tf-skewX','f-tf-skewY','f-tf-x','f-tf-y'
-  ].forEach(syncSliderDisplay);
+  // Sync all slider displays
+  ALL_SLIDER_IDS.forEach(syncSliderDisplay);
   // Deselect preset cards
   document.querySelectorAll('.preset-card').forEach(c => c.classList.remove('active'));
-  // Update preview + live
-  updateCardPreview();
-  if (typeof window._sendLiveUpdate === 'function') window._sendLiveUpdate();
+  _triggerLiveUpdate();
   showToast('Parámetros restablecidos ✓');
 }
 
@@ -239,6 +270,42 @@ export function resetBeatToGlobal() {
   var animDirEl = g('f-anim-dir'); if (animDirEl) animDirEl.value = ca ? (ca.direction || 'normal') : 'normal';
   var animIterEl = g('f-anim-iter'); if (animIterEl) animIterEl.value = ca ? (ca.iterations || 'infinite') : 'infinite';
   setVal('f-anim-int', ca ? (ca.intensity != null ? ca.intensity : 100) : 100);
+  setVal('f-anim-hue-start', ca ? (ca.hueStart != null ? ca.hueStart : 0) : 0);
+  setVal('f-anim-hue-end', ca ? (ca.hueEnd != null ? ca.hueEnd : 360) : 360);
+  _setHoloColors(ca ? (ca.holoColors || ['#ff0080','#00ff80','#0080ff']) : ['#ff0080','#00ff80','#0080ff']);
+  setVal('f-anim-holo-bright-min', ca ? (ca.holoBrightMin || 0.9) : 0.9);
+  setVal('f-anim-holo-bright-max', ca ? (ca.holoBrightMax || 1.4) : 1.4);
+  setVal('f-anim-holo-sat-min', ca ? (ca.holoSatMin || 0.8) : 0.8);
+  setVal('f-anim-holo-sat-max', ca ? (ca.holoSatMax || 2) : 2);
+  setVal('f-anim-holo-glow', ca ? (ca.holoGlow || 0) : 0);
+  setVal('f-anim-holo-blur', ca ? (ca.holoBlur || 0) : 0);
+  var holoDirEl = g('f-anim-holo-dir'); if (holoDirEl) holoDirEl.value = ca ? (ca.holoDir || 'hue') : 'hue';
+  setVal('f-anim-brillo-min', ca ? (ca.brilloMin || 0.8) : 0.8);
+  setVal('f-anim-brillo-max', ca ? (ca.brilloMax || 1.5) : 1.5);
+  setVal('f-anim-glitch-x', ca ? (ca.glitchX || 4) : 4);
+  setVal('f-anim-glitch-y', ca ? (ca.glitchY || 4) : 4);
+  setVal('f-anim-glitch-rot', ca ? (ca.glitchRot || 0) : 0);
+  setChecked('f-anim-glitch-chromatic', ca ? (ca.glitchChromatic || false) : false);
+  setVal('f-anim-translate-x', ca ? (ca.translateX || 0) : 0);
+  setVal('f-anim-translate-y', ca ? (ca.translateY || 12) : 12);
+  setVal('f-anim-translate-rot', ca ? (ca.translateRot || 0) : 0);
+  setVal('f-anim-neon-min', ca ? (ca.neonMin || 0.4) : 0.4);
+  setVal('f-anim-neon-max', ca ? (ca.neonMax || 1) : 1);
+  setVal('f-anim-neon-bright', ca ? (ca.neonBright || 1) : 1);
+  setVal('f-anim-parpadeo-min', ca ? (ca.parpadeoMin || 0.3) : 0.3);
+  setVal('f-anim-parpadeo-max', ca ? (ca.parpadeoMax || 1) : 1);
+  setVal('f-anim-rotate-angle', ca ? (ca.rotateAngle || 5) : 5);
+  setVal('f-anim-rotate-scale', ca ? (ca.rotateScale || 1) : 1);
+  setVal('f-anim-scale-min', ca ? (ca.scaleMin || 1) : 1);
+  setVal('f-anim-scale-max', ca ? (ca.scaleMax || 1.06) : 1.06);
+  setVal('f-anim-scale-opacity', ca ? (ca.scaleOpacity || 0.8) : 0.8);
+  setVal('f-anim-shake-x', ca ? (ca.shakeX || 4) : 4);
+  setVal('f-anim-shake-y', ca ? (ca.shakeY || 4) : 4);
+  setVal('f-anim-cs-hue-start', ca ? (ca.csHueStart || 0) : 0);
+  setVal('f-anim-cs-hue-end', ca ? (ca.csHueEnd || 360) : 360);
+  setVal('f-anim-cs-sat', ca ? (ca.csSat || 1) : 1);
+  var animType2ElR = g('f-anim-type2'); if (animType2ElR) animType2ElR.value = ca ? (ca.type2 || '') : '';
+  _toggleAnimSubsettings(ca ? ca.type : '');
   // Style
   var st = cs.style || {};
   setVal('f-accent-color', st.accentColor || '#dc2626'); setVal('f-accent-color-h', st.accentColor || '#dc2626');
@@ -269,16 +336,10 @@ export function resetBeatToGlobal() {
   setVal('f-tf-rotate', tf.rotate || 0); setVal('f-tf-scale', tf.scale || 1);
   setVal('f-tf-skewX', tf.skewX || 0); setVal('f-tf-skewY', tf.skewY || 0);
   setVal('f-tf-x', tf.x || 0); setVal('f-tf-y', tf.y || 0);
-  // Sync sliders + preview
-  ['f-anim-dur','f-anim-del','f-border-width','f-glow-speed','f-glow-int','f-glow-blur','f-glow-spread','f-glow-op',
-   'f-cs-fb','f-cs-fc','f-cs-fs','f-cs-fg','f-cs-fse','f-cs-fh','f-cs-fbl','f-cs-fi','f-cs-radius','f-cs-opacity',
-   'f-shadow-op','f-shadow-x','f-shadow-y','f-shadow-blur','f-shadow-spread',
-   'f-hov-scale','f-hov-bright','f-hov-sat','f-hov-shadow','f-hov-trans','f-hov-blur','f-hov-sib-blur','f-hov-hue','f-hov-opacity','f-hov-anim-dur',
-   'f-tf-rotate','f-tf-scale','f-tf-skewX','f-tf-skewY','f-tf-x','f-tf-y'
-  ].forEach(syncSliderDisplay);
+  // Sync all slider displays
+  ALL_SLIDER_IDS.forEach(syncSliderDisplay);
   document.querySelectorAll('.preset-card').forEach(c => c.classList.remove('active'));
-  updateCardPreview();
-  if (typeof window._sendLiveUpdate === 'function') window._sendLiveUpdate();
+  _triggerLiveUpdate();
   showToast('Usando estilo global ✓');
 }
 
@@ -448,33 +509,75 @@ export function applyPreset(id) {
   setVal('f-tf-x', tf.x || 0); setVal('f-tf-y', tf.y || 0);
 
   // Sync all slider displays
-  ['f-anim-dur','f-anim-del','f-border-width','f-glow-speed','f-glow-int','f-glow-blur','f-glow-spread','f-glow-op',
-   'f-cs-fb','f-cs-fc','f-cs-fs','f-cs-fg','f-cs-fse','f-cs-fh','f-cs-fbl','f-cs-fi','f-cs-radius','f-cs-opacity',
-   'f-shadow-op','f-shadow-x','f-shadow-y','f-shadow-blur','f-shadow-spread',
-   'f-hov-scale','f-hov-bright','f-hov-sat','f-hov-shadow','f-hov-trans','f-hov-blur','f-hov-sib-blur','f-hov-hue','f-hov-opacity','f-hov-anim-dur',
-   'f-tf-rotate','f-tf-scale','f-tf-skewX','f-tf-skewY','f-tf-x','f-tf-y'
-  ].forEach(syncSliderDisplay);
+  ALL_SLIDER_IDS.forEach(syncSliderDisplay);
 
-  updateCardPreview();
-  // Trigger live update to store — setVal() doesn't fire events, so force it
-  if (typeof window._sendLiveUpdate === 'function') window._sendLiveUpdate();
+  _triggerLiveUpdate();
   showToast('Preset "' + preset.name + '" aplicado ✓');
 }
 
-// Sync slider value display after programmatic setVal
+// Sync slider value display after programmatic setVal — handles ALL beat editor sliders
+// Uses exact-format map matching the HTML oninput attributes for each slider.
 function syncSliderDisplay(inputId) {
   const el = g(inputId); if (!el) return;
   const sib = el.nextElementSibling; if (!sib) return;
   const v = parseFloat(el.value);
-  if (inputId.includes('dur') || inputId.includes('del') || inputId.includes('speed')) sib.textContent = v.toFixed(1) + 's';
-  else if (inputId.includes('width') || inputId.includes('blur') || inputId.includes('spread') || inputId.includes('shadow') && !inputId.includes('hov')) sib.textContent = (inputId.includes('blur') || inputId.includes('spread') || inputId.includes('shadow')) ? v + 'px' : v.toFixed(1) + 'px';
-  else if (inputId.includes('rotate') || inputId.includes('skew') || inputId.includes('hue') || inputId.includes('fh')) sib.textContent = v.toFixed(1) + '°';
-  else if (inputId.includes('scale') || inputId.includes('hov-scale') || inputId.includes('tf-scale')) sib.textContent = v.toFixed(2) + 'x';
-  else if (inputId.includes('radius')) sib.textContent = v + 'px';
-  else if (inputId.includes('x') || inputId.includes('y')) sib.textContent = v + 'px';
-  else if (inputId.includes('trans')) sib.textContent = v.toFixed(2) + 's';
-  else sib.textContent = v.toFixed(2);
+  if (SD_FMT[inputId]) { sib.textContent = SD_FMT[inputId](v); return; }
+  sib.textContent = v.toFixed(2); // fallback
 }
+// Exact format map: ID → formatter(v) — mirrors each slider's HTML oninput
+const SD_FMT = {
+  // Duration / delay / speed → 'X.Xs'
+  'f-anim-dur': v => v.toFixed(1)+'s', 'f-anim-del': v => v.toFixed(1)+'s',
+  'f-glow-speed': v => v.toFixed(1)+'s', 'f-shimmer-speed': v => v.toFixed(1)+'s',
+  'f-hov-anim-dur': v => v.toFixed(1)+'s',
+  // Transition → 'X.XXs'
+  'f-hov-trans': v => v.toFixed(2)+'s',
+  // Intensity % → 'X%'
+  'f-anim-int': v => v+'%',
+  // Degrees → 'X°'
+  'f-cs-fh': v => v+'°',
+  'f-anim-hue-start': v => v+'°', 'f-anim-hue-end': v => v+'°',
+  'f-anim-glitch-rot': v => v.toFixed(1)+'°', 'f-anim-translate-rot': v => v.toFixed(1)+'°',
+  'f-anim-rotate-angle': v => v+'°',
+  'f-anim-cs-hue-start': v => v+'°', 'f-anim-cs-hue-end': v => v+'°',
+  'f-hov-hue': v => v+'°',
+  'f-tf-rotate': v => v.toFixed(1)+'°', 'f-tf-skewX': v => v.toFixed(1)+'°', 'f-tf-skewY': v => v.toFixed(1)+'°',
+  // Pixels → 'Xpx'
+  'f-cs-fbl': v => v.toFixed(1)+'px',
+  'f-glow-blur': v => v+'px', 'f-glow-spread': v => v+'px',
+  'f-cs-radius': v => v+'px',
+  'f-shadow-x': v => v+'px', 'f-shadow-y': v => v+'px',
+  'f-shadow-blur': v => v+'px', 'f-shadow-spread': v => v+'px',
+  'f-border-width': v => v.toFixed(1)+'px',
+  'f-hov-shadow': v => v+'px', 'f-hov-blur': v => v.toFixed(1)+'px', 'f-hov-sib-blur': v => v.toFixed(1)+'px',
+  'f-tf-x': v => v+'px', 'f-tf-y': v => v+'px',
+  'f-anim-glitch-x': v => v+'px', 'f-anim-glitch-y': v => v+'px',
+  'f-anim-translate-x': v => v+'px', 'f-anim-translate-y': v => v+'px',
+  'f-anim-shake-x': v => v+'px', 'f-anim-shake-y': v => v+'px',
+  'f-anim-holo-glow': v => v+'px', 'f-anim-holo-blur': v => v.toFixed(1)+'px',
+  // Multiplier → 'X.XXx'
+  'f-glow-int': v => v.toFixed(1)+'x',
+  'f-hov-scale': v => v.toFixed(2)+'x',
+  'f-tf-scale': v => v.toFixed(2)+'x',
+  'f-anim-rotate-scale': v => v.toFixed(2)+'x',
+  'f-anim-scale-min': v => v.toFixed(2)+'x', 'f-anim-scale-max': v => v.toFixed(2)+'x',
+  // 2-decimal plain numeric (opacities, saturations, brightness ranges)
+  'f-shimmer-op': v => v.toFixed(2),
+  'f-cs-opacity': v => v.toFixed(2), 'f-shadow-op': v => v.toFixed(2),
+  'f-glow-op': v => v.toFixed(2), 'f-hov-opacity': v => v.toFixed(2),
+  'f-anim-brillo-min': v => v.toFixed(2), 'f-anim-brillo-max': v => v.toFixed(2),
+  'f-anim-neon-min': v => v.toFixed(2), 'f-anim-neon-max': v => v.toFixed(2), 'f-anim-neon-bright': v => v.toFixed(2),
+  'f-anim-parpadeo-min': v => v.toFixed(2), 'f-anim-parpadeo-max': v => v.toFixed(2),
+  'f-anim-scale-opacity': v => v.toFixed(2),
+  'f-anim-holo-bright-min': v => v.toFixed(2), 'f-anim-holo-bright-max': v => v.toFixed(2),
+  // 1-decimal plain numeric
+  'f-anim-holo-sat-min': v => v.toFixed(1), 'f-anim-holo-sat-max': v => v.toFixed(1),
+  'f-anim-cs-sat': v => v.toFixed(1),
+  // Filter values — plain 2-decimal
+  'f-cs-fb': v => v.toFixed(2), 'f-cs-fc': v => v.toFixed(2), 'f-cs-fs': v => v.toFixed(2),
+  'f-cs-fg': v => v.toFixed(2), 'f-cs-fse': v => v.toFixed(2), 'f-cs-fi': v => v.toFixed(2),
+  'f-hov-bright': v => v.toFixed(2), 'f-hov-sat': v => v.toFixed(2),
+};
 
 // Color picker ↔ hex input sync (bidirectional)
 function syncAccentColor(source) {
@@ -1350,6 +1453,42 @@ export function openEditor(id) {
     const animEaseEl = g('f-anim-ease'); if (animEaseEl) animEaseEl.value = csA.easing || 'ease-in-out';
     const animDirEl = g('f-anim-dir'); if (animDirEl) animDirEl.value = csA.direction || 'normal';
     const animIterEl = g('f-anim-iter'); if (animIterEl) animIterEl.value = csA.iterations || 'infinite';
+    setVal('f-anim-int', csA.intensity != null ? csA.intensity : 100);
+    setVal('f-anim-hue-start', csA.hueStart != null ? csA.hueStart : 0);
+    setVal('f-anim-hue-end', csA.hueEnd != null ? csA.hueEnd : 360);
+    _setHoloColors(csA.holoColors || ['#ff0080','#00ff80','#0080ff']);
+    setVal('f-anim-holo-bright-min', csA.holoBrightMin || 0.9);
+    setVal('f-anim-holo-bright-max', csA.holoBrightMax || 1.4);
+    setVal('f-anim-holo-sat-min', csA.holoSatMin || 0.8);
+    setVal('f-anim-holo-sat-max', csA.holoSatMax || 2);
+    setVal('f-anim-holo-glow', csA.holoGlow || 0);
+    setVal('f-anim-holo-blur', csA.holoBlur || 0);
+    const holoDirElEd = g('f-anim-holo-dir'); if (holoDirElEd) holoDirElEd.value = csA.holoDir || 'hue';
+    setVal('f-anim-brillo-min', csA.brilloMin || 0.8);
+    setVal('f-anim-brillo-max', csA.brilloMax || 1.5);
+    setVal('f-anim-glitch-x', csA.glitchX || 4);
+    setVal('f-anim-glitch-y', csA.glitchY || 4);
+    setVal('f-anim-glitch-rot', csA.glitchRot || 0);
+    setChecked('f-anim-glitch-chromatic', csA.glitchChromatic || false);
+    setVal('f-anim-translate-x', csA.translateX || 0);
+    setVal('f-anim-translate-y', csA.translateY || 12);
+    setVal('f-anim-translate-rot', csA.translateRot || 0);
+    setVal('f-anim-neon-min', csA.neonMin || 0.4);
+    setVal('f-anim-neon-max', csA.neonMax || 1);
+    setVal('f-anim-neon-bright', csA.neonBright || 1);
+    setVal('f-anim-parpadeo-min', csA.parpadeoMin || 0.3);
+    setVal('f-anim-parpadeo-max', csA.parpadeoMax || 1);
+    setVal('f-anim-rotate-angle', csA.rotateAngle || 5);
+    setVal('f-anim-rotate-scale', csA.rotateScale || 1);
+    setVal('f-anim-scale-min', csA.scaleMin || 1);
+    setVal('f-anim-scale-max', csA.scaleMax || 1.06);
+    setVal('f-anim-scale-opacity', csA.scaleOpacity || 0.8);
+    setVal('f-anim-shake-x', csA.shakeX || 4);
+    setVal('f-anim-shake-y', csA.shakeY || 4);
+    setVal('f-anim-cs-hue-start', csA.csHueStart || 0);
+    setVal('f-anim-cs-hue-end', csA.csHueEnd || 360);
+    setVal('f-anim-cs-sat', csA.csSat || 1);
+    _toggleAnimSubsettings(csA.type || '');
 
     // Style
     const accentClr = csS.accentColor || b.accentColor || '#dc2626';
@@ -1399,12 +1538,7 @@ export function openEditor(id) {
     setVal('f-tf-y', csTf.y || 0);
 
     // Sync all slider displays
-    ['f-anim-dur','f-anim-del','f-border-width','f-glow-speed','f-glow-int','f-glow-blur','f-glow-spread','f-glow-op',
-     'f-cs-fb','f-cs-fc','f-cs-fs','f-cs-fg','f-cs-fse','f-cs-fh','f-cs-fbl','f-cs-fi','f-cs-radius','f-cs-opacity',
-     'f-shadow-op','f-shadow-x','f-shadow-y','f-shadow-blur','f-shadow-spread',
-     'f-hov-scale','f-hov-bright','f-hov-sat','f-hov-shadow','f-hov-trans','f-hov-blur','f-hov-sib-blur','f-hov-hue','f-hov-opacity','f-hov-anim-dur',
-     'f-tf-rotate','f-tf-scale','f-tf-skewX','f-tf-skewY','f-tf-x','f-tf-y'
-    ].forEach(syncSliderDisplay);
+    ALL_SLIDER_IDS.forEach(syncSliderDisplay);
     renderLicEditor(b.licenses || []);
   } else {
     ['f-id', 'f-name', 'f-genre-c', 'f-bpm', 'f-key', 'f-desc', 'f-tags', 'f-img', 'f-audio', 'f-prev', 'f-spotify', 'f-youtube', 'f-soundcloud', 'f-date'].forEach(id => setVal(id, ''));
@@ -1413,20 +1547,51 @@ export function openEditor(id) {
     // Reset all cardStyle fields to defaults
     const animTypeEl = g('f-anim-type'); if (animTypeEl) animTypeEl.value = '';
     const animType2El = g('f-anim-type2'); if (animType2El) animType2El.value = '';
-    ['f-anim-dur','f-anim-del','f-glow-speed','f-glow-int','f-glow-blur','f-glow-spread','f-glow-op',
-     'f-cs-fb','f-cs-fc','f-cs-fs','f-cs-fg','f-cs-fse','f-cs-fh','f-cs-fbl','f-cs-fi','f-cs-radius','f-cs-opacity',
-     'f-shadow-op','f-shadow-x','f-shadow-y','f-shadow-blur','f-shadow-spread',
-     'f-hov-scale','f-hov-bright','f-hov-sat','f-hov-shadow','f-hov-trans','f-hov-blur','f-hov-sib-blur','f-hov-hue','f-hov-opacity','f-hov-anim-dur',
-     'f-tf-rotate','f-tf-scale','f-tf-skewX','f-tf-skewY','f-tf-x','f-tf-y'
-    ].forEach(id => { const el = g(id); if (el) { el.value = el.defaultValue || (el.min != null ? el.min : 0); } });
+    setVal('f-anim-dur', 2); setVal('f-anim-del', 0);
+    const animEaseElE = g('f-anim-ease'); if (animEaseElE) animEaseElE.value = 'ease-in-out';
+    const animDirElE = g('f-anim-dir'); if (animDirElE) animDirElE.value = 'normal';
+    const animIterElE = g('f-anim-iter'); if (animIterElE) animIterElE.value = 'infinite';
+    setVal('f-anim-int', 100); setVal('f-anim-hue-start', 0); setVal('f-anim-hue-end', 360);
+    _setHoloColors(['#ff0080','#00ff80','#0080ff']);
+    setVal('f-anim-holo-bright-min', 0.9); setVal('f-anim-holo-bright-max', 1.4);
+    setVal('f-anim-holo-sat-min', 0.8); setVal('f-anim-holo-sat-max', 2);
+    setVal('f-anim-holo-glow', 0); setVal('f-anim-holo-blur', 0);
+    const holoDirElE = g('f-anim-holo-dir'); if (holoDirElE) holoDirElE.value = 'hue';
+    setVal('f-anim-brillo-min', 0.8); setVal('f-anim-brillo-max', 1.5);
+    setVal('f-anim-glitch-x', 4); setVal('f-anim-glitch-y', 4); setVal('f-anim-glitch-rot', 0);
+    setChecked('f-anim-glitch-chromatic', false);
+    setVal('f-anim-translate-x', 0); setVal('f-anim-translate-y', 12); setVal('f-anim-translate-rot', 0);
+    setVal('f-anim-neon-min', 0.4); setVal('f-anim-neon-max', 1); setVal('f-anim-neon-bright', 1);
+    setVal('f-anim-parpadeo-min', 0.3); setVal('f-anim-parpadeo-max', 1);
+    setVal('f-anim-rotate-angle', 5); setVal('f-anim-rotate-scale', 1);
+    setVal('f-anim-scale-min', 1); setVal('f-anim-scale-max', 1.06); setVal('f-anim-scale-opacity', 0.8);
+    setVal('f-anim-shake-x', 4); setVal('f-anim-shake-y', 4);
+    setVal('f-anim-cs-hue-start', 0); setVal('f-anim-cs-hue-end', 360); setVal('f-anim-cs-sat', 1);
+    _toggleAnimSubsettings('');
+    // Glow reset
+    setVal('f-glow-speed', 3); setVal('f-glow-int', 1); setVal('f-glow-blur', 20); setVal('f-glow-spread', 0); setVal('f-glow-op', 1);
     setChecked('f-glow-on', false); setChecked('f-glow-hover', false);
+    // Shadow reset
+    setVal('f-shadow-op', 0.35); setVal('f-shadow-x', 0); setVal('f-shadow-y', 4); setVal('f-shadow-blur', 12); setVal('f-shadow-spread', 0);
+    setChecked('f-shadow-on', false); setVal('f-shadow-color', '#000000'); setChecked('f-shadow-inset', false);
+    // Filter reset
+    setVal('f-cs-fb', 1); setVal('f-cs-fc', 1); setVal('f-cs-fs', 1); setVal('f-cs-fg', 0); setVal('f-cs-fse', 0); setVal('f-cs-fh', 0); setVal('f-cs-fbl', 0); setVal('f-cs-fi', 0);
+    setVal('f-cs-radius', 0); setVal('f-cs-opacity', 1);
+    // Hover reset
+    setVal('f-hov-scale', 1); setVal('f-hov-bright', 1); setVal('f-hov-sat', 1);
+    setVal('f-hov-shadow', 0); setVal('f-hov-trans', 0.3);
+    setVal('f-hov-blur', 0); setVal('f-hov-sib-blur', 0); setVal('f-hov-hue', 0); setVal('f-hov-opacity', 1);
     setChecked('f-hov-glow', false); setChecked('f-hov-anim-on', false);
     const hovAnimTypeEl2 = g('f-hov-anim-type'); if (hovAnimTypeEl2) hovAnimTypeEl2.value = '';
+    setVal('f-hov-anim-dur', 1);
+    // Transform reset
+    setVal('f-tf-rotate', 0); setVal('f-tf-scale', 1); setVal('f-tf-skewX', 0); setVal('f-tf-skewY', 0); setVal('f-tf-x', 0); setVal('f-tf-y', 0);
+    // Sync all slider displays
+    ALL_SLIDER_IDS.forEach(syncSliderDisplay);
     setVal('f-accent-color', '#dc2626'); setVal('f-accent-color-h', '#dc2626');
     setChecked('f-shimmer', false);
-    setChecked('f-border-on', false); setVal('f-border-color', '#dc2626'); setVal('f-border-width', 1);
-    setChecked('f-shadow-on', false); setVal('f-shadow-color', '#000000'); setChecked('f-shadow-inset', false);
-    setChecked('f-hov-glow', false); setVal('f-hov-border', '#dc2626');
+    setChecked('f-border-on', false); setVal('f-border-color', '#dc2626');
+    setVal('f-hov-border', '#dc2626');
     renderLicEditor(defLics.length ? JSON.parse(JSON.stringify(defLics)) : []);
   }
   prevImg();

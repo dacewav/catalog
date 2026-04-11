@@ -43,16 +43,29 @@ export function sv(input) {
   const sib = input.nextElementSibling; if (!sib) return;
   const v = parseFloat(input.value);
   const id = input.id;
-  if (id.includes('scale') || id === 't-logo-scale') sib.textContent = v.toFixed(2) + 'x';
-  else if (id === 't-line-h' || id === 'h-lh') sib.textContent = v.toFixed(2);
-  else if (id === 'h-ls') sib.textContent = v.toFixed(2);
-  else if (id.includes('speed') || id.includes('delay')) sib.textContent = v.toFixed(1) + 's';
-  else if (id.includes('int') && !id.includes('shadow')) sib.textContent = v.toFixed(1) + 'x';
-  else if (SLIDER_REM.includes(id)) sib.textContent = v.toFixed(1) + 'rem';
-  else if (SLIDER_SIZE.includes(id)) sib.textContent = v.toFixed(1) + 'rem';
-  else if (SLIDER_PX.includes(id)) sib.textContent = v + 'px';
-  else if (/op|grain|grad-op|word-op/.test(id)) sib.textContent = v.toFixed(2);
-  else sib.textContent = v;
+
+  // Scale formats: 2 decimals + 'x'
+  if (id.includes('scale') || id === 't-logo-scale') { sib.textContent = v.toFixed(2) + 'x'; return; }
+  // Line height: plain 2 decimals
+  if (id === 't-line-h' || id === 'h-lh') { sib.textContent = v.toFixed(2); return; }
+  // Letter spacing: plain 2 decimals
+  if (id === 'h-ls') { sib.textContent = v.toFixed(2); return; }
+  // Speed/delay: seconds with 1 decimal
+  if (/speed|delay/i.test(id)) { sib.textContent = v.toFixed(1) + 's'; return; }
+  // Intensity: 1 decimal + 'x' (but NOT shadow-intensity)
+  if (id.includes('int') && !id.includes('shadow') && !id.includes('btn')) { sib.textContent = v.toFixed(1) + 'x'; return; }
+  // REM format
+  if (SLIDER_REM.includes(id)) { sib.textContent = v.toFixed(1) + 'rem'; return; }
+  // Size in REM
+  if (SLIDER_SIZE.includes(id)) { sib.textContent = v.toFixed(1) + 'rem'; return; }
+  // PX format (explicit list + blur/spread/width/shadow)
+  if (SLIDER_PX.includes(id) || /blur|spread|shadow|width|offset/i.test(id)) { sib.textContent = v + 'px'; return; }
+  // Opacity/grain/generic 2-decimal
+  if (/op|grain|grad-op|word-op|btn-hop/i.test(id)) { sib.textContent = v.toFixed(2); return; }
+  // Rotation: degrees
+  if (/rot/i.test(id)) { sib.textContent = v.toFixed(1) + '°'; return; }
+  // Fallback: show raw value
+  sib.textContent = v;
 }
 
 export function resetSlider(input, def) {
