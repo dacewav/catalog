@@ -1533,10 +1533,14 @@ renderHoverPresets();
     // postMessage to iframe (same-tab admin preview)
     postToFrame({ type: 'beat-update', beatId: payload.beatId, data: payload.data });
     // Firebase — reaches the live store at dacewav.store (separate window)
-    // Use window._db to ensure we get the current reference at call time
     var _db = window._db || (typeof db !== 'undefined' ? db : null);
+    console.log('[LiveEdit] _db:', !!_db, 'id:', window._liveEditId);
     if (_db) {
-      _db.ref('liveEdits/' + window._liveEditId).set(data).catch(function(){});
+      _db.ref('liveEdits/' + window._liveEditId).set(data)
+        .then(function() { console.log('[LiveEdit] Firebase write OK'); })
+        .catch(function(err) { console.error('[LiveEdit] Firebase write FAIL:', err); });
+    } else {
+      console.warn('[LiveEdit] No DB reference available');
     }
     console.log('[LiveEdit] sent:', window._liveEditId);
   }

@@ -115,6 +115,7 @@ function initAdmin() {
     const database = firebase.database();
     setDb(database);
     window._db = database; // accessible from IIFEs that captured db=null at load time
+    console.log('[DACE Admin] Firebase DB ready, window._db set');
 
     // Load from localStorage first
     const lt = localStorage.getItem('dace-theme');
