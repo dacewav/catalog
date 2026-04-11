@@ -1,0 +1,154 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+
+    "adminWhitelist": {
+      ".read": "auth != null && root.child('adminWhitelist').child(auth.token.email.replace('.',',')).val() === true",
+      ".write": "auth != null && (auth.token.email === 'daceidk@gmail.com' || auth.token.email === 'xiligamesz@gmail.com' || auth.token.email === 'prodxce@gmail.com')"
+    },
+
+    "settings": {
+      ".read": true,
+      ".write": "auth != null && root.child('adminWhitelist').child(auth.token.email.replace('.',',')).val() === true"
+    },
+
+    "theme": {
+      ".read": true,
+      ".write": "auth != null && root.child('adminWhitelist').child(auth.token.email.replace('.',',')).val() === true"
+    },
+
+    "beats": {
+      ".read": true,
+      ".write": "auth != null && root.child('adminWhitelist').child(auth.token.email.replace('.',',')).val() === true",
+
+      "$beatId": {
+        ".validate": "newData.hasChildren(['name', 'genre', 'bpm', 'key'])",
+
+        "name":        { ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 200" },
+        "genre":       { ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 100" },
+        "genreCustom": { ".validate": "!newData.exists() || (newData.isString() && newData.val().length <= 100)" },
+        "bpm":         { ".validate": "newData.isNumber() && newData.val() >= 20 && newData.val() <= 400" },
+        "key":         { ".validate": "newData.isString() && newData.val().length <= 10" },
+        "description": { ".validate": "!newData.exists() || (newData.isString() && newData.val().length <= 2000)" },
+        "tags":        { ".validate": "!newData.exists() || newData.isString()" },
+        "imageUrl":    { ".validate": "!newData.exists() || (newData.isString() && newData.val().length <= 2000)" },
+        "audioUrl":    { ".validate": "!newData.exists() || (newData.isString() && newData.val().length <= 2000)" },
+        "previewUrl":  { ".validate": "!newData.exists() || (newData.isString() && newData.val().length <= 2000)" },
+        "spotify":     { ".validate": "!newData.exists() || (newData.isString() && newData.val().length <= 500)" },
+        "youtube":     { ".validate": "!newData.exists() || (newData.isString() && newData.val().length <= 500)" },
+        "soundcloud":  { ".validate": "!newData.exists() || (newData.isString() && newData.val().length <= 500)" },
+        "date":        { ".validate": "!newData.exists() || newData.isString()" },
+        "order":       { ".validate": "!newData.exists() || (newData.isNumber() && newData.val() >= 0)" },
+        "active":      { ".validate": "newData.isBoolean()" },
+        "featured":    { ".validate": "newData.isBoolean()" },
+        "exclusive":   { ".validate": "newData.isBoolean()" },
+        "available":   { ".validate": "newData.isBoolean()" },
+
+        "plays":    { ".read": true, ".write": "auth != null", ".validate": "newData.isNumber() && newData.val() >= 0" },
+        "clicks":   { ".read": true, ".write": "auth != null", ".validate": "newData.isNumber() && newData.val() >= 0" },
+        "views":    { ".read": true, ".write": "auth != null", ".validate": "newData.isNumber() && newData.val() >= 0" },
+        "waClicks": { ".read": true, ".write": "auth != null", ".validate": "newData.isNumber() && newData.val() >= 0" },
+
+        "licenses": {
+          "$licIdx": {
+            "name":        { ".validate": "newData.isString() && newData.val().length <= 100" },
+            "priceMXN":    { ".validate": "newData.isNumber() && newData.val() >= 0" },
+            "priceUSD":    { ".validate": "newData.isNumber() && newData.val() >= 0" },
+            "description": { ".validate": "!newData.exists() || (newData.isString() && newData.val().length <= 500)" }
+          }
+        },
+
+        "glowConfig": {
+          "enabled":  { ".validate": "newData.isBoolean()" },
+          "type":     { ".validate": "newData.isString() && newData.val().length <= 30" },
+          "color":    { ".validate": "newData.isString() && newData.val().length <= 20" },
+          "speed":    { ".validate": "newData.isNumber() && newData.val() >= 0.1 && newData.val() <= 30" },
+          "intensity":{ ".validate": "!newData.exists() || (newData.isNumber() && newData.val() >= 0 && newData.val() <= 10)" },
+          "spread":   { ".validate": "!newData.exists() || (newData.isNumber() && newData.val() >= 0 && newData.val() <= 100)" }
+        },
+
+        "cardAnim": {
+          ".validate": "!newData.exists() || (newData.hasChildren(['type', 'dur', 'del']))",
+          "type": { ".validate": "newData.isString() && newData.val().length <= 30" },
+          "dur":  { ".validate": "newData.isNumber() && newData.val() >= 0.1 && newData.val() <= 30" },
+          "del":  { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 10" }
+        },
+
+        "accentColor": { ".validate": "!newData.exists() || (newData.isString() && newData.val().length <= 20)" },
+        "shimmer":     { ".validate": "!newData.exists() || newData.isBoolean()" },
+
+        "cardBorder": {
+          "enabled": { ".validate": "newData.isBoolean()" },
+          "color":   { ".validate": "newData.isString() && newData.val().length <= 20" },
+          "width":   { ".validate": "newData.isNumber() && newData.val() >= 0.5 && newData.val() <= 10" }
+        },
+
+        "$other": { ".validate": false }
+      },
+
+      "$other": { ".validate": false }
+    },
+
+    "floatingElements": {
+      ".read": true,
+      ".write": "auth != null && root.child('adminWhitelist').child(auth.token.email.replace('.',',')).val() === true"
+    },
+
+    "customLinks": {
+      ".read": true,
+      ".write": "auth != null && root.child('adminWhitelist').child(auth.token.email.replace('.',',')).val() === true"
+    },
+
+    "customEmojis": {
+      ".read": true,
+      ".write": "auth != null && root.child('adminWhitelist').child(auth.token.email.replace('.',',')).val() === true"
+    },
+
+    "team": {
+      ".read": "auth != null && root.child('adminWhitelist').child(auth.token.email.replace('.',',')).val() === true",
+      ".write": "auth != null && root.child('adminWhitelist').child(auth.token.email.replace('.',',')).val() === true"
+    },
+
+    "defaultLicenses": {
+      ".read": true,
+      ".write": "auth != null && root.child('adminWhitelist').child(auth.token.email.replace('.',',')).val() === true"
+    },
+
+    "analytics": {
+      ".read": "auth != null && root.child('adminWhitelist').child(auth.token.email.replace('.',',')).val() === true",
+
+      "events": {
+        "$date": {
+          "$eventId": {
+            ".write": "auth != null",
+            ".validate": "newData.hasChildren(['ts', 'cat', 'act'])",
+            "ts":   { ".validate": "newData.isNumber()" },
+            "cat":  { ".validate": "newData.isString() && newData.val().length <= 50" },
+            "act":  { ".validate": "newData.isString() && newData.val().length <= 100" },
+            "meta": { ".validate": "!newData.exists() || (newData.isString() && newData.val().length <= 500)" }
+          }
+        }
+      },
+
+      "counts": {
+        "$beatId": {
+          ".write": "auth != null",
+          "clicks":   { ".validate": "newData.isNumber() && newData.val() >= 0" },
+          "views":    { ".validate": "newData.isNumber() && newData.val() >= 0" },
+          "waClicks": { ".validate": "newData.isNumber() && newData.val() >= 0" }
+        }
+      },
+
+      "daily": {
+        "$date": {
+          ".write": "auth != null",
+          "total": { ".validate": "newData.isNumber() && newData.val() >= 0" },
+          "actions": {
+            "$action": { ".validate": "newData.isNumber() && newData.val() >= 0" }
+          }
+        }
+      }
+    }
+  }
+}
