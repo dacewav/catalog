@@ -57,11 +57,29 @@ export function openEditor(id) {
     const glowTypeEl = g('f-glow-type'); if (glowTypeEl) glowTypeEl.value = gc.type || 'active';
     setVal('f-glow-color', gc.color || '#dc2626'); setVal('f-glow-color-h', gc.color || '#dc2626');
     setVal('f-glow-speed', gc.speed || 3);
+    // Card animation
+    const ca = b.cardAnim || {};
+    const animTypeEl = g('f-anim-type'); if (animTypeEl) animTypeEl.value = ca.type || '';
+    setVal('f-anim-dur', ca.dur || 2);
+    setVal('f-anim-del', ca.del || 0);
+    // Card style
+    setVal('f-accent-color', b.accentColor || '#dc2626'); setVal('f-accent-color-h', b.accentColor || '#dc2626');
+    setChecked('f-shimmer', b.shimmer || false);
+    const cb = b.cardBorder || {};
+    setChecked('f-border-on', cb.enabled || false);
+    setVal('f-border-color', cb.color || '#dc2626');
+    setVal('f-border-width', cb.width || 1);
     renderLicEditor(b.licenses || []);
   } else {
     ['f-id', 'f-name', 'f-genre-c', 'f-bpm', 'f-key', 'f-desc', 'f-tags', 'f-img', 'f-audio', 'f-prev', 'f-spotify', 'f-youtube', 'f-soundcloud', 'f-date'].forEach(id => setVal(id, ''));
     setVal('f-order', 0); setVal('f-plays', 0); setChecked('f-feat', false); setChecked('f-excl', false); setChecked('f-active', true); setChecked('f-avail', true);
     g('f-genre').value = 'Trap';
+    // Reset card animation & style
+    const animTypeEl = g('f-anim-type'); if (animTypeEl) animTypeEl.value = '';
+    setVal('f-anim-dur', 2); setVal('f-anim-del', 0);
+    setVal('f-accent-color', '#dc2626'); setVal('f-accent-color-h', '#dc2626');
+    setChecked('f-shimmer', false);
+    setChecked('f-border-on', false); setVal('f-border-color', '#dc2626'); setVal('f-border-width', 1);
     renderLicEditor(defLics.length ? JSON.parse(JSON.stringify(defLics)) : []);
   }
   prevImg();
@@ -118,7 +136,8 @@ export function saveBeat() {
   const id = val('f-id').trim(), name = val('f-name').trim();
   if (!id || !name) { showToast('ID y nombre requeridos', true); return; }
   collectLics();
-  const beat = { id, name, genre: val('f-genre'), genreCustom: val('f-genre-c'), bpm: parseInt(val('f-bpm')) || 0, key: val('f-key'), description: val('f-desc'), tags: val('f-tags').split(',').map(t => t.trim()).filter(Boolean), imageUrl: val('f-img'), audioUrl: val('f-audio'), previewUrl: val('f-prev'), spotify: val('f-spotify'), youtube: val('f-youtube'), soundcloud: val('f-soundcloud'), date: val('f-date'), order: parseInt(val('f-order')) || 0, plays: parseInt(val('f-plays')) || 0, featured: checked('f-feat'), exclusive: checked('f-excl'), active: checked('f-active'), available: checked('f-avail'), licenses: _edLics.filter(l => l.name), glowConfig: { enabled: checked('f-glow-on'), type: val('f-glow-type') || 'active', color: val('f-glow-color') || '#dc2626', speed: parseFloat(val('f-glow-speed')) || 3 } };
+  const animType = val('f-anim-type');
+  const beat = { id, name, genre: val('f-genre'), genreCustom: val('f-genre-c'), bpm: parseInt(val('f-bpm')) || 0, key: val('f-key'), description: val('f-desc'), tags: val('f-tags').split(',').map(t => t.trim()).filter(Boolean), imageUrl: val('f-img'), audioUrl: val('f-audio'), previewUrl: val('f-prev'), spotify: val('f-spotify'), youtube: val('f-youtube'), soundcloud: val('f-soundcloud'), date: val('f-date'), order: parseInt(val('f-order')) || 0, plays: parseInt(val('f-plays')) || 0, featured: checked('f-feat'), exclusive: checked('f-excl'), active: checked('f-active'), available: checked('f-avail'), licenses: _edLics.filter(l => l.name), glowConfig: { enabled: checked('f-glow-on'), type: val('f-glow-type') || 'active', color: val('f-glow-color') || '#dc2626', speed: parseFloat(val('f-glow-speed')) || 3 }, cardAnim: animType ? { type: animType, dur: parseFloat(val('f-anim-dur')) || 2, del: parseFloat(val('f-anim-del')) || 0 } : null, accentColor: val('f-accent-color') || '', shimmer: checked('f-shimmer'), cardBorder: { enabled: checked('f-border-on'), color: val('f-border-color') || '#dc2626', width: parseFloat(val('f-border-width')) || 1 } };
   showSaving(true); db.ref('beats/' + id).set(beat).then(() => { showSaving(false); showToast('Beat guardado ✓'); showSection('beats'); }).catch(err => { showSaving(false); showToast('Error: ' + err.message, true); });
 }
 export async function deleteBeat() {

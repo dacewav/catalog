@@ -37,17 +37,47 @@ export function beatCard(b, globalIdx) {
       // Parse hex to RGB for CSS custom properties
       const hex = gc.color.replace('#', '');
       const r = parseInt(hex.substring(0, 2), 16) || 220;
-      const g = parseInt(hex.substring(2, 4), 16) || 38;
+      const gv = parseInt(hex.substring(2, 4), 16) || 38;
       const bl = parseInt(hex.substring(4, 6), 16) || 38;
-      glowStyle = `--glow-clr:${gc.color};--glow-r:${r};--glow-g:${g};--glow-b:${bl};--glow-speed:${gc.speed || 3}s`;
+      glowStyle = `--glow-clr:${gc.color};--glow-r:${r};--glow-g:${gv};--glow-b:${bl};--glow-speed:${gc.speed || 3}s`;
     }
   }
 
-  return `<div class="beat-card${isPlay ? ' is-playing' : ''}${b.featured ? ' featured' : ''}${glowClasses ? ' ' + glowClasses : ''}" id="card-${b.id}"
+  // Per-beat card animation
+  let animClass = '';
+  let animStyle = '';
+  if (b.cardAnim && b.cardAnim.type) {
+    animClass = 'anim-' + b.cardAnim.type;
+    animStyle = `--ad:${b.cardAnim.dur || 2}s;--adl:${b.cardAnim.del || 0}s`;
+  }
+
+  // Per-beat card border
+  let borderStyle = '';
+  if (b.cardBorder && b.cardBorder.enabled) {
+    borderStyle = `border:${b.cardBorder.width || 1}px solid ${b.cardBorder.color || '#dc2626'}`;
+  }
+
+  // Combine all classes
+  const allClasses = [
+    'beat-card',
+    isPlay ? 'is-playing' : '',
+    b.featured ? 'featured' : '',
+    glowClasses,
+    animClass,
+    b.shimmer ? 'shimmer-on' : ''
+  ].filter(Boolean).join(' ');
+
+  // Combine all inline styles
+  const allStyles = [
+    `--card-tint:${b.accentColor ? `linear-gradient(135deg,${b.accentColor},transparent)` : 'linear-gradient(135deg,rgba(185,28,28,0.3),transparent)'}`,
+    glowStyle,
+    animStyle,
+    borderStyle
+  ].filter(Boolean).join(';');
+
+  return `<div class="${allClasses}" id="card-${b.id}"
     onclick="handleCardClick('${b.id}',${globalIdx})"
-    style="--card-tint:${b.accentColor
-      ? `linear-gradient(135deg,${b.accentColor},transparent)`
-      : 'linear-gradient(135deg,rgba(185,28,28,0.3),transparent)'}${glowStyle ? ';' + glowStyle : ''}">
+    style="${allStyles}">
     <div class="shimmer-overlay"></div>
     <button class="wish-btn${isWished ? ' active' : ''}" data-id="${b.id}" onclick="toggleWish('${b.id}',event)">${isWished ? '♥' : '♡'}</button>
     <div class="beat-card-inner">
