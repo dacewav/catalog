@@ -16,6 +16,7 @@ import './admin/qr.js';
 import './admin/cmd-palette.js';
 import './admin/resize.js';
 import './admin/beats.js';
+import './admin/card-global.js';
 import './admin/r2.js';
 import './admin/features.js';
 

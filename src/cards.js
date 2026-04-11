@@ -27,7 +27,25 @@ export function beatCard(b, globalIdx) {
   const isWished = state.wishlist.indexOf(b.id) > -1;
 
   // ── New mega cardStyle system ──
-  const cs = b.cardStyle || {};
+  // Merge global defaults with beat-specific overrides (beat wins)
+  let cs = {};
+  const globalCs = state.siteSettings?.globalCardStyle;
+  if (globalCs) {
+    const allKeys = new Set([...Object.keys(globalCs), ...Object.keys(b.cardStyle || {})]);
+    allKeys.forEach(k => {
+      const gv = globalCs[k];
+      const bv = b.cardStyle?.[k];
+      if (bv != null && b._customStyle !== false) {
+        cs[k] = typeof bv === 'object' && !Array.isArray(bv) && typeof gv === 'object' && gv
+          ? { ...gv, ...bv }
+          : bv;
+      } else if (gv != null) {
+        cs[k] = gv;
+      }
+    });
+  } else {
+    cs = b.cardStyle || {};
+  }
   const csF = cs.filter || {};
   const csG = cs.glow || (b.glowConfig && b.glowConfig.enabled ? b.glowConfig : {});
   const csA = cs.anim || (b.cardAnim && b.cardAnim.type ? b.cardAnim : {});

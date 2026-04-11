@@ -3,6 +3,7 @@ import { db, allBeats, setAllBeats, editId, setEditId, defLics, _edLics, setEdLi
 import { g, val, setVal, checked, setChecked, showToast, showSaving, confirmInline, promptInline, fmt } from './helpers.js';
 import { showSection } from './nav.js';
 import { autoSave, postToFrame } from './core.js';
+import { siteSettings } from './state.js';
 import { R2_ENABLED, uploadToR2 } from './r2.js';
 
 // ═══ STYLE PRESETS ═══
@@ -207,6 +208,78 @@ export function resetCardStyle() {
   updateCardPreview();
   if (typeof window._sendLiveUpdate === 'function') window._sendLiveUpdate();
   showToast('Parámetros restablecidos ✓');
+}
+
+// Reset beat style to use global defaults (clear custom cardStyle)
+export function resetBeatToGlobal() {
+  // Load global style into inputs
+  var globalCs = (typeof siteSettings !== 'undefined' && siteSettings.globalCardStyle) || null;
+  if (!globalCs) { showToast('No hay estilo global configurado', true); return; }
+  // Apply global values to all fields (same as applyPreset but with global data)
+  var cs = globalCs;
+  // Filters
+  var f = cs.filter || {};
+  setVal('f-cs-fb', f.brightness != null ? f.brightness : 1); setVal('f-cs-fc', f.contrast != null ? f.contrast : 1);
+  setVal('f-cs-fs', f.saturate != null ? f.saturate : 1); setVal('f-cs-fg', f.grayscale || 0);
+  setVal('f-cs-fse', f.sepia || 0); setVal('f-cs-fh', f.hueRotate || 0);
+  setVal('f-cs-fbl', f.blur || 0); setVal('f-cs-fi', f.invert || 0);
+  // Glow
+  var gc = cs.glow || {};
+  setChecked('f-glow-on', gc.enabled || false);
+  var glowTypeEl = g('f-glow-type'); if (glowTypeEl) glowTypeEl.value = gc.type || 'active';
+  setVal('f-glow-color', gc.color || '#dc2626'); setVal('f-glow-color-h', gc.color || '#dc2626');
+  setVal('f-glow-speed', gc.speed || 3); setVal('f-glow-int', gc.intensity != null ? gc.intensity : 1);
+  setVal('f-glow-blur', gc.blur != null ? gc.blur : 20); setVal('f-glow-spread', gc.spread || 0);
+  setVal('f-glow-op', gc.opacity != null ? gc.opacity : 1); setChecked('f-glow-hover', gc.hoverOnly || false);
+  // Animation
+  var ca = cs.anim;
+  var animTypeEl = g('f-anim-type'); if (animTypeEl) animTypeEl.value = ca ? (ca.type || '') : '';
+  setVal('f-anim-dur', ca ? (ca.dur || 2) : 2); setVal('f-anim-del', ca ? (ca.del || 0) : 0);
+  var animEaseEl = g('f-anim-ease'); if (animEaseEl) animEaseEl.value = ca ? (ca.easing || 'ease-in-out') : 'ease-in-out';
+  var animDirEl = g('f-anim-dir'); if (animDirEl) animDirEl.value = ca ? (ca.direction || 'normal') : 'normal';
+  var animIterEl = g('f-anim-iter'); if (animIterEl) animIterEl.value = ca ? (ca.iterations || 'infinite') : 'infinite';
+  setVal('f-anim-int', ca ? (ca.intensity != null ? ca.intensity : 100) : 100);
+  // Style
+  var st = cs.style || {};
+  setVal('f-accent-color', st.accentColor || '#dc2626'); setVal('f-accent-color-h', st.accentColor || '#dc2626');
+  setChecked('f-shimmer', st.shimmer || false); setVal('f-cs-radius', st.borderRadius || 0);
+  setVal('f-cs-opacity', st.opacity != null ? st.opacity : 1);
+  // Border
+  var bd = cs.border || {};
+  setChecked('f-border-on', bd.enabled || false); setVal('f-border-color', bd.color || '#dc2626');
+  setVal('f-border-width', bd.width || 1);
+  var borderStyleEl = g('f-border-style'); if (borderStyleEl) borderStyleEl.value = bd.style || 'solid';
+  // Shadow
+  var sh = cs.shadow || {};
+  setChecked('f-shadow-on', sh.enabled || false); setVal('f-shadow-color', sh.color || '#000000');
+  setVal('f-shadow-op', sh.opacity != null ? sh.opacity : 0.35);
+  setVal('f-shadow-x', sh.x || 0); setVal('f-shadow-y', sh.y != null ? sh.y : 4);
+  setVal('f-shadow-blur', sh.blur != null ? sh.blur : 12); setVal('f-shadow-spread', sh.spread || 0);
+  setChecked('f-shadow-inset', sh.inset || false);
+  // Hover
+  var hv = cs.hover || {};
+  setVal('f-hov-scale', hv.scale || 1); setVal('f-hov-bright', hv.brightness != null ? hv.brightness : 1);
+  setVal('f-hov-sat', hv.saturate != null ? hv.saturate : 1); setVal('f-hov-shadow', hv.shadowBlur || 0);
+  setVal('f-hov-trans', hv.transition != null ? hv.transition : 0.3);
+  setVal('f-hov-border', hv.borderColor || '#dc2626'); setChecked('f-hov-glow', hv.glowIntensify || false);
+  setVal('f-hov-blur', hv.blur || 0); setVal('f-hov-sib-blur', hv.siblingsBlur || 0);
+  setVal('f-hov-hue', hv.hueRotate || 0); setVal('f-hov-opacity', hv.opacity != null ? hv.opacity : 1);
+  // Transform
+  var tf = cs.transform || {};
+  setVal('f-tf-rotate', tf.rotate || 0); setVal('f-tf-scale', tf.scale || 1);
+  setVal('f-tf-skewX', tf.skewX || 0); setVal('f-tf-skewY', tf.skewY || 0);
+  setVal('f-tf-x', tf.x || 0); setVal('f-tf-y', tf.y || 0);
+  // Sync sliders + preview
+  ['f-anim-dur','f-anim-del','f-border-width','f-glow-speed','f-glow-int','f-glow-blur','f-glow-spread','f-glow-op',
+   'f-cs-fb','f-cs-fc','f-cs-fs','f-cs-fg','f-cs-fse','f-cs-fh','f-cs-fbl','f-cs-fi','f-cs-radius','f-cs-opacity',
+   'f-shadow-op','f-shadow-x','f-shadow-y','f-shadow-blur','f-shadow-spread',
+   'f-hov-scale','f-hov-bright','f-hov-sat','f-hov-shadow','f-hov-trans','f-hov-blur','f-hov-sib-blur','f-hov-hue','f-hov-opacity','f-hov-anim-dur',
+   'f-tf-rotate','f-tf-scale','f-tf-skewX','f-tf-skewY','f-tf-x','f-tf-y'
+  ].forEach(syncSliderDisplay);
+  document.querySelectorAll('.preset-card').forEach(c => c.classList.remove('active'));
+  updateCardPreview();
+  if (typeof window._sendLiveUpdate === 'function') window._sendLiveUpdate();
+  showToast('Usando estilo global ✓');
 }
 
 export function applyPreset(id) {
@@ -426,6 +499,24 @@ function _setHoloColors(colors) {
 }
 
 // ═══ HELPER: build cardStyle from inputs ═══
+// Check if a cardStyle is effectively default (no customizations)
+function _isCardStyleDefault(cs) {
+  if (!cs) return true;
+  const f = cs.filter || {};
+  if ((f.brightness || 1) !== 1 || (f.contrast || 1) !== 1 || (f.saturate || 1) !== 1 || f.grayscale || f.sepia || f.hueRotate || f.blur || f.invert) return false;
+  if (cs.glow && cs.glow.enabled) return false;
+  if (cs.anim && cs.anim.type) return false;
+  if (cs.border && cs.border.enabled) return false;
+  if (cs.shadow && cs.shadow.enabled) return false;
+  const hv = cs.hover || {};
+  if ((hv.scale || 1) !== 1 || (hv.brightness || 1) !== 1 || (hv.saturate || 1) !== 1 || hv.shadowBlur || hv.blur || hv.siblingsBlur || hv.hueRotate || (hv.opacity || 1) !== 1) return false;
+  const tf = cs.transform || {};
+  if (tf.rotate || (tf.scale || 1) !== 1 || tf.skewX || tf.skewY || tf.x || tf.y) return false;
+  const st = cs.style || {};
+  if (st.shimmer || (st.borderRadius || 0) !== 0 || (st.opacity || 1) !== 1) return false;
+  return true;
+}
+
 function _buildCardStyleFromInputs() {
   const animType = val('f-anim-type');
   return {
@@ -1341,11 +1432,13 @@ export function saveBeat() {
   const cardStyle = _buildCardStyleFromInputs();
   // Legacy fields for backwards compat
   const animType = val('f-anim-type');
+  // Determine if this beat has custom style (non-default)
+  const _hasCustom = !_isCardStyleDefault(cardStyle);
   const beat = { name, genre: val('f-genre'), genreCustom: val('f-genre-c'), bpm: parseInt(val('f-bpm')) || 0, key: val('f-key'), description: val('f-desc'), tags: val('f-tags').split(',').map(t => t.trim()).filter(Boolean), imageUrl: val('f-img'), audioUrl: val('f-audio'), previewUrl: val('f-prev'), spotify: val('f-spotify'), youtube: val('f-youtube'), soundcloud: val('f-soundcloud'), date: val('f-date'), order: parseInt(val('f-order')) || 0, plays: parseInt(val('f-plays')) || 0, featured: checked('f-feat'), exclusive: checked('f-excl'), active: checked('f-active'), available: checked('f-avail'), licenses: _edLics.filter(l => l.name),
     // Legacy fields (backwards compat)
     glowConfig: cardStyle.glow, cardAnim: cardStyle.anim, accentColor: cardStyle.style.accentColor, shimmer: cardStyle.style.shimmer, cardBorder: cardStyle.border,
     // New mega schema
-    cardStyle: cardStyle
+    cardStyle: cardStyle, _customStyle: _hasCustom
   };
   showSaving(true); db.ref('beats/' + id).set(beat).then(() => { showSaving(false); if (typeof window._clearLiveEdit === 'function') window._clearLiveEdit(); showToast('Beat guardado ✓'); showSection('beats'); }).catch(err => { showSaving(false); showToast('Error: ' + err.message, true); });
 }
@@ -1463,7 +1556,7 @@ Object.assign(window, {
   inlineEditName, inlineEditBpm, inlineEditKey,
   openBatchImg, closeBatchImg, handleBatchImgFiles, clearBatchImgQueue, saveBatchImages,
   batchAddBeats, toggleMP, seekMP,
-  syncAccentColor, updateCardPreview, applyPreset, applyHoverPreset, resetCardStyle, renderPresets
+  syncAccentColor, updateCardPreview, applyPreset, applyHoverPreset, resetCardStyle, resetBeatToGlobal, renderPresets
 });
 
 // Initialize preset grids on load
