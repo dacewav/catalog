@@ -1533,8 +1533,10 @@ renderHoverPresets();
     // postMessage to iframe (same-tab admin preview)
     postToFrame({ type: 'beat-update', beatId: payload.beatId, data: payload.data });
     // Firebase — reaches the live store at dacewav.store (separate window)
-    if (typeof db !== 'undefined' && db) {
-      db.ref('liveEdits/' + window._liveEditId).set(data).catch(function(){});
+    // Use window._db to ensure we get the current reference at call time
+    var _db = window._db || (typeof db !== 'undefined' ? db : null);
+    if (_db) {
+      _db.ref('liveEdits/' + window._liveEditId).set(data).catch(function(){});
     }
     console.log('[LiveEdit] sent:', window._liveEditId);
   }
@@ -1548,8 +1550,9 @@ renderHoverPresets();
     // postMessage to iframe (same-tab admin preview)
     postToFrame({ type: 'beat-revert', beatId: revertData.beatId, original: revertData.original });
     // Firebase cleanup
-    if (typeof db !== 'undefined' && db) {
-      db.ref('liveEdits/' + window._liveEditId).remove().catch(function(){});
+    var _db = window._db || (typeof db !== 'undefined' ? db : null);
+    if (_db) {
+      _db.ref('liveEdits/' + window._liveEditId).remove().catch(function(){});
     }
     console.log('[LiveEdit] revert sent:', window._liveEditId);
     window._liveEditId = null;
@@ -1565,8 +1568,9 @@ renderHoverPresets();
     localStorage.removeItem('dace-live-edit');
     localStorage.removeItem('dace-live-edit-revert');
     // Firebase cleanup
-    if (window._liveEditId && typeof db !== 'undefined' && db) {
-      db.ref('liveEdits/' + window._liveEditId).remove().catch(function(){});
+    if (window._liveEditId) {
+      var _db = window._db || (typeof db !== 'undefined' ? db : null);
+      if (_db) _db.ref('liveEdits/' + window._liveEditId).remove().catch(function(){});
     }
     window._liveEditId = null;
     window._liveEditOriginal = null;
