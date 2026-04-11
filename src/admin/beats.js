@@ -1092,15 +1092,17 @@ window._buildCardHTML = function(cs, opts) {
 
   // Animation vars
   if (ca.type) {
-    s.push('--ad:'+(ca.dur||2)+'s;--adl:'+(ca.del||0)+'s');
+    const animInt = (ca.intensity != null ? ca.intensity : 100) / 100;
+    const effectiveDur = animInt !== 1 ? (ca.dur || 2) / animInt : (ca.dur || 2);
+    s.push('--ad:'+effectiveDur+'s;--adl:'+(ca.del||0)+'s');
     if (ca.easing && ca.easing !== 'ease-in-out') s.push('--aease:'+ca.easing);
     if (ca.direction && ca.direction !== 'normal') s.push('--adir:'+ca.direction);
-    const animInt = (ca.intensity != null ? ca.intensity : 100) / 100;
     if (animInt !== 1) s.push('--anim-int:'+animInt);
     if (ca.type === 'holograma') {
       s.push('--anim-hue-start:'+(ca.hueStart||0)+'deg;--anim-hue-end:'+(ca.hueEnd||360)+'deg');
       s.push('--anim-holo-bright-min:'+(ca.holoBrightMin||0.9)+';--anim-holo-bright-max:'+(ca.holoBrightMax||1.4));
       s.push('--anim-holo-sat-min:'+(ca.holoSatMin||0.8)+';--anim-holo-sat-max:'+(ca.holoSatMax||2));
+      if (ca.holoGlow) s.push('--anim-holo-glow:'+ca.holoGlow+'px');
       if (ca.holoBlur) s.push('--anim-holo-blur:'+ca.holoBlur+'px');
       var holoDir = ca.holoDir || 'hue';
       var holoColors = ca.holoColors || ['#ff0080','#00ff80','#0080ff'];

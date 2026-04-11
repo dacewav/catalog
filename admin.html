@@ -1583,6 +1583,52 @@ body.light .batch-img-drop input[type="file"] { opacity: 0; }
 #pv-full-card-container .anim-zoom-in{animation:pv-zoom-in var(--ad,1s) ease-in-out infinite;animation-delay:var(--adl,0s)}
 #pv-full-card-container .anim-zoom-out{animation:pv-zoom-out var(--ad,1s) ease-in-out infinite;animation-delay:var(--adl,0s)}
 
+/* ═══ Secondary animations (anim2) for store preview ═══ */
+#pv-full-card-container .anim2-flotar::before,#pv-full-card-container .anim2-pulsar::before,#pv-full-card-container .anim2-rotar::before,#pv-full-card-container .anim2-rebotar::before,
+#pv-full-card-container .anim2-sacudida::before,
+#pv-full-card-container .anim2-spin-lento::before,#pv-full-card-container .anim2-deslizar-arriba::before,#pv-full-card-container .anim2-deslizar-abajo::before,
+#pv-full-card-container .anim2-deslizar-izq::before,#pv-full-card-container .anim2-deslizar-der::before,#pv-full-card-container .anim2-temblor::before,#pv-full-card-container .anim2-balanceo::before,
+#pv-full-card-container .anim2-drift::before,#pv-full-card-container .anim2-wobble::before,
+#pv-full-card-container .anim2-respirar::before,#pv-full-card-container .anim2-latido::before,#pv-full-card-container .anim2-zoom-in::before,#pv-full-card-container .anim2-zoom-out::before,
+#pv-full-card-container .anim2-pop::before,#pv-full-card-container .anim2-rubber-band::before,#pv-full-card-container .anim2-jello::before,
+#pv-full-card-container .anim2-glitch::before,#pv-full-card-container .anim2-shake-x::before,#pv-full-card-container .anim2-heartbeat::before,
+#pv-full-card-container .anim2-flip::before,#pv-full-card-container .anim2-swing::before,#pv-full-card-container .anim2-tada::before,#pv-full-card-container .anim2-bounce-in::before,
+#pv-full-card-container .anim2-elastic::before,#pv-full-card-container .anim2-slide-up-fade::before,#pv-full-card-container .anim2-typing::before{
+  content:'';position:absolute;inset:0;border-radius:inherit;pointer-events:none;z-index:1;
+  background:transparent;border:none;outline:none;box-shadow:none;opacity:1
+}
+#pv-full-card-container .anim2-flotar::before{animation:pv-flotar var(--ad,2s) ease-in-out infinite;animation-delay:var(--adl,0s)}
+#pv-full-card-container .anim2-pulsar::before{animation:pv-pulsar var(--ad,2s) ease-in-out infinite;animation-delay:var(--adl,0s)}
+#pv-full-card-container .anim2-rotar::before{animation:pv-rotar var(--ad,2s) ease-in-out infinite;animation-delay:var(--adl,0s)}
+#pv-full-card-container .anim2-rebotar::before{animation:pv-rebotar var(--ad,2s) ease-in-out infinite;animation-delay:var(--adl,0s)}
+#pv-full-card-container .anim2-sacudida::before{animation:pv-sacudida var(--ad,2s) ease-in-out infinite;animation-delay:var(--adl,0s)}
+#pv-full-card-container .anim2-spin-lento::before{animation:pv-spin-lento var(--ad,8s) linear infinite;animation-delay:var(--adl,0s)}
+#pv-full-card-container .anim2-deslizar-arriba::before{animation:pv-deslizar-arriba var(--ad,2s) ease-in-out infinite;animation-delay:var(--adl,0s)}
+#pv-full-card-container .anim2-deslizar-abajo::before{animation:pv-deslizar-abajo var(--ad,2s) ease-in-out infinite;animation-delay:var(--adl,0s)}
+#pv-full-card-container .anim2-deslizar-izq::before{animation:pv-deslizar-izq var(--ad,2s) ease-in-out infinite;animation-delay:var(--adl,0s)}
+#pv-full-card-container .anim2-deslizar-der::before{animation:pv-deslizar-der var(--ad,2s) ease-in-out infinite;animation-delay:var(--adl,0s)}
+#pv-full-card-container .anim2-temblor::before{animation:pv-temblor var(--ad,2s) ease-in-out infinite;animation-delay:var(--adl,0s)}
+#pv-full-card-container .anim2-balanceo::before{animation:pv-balanceo var(--ad,2s) ease-in-out infinite;animation-delay:var(--adl,0s)}
+#pv-full-card-container .anim2-drift::before{animation:pv-drift var(--ad,4s) ease-in-out infinite;animation-delay:var(--adl,0s)}
+#pv-full-card-container .anim2-wobble::before{animation:pv-wobble var(--ad,2s) ease-in-out infinite;animation-delay:var(--adl,0s)}
+#pv-full-card-container .anim2-respirar::before{animation:pv-respirar var(--ad,3s) ease-in-out infinite;animation-delay:var(--adl,0s)}
+#pv-full-card-container .anim2-latido::before{animation:pv-latido var(--ad,1.5s) ease-in-out infinite;animation-delay:var(--adl,0s)}
+#pv-full-card-container .anim2-zoom-in::before{animation:pv-zoom-in var(--ad,1s) ease-out infinite;animation-delay:var(--adl,0s)}
+#pv-full-card-container .anim2-zoom-out::before{animation:pv-zoom-out var(--ad,1s) ease-out infinite;animation-delay:var(--adl,0s)}
+#pv-full-card-container .anim2-pop::before{animation:pv-pop var(--ad,.5s) ease-out infinite;animation-delay:var(--adl,0s)}
+#pv-full-card-container .anim2-rubber-band::before{animation:pv-rubber-band var(--ad,1s) ease-in-out infinite;animation-delay:var(--adl,0s)}
+#pv-full-card-container .anim2-jello::before{animation:pv-jello var(--ad,1s) ease-in-out infinite;animation-delay:var(--adl,0s)}
+#pv-full-card-container .anim2-glitch::before{animation:pv-glitch var(--ad,1s) linear infinite;animation-delay:var(--adl,0s)}
+#pv-full-card-container .anim2-shake-x::before{animation:pv-shake-x var(--ad,1s) ease-in-out infinite;animation-delay:var(--adl,0s)}
+#pv-full-card-container .anim2-heartbeat::before{animation:pv-heartbeat var(--ad,1.5s) ease-in-out infinite;animation-delay:var(--adl,0s)}
+#pv-full-card-container .anim2-flip::before{animation:pv-flip var(--ad,1s) ease-in-out infinite;animation-delay:var(--adl,0s)}
+#pv-full-card-container .anim2-swing::before{animation:pv-swing var(--ad,2s) ease-in-out infinite;animation-delay:var(--adl,0s)}
+#pv-full-card-container .anim2-tada::before{animation:pv-tada var(--ad,1.5s) ease-in-out infinite;animation-delay:var(--adl,0s)}
+#pv-full-card-container .anim2-bounce-in::before{animation:pv-bounce-in var(--ad,1.5s) ease-in-out infinite;animation-delay:var(--adl,0s)}
+#pv-full-card-container .anim2-elastic::before{animation:pv-jello var(--ad,1s) ease-in-out infinite;animation-delay:var(--adl,0s)}
+#pv-full-card-container .anim2-slide-up-fade::before{animation:pv-flotar var(--ad,2s) ease-in-out infinite;animation-delay:var(--adl,0s)}
+#pv-full-card-container .anim2-typing::before{animation:pv-shimmer var(--ad,2s) linear infinite;animation-delay:var(--adl,0s)}
+
 /* ═══ PRESET CARDS (JS-generated) ═══ */
 .preset-card.active { border-color: var(--acc); box-shadow: 0 0 12px rgba(220,38,38,0.2); }
 .preset-swatches { display: flex; gap: 3px; margin-bottom: 6px; }
