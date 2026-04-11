@@ -21,7 +21,7 @@ export function initResize() {
 
   function onMove(e) {
     if (!dragging) return;
-    const diff = startX - e.clientX;
+    const diff = e.clientX - startX;
     const newW = Math.max(280, Math.min(window.innerWidth - 400, startPreviewW + diff));
     const preview = g('preview-panel');
     if (preview) {

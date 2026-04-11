@@ -1366,6 +1366,78 @@ body.light .batch-img-drop input[type="file"] { opacity: 0; }
 .bcpv.anim2-elastic::before{animation:bcpv-elastic var(--ad,1s) ease-out infinite;animation-delay:var(--adl,0s)}
 .bcpv.anim2-slide-up-fade::before{animation:bcpv-slide-up-fade var(--ad,1s) ease-out infinite;animation-delay:var(--adl,0s)}
 
+/* ═══ FULL STORE CARD PREVIEW (scoped to container) ═══ */
+#pv-full-card-container .beat-card { position: relative; border-radius: var(--r-lg, 12px); overflow: hidden; cursor: default; transition: transform .35s cubic-bezier(.4,0,.2,1), box-shadow .35s; max-width: 260px; }
+#pv-full-card-container .beat-card-inner { background: var(--surface, #141414); border: 1px solid var(--border, rgba(255,255,255,.06)); border-radius: var(--r-lg, 12px); height: 100%; box-shadow: var(--card-shadow, 0 4px 20px rgba(0,0,0,.3)); display: flex; flex-direction: column; }
+#pv-full-card-container .shimmer-overlay { position: absolute; inset: 0; border-radius: var(--r-lg, 12px); pointer-events: none; overflow: hidden; z-index: 2; opacity: 0; transition: opacity .3s; }
+#pv-full-card-container .shimmer-on .shimmer-overlay { opacity: 1; }
+#pv-full-card-container .shimmer-overlay::after { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: linear-gradient(45deg, transparent 40%, rgba(255,255,255,.03) 50%, transparent 60%); animation: pv-shimmer 3s infinite; }
+@keyframes pv-shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+#pv-full-card-container .beat-card::before { display: none; }
+#pv-full-card-container .beat-card .beat-card-inner::after { content: ''; position: absolute; inset: 0; pointer-events: none; opacity: 0; transition: opacity .4s; background: var(--card-tint, transparent); mix-blend-mode: overlay; }
+#pv-full-card-container .beat-img { width: 100%; aspect-ratio: 16/9; background: var(--surface2, #1a1a1a); position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; border-radius: calc(var(--r-lg, 12px) - 1px) calc(var(--r-lg, 12px) - 1px) 0 0; }
+#pv-full-card-container .beat-img img { width: 100%; height: 100%; object-fit: cover; }
+#pv-full-card-container .beat-img-ph { color: var(--hint, #555); font-size: 2.5rem; }
+#pv-full-card-container .beat-wave-row { position: absolute; bottom: 0; left: 0; right: 0; display: flex; align-items: flex-end; gap: 2px; padding: 8px; background: linear-gradient(transparent, rgba(6,4,4,.85)); height: 52px; }
+#pv-full-card-container .wbar { flex: 1; border-radius: 2px; background: var(--wbar, #ffffff33); opacity: .18; transition: all .2s; }
+#pv-full-card-container .play-hint { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(6,4,4,.5); opacity: 0; transition: opacity .25s; }
+#pv-full-card-container .play-circle { width: 44px; height: 44px; border-radius: 50%; background: rgba(185,28,28,.9); display: flex; align-items: center; justify-content: center; }
+#pv-full-card-container .beat-body { padding: .75rem 1rem; overflow: hidden; max-height: 200px; }
+#pv-full-card-container .beat-name { font-family: var(--fd, sans-serif); font-size: .85rem; font-weight: 700; margin-bottom: .2rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--tx, #e7e7e7); }
+#pv-full-card-container .beat-meta-row { display: flex; gap: 8px; font-size: 10px; color: var(--mu, #666); margin-bottom: .4rem; }
+#pv-full-card-container .beat-tags-row { display: flex; gap: 4px; flex-wrap: wrap; margin-bottom: .5rem; max-height: 32px; overflow: hidden; }
+#pv-full-card-container .tag { font-size: 9px; padding: 1px 6px; border-radius: 999px; border: 1px solid var(--border, rgba(255,255,255,.06)); color: var(--hint, #555); letter-spacing: .05em; text-transform: uppercase; }
+#pv-full-card-container .beat-foot { display: flex; align-items: center; justify-content: space-between; padding-top: .5rem; border-top: 1px solid var(--border, rgba(255,255,255,.06)); }
+#pv-full-card-container .price-from { font-size: 9px; color: var(--mu, #666); }
+#pv-full-card-container .price-main { font-family: var(--fd, sans-serif); font-size: .9rem; font-weight: 700; color: var(--tx, #e7e7e7); }
+#pv-full-card-container .price-usd { font-size: 9px; color: var(--hint, #555); margin-left: 3px; }
+#pv-full-card-container .btn-lic { font-family: var(--fm, monospace); font-size: 10px; padding: 5px 10px; border-radius: var(--r, 6px); border: 1px solid var(--border, rgba(255,255,255,.06)); background: transparent; color: var(--mu, #666); cursor: default; }
+
+/* Glow animations for preview */
+#pv-full-card-container .glow-active .beat-card-inner { animation: pv-glow-pulse var(--glow-speed, 3s) ease-in-out infinite; box-shadow: 0 0 20px var(--glow-clr, var(--accent, #dc2626)); }
+#pv-full-card-container .glow-rgb .beat-card-inner { animation: pv-glow-rgb var(--glow-speed, 3s) linear infinite; }
+#pv-full-card-container .glow-pulse .beat-card-inner { animation: pv-glow-beat var(--glow-speed, 1.5s) ease-in-out infinite; }
+#pv-full-card-container .glow-breathe .beat-card-inner { animation: pv-glow-breathe var(--glow-speed, 3s) ease-in-out infinite; }
+#pv-full-card-container .glow-neon .beat-card-inner { animation: pv-glow-neon var(--glow-speed, 3s) linear infinite; }
+@keyframes pv-glow-pulse { 0%,100%{box-shadow:0 0 15px var(--glow-clr, var(--accent, #dc2626))} 50%{box-shadow:0 0 35px var(--glow-clr, var(--accent, #dc2626))} }
+@keyframes pv-glow-rgb { 0%{box-shadow:0 0 20px rgba(255,0,0,.5)} 33%{box-shadow:0 0 20px rgba(0,255,0,.5)} 66%{box-shadow:0 0 20px rgba(0,0,255,.5)} 100%{box-shadow:0 0 20px rgba(255,0,0,.5)} }
+@keyframes pv-glow-beat { 0%,100%{transform:scale(1);box-shadow:0 0 10px var(--glow-clr, var(--accent, #dc2626))} 50%{transform:scale(1.03);box-shadow:0 0 30px var(--glow-clr, var(--accent, #dc2626))} }
+@keyframes pv-glow-breathe { 0%,100%{box-shadow:0 0 10px var(--glow-clr, var(--accent, #dc2626))} 50%{box-shadow:0 0 28px var(--glow-clr, var(--accent, #dc2626))} }
+@keyframes pv-glow-neon { 0%,19%,21%,23%,25%,54%,56%,100%{box-shadow:0 0 15px var(--glow-clr, var(--accent, #dc2626))} 20%,24%,55%{box-shadow:none} }
+
+/* Animation keyframes for preview */
+@keyframes pv-flotar{0%,100%{transform:translateY(0)}50%{transform:translateY(calc(-6px * var(--anim-int, 1)))}}
+@keyframes pv-pulsar{0%,100%{transform:scale(var(--anim-scale-min, 1))}50%{transform:scale(var(--anim-scale-max, 1.06))}}
+@keyframes pv-respirar{0%,100%{transform:scale(var(--anim-scale-min, 1));opacity:1}50%{transform:scale(var(--anim-scale-max, 1.06));opacity:var(--anim-scale-opacity, .8)}}
+@keyframes pv-latido{0%,100%{transform:scale(var(--anim-scale-min, 1))}14%{transform:scale(var(--anim-scale-max, 1.06))}28%{transform:scale(var(--anim-scale-min, 1))}42%{transform:scale(var(--anim-scale-max, 1.06))}70%{transform:scale(var(--anim-scale-min, 1))}}
+@keyframes pv-brillo{0%,100%{filter:brightness(var(--anim-brillo-min, .8))}50%{filter:brightness(var(--anim-brillo-max, 1.5))}}
+@keyframes pv-cambio-color{0%{filter:hue-rotate(var(--anim-cs-hue-start, 0deg))}100%{filter:hue-rotate(var(--anim-cs-hue-end, 360deg))}}
+@keyframes pv-holograma{0%{filter:hue-rotate(var(--anim-hue-start, 0deg)) brightness(var(--anim-holo-bright-min, .9)) saturate(var(--anim-holo-sat-min, .8))}50%{filter:hue-rotate(calc((var(--anim-hue-start, 0deg) + var(--anim-hue-end, 360deg)) / 2)) brightness(var(--anim-holo-bright-max, 1.4)) saturate(var(--anim-holo-sat-max, 2))}100%{filter:hue-rotate(var(--anim-hue-end, 360deg)) brightness(var(--anim-holo-bright-min, .9)) saturate(var(--anim-holo-sat-min, .8))}}
+@keyframes pv-neon-flicker{0%,19%,21%,23%,25%,54%,56%,100%{opacity:var(--anim-neon-max, 1)}20%,24%,55%{opacity:var(--anim-neon-min, .4)}}
+@keyframes pv-parpadeo{0%,100%{opacity:var(--anim-parpadeo-max, 1)}50%{opacity:var(--anim-parpadeo-min, .3)}}
+@keyframes pv-glitch{0%,100%{transform:translate(0)}20%{transform:translate(calc(-1 * var(--anim-glitch-x, 4px)), var(--anim-glitch-y, 4px))}40%{transform:translate(var(--anim-glitch-x, 4px), calc(-1 * var(--anim-glitch-y, 4px)))}60%{transform:translate(calc(-.5 * var(--anim-glitch-x, 4px)), calc(-.5 * var(--anim-glitch-y, 4px)))}80%{transform:translate(calc(.5 * var(--anim-glitch-x, 4px)), calc(.5 * var(--anim-glitch-y, 4px)))}}
+@keyframes pv-rotar{0%{transform:rotate(calc(-1 * var(--anim-rotate-angle, 5deg)))}50%{transform:rotate(var(--anim-rotate-angle, 5deg))}100%{transform:rotate(calc(-1 * var(--anim-rotate-angle, 5deg)))}}
+@keyframes pv-wobble{0%,100%{transform:translateX(0) rotate(0)}15%{transform:translateX(calc(-1 * var(--anim-shake-x, 8px))) rotate(calc(-2 * var(--anim-rotate-angle, 2deg)))}30%{transform:translateX(calc(.75 * var(--anim-shake-x, 6px))) rotate(var(--anim-rotate-angle, 2deg))}45%{transform:translateX(calc(-.5 * var(--anim-shake-x, 4px))) rotate(calc(-1 * var(--anim-rotate-angle, 2deg)))}60%{transform:translateX(calc(.25 * var(--anim-shake-x, 2px))) rotate(calc(.5 * var(--anim-rotate-angle, 1deg)))}75%{transform:translateX(calc(-.125 * var(--anim-shake-x, 1px)))} }
+@keyframes pv-swing{20%{transform:rotate(calc(3 * var(--anim-rotate-angle, 5deg)))}40%{transform:rotate(calc(-2 * var(--anim-rotate-angle, 5deg)))}60%{transform:rotate(var(--anim-rotate-angle, 5deg))}80%{transform:rotate(calc(-1 * var(--anim-rotate-angle, 5deg)))}100%{transform:rotate(0deg)}}
+@keyframes pv-sacudida{0%,100%{transform:translateX(0)}20%{transform:translateX(calc(-1 * var(--anim-shake-x, 4px)))}40%{transform:translateX(var(--anim-shake-x, 4px))}60%{transform:translateX(calc(-.75 * var(--anim-shake-x, 3px)))}80%{transform:translateX(calc(.75 * var(--anim-shake-x, 3px)))}}
+@keyframes pv-drift{0%,100%{transform:translateX(0) rotate(0)}25%{transform:translateX(4px) rotate(1deg)}75%{transform:translateX(-4px) rotate(-1deg)}}
+#pv-full-card-container .anim-flotar{animation:pv-flotar var(--ad,2s) ease-in-out infinite;animation-delay:var(--adl,0s)}
+#pv-full-card-container .anim-pulsar{animation:pv-pulsar var(--ad,2s) ease-in-out infinite;animation-delay:var(--adl,0s)}
+#pv-full-card-container .anim-respirar{animation:pv-respirar var(--ad,3s) ease-in-out infinite;animation-delay:var(--adl,0s)}
+#pv-full-card-container .anim-latido{animation:pv-latido var(--ad,1.5s) ease-in-out infinite;animation-delay:var(--adl,0s)}
+#pv-full-card-container .anim-brillo{animation:pv-brillo var(--ad,2s) ease-in-out infinite;animation-delay:var(--adl,0s)}
+#pv-full-card-container .anim-cambio-color{animation:pv-cambio-color var(--ad,4s) linear infinite;animation-delay:var(--adl,0s)}
+#pv-full-card-container .anim-holograma{animation:pv-holograma var(--ad,4s) linear infinite;animation-delay:var(--adl,0s)}
+#pv-full-card-container .anim-neon-flicker{animation:pv-neon-flicker var(--ad,3s) linear infinite;animation-delay:var(--adl,0s)}
+#pv-full-card-container .anim-parpadeo{animation:pv-parpadeo var(--ad,2s) ease-in-out infinite;animation-delay:var(--adl,0s)}
+#pv-full-card-container .anim-glitch{animation:pv-glitch var(--ad,1s) linear infinite;animation-delay:var(--adl,0s)}
+#pv-full-card-container .anim-rotar{animation:pv-rotar var(--ad,2s) ease-in-out infinite;animation-delay:var(--adl,0s)}
+#pv-full-card-container .anim-wobble{animation:pv-wobble var(--ad,2s) ease-in-out infinite;animation-delay:var(--adl,0s)}
+#pv-full-card-container .anim-swing{animation:pv-swing var(--ad,2s) ease-in-out infinite;animation-delay:var(--adl,0s)}
+#pv-full-card-container .anim-rebotar{animation:pv-flotar var(--ad,2s) ease-in-out infinite;animation-delay:var(--adl,0s)}
+#pv-full-card-container .anim-sacudida{animation:pv-sacudida var(--ad,2s) ease-in-out infinite;animation-delay:var(--adl,0s)}
+#pv-full-card-container .anim-drift{animation:pv-drift var(--ad,4s) ease-in-out infinite;animation-delay:var(--adl,0s)}
+
 /* ═══ PRESET CARDS (JS-generated) ═══ */
 .preset-card.active { border-color: var(--acc); box-shadow: 0 0 12px rgba(220,38,38,0.2); }
 .preset-swatches { display: flex; gap: 3px; margin-bottom: 6px; }
