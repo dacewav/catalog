@@ -2792,6 +2792,9 @@ definen géneros.</textarea></div>
      JAVASCRIPT
      ═══════════════════════════════════════════════════════════ -->
 <script src="dist/admin-app.js"></script>
+<!-- ═══ FLOATING PREVIEW TOGGLE (always visible when editing) ═══ -->
+<button id="float-pv-reopen" onclick="showFloatPv()" style="display:none;position:fixed;z-index:8999;bottom:20px;right:20px;width:40px;height:40px;border-radius:50%;background:rgba(185,28,28,0.9);border:1px solid rgba(255,255,255,0.15);color:#fff;cursor:pointer;font-size:16px;box-shadow:0 4px 20px rgba(0,0,0,0.4);backdrop-filter:blur(10px);display:none;align-items:center;justify-content:center;transition:transform .2s,opacity .2s" onmouseenter="this.style.transform='scale(1.1)'" onmouseleave="this.style.transform='scale(1)'">👁️</button>
+
 <!-- ═══ FLOATING CARD PREVIEW (draggable + resizable from all edges) ═══ -->
 <div id="float-pv" style="display:none;position:fixed;z-index:9000;width:220px;height:auto;border-radius:12px;overflow:visible;background:rgba(10,8,14,0.95);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,0.08);box-shadow:0 20px 60px rgba(0,0,0,0.6);right:40px;top:80px">
   <!-- Resize handles (all 8 directions) -->
@@ -2807,8 +2810,9 @@ definen géneros.</textarea></div>
   <div id="float-pv-handle" style="display:flex;align-items:center;justify-content:space-between;padding:6px 10px;cursor:grab;background:rgba(255,255,255,0.03);border-bottom:1px solid rgba(255,255,255,0.05);user-select:none;border-radius:12px 12px 0 0">
     <span style="font-size:9px;color:var(--mu);font-family:var(--fm);text-transform:uppercase;letter-spacing:.08em">👁️ Preview</span>
     <div style="display:flex;gap:4px;align-items:center">
+      <button id="float-pv-pin" onclick="toggleFloatPvPin()" title="Fijar/desfijar posición" style="background:none;border:none;color:var(--mu);cursor:pointer;font-size:11px;padding:2px 6px;border-radius:4px">📌</button>
       <button id="float-pv-toggle" onclick="toggleFloatPvMode()" title="Cambiar vista" style="background:none;border:none;color:var(--mu);cursor:pointer;font-size:10px;padding:2px 6px;border-radius:4px">◫</button>
-      <button onclick="document.getElementById('float-pv').style.display='none'" style="background:none;border:none;color:var(--mu);cursor:pointer;font-size:11px;padding:2px 4px">✕</button>
+      <button onclick="hideFloatPv()" style="background:none;border:none;color:var(--mu);cursor:pointer;font-size:11px;padding:2px 4px">✕</button>
     </div>
   </div>
   <div id="float-pv-body" style="padding:10px;overflow:auto;height:calc(100% - 34px);min-height:60px">
@@ -2840,12 +2844,14 @@ definen géneros.</textarea></div>
   const el = document.getElementById('float-pv');
   if (!el) return;
   const handle = document.getElementById('float-pv-handle');
+  const reopenBtn = document.getElementById('float-pv-reopen');
   const minW = 160, minH = 100;
-  let state = ''; // 'drag' | 'resize'
-  let rzDir = '';
-  let startX, startY, origRect;
+  const DEFAULT_POS = { right: 40, top: 80 }; // default position from right/top
+  let state = '', rzDir = '', startX, startY, origRect;
+  let pinned = false; // when pinned, can't drag
 
   function onDown(e, type, dir) {
+    if (pinned && type === 'drag') return;
     const cx = e.clientX || (e.touches && e.touches[0].clientX);
     const cy = e.clientY || (e.touches && e.touches[0].clientY);
     if (cx == null) return;
@@ -2856,10 +2862,7 @@ definen géneros.</textarea></div>
     document.body.style.userSelect = 'none';
     document.body.style.pointerEvents = 'none';
     el.style.pointerEvents = 'auto';
-    // Use setPointerCapture if available
-    if (e.pointerId != null && el.setPointerCapture) {
-      el.setPointerCapture(e.pointerId);
-    }
+    if (e.pointerId != null && el.setPointerCapture) el.setPointerCapture(e.pointerId);
     e.preventDefault();
     e.stopPropagation();
   }
@@ -2869,14 +2872,11 @@ definen géneros.</textarea></div>
     const cx = e.clientX || (e.touches && e.touches[0].clientX);
     const cy = e.clientY || (e.touches && e.touches[0].clientY);
     if (cx == null) return;
-    const dx = cx - startX;
-    const dy = cy - startY;
-
+    const dx = cx - startX, dy = cy - startY;
     if (state === 'drag') {
       el.style.left = (origRect.left + dx) + 'px';
       el.style.top = (origRect.top + dy) + 'px';
-      el.style.right = 'auto';
-      el.style.bottom = 'auto';
+      el.style.right = 'auto'; el.style.bottom = 'auto';
     } else if (state === 'resize') {
       let newW = origRect.width, newH = origRect.height;
       let newL = origRect.left, newT = origRect.top;
@@ -2884,65 +2884,73 @@ definen géneros.</textarea></div>
       if (rzDir.includes('w')) { newW = Math.max(minW, origRect.width - dx); newL = origRect.left + dx; }
       if (rzDir.includes('s')) newH = Math.max(minH, origRect.height + dy);
       if (rzDir.includes('n')) { newH = Math.max(minH, origRect.height - dy); newT = origRect.top + dy; }
-      el.style.width = newW + 'px';
-      el.style.height = newH + 'px';
-      el.style.left = newL + 'px';
-      el.style.top = newT + 'px';
-      el.style.right = 'auto';
-      el.style.bottom = 'auto';
+      el.style.width = newW + 'px'; el.style.height = newH + 'px';
+      el.style.left = newL + 'px'; el.style.top = newT + 'px';
+      el.style.right = 'auto'; el.style.bottom = 'auto';
       checkMode(newW);
     }
   }
 
   function onUp() {
     if (!state) return;
-    state = '';
-    rzDir = '';
+    state = ''; rzDir = '';
     document.body.style.userSelect = '';
     document.body.style.pointerEvents = '';
     el.style.pointerEvents = '';
-    if (handle) handle.style.cursor = 'grab';
+    if (handle) handle.style.cursor = pinned ? 'default' : 'grab';
   }
 
-  // Mouse events (on window to catch everything)
-  if (handle) {
-    handle.addEventListener('pointerdown', e => {
-      if (e.target.tagName === 'BUTTON') return;
-      handle.style.cursor = 'grabbing';
-      onDown(e, 'drag');
-    });
-  }
-  el.querySelectorAll('.fpv-rz').forEach(h => {
-    h.addEventListener('pointerdown', e => onDown(e, 'resize', h.dataset.rz));
-  });
+  // Pointer events
+  if (handle) handle.addEventListener('pointerdown', e => { if (e.target.tagName === 'BUTTON') return; handle.style.cursor = 'grabbing'; onDown(e, 'drag'); });
+  el.querySelectorAll('.fpv-rz').forEach(h => h.addEventListener('pointerdown', e => onDown(e, 'resize', h.dataset.rz)));
   window.addEventListener('pointermove', onMove);
   window.addEventListener('pointerup', onUp);
   window.addEventListener('pointercancel', onUp);
-  // Safety: if mouse leaves window while dragging
   document.addEventListener('mouseleave', onUp);
 
   function checkMode(w) {
     const fullEl = document.getElementById('float-pv-full');
     const miniEl = document.getElementById('float-pv-mini');
     if (!fullEl || !miniEl) return;
-    if (w >= 350) {
-      fullEl.style.display = 'block';
-      miniEl.style.display = 'none';
-      el.dataset.mode = 'full';
-      if (typeof window._renderFullPvCard === 'function') window._renderFullPvCard();
-    } else {
-      fullEl.style.display = 'none';
-      miniEl.style.display = 'block';
-      el.dataset.mode = 'mini';
-    }
+    if (w >= 350) { fullEl.style.display = 'block'; miniEl.style.display = 'none'; el.dataset.mode = 'full'; if (typeof window._renderFullPvCard === 'function') window._renderFullPvCard(); }
+    else { fullEl.style.display = 'none'; miniEl.style.display = 'block'; el.dataset.mode = 'mini'; }
   }
+
+  // ─── Hide / Show / Pin ───
+  window.hideFloatPv = function() {
+    el.style.display = 'none';
+    if (reopenBtn) reopenBtn.style.display = 'flex';
+  };
+  window.showFloatPv = function() {
+    // Reset to default position
+    el.style.right = DEFAULT_POS.right + 'px';
+    el.style.top = DEFAULT_POS.top + 'px';
+    el.style.left = 'auto';
+    el.style.bottom = 'auto';
+    el.style.width = '220px';
+    el.style.height = 'auto';
+    el.style.display = 'block';
+    el.dataset.mode = 'mini';
+    const fullEl = document.getElementById('float-pv-full');
+    const miniEl = document.getElementById('float-pv-mini');
+    if (fullEl) fullEl.style.display = 'none';
+    if (miniEl) miniEl.style.display = 'block';
+    if (reopenBtn) reopenBtn.style.display = 'none';
+    if (typeof window._renderFullPvCard === 'function') window._renderFullPvCard();
+  };
+  window.toggleFloatPvPin = function() {
+    pinned = !pinned;
+    const btn = document.getElementById('float-pv-pin');
+    if (btn) { btn.textContent = pinned ? '📍' : '📌'; btn.style.color = pinned ? 'var(--acc)' : 'var(--mu)'; }
+    if (handle) handle.style.cursor = pinned ? 'default' : 'grab';
+    handle.style.opacity = pinned ? '0.5' : '1';
+  };
 })();
 // Toggle between mini and full card mode
 window.toggleFloatPvMode = function() {
   const el = document.getElementById('float-pv');
   if (!el) return;
-  const isFull = el.dataset.mode === 'full';
-  el.style.width = isFull ? '220px' : '420px';
+  el.style.width = el.dataset.mode === 'full' ? '220px' : '420px';
   el.style.height = 'auto';
 };
 </script>

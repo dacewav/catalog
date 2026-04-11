@@ -11,9 +11,20 @@ export function showSection(name) {
   if (name === 'hero') { setTimeout(updateHeroPv, 50); setTimeout(initParticlesPreview, 100); }
   if (name === 'elements') setTimeout(() => { if (typeof initPColors === 'function') initPColors(); }, 50);
   if (name === 'stats' && typeof window.loadStats === 'function') window.loadStats();
-  // Show/hide floating card preview
+  // Floating preview visibility
   const fpv = document.getElementById('float-pv');
-  if (fpv) fpv.style.display = (name === 'add') ? 'block' : 'none';
+  const reopenBtn = document.getElementById('float-pv-reopen');
+  if (name === 'add') {
+    // Entering editor: show preview if not explicitly hidden
+    if (fpv && fpv.style.display === 'none' && (!reopenBtn || reopenBtn.style.display !== 'flex')) {
+      fpv.style.display = 'block';
+    }
+    if (reopenBtn) reopenBtn.style.display = (fpv && fpv.style.display === 'block') ? 'none' : 'flex';
+  } else {
+    // Leaving editor: hide preview and reopen button
+    if (fpv) fpv.style.display = 'none';
+    if (reopenBtn) reopenBtn.style.display = 'none';
+  }
 }
 export function showEt(name) {
   document.querySelectorAll('#sec-add .et').forEach(t => t.classList.remove('on'));
