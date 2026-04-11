@@ -881,9 +881,8 @@ window._renderFullPvCard = function() {
 
 // ═══ Render full card in embedded container (Extras tab) ═══
 window.renderFullPvInCard = function() {
-  var container = document.getElementById('pv-full-card-container');
-  if (!container) return;
-  container.innerHTML = window._buildCardHTML(_buildCardStyleFromInputs(), {
+  var cs = _buildCardStyleFromInputs();
+  var opts = {
     name: val('f-name') || 'Nombre del Beat',
     bpm: val('f-bpm') || '140',
     key: val('f-key') || 'Am',
@@ -891,7 +890,12 @@ window.renderFullPvInCard = function() {
     imgUrl: val('f-img'),
     tags: (val('f-tags') || '').split(',').map(function(t) { return t.trim(); }).filter(Boolean),
     isExcl: checked('f-excl')
-  });
+  };
+  var html = window._buildCardHTML(cs, opts);
+  var c1 = document.getElementById('pv-full-card-container');
+  if (c1) c1.innerHTML = html;
+  var c2 = document.getElementById('pv-store-card');
+  if (c2) c2.innerHTML = html;
 };
 
 var pvDetached = false;
