@@ -159,6 +159,19 @@ export function beatCard(b, globalIdx) {
   const styleParts = [
     `--card-tint:${accentColor ? `linear-gradient(135deg,${accentColor},transparent)` : 'linear-gradient(135deg,rgba(185,28,28,0.3),transparent)'}`
   ];
+  // Propagate accentColor to button, glow, and border CSS vars so the card looks unified
+  if (accentColor) {
+    const hex = accentColor.replace('#','');
+    const r = parseInt(hex.substring(0,2),16)||220;
+    const g = parseInt(hex.substring(2,4),16)||38;
+    const b = parseInt(hex.substring(4,6),16)||38;
+    styleParts.push('--accent:'+accentColor);
+    styleParts.push('--btn-lic-clr:'+accentColor);
+    styleParts.push('--btn-lic-bdr:rgba('+r+','+g+','+b+',0.5)');
+    styleParts.push('--btn-lic-bg:rgba('+r+','+g+','+b+',0.1)');
+    // Only override glow color if no explicit glow config
+    if (!glowEnabled) styleParts.push('--glow-clr:'+accentColor);
+  }
   if (glowStyle) styleParts.push(glowStyle);
   if (animStyle) styleParts.push(animStyle);
   if (borderStyle) styleParts.push(borderStyle);

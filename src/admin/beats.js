@@ -571,6 +571,19 @@ function _applyCardStyleToPreview(pv, cs) {
   if (filters.length) pv.style.filter = filters.join(' ');
   else pv.style.filter = '';
 
+  // 1.5 Accent color propagation to button, border, glow vars
+  const accentColor = (cs.style || {}).accentColor;
+  if (accentColor) {
+    const hex = accentColor.replace('#','');
+    const r = parseInt(hex.substring(0,2),16)||220;
+    const gv = parseInt(hex.substring(2,4),16)||38;
+    const b = parseInt(hex.substring(4,6),16)||38;
+    pv.style.setProperty('--accent', accentColor);
+    pv.style.setProperty('--btn-lic-clr', accentColor);
+    pv.style.setProperty('--btn-lic-bdr', 'rgba('+r+','+gv+','+b+',0.5)');
+    pv.style.setProperty('--btn-lic-bg', 'rgba('+r+','+gv+','+b+',0.1)');
+  }
+
   // 2. Glow
   const gc = cs.glow || {};
   if (gc.enabled) {
@@ -810,6 +823,11 @@ window._buildCardHTML = function(cs, opts) {
   const s = [];
   const accentColor = csS.accentColor || '#dc2626';
   s.push('--card-tint:linear-gradient(135deg,' + accentColor + ',transparent)');
+  // Propagate accent to button and glow vars
+  const ach = accentColor.replace('#','');
+  const ar = parseInt(ach.substring(0,2),16)||220, ag = parseInt(ach.substring(2,4),16)||38, ab = parseInt(ach.substring(4,6),16)||38;
+  s.push('--accent:'+accentColor+';--btn-lic-clr:'+accentColor+';--btn-lic-bdr:rgba('+ar+','+ag+','+ab+',0.5);--btn-lic-bg:rgba('+ar+','+ag+','+ab+',0.1)');
+  if (!gc.enabled) s.push('--glow-clr:'+accentColor);
 
   // Glow
   if (gc.enabled && gc.color) {
