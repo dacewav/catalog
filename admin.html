@@ -1237,6 +1237,8 @@ body.light .batch-img-drop input[type="file"] { opacity: 0; }
 @keyframes bcpv-brillo{0%,100%{filter:brightness(1)}50%{filter:brightness(1.3)}}
 @keyframes bcpv-cambio-color{0%{filter:hue-rotate(var(--anim-hue-start,0deg))}100%{filter:hue-rotate(var(--anim-hue-end,360deg))}}
 @keyframes bcpv-holograma{0%{filter:hue-rotate(var(--anim-hue-start,0deg)) brightness(1)}50%{filter:hue-rotate(calc((var(--anim-hue-start,0deg) + var(--anim-hue-end,360deg)) / 2)) brightness(1.2)}100%{filter:hue-rotate(var(--anim-hue-end,360deg)) brightness(1)}}
+@keyframes bcpv-holograma-gradient{0%{filter:hue-rotate(0deg) brightness(1)}50%{filter:hue-rotate(180deg) brightness(1.2)}100%{filter:hue-rotate(360deg) brightness(1)}}
+@keyframes bcpv-holograma-pulse{0%,100%{filter:brightness(1)}50%{filter:brightness(1.3)}}
 @keyframes bcpv-neon-flicker{0%,19%,21%,23%,25%,54%,56%,100%{opacity:1}20%,24%,55%{opacity:.6}}
 @keyframes bcpv-glitch{0%,100%{transform:translate(0)}20%{transform:translate(-2px,2px)}40%{transform:translate(2px,-2px)}60%{transform:translate(-1px,-1px)}80%{transform:translate(1px,1px)}}
 @keyframes bcpv-drift{0%,100%{transform:translateX(0) rotate(0)}25%{transform:translateX(4px) rotate(1deg)}75%{transform:translateX(-4px) rotate(-1deg)}}
@@ -1275,6 +1277,12 @@ body.light .batch-img-drop input[type="file"] { opacity: 0; }
 .bcpv.anim-brillo{animation:bcpv-brillo var(--ad,2s) ease-in-out infinite;animation-delay:var(--adl,0s)}
 .bcpv.anim-cambio-color{animation:bcpv-cambio-color var(--ad,4s) linear infinite;animation-delay:var(--adl,0s)}
 .bcpv.anim-holograma{animation:bcpv-holograma var(--ad,4s) linear infinite;animation-delay:var(--adl,0s)}
+.bcpv.anim-holograma-gradient{animation:bcpv-holograma-gradient var(--ad,4s) linear infinite;animation-delay:var(--adl,0s)}
+.bcpv.anim-holograma-gradient .bcpv-inner::after{content:'';position:absolute;inset:0;border-radius:inherit;background:linear-gradient(135deg,var(--holo-c0,#ff0080),var(--holo-c1,#00ff80),var(--holo-c2,#0080ff),var(--holo-c3,#ff0080));background-size:400% 400%;mix-blend-mode:overlay;animation:bcpv-holo-bg-shift var(--ad,4s) ease infinite;pointer-events:none;z-index:1}
+.bcpv.anim-holograma-pulse{animation:bcpv-holograma-pulse var(--ad,4s) linear infinite;animation-delay:var(--adl,0s)}
+.bcpv.anim-holograma-pulse .bcpv-inner::after{content:'';position:absolute;inset:0;border-radius:inherit;background:var(--holo-c0,#ff0080);mix-blend-mode:overlay;animation:bcpv-holo-pulse-color var(--ad,4s) linear infinite;pointer-events:none;z-index:1}
+@keyframes bcpv-holo-bg-shift{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+@keyframes bcpv-holo-pulse-color{0%,100%{background:var(--holo-c0,#ff0080)}33%{background:var(--holo-c1,#00ff80)}66%{background:var(--holo-c2,#0080ff)}}
 .bcpv.anim-neon-flicker{animation:bcpv-neon-flicker var(--ad,3s) linear infinite;animation-delay:var(--adl,0s)}
 .bcpv.anim-glitch{animation:bcpv-glitch var(--ad,1s) linear infinite;animation-delay:var(--adl,0s)}
 .bcpv.anim-drift{animation:bcpv-drift var(--ad,4s) ease-in-out infinite;animation-delay:var(--adl,0s)}
@@ -1413,6 +1421,10 @@ body.light .batch-img-drop input[type="file"] { opacity: 0; }
 @keyframes pv-brillo{0%,100%{filter:brightness(var(--anim-brillo-min, .8))}50%{filter:brightness(var(--anim-brillo-max, 1.5))}}
 @keyframes pv-cambio-color{0%{filter:hue-rotate(var(--anim-cs-hue-start, 0deg))}100%{filter:hue-rotate(var(--anim-cs-hue-end, 360deg))}}
 @keyframes pv-holograma{0%{filter:hue-rotate(var(--anim-hue-start, 0deg)) brightness(var(--anim-holo-bright-min, .9)) saturate(var(--anim-holo-sat-min, .8))}50%{filter:hue-rotate(calc((var(--anim-hue-start, 0deg) + var(--anim-hue-end, 360deg)) / 2)) brightness(var(--anim-holo-bright-max, 1.4)) saturate(var(--anim-holo-sat-max, 2))}100%{filter:hue-rotate(var(--anim-hue-end, 360deg)) brightness(var(--anim-holo-bright-min, .9)) saturate(var(--anim-holo-sat-min, .8))}}
+@keyframes pv-holograma-gradient{0%{filter:hue-rotate(0deg) brightness(var(--anim-holo-bright-min,.9)) saturate(var(--anim-holo-sat-min,.8))}50%{filter:hue-rotate(180deg) brightness(var(--anim-holo-bright-max,1.4)) saturate(var(--anim-holo-sat-max,2))}100%{filter:hue-rotate(360deg) brightness(var(--anim-holo-bright-min,.9)) saturate(var(--anim-holo-sat-min,.8))}}
+@keyframes pv-holograma-pulse{0%,100%{filter:brightness(var(--anim-holo-bright-min,.9)) saturate(var(--anim-holo-sat-min,.8))}50%{filter:brightness(var(--anim-holo-bright-max,1.4)) saturate(var(--anim-holo-sat-max,2))}}
+@keyframes pv-holo-bg-shift{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+@keyframes pv-holo-pulse-color{0%,100%{background:var(--holo-c0,#ff0080)}33%{background:var(--holo-c1,#00ff80)}66%{background:var(--holo-c2,#0080ff)}}
 @keyframes pv-neon-flicker{0%,19%,21%,23%,25%,54%,56%,100%{opacity:var(--anim-neon-max, 1)}20%,24%,55%{opacity:var(--anim-neon-min, .4)}}
 @keyframes pv-parpadeo{0%,100%{opacity:var(--anim-parpadeo-max, 1)}50%{opacity:var(--anim-parpadeo-min, .3)}}
 @keyframes pv-glitch{0%,100%{transform:translate(0)}20%{transform:translate(calc(-1 * var(--anim-glitch-x, 4px)), var(--anim-glitch-y, 4px))}40%{transform:translate(var(--anim-glitch-x, 4px), calc(-1 * var(--anim-glitch-y, 4px)))}60%{transform:translate(calc(-.5 * var(--anim-glitch-x, 4px)), calc(-.5 * var(--anim-glitch-y, 4px)))}80%{transform:translate(calc(.5 * var(--anim-glitch-x, 4px)), calc(.5 * var(--anim-glitch-y, 4px)))}}
@@ -1428,6 +1440,12 @@ body.light .batch-img-drop input[type="file"] { opacity: 0; }
 #pv-full-card-container .anim-brillo{animation:pv-brillo var(--ad,2s) ease-in-out infinite;animation-delay:var(--adl,0s)}
 #pv-full-card-container .anim-cambio-color{animation:pv-cambio-color var(--ad,4s) linear infinite;animation-delay:var(--adl,0s)}
 #pv-full-card-container .anim-holograma{animation:pv-holograma var(--ad,4s) linear infinite;animation-delay:var(--adl,0s)}
+#pv-full-card-container .anim-holograma-gradient{animation:pv-holograma-gradient var(--ad,4s) linear infinite;animation-delay:var(--adl,0s)}
+#pv-full-card-container .anim-holograma-pulse{animation:pv-holograma-pulse var(--ad,4s) linear infinite;animation-delay:var(--adl,0s)}
+/* Gradient overlay for holograma-gradient mode */
+#pv-full-card-container .anim-holograma-gradient .beat-card-inner::after { opacity: 1 !important; background: linear-gradient(135deg, var(--holo-c0, #ff0080), var(--holo-c1, #00ff80), var(--holo-c2, #0080ff), var(--holo-c3, #ff0080)); background-size: 400% 400%; mix-blend-mode: overlay; animation: pv-holo-bg-shift var(--ad,4s) ease infinite; }
+/* Color overlay for holograma-pulse mode */
+#pv-full-card-container .anim-holograma-pulse .beat-card-inner::after { opacity: 0.6 !important; background: var(--holo-c0, #ff0080); mix-blend-mode: overlay; animation: pv-holo-pulse-color var(--ad,4s) linear infinite; }
 #pv-full-card-container .anim-neon-flicker{animation:pv-neon-flicker var(--ad,3s) linear infinite;animation-delay:var(--adl,0s)}
 #pv-full-card-container .anim-parpadeo{animation:pv-parpadeo var(--ad,2s) ease-in-out infinite;animation-delay:var(--adl,0s)}
 #pv-full-card-container .anim-glitch{animation:pv-glitch var(--ad,1s) linear infinite;animation-delay:var(--adl,0s)}

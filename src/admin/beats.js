@@ -522,7 +522,12 @@ function _applyCardStyleToPreview(pv, cs) {
   // 3. Card animation
   const ca = cs.anim;
   if (ca && ca.type) {
-    pv.classList.add('anim-' + ca.type);
+    var pvAnimSuffix = '';
+    if (ca.type === 'holograma' && ca.holoDir) {
+      if (ca.holoDir === 'gradient') pvAnimSuffix = '-gradient';
+      else if (ca.holoDir === 'pulse') pvAnimSuffix = '-pulse';
+    }
+    pv.classList.add('anim-' + ca.type + pvAnimSuffix);
     pv.style.setProperty('--ad', (ca.dur || 2) + 's');
     pv.style.setProperty('--adl', (ca.del || 0) + 's');
     pv.style.setProperty('--aease', ca.easing || 'ease-in-out');
@@ -541,6 +546,15 @@ function _applyCardStyleToPreview(pv, cs) {
       pv.style.setProperty('--anim-holo-sat-max', ca.holoSatMax || 2);
       pv.style.setProperty('--anim-holo-glow', (ca.holoGlow || 0) + 'px');
       pv.style.setProperty('--anim-holo-blur', (ca.holoBlur || 0) + 'px');
+      // Multi-color gradient vars
+      var holoDir = ca.holoDir || 'hue';
+      var holoColors = ca.holoColors || ['#ff0080','#00ff80','#0080ff'];
+      if (holoDir === 'gradient' || holoDir === 'pulse') {
+        pv.style.setProperty('--holo-c0', holoColors[0] || '#ff0080');
+        pv.style.setProperty('--holo-c1', holoColors[1] || '#00ff80');
+        pv.style.setProperty('--holo-c2', holoColors[2] || '#0080ff');
+        if (holoColors[3]) pv.style.setProperty('--holo-c3', holoColors[3]);
+      }
     }
     if (ca.type === 'cambio-color') {
       pv.style.setProperty('--anim-cs-hue-start', (ca.csHueStart || 0) + 'deg');
@@ -707,7 +721,12 @@ window._buildCardHTML = function(cs, opts) {
   const csBd = cs.border || {};
 
   // Classes
-  const animClass = ca.type ? 'anim-' + ca.type : '';
+  var animSuffix = '';
+  if (ca.type === 'holograma' && ca.holoDir) {
+    if (ca.holoDir === 'gradient') animSuffix = '-gradient';
+    else if (ca.holoDir === 'pulse') animSuffix = '-pulse';
+  }
+  const animClass = ca.type ? 'anim-' + ca.type + animSuffix : '';
   const anim2Class = ca.type2 ? 'anim2-' + ca.type2 : '';
   const glowClass = gc.enabled ? 'glow-' + (gc.type || 'active') : '';
   const shimmerClass = csS.shimmer ? 'shimmer-on' : '';
@@ -743,6 +762,19 @@ window._buildCardHTML = function(cs, opts) {
       s.push('--anim-holo-bright-min:'+(ca.holoBrightMin||0.9)+';--anim-holo-bright-max:'+(ca.holoBrightMax||1.4));
       s.push('--anim-holo-sat-min:'+(ca.holoSatMin||0.8)+';--anim-holo-sat-max:'+(ca.holoSatMax||2));
       if (ca.holoBlur) s.push('--anim-holo-blur:'+ca.holoBlur+'px');
+      var holoDir = ca.holoDir || 'hue';
+      var holoColors = ca.holoColors || ['#ff0080','#00ff80','#0080ff'];
+      if (holoDir === 'gradient' && holoColors.length >= 2) {
+        s.push('--holo-c0:'+holoColors[0]);
+        s.push('--holo-c1:'+holoColors[1]);
+        if (holoColors[2]) s.push('--holo-c2:'+holoColors[2]); else s.push('--holo-c2:'+holoColors[0]);
+        if (holoColors[3]) s.push('--holo-c3:'+holoColors[3]); else s.push('--holo-c3:'+holoColors[1]);
+      }
+      if (holoDir === 'pulse' && holoColors.length >= 2) {
+        s.push('--holo-c0:'+holoColors[0]);
+        s.push('--holo-c1:'+holoColors[1]);
+        if (holoColors[2]) s.push('--holo-c2:'+holoColors[2]); else s.push('--holo-c2:'+holoColors[0]);
+      }
     }
     if (ca.type === 'brillo') s.push('--anim-brillo-min:'+(ca.brilloMin||0.8)+';--anim-brillo-max:'+(ca.brilloMax||1.5));
     if (ca.type === 'glitch') s.push('--anim-glitch-x:'+(ca.glitchX||4)+'px;--anim-glitch-y:'+(ca.glitchY||4)+'px;--anim-glitch-rot:'+(ca.glitchRot||0)+'deg');
@@ -867,7 +899,6 @@ window.toggleDetachPv = function() {
   const btn = document.getElementById('pv-detach-btn');
   const card = document.getElementById('pv-card-embed');
   if (pvDetached) {
-    // Float the card
     if (btn) btn.textContent = '📎 Desfijado';
     if (card) {
       card.style.position = 'fixed';
@@ -879,11 +910,14 @@ window.toggleDetachPv = function() {
       card.style.left = 'auto';
       card.style.bottom = 'auto';
       card.style.marginTop = '0';
-      // Make draggable
+      card.style.resize = 'both';
+      card.style.overflow = 'auto';
+      card.style.minWidth = '280px';
+      card.style.minHeight = '200px';
       makePvDraggable(card);
+      addPvResizeHandles(card);
     }
   } else {
-    // Re-embed
     if (btn) btn.textContent = '📌 Fijado';
     if (card) {
       card.style.position = '';
@@ -896,6 +930,11 @@ window.toggleDetachPv = function() {
       card.style.boxShadow = '';
       card.style.marginTop = '8px';
       card.style.cursor = '';
+      card.style.resize = '';
+      card.style.overflow = '';
+      card.style.minWidth = '';
+      card.style.minHeight = '';
+      removePvResizeHandles(card);
     }
   }
 };
@@ -906,22 +945,75 @@ function makePvDraggable(el) {
   title._draggable = true;
   title.style.cursor = 'grab';
   let dragging = false, sx, sy, oL, oT;
-  title.addEventListener('pointerdown', e => {
-    if (e.target.tagName === 'BUTTON') return;
+  title.addEventListener('pointerdown', function(e) {
+    if (e.target.tagName === 'BUTTON' || e.target.closest('.pv-rz-handle')) return;
     dragging = true; sx = e.clientX; sy = e.clientY;
     oL = el.offsetLeft; oT = el.offsetTop;
     title.style.cursor = 'grabbing';
     el.style.left = oL + 'px'; el.style.top = oT + 'px'; el.style.right = 'auto';
     e.preventDefault();
   });
-  window.addEventListener('pointermove', e => {
+  window.addEventListener('pointermove', function(e) {
     if (!dragging) return;
     el.style.left = (oL + e.clientX - sx) + 'px';
     el.style.top = (oT + e.clientY - sy) + 'px';
   });
-  const up = () => { if (dragging) { dragging = false; title.style.cursor = 'grab'; } };
+  var up = function() { if (dragging) { dragging = false; title.style.cursor = 'grab'; } };
   window.addEventListener('pointerup', up);
   window.addEventListener('pointercancel', up);
+}
+
+// ═══ Resize handles for detached preview ═══
+var _pvResizeHandles = [];
+function addPvResizeHandles(card) {
+  removePvResizeHandles(card);
+  var handles = [
+    { pos: 'right', css: 'top:0;right:-4px;width:8px;height:100%;cursor:col-resize' },
+    { pos: 'bottom', css: 'bottom:-4px;left:0;width:100%;height:8px;cursor:row-resize' },
+    { pos: 'corner-br', css: 'bottom:-4px;right:-4px;width:14px;height:14px;cursor:nwse-resize;border-radius:0 0 4px 0' }
+  ];
+  handles.forEach(function(h) {
+    var el = document.createElement('div');
+    el.className = 'pv-rz-handle';
+    el.dataset.pos = h.pos;
+    el.style.cssText = 'position:absolute;z-index:9001;background:rgba(220,38,38,0.3);opacity:0;transition:opacity .2s;' + h.css;
+    card.appendChild(el);
+    el.addEventListener('pointerdown', function(e) { startPvResize(card, el, h.pos, e); });
+    _pvResizeHandles.push(el);
+  });
+  // Show on hover
+  card.addEventListener('mouseenter', _pvShowHandles);
+  card.addEventListener('mouseleave', _pvHideHandles);
+}
+
+function removePvResizeHandles(card) {
+  _pvResizeHandles.forEach(function(h) { if (h.parentNode) h.parentNode.removeChild(h); });
+  _pvResizeHandles = [];
+  card.removeEventListener('mouseenter', _pvShowHandles);
+  card.removeEventListener('mouseleave', _pvHideHandles);
+}
+
+function _pvShowHandles() { _pvResizeHandles.forEach(function(h) { h.style.opacity = '1'; }); }
+function _pvHideHandles() { _pvResizeHandles.forEach(function(h) { h.style.opacity = '0'; }); }
+
+function startPvResize(card, handle, pos, e) {
+  e.preventDefault(); e.stopPropagation();
+  var startX = e.clientX, startY = e.clientY;
+  var startW = card.offsetWidth, startH = card.offsetHeight;
+  handle.setPointerCapture(e.pointerId);
+  document.body.style.userSelect = 'none';
+  var onMove = function(e2) {
+    if (pos === 'right' || pos === 'corner-br') card.style.width = Math.max(280, startW + (e2.clientX - startX)) + 'px';
+    if (pos === 'bottom' || pos === 'corner-br') card.style.height = Math.max(200, startH + (e2.clientY - startY)) + 'px';
+  };
+  var onUp = function() {
+    handle.releasePointerCapture(e.pointerId);
+    window.removeEventListener('pointermove', onMove);
+    window.removeEventListener('pointerup', onUp);
+    document.body.style.userSelect = '';
+  };
+  window.addEventListener('pointermove', onMove);
+  window.addEventListener('pointerup', onUp);
 }
 
 function syncBorderColor(source) {
