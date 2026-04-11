@@ -245,6 +245,7 @@ body > * { position: relative; z-index: 1; }
 /* ═══ CONTENT AREA ═══ */
 .controls {
   flex: 1; overflow-y: auto; overflow-x: hidden;
+  min-width: 0;
   padding: 28px 32px 48px;
   scroll-behavior: smooth;
 }
@@ -732,10 +733,10 @@ body > * { position: relative; z-index: 1; }
 /* ═══ PREVIEW PANEL ═══ */
 .preview-panel {
   width: 50%; flex-shrink: 0;
+  min-width: 300px;
   display: flex; flex-direction: column;
   background: linear-gradient(180deg, rgba(19,17,26,0.5), rgba(12,10,14,0.7));
   border-left: 1px solid rgba(255,255,255,0.03);
-  min-width: 280px;
 }
 .preview-panel[style*="display: none"] { display: none !important; }
 .preview-bar {
