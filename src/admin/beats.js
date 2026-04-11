@@ -1417,7 +1417,7 @@ renderHoverPresets();
   function _sendLiveUpdate() {
     if (!window._liveEditId) return;
     var frame = _getPreviewFrame();
-    if (!frame || !frame.contentWindow) return;
+    if (!frame || !frame.contentWindow) { console.warn('[LiveEdit] no preview frame'); return; }
     var data = {
       name: val('f-name') || '',
       genre: val('f-genre') || 'Trap',
@@ -1436,6 +1436,7 @@ renderHoverPresets();
       cardStyle: _buildCardStyleFromInputs()
     };
     frame.contentWindow.postMessage({ type: 'beat-update', beatId: window._liveEditId, data: data }, PM_ORIGIN);
+    console.log('[LiveEdit] sent beat-update for', window._liveEditId);
   }
 
   window._sendBeatRevert = function() {
