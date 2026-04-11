@@ -193,6 +193,11 @@
       ".write": "auth != null && root.child('adminWhitelist/approved').child(auth.uid).exists()"
     },
 
+    "liveEdits": {
+      ".read": true,
+      ".write": "auth != null && root.child('adminWhitelist/approved').child(auth.uid).exists()"
+    },
+
     "customLinks": {
       ".read": true,
       ".write": "auth != null && root.child('adminWhitelist/approved').child(auth.uid).exists()"

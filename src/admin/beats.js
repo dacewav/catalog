@@ -1528,21 +1528,29 @@ renderHoverPresets();
       cardStyle: _buildCardStyleFromInputs()
     };
     var payload = { beatId: window._liveEditId, data: data, ts: Date.now() };
-    // localStorage fallback (other tabs)
+    // localStorage fallback (cross-tab)
     localStorage.setItem('dace-live-edit', JSON.stringify(payload));
-    // postMessage to store iframe (same tab — the real channel)
+    // postMessage to iframe (same-tab admin preview)
     postToFrame({ type: 'beat-update', beatId: payload.beatId, data: payload.data });
+    // Firebase — reaches the live store at dacewav.store (separate window)
+    if (typeof db !== 'undefined' && db) {
+      db.ref('liveEdits/' + window._liveEditId).set(data).catch(function(){});
+    }
     console.log('[LiveEdit] sent:', window._liveEditId);
   }
 
   window._sendBeatRevert = function() {
     if (!window._liveEditId || !window._liveEditOriginal) return;
     var revertData = { beatId: window._liveEditId, original: window._liveEditOriginal, ts: Date.now() };
-    // localStorage fallback (other tabs)
+    // localStorage fallback (cross-tab)
     localStorage.setItem('dace-live-edit-revert', JSON.stringify(revertData));
     localStorage.removeItem('dace-live-edit');
-    // postMessage to store iframe (same tab — the real channel)
+    // postMessage to iframe (same-tab admin preview)
     postToFrame({ type: 'beat-revert', beatId: revertData.beatId, original: revertData.original });
+    // Firebase cleanup
+    if (typeof db !== 'undefined' && db) {
+      db.ref('liveEdits/' + window._liveEditId).remove().catch(function(){});
+    }
     console.log('[LiveEdit] revert sent:', window._liveEditId);
     window._liveEditId = null;
     window._liveEditOriginal = null;
@@ -1556,6 +1564,10 @@ renderHoverPresets();
   window._clearLiveEdit = function() {
     localStorage.removeItem('dace-live-edit');
     localStorage.removeItem('dace-live-edit-revert');
+    // Firebase cleanup
+    if (window._liveEditId && typeof db !== 'undefined' && db) {
+      db.ref('liveEdits/' + window._liveEditId).remove().catch(function(){});
+    }
     window._liveEditId = null;
     window._liveEditOriginal = null;
   };
