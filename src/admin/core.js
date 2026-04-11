@@ -193,7 +193,7 @@ export function setViewport(mode) {
   const panel = g('preview-panel');
   if (panel) {
     const widths = { mobile: 375, tablet: 768, desktop: Math.max(800, window.innerWidth * 0.5) };
-    panel.style.width = (widths[mode] || 380) + 'px';
+    panel.style.flexBasis = (widths[mode] || 380) + 'px';
     panel.style.flexShrink = '0';
   }
   document.querySelectorAll('.preview-bar-center .vp-btn').forEach(b => b.classList.remove('on'));

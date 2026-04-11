@@ -25,7 +25,7 @@ export function initResize() {
     const newW = Math.max(280, Math.min(window.innerWidth - 400, startPreviewW + diff));
     const preview = g('preview-panel');
     if (preview) {
-      preview.style.width = newW + 'px';
+      preview.style.flexBasis = newW + 'px';
       preview.style.flexShrink = '0';
     }
     const frame = document.getElementById('preview-frame');
