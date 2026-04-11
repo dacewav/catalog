@@ -137,10 +137,76 @@ export function applyHoverPreset(id) {
 
 function renderPresets() {
   const grid = g('style-presets-grid'); if (!grid) return;
-  grid.innerHTML = STYLE_PRESETS.map(p => {
+  grid.innerHTML =
+    '<button class="btn btn-g" onclick="resetCardStyle()" style="width:100%;margin-bottom:8px;font-size:10px;padding:6px">' +
+    '↺ Restablecer todos los parámetros</button>' +
+    STYLE_PRESETS.map(p => {
     const swatches = p.colors.map(c => '<span style="background:' + c + '"></span>').join('');
     return '<div class="preset-card" data-preset="' + p.id + '" onclick="applyPreset(\'' + p.id + '\')"><div class="preset-header"><span class="preset-icon">' + p.icon + '</span><span class="preset-name">' + p.name + '</span></div><div class="preset-desc">' + p.desc + '</div><div class="preset-swatches">' + swatches + '</div></div>';
   }).join('');
+}
+
+// Reset all card style parameters to defaults
+export function resetCardStyle() {
+  // Filters — all identity
+  setVal('f-cs-fb', 1); setVal('f-cs-fc', 1); setVal('f-cs-fs', 1);
+  setVal('f-cs-fg', 0); setVal('f-cs-fse', 0); setVal('f-cs-fh', 0);
+  setVal('f-cs-fbl', 0); setVal('f-cs-fi', 0);
+  // Glow — off
+  setChecked('f-glow-on', false);
+  const glowTypeEl = g('f-glow-type'); if (glowTypeEl) glowTypeEl.value = 'active';
+  setVal('f-glow-color', '#dc2626'); setVal('f-glow-color-h', '#dc2626');
+  setVal('f-glow-speed', 3); setVal('f-glow-int', 1);
+  setVal('f-glow-blur', 20); setVal('f-glow-spread', 0);
+  setVal('f-glow-op', 1); setChecked('f-glow-hover', false);
+  // Animation — none
+  const animTypeEl = g('f-anim-type'); if (animTypeEl) animTypeEl.value = '';
+  const animType2El = g('f-anim-type2'); if (animType2El) animType2El.value = '';
+  setVal('f-anim-dur', 2); setVal('f-anim-del', 0);
+  const animEaseEl = g('f-anim-ease'); if (animEaseEl) animEaseEl.value = 'ease-in-out';
+  const animDirEl = g('f-anim-dir'); if (animDirEl) animDirEl.value = 'normal';
+  const animIterEl = g('f-anim-iter'); if (animIterEl) animIterEl.value = 'infinite';
+  setVal('f-anim-int', 100);
+  // Style — defaults
+  setVal('f-accent-color', '#dc2626'); setVal('f-accent-color-h', '#dc2626');
+  setChecked('f-shimmer', false);
+  setVal('f-cs-radius', 0); setVal('f-cs-opacity', 1);
+  // Border — off
+  setChecked('f-border-on', false);
+  setVal('f-border-color', '#dc2626'); setVal('f-border-width', 1);
+  const borderStyleEl = g('f-border-style'); if (borderStyleEl) borderStyleEl.value = 'solid';
+  // Shadow — off
+  setChecked('f-shadow-on', false);
+  setVal('f-shadow-color', '#000000'); setVal('f-shadow-op', 0.35);
+  setVal('f-shadow-x', 0); setVal('f-shadow-y', 4);
+  setVal('f-shadow-blur', 12); setVal('f-shadow-spread', 0);
+  setChecked('f-shadow-inset', false);
+  // Hover — defaults
+  setVal('f-hov-scale', 1); setVal('f-hov-bright', 1); setVal('f-hov-sat', 1);
+  setVal('f-hov-shadow', 0); setVal('f-hov-trans', 0.3);
+  setVal('f-hov-border', '#dc2626'); setChecked('f-hov-glow', false);
+  setVal('f-hov-blur', 0); setVal('f-hov-sib-blur', 0);
+  setVal('f-hov-hue', 0); setVal('f-hov-opacity', 1);
+  setChecked('f-hov-anim-on', false);
+  const hovAnimTypeEl = g('f-hov-anim-type'); if (hovAnimTypeEl) hovAnimTypeEl.value = '';
+  setVal('f-hov-anim-dur', 1);
+  // Transform — identity
+  setVal('f-tf-rotate', 0); setVal('f-tf-scale', 1);
+  setVal('f-tf-skewX', 0); setVal('f-tf-skewY', 0);
+  setVal('f-tf-x', 0); setVal('f-tf-y', 0);
+  // Sync slider displays
+  ['f-anim-dur','f-anim-del','f-border-width','f-glow-speed','f-glow-int','f-glow-blur','f-glow-spread','f-glow-op',
+   'f-cs-fb','f-cs-fc','f-cs-fs','f-cs-fg','f-cs-fse','f-cs-fh','f-cs-fbl','f-cs-fi','f-cs-radius','f-cs-opacity',
+   'f-shadow-op','f-shadow-x','f-shadow-y','f-shadow-blur','f-shadow-spread',
+   'f-hov-scale','f-hov-bright','f-hov-sat','f-hov-shadow','f-hov-trans','f-hov-blur','f-hov-sib-blur','f-hov-hue','f-hov-opacity','f-hov-anim-dur',
+   'f-tf-rotate','f-tf-scale','f-tf-skewX','f-tf-skewY','f-tf-x','f-tf-y'
+  ].forEach(syncSliderDisplay);
+  // Deselect preset cards
+  document.querySelectorAll('.preset-card').forEach(c => c.classList.remove('active'));
+  // Update preview + live
+  updateCardPreview();
+  if (typeof window._sendLiveUpdate === 'function') window._sendLiveUpdate();
+  showToast('Parámetros restablecidos ✓');
 }
 
 export function applyPreset(id) {
@@ -491,18 +557,19 @@ function _buildCardStyleFromInputs() {
 function _applyCardStyleToPreview(pv, cs) {
   const inner = pv.querySelector('.bcpv-inner');
 
-  // 1. CSS Filters
+  // 1. CSS Filters — match store logic (skip undefined AND identity values)
   const f = cs.filter || {};
   const filters = [];
-  if (f.brightness !== 1) filters.push('brightness(' + f.brightness + ')');
-  if (f.contrast !== 1) filters.push('contrast(' + f.contrast + ')');
-  if (f.saturate !== 1) filters.push('saturate(' + f.saturate + ')');
+  if (f.brightness != null && f.brightness !== 1) filters.push('brightness(' + f.brightness + ')');
+  if (f.contrast != null && f.contrast !== 1) filters.push('contrast(' + f.contrast + ')');
+  if (f.saturate != null && f.saturate !== 1) filters.push('saturate(' + f.saturate + ')');
   if (f.grayscale) filters.push('grayscale(' + f.grayscale + ')');
   if (f.sepia) filters.push('sepia(' + f.sepia + ')');
   if (f.hueRotate) filters.push('hue-rotate(' + f.hueRotate + 'deg)');
   if (f.blur) filters.push('blur(' + f.blur + 'px)');
   if (f.invert) filters.push('invert(' + f.invert + ')');
   if (filters.length) pv.style.filter = filters.join(' ');
+  else pv.style.filter = '';
 
   // 2. Glow
   const gc = cs.glow || {};
@@ -1378,7 +1445,7 @@ Object.assign(window, {
   inlineEditName, inlineEditBpm, inlineEditKey,
   openBatchImg, closeBatchImg, handleBatchImgFiles, clearBatchImgQueue, saveBatchImages,
   batchAddBeats, toggleMP, seekMP,
-  syncAccentColor, updateCardPreview, applyPreset, renderPresets
+  syncAccentColor, updateCardPreview, applyPreset, applyHoverPreset, resetCardStyle, renderPresets
 });
 
 // Initialize preset grids on load
