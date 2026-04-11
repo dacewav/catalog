@@ -92,7 +92,14 @@ function _buildCardStyleFromInputs() {
       shadowBlur: parseInt(val('f-hov-shadow')) || 0,
       transition: parseFloat(val('f-hov-trans')) || 0.3,
       borderColor: val('f-hov-border') || '',
-      glowIntensify: checked('f-hov-glow')
+      glowIntensify: checked('f-hov-glow'),
+      blur: parseFloat(val('f-hov-blur')) || 0,
+      siblingsBlur: parseFloat(val('f-hov-sib-blur')) || 0,
+      hueRotate: parseInt(val('f-hov-hue')) || 0,
+      opacity: parseFloat(val('f-hov-opacity')) || 1,
+      enableAnim: checked('f-hov-anim-on'),
+      animType: val('f-hov-anim-type') || '',
+      animDur: parseFloat(val('f-hov-anim-dur')) || 1
     },
     transform: {
       rotate: parseFloat(val('f-tf-rotate')) || 0,
