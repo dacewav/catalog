@@ -1437,16 +1437,28 @@ renderHoverPresets();
       cardStyle: _buildCardStyleFromInputs()
     };
     var payload = { beatId: window._liveEditId, data: data, ts: Date.now() };
+    // localStorage fallback (other tabs)
     localStorage.setItem('dace-live-edit', JSON.stringify(payload));
-    console.log('[LiveEdit] saved to localStorage:', window._liveEditId);
+    // postMessage to store iframe (same tab — the real channel)
+    var frame = document.getElementById('preview-frame');
+    if (frame && frame.contentWindow) {
+      try { frame.contentWindow.postMessage({ type: 'beat-update', beatId: payload.beatId, data: payload.data }, '*'); } catch(e) {}
+    }
+    console.log('[LiveEdit] sent:', window._liveEditId);
   }
 
   window._sendBeatRevert = function() {
     if (!window._liveEditId || !window._liveEditOriginal) return;
-    localStorage.setItem('dace-live-edit-revert', JSON.stringify({ beatId: window._liveEditId, original: window._liveEditOriginal, ts: Date.now() }));
-    // Clean up
+    var revertData = { beatId: window._liveEditId, original: window._liveEditOriginal, ts: Date.now() };
+    // localStorage fallback (other tabs)
+    localStorage.setItem('dace-live-edit-revert', JSON.stringify(revertData));
     localStorage.removeItem('dace-live-edit');
-    console.log('[LiveEdit] revert saved:', window._liveEditId);
+    // postMessage to store iframe (same tab — the real channel)
+    var frame = document.getElementById('preview-frame');
+    if (frame && frame.contentWindow) {
+      try { frame.contentWindow.postMessage({ type: 'beat-revert', beatId: revertData.beatId, original: revertData.original }, '*'); } catch(e) {}
+    }
+    console.log('[LiveEdit] revert sent:', window._liveEditId);
     window._liveEditId = null;
     window._liveEditOriginal = null;
   };
