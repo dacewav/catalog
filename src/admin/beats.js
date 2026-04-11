@@ -23,6 +23,83 @@ function syncAccentColor(source) {
   if (source === 'picker') hex.value = picker.value;
   else picker.value = hex.value;
 }
+
+// ═══ LIVE CARD PREVIEW ═══
+function updateCardPreview() {
+  const pv = g('beat-card-pv'); if (!pv) return;
+
+  // Beat info
+  const name = val('f-name') || 'Nombre del Beat';
+  const bpm = val('f-bpm') || '140';
+  const key = val('f-key') || 'Am';
+  const genre = g('f-genre')?.value || 'Trap';
+  const imgUrl = val('f-img');
+
+  const nameEl = g('bcpv-name'); if (nameEl) nameEl.textContent = name;
+  const bpmEl = g('bcpv-bpm'); if (bpmEl) bpmEl.textContent = bpm + ' BPM';
+  const keyEl = g('bcpv-key'); if (keyEl) keyEl.textContent = key;
+  const genreEl = g('bcpv-genre'); if (genreEl) genreEl.textContent = genre;
+
+  // Image
+  const imgWrap = g('bcpv-img');
+  if (imgWrap) {
+    if (imgUrl) {
+      imgWrap.innerHTML = '<img src="' + imgUrl + '" alt="">';
+    } else {
+      imgWrap.innerHTML = '<div class="bcpv-img-ph">♪</div>';
+    }
+  }
+
+  // Reset classes and styles
+  pv.className = 'bcpv';
+  pv.style.cssText = '';
+
+  // Accent color (card tint gradient)
+  const accentClr = val('f-accent-color') || '#dc2626';
+  pv.style.setProperty('--card-tint', 'linear-gradient(135deg,' + accentClr + ',transparent)');
+
+  // Glow
+  if (checked('f-glow-on')) {
+    const glowType = val('f-glow-type') || 'active';
+    pv.classList.add('glow-' + glowType);
+    const glowClr = val('f-glow-color') || '#dc2626';
+    const hex = glowClr.replace('#', '');
+    const r = parseInt(hex.substring(0, 2), 16) || 220;
+    const gv = parseInt(hex.substring(2, 4), 16) || 38;
+    const b = parseInt(hex.substring(4, 6), 16) || 38;
+    const speed = parseFloat(val('f-glow-speed')) || 3;
+    pv.style.setProperty('--glow-r', r);
+    pv.style.setProperty('--glow-g', gv);
+    pv.style.setProperty('--glow-b', b);
+    pv.style.setProperty('--glow-speed', speed + 's');
+  }
+
+  // Card animation
+  const animType = val('f-anim-type');
+  if (animType) {
+    pv.classList.add('anim-' + animType);
+    const dur = parseFloat(val('f-anim-dur')) || 2;
+    const del = parseFloat(val('f-anim-del')) || 0;
+    pv.style.setProperty('--ad', dur + 's');
+    pv.style.setProperty('--adl', del + 's');
+  }
+
+  // Shimmer
+  if (checked('f-shimmer')) {
+    pv.classList.add('shimmer-on');
+  }
+
+  // Custom border
+  if (checked('f-border-on')) {
+    const borderClr = val('f-border-color') || '#dc2626';
+    const borderWidth = parseFloat(val('f-border-width')) || 1;
+    const inner = pv.querySelector('.bcpv-inner');
+    if (inner) inner.style.border = borderWidth + 'px solid ' + borderClr;
+  } else {
+    const inner = pv.querySelector('.bcpv-inner');
+    if (inner) inner.style.border = '';
+  }
+}
 function syncBorderColor(source) {
   const picker = g('f-border-color');
   if (!picker) return;
@@ -113,6 +190,7 @@ export function openEditor(id) {
     renderLicEditor(defLics.length ? JSON.parse(JSON.stringify(defLics)) : []);
   }
   prevImg();
+  updateCardPreview();
   document.querySelectorAll('#sec-add .et').forEach((t, i) => t.classList.toggle('on', i === 0));
   document.querySelectorAll('#sec-add .etp').forEach((p, i) => p.classList.toggle('on', i === 0));
 }
@@ -284,5 +362,5 @@ Object.assign(window, {
   inlineEditName, inlineEditBpm, inlineEditKey,
   openBatchImg, closeBatchImg, handleBatchImgFiles, clearBatchImgQueue, saveBatchImages,
   batchAddBeats, toggleMP, seekMP,
-  syncAccentColor, syncBorderColor
+  syncAccentColor, updateCardPreview
 });

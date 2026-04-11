@@ -1152,6 +1152,107 @@ body.light .batch-img-drop input[type="file"] { opacity: 0; }
 }
 .anim-ed-title { font-family: var(--fd); font-size: 11px; font-weight: 700; margin-bottom: 8px; }
 
+/* ═══ BEAT CARD PREVIEW (admin live preview) ═══ */
+.bcpv-wrap {
+  background: linear-gradient(135deg, rgba(12,10,14,0.8), rgba(30,27,36,0.5));
+  border: 1px solid var(--b); border-radius: var(--rlg);
+  padding: 20px; margin-bottom: 16px;
+  display: flex; align-items: center; justify-content: center;
+}
+.bcpv-label {
+  font-size: 9px; color: var(--mu); text-transform: uppercase;
+  letter-spacing: .1em; font-weight: 700; margin-bottom: 8px; text-align: center;
+}
+.bcpv {
+  width: 260px; border-radius: var(--rlg); overflow: visible;
+  position: relative; cursor: default;
+  --ad: 2s; --adl: 0s;
+}
+.bcpv::before {
+  content: ''; position: absolute; inset: -1px;
+  border-radius: calc(var(--rlg) + 1px);
+  background: linear-gradient(135deg, var(--acc), transparent 40%, transparent 60%, var(--acc));
+  opacity: 0; transition: opacity .3s; z-index: 0;
+}
+.bcpv:hover::before { opacity: 1; }
+.bcpv-inner {
+  background: var(--sf2); border: 1px solid var(--b);
+  border-radius: var(--rlg); overflow: hidden; position: relative; z-index: 1;
+  transition: border-color .3s, box-shadow .3s;
+}
+.bcpv-img {
+  width: 100%; aspect-ratio: 16/9; background: var(--bg2);
+  display: flex; align-items: center; justify-content: center;
+  overflow: hidden; position: relative;
+}
+.bcpv-img img { width: 100%; height: 100%; object-fit: cover; }
+.bcpv-img-ph { font-size: 28px; color: var(--mu); }
+.bcpv-body { padding: 12px; }
+.bcpv-name {
+  font-family: var(--fd); font-size: 13px; font-weight: 700;
+  color: var(--tx); margin-bottom: 4px;
+}
+.bcpv-meta {
+  font-size: 10px; color: var(--mu); font-family: var(--fx);
+  display: flex; gap: 8px;
+}
+.bcpv-shimmer {
+  position: absolute; inset: 0; border-radius: var(--rlg);
+  pointer-events: none; overflow: hidden; z-index: 2;
+  background: linear-gradient(110deg, transparent 30%, rgba(255,255,255,0.04) 50%, transparent 70%);
+  background-size: 200% 100%;
+  animation: bcpv-shimmer 3s infinite linear;
+  opacity: 0;
+}
+@keyframes bcpv-shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+.bcpv.shimmer-on .bcpv-shimmer { opacity: 1; }
+/* Glow effects on preview */
+.bcpv.glow-active .bcpv-inner { box-shadow: 0 0 20px rgba(var(--glow-r,220),var(--glow-g,38),var(--glow-b,38),0.4); animation: bcpv-glow-pulse var(--glow-speed,3s) ease-in-out infinite; }
+.bcpv.glow-rgb .bcpv-inner { animation: bcpv-glow-rgb var(--glow-speed,3s) linear infinite; }
+.bcpv.glow-pulse .bcpv-inner { animation: bcpv-glow-beat var(--glow-speed,1.5s) ease-in-out infinite; }
+.bcpv.glow-breathe .bcpv-inner { animation: bcpv-glow-breathe var(--glow-speed,3s) ease-in-out infinite; }
+.bcpv.glow-neon .bcpv-inner { animation: bcpv-glow-neon var(--glow-speed,3s) linear infinite; }
+@keyframes bcpv-glow-pulse { 0%,100%{box-shadow:0 0 15px rgba(var(--glow-r,220),var(--glow-g,38),var(--glow-b,38),.3)} 50%{box-shadow:0 0 35px rgba(var(--glow-r,220),var(--glow-g,38),var(--glow-b,38),.7)} }
+@keyframes bcpv-glow-rgb { 0%{box-shadow:0 0 20px rgba(255,0,0,.5)} 33%{box-shadow:0 0 20px rgba(0,255,0,.5)} 66%{box-shadow:0 0 20px rgba(0,0,255,.5)} 100%{box-shadow:0 0 20px rgba(255,0,0,.5)} }
+@keyframes bcpv-glow-beat { 0%,100%{transform:scale(1);box-shadow:0 0 10px rgba(var(--glow-r,220),var(--glow-g,38),var(--glow-b,38),.3)} 50%{transform:scale(1.03);box-shadow:0 0 30px rgba(var(--glow-r,220),var(--glow-g,38),var(--glow-b,38),.6)} }
+@keyframes bcpv-glow-breathe { 0%,100%{box-shadow:0 0 10px rgba(var(--glow-r,220),var(--glow-g,38),var(--glow-b,38),.2)} 50%{box-shadow:0 0 28px rgba(var(--glow-r,220),var(--glow-g,38),var(--glow-b,38),.55)} }
+@keyframes bcpv-glow-neon { 0%,19%,21%,23%,25%,54%,56%,100%{box-shadow:0 0 15px rgba(var(--glow-r,220),var(--glow-g,38),var(--glow-b,38),.6)} 20%,24%,55%{box-shadow:none} }
+/* Card animation keyframes */
+@keyframes bcpv-flotar{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+@keyframes bcpv-pulsar{0%,100%{transform:scale(1)}50%{transform:scale(1.04)}}
+@keyframes bcpv-respirar{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.02);opacity:.85}}
+@keyframes bcpv-latido{0%,100%{transform:scale(1)}14%{transform:scale(1.05)}28%{transform:scale(1)}42%{transform:scale(1.05)}70%{transform:scale(1)}}
+@keyframes bcpv-rebotar{0%,100%{transform:translateY(0)}40%{transform:translateY(-12px)}60%{transform:translateY(-4px)}}
+@keyframes bcpv-balanceo{0%,100%{transform:rotate(0)}25%{transform:rotate(3deg)}75%{transform:rotate(-3deg)}}
+@keyframes bcpv-brillo{0%,100%{filter:brightness(1)}50%{filter:brightness(1.3)}}
+@keyframes bcpv-cambio-color{0%{filter:hue-rotate(0)}100%{filter:hue-rotate(360deg)}}
+@keyframes bcpv-holograma{0%{filter:hue-rotate(0) brightness(1)}50%{filter:hue-rotate(180deg) brightness(1.2)}100%{filter:hue-rotate(360deg) brightness(1)}}
+@keyframes bcpv-neon-flicker{0%,19%,21%,23%,25%,54%,56%,100%{opacity:1}20%,24%,55%{opacity:.6}}
+@keyframes bcpv-glitch{0%,100%{transform:translate(0)}20%{transform:translate(-2px,2px)}40%{transform:translate(2px,-2px)}60%{transform:translate(-1px,-1px)}80%{transform:translate(1px,1px)}}
+@keyframes bcpv-drift{0%,100%{transform:translateX(0) rotate(0)}25%{transform:translateX(4px) rotate(1deg)}75%{transform:translateX(-4px) rotate(-1deg)}}
+@keyframes bcpv-zoom-in{0%{transform:scale(.95);opacity:.7}100%{transform:scale(1);opacity:1}}
+@keyframes bcpv-pop{0%{transform:scale(0)}60%{transform:scale(1.1)}100%{transform:scale(1)}}
+@keyframes bcpv-rubber-band{0%{transform:scaleX(1) scaleY(1)}30%{transform:scaleX(1.15) scaleY(.85)}40%{transform:scaleX(.85) scaleY(1.15)}50%{transform:scaleX(1.08) scaleY(.92)}65%{transform:scaleX(.95) scaleY(1.05)}75%{transform:scaleX(1.03) scaleY(.97)}100%{transform:scaleX(1) scaleY(1)}}
+@keyframes bcpv-jello{0%,100%{transform:skewX(0) skewY(0)}22%{transform:skewX(-8deg) skewY(-1deg)}33%{transform:skewX(5deg) skewY(1deg)}44%{transform:skewX(-3deg) skewY(0)}55%{transform:skewX(2deg) skewY(0)}66%{transform:skewX(-1deg) skewY(0)}}
+@keyframes bcpv-wobble{0%,100%{transform:translateX(0) rotate(0)}15%{transform:translateX(-8px) rotate(-4deg)}30%{transform:translateX(6px) rotate(2deg)}45%{transform:translateX(-4px) rotate(-2deg)}60%{transform:translateX(2px) rotate(1deg)}75%{transform:translateX(-1px) rotate(0)}}
+.bcpv.anim-flotar{animation:bcpv-flotar var(--ad,2s) ease-in-out infinite;animation-delay:var(--adl,0s)}
+.bcpv.anim-pulsar{animation:bcpv-pulsar var(--ad,2s) ease-in-out infinite;animation-delay:var(--adl,0s)}
+.bcpv.anim-respirar{animation:bcpv-respirar var(--ad,3s) ease-in-out infinite;animation-delay:var(--adl,0s)}
+.bcpv.anim-latido{animation:bcpv-latido var(--ad,1.5s) ease-in-out infinite;animation-delay:var(--adl,0s)}
+.bcpv.anim-rebotar{animation:bcpv-rebotar var(--ad,2s) ease-in-out infinite;animation-delay:var(--adl,0s)}
+.bcpv.anim-balanceo{animation:bcpv-balanceo var(--ad,2s) ease-in-out infinite;animation-delay:var(--adl,0s)}
+.bcpv.anim-brillo{animation:bcpv-brillo var(--ad,2s) ease-in-out infinite;animation-delay:var(--adl,0s)}
+.bcpv.anim-cambio-color{animation:bcpv-cambio-color var(--ad,4s) linear infinite;animation-delay:var(--adl,0s)}
+.bcpv.anim-holograma{animation:bcpv-holograma var(--ad,4s) linear infinite;animation-delay:var(--adl,0s)}
+.bcpv.anim-neon-flicker{animation:bcpv-neon-flicker var(--ad,3s) linear infinite;animation-delay:var(--adl,0s)}
+.bcpv.anim-glitch{animation:bcpv-glitch var(--ad,1s) linear infinite;animation-delay:var(--adl,0s)}
+.bcpv.anim-drift{animation:bcpv-drift var(--ad,4s) ease-in-out infinite;animation-delay:var(--adl,0s)}
+.bcpv.anim-zoom-in{animation:bcpv-zoom-in var(--ad,1s) ease-out infinite;animation-delay:var(--adl,0s)}
+.bcpv.anim-pop{animation:bcpv-pop var(--ad,.5s) ease-out infinite;animation-delay:var(--adl,0s)}
+.bcpv.anim-rubber-band{animation:bcpv-rubber-band var(--ad,1s) ease-in-out infinite;animation-delay:var(--adl,0s)}
+.bcpv.anim-jello{animation:bcpv-jello var(--ad,1s) ease-in-out infinite;animation-delay:var(--adl,0s)}
+.bcpv.anim-wobble{animation:bcpv-wobble var(--ad,2s) ease-in-out infinite;animation-delay:var(--adl,0s)}
+
 /* ═══ PRESET CARDS (JS-generated) ═══ */
 .preset-card.active { border-color: var(--acc); box-shadow: 0 0 12px rgba(220,38,38,0.2); }
 .preset-swatches { display: flex; gap: 3px; margin-bottom: 6px; }
@@ -1742,6 +1843,26 @@ definen géneros.</textarea></div>
         <div class="field"><label style="color:#ff5500">☁ SoundCloud</label><input type="url" id="f-soundcloud" placeholder="https://soundcloud.com/..."></div>
       </div>
       <div class="etp" id="etp-extras">
+
+        <!-- Live Beat Card Preview -->
+        <div class="bcpv-label">👁️ Vista previa en vivo</div>
+        <div class="bcpv-wrap">
+          <div class="bcpv" id="beat-card-pv">
+            <div class="bcpv-shimmer"></div>
+            <div class="bcpv-inner">
+              <div class="bcpv-img" id="bcpv-img"><div class="bcpv-img-ph">♪</div></div>
+              <div class="bcpv-body">
+                <div class="bcpv-name" id="bcpv-name">Nombre del Beat</div>
+                <div class="bcpv-meta">
+                  <span id="bcpv-bpm">140 BPM</span>
+                  <span id="bcpv-key">Am</span>
+                  <span id="bcpv-genre">Trap</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <div class="fg2">
           <div class="field"><label>Fecha</label><input type="date" id="f-date"></div>
           <div class="field"><label>Orden</label><input type="number" id="f-order" value="0"></div>
@@ -1756,9 +1877,9 @@ definen géneros.</textarea></div>
         <div class="card" style="margin-top:12px">
           <div class="card-title" onclick="toggleCard(this)"><span>✨ Glow animado</span><i class="fas fa-chevron-down"></i></div>
           <div class="card-body">
-            <div class="tog-row"><input type="checkbox" class="tog" id="f-glow-on"><span class="tog-lbl">Activar glow</span></div>
+            <div class="tog-row"><input type="checkbox" class="tog" id="f-glow-on" onchange="updateCardPreview()"><span class="tog-lbl">Activar glow</span></div>
             <div class="field"><label>Tipo de glow</label>
-              <select id="f-glow-type" style="font-family:var(--fm);font-size:11px;background:var(--abg);color:var(--tx);border:1px solid var(--b);border-radius:var(--rad);padding:6px 10px;width:100%;cursor:pointer">
+              <select id="f-glow-type" onchange="updateCardPreview()" style="font-family:var(--fm);font-size:11px;background:var(--abg);color:var(--tx);border:1px solid var(--b);border-radius:var(--rad);padding:6px 10px;width:100%;cursor:pointer">
                 <option value="active">Pulso suave</option>
                 <option value="rgb">Ciclo RGB</option>
                 <option value="pulse">Latido</option>
@@ -1766,8 +1887,8 @@ definen géneros.</textarea></div>
                 <option value="neon">Neón parpadeo</option>
               </select>
             </div>
-            <div class="color-wrap"><label>Color glow</label><div class="color-swatch"><input type="color" id="f-glow-color" value="#dc2626"></div><input type="text" class="color-hex" id="f-glow-color-h" value="#dc2626"></div>
-            <div class="field"><label>Velocidad</label><div class="slider-wrap"><input type="range" id="f-glow-speed" min="0.5" max="10" step="0.1" value="3" oninput="this.nextElementSibling.textContent=parseFloat(this.value).toFixed(1)+'s'"><span class="slider-val">3.0s</span></div></div>
+            <div class="color-wrap"><label>Color glow</label><div class="color-swatch"><input type="color" id="f-glow-color" value="#dc2626" oninput="updateCardPreview()"></div><input type="text" class="color-hex" id="f-glow-color-h" value="#dc2626" oninput="updateCardPreview()"></div>
+            <div class="field"><label>Velocidad</label><div class="slider-wrap"><input type="range" id="f-glow-speed" min="0.5" max="10" step="0.1" value="3" oninput="this.nextElementSibling.textContent=parseFloat(this.value).toFixed(1)+'s';updateCardPreview()"><span class="slider-val">3.0s</span></div></div>
           </div>
         </div>
 
@@ -1777,7 +1898,7 @@ definen géneros.</textarea></div>
           <div class="card-body">
             <p style="font-size:9px;color:var(--hi);margin-bottom:10px">Animación única para esta tarjeta en el catálogo.</p>
             <div class="field"><label>Tipo de animación</label>
-              <select id="f-anim-type" style="font-family:var(--fm);font-size:11px;background:var(--abg);color:var(--tx);border:1px solid var(--b);border-radius:var(--rad);padding:6px 10px;width:100%;cursor:pointer">
+              <select id="f-anim-type" onchange="updateCardPreview()" style="font-family:var(--fm);font-size:11px;background:var(--abg);color:var(--tx);border:1px solid var(--b);border-radius:var(--rad);padding:6px 10px;width:100%;cursor:pointer">
                 <option value="">Ninguna</option>
                 <option value="flotar">🫧 Flotar</option>
                 <option value="pulsar">💓 Pulsar</option>
@@ -1799,8 +1920,8 @@ definen géneros.</textarea></div>
               </select>
             </div>
             <div class="fg2">
-              <div class="field"><label>Duración</label><div class="slider-wrap"><input type="range" id="f-anim-dur" min="0.3" max="10" step="0.1" value="2" oninput="this.nextElementSibling.textContent=parseFloat(this.value).toFixed(1)+'s'"><span class="slider-val">2.0s</span></div></div>
-              <div class="field"><label>Delay</label><div class="slider-wrap"><input type="range" id="f-anim-del" min="0" max="5" step="0.1" value="0" oninput="this.nextElementSibling.textContent=parseFloat(this.value).toFixed(1)+'s'"><span class="slider-val">0.0s</span></div></div>
+              <div class="field"><label>Duración</label><div class="slider-wrap"><input type="range" id="f-anim-dur" min="0.3" max="10" step="0.1" value="2" oninput="this.nextElementSibling.textContent=parseFloat(this.value).toFixed(1)+'s';updateCardPreview()"><span class="slider-val">2.0s</span></div></div>
+              <div class="field"><label>Delay</label><div class="slider-wrap"><input type="range" id="f-anim-del" min="0" max="5" step="0.1" value="0" oninput="this.nextElementSibling.textContent=parseFloat(this.value).toFixed(1)+'s';updateCardPreview()"><span class="slider-val">0.0s</span></div></div>
             </div>
           </div>
         </div>
@@ -1809,14 +1930,14 @@ definen géneros.</textarea></div>
         <div class="card" style="margin-top:8px">
           <div class="card-title" onclick="toggleCard(this)"><span>🎨 Estilo de tarjeta</span><i class="fas fa-chevron-down"></i></div>
           <div class="card-body">
-            <div class="color-wrap"><label>Color acento</label><div class="color-swatch"><input type="color" id="f-accent-color" value="#dc2626" oninput="syncAccentColor('picker')"></div><input type="text" class="color-hex" id="f-accent-color-h" value="#dc2626" oninput="syncAccentColor('hex')"></div>
-            <div class="tog-row"><input type="checkbox" class="tog" id="f-shimmer"><span class="tog-lbl">Efecto shimmer al hover</span></div>
+            <div class="color-wrap"><label>Color acento</label><div class="color-swatch"><input type="color" id="f-accent-color" value="#dc2626" oninput="syncAccentColor('picker');updateCardPreview()"></div><input type="text" class="color-hex" id="f-accent-color-h" value="#dc2626" oninput="syncAccentColor('hex');updateCardPreview()"></div>
+            <div class="tog-row"><input type="checkbox" class="tog" id="f-shimmer" onchange="updateCardPreview()"><span class="tog-lbl">Efecto shimmer al hover</span></div>
             <div style="border-top:1px solid var(--b);margin-top:8px;padding-top:10px">
               <p style="font-size:9px;color:var(--hi);margin-bottom:8px">Borde personalizado</p>
-              <div class="tog-row"><input type="checkbox" class="tog" id="f-border-on"><span class="tog-lbl">Activar borde</span></div>
+              <div class="tog-row"><input type="checkbox" class="tog" id="f-border-on" onchange="updateCardPreview()"><span class="tog-lbl">Activar borde</span></div>
               <div class="fg2">
-                <div class="color-wrap"><label>Color borde</label><div class="color-swatch"><input type="color" id="f-border-color" value="#dc2626"></div></div>
-                <div class="field"><label>Grosor</label><div class="slider-wrap"><input type="range" id="f-border-width" min="1" max="5" step="0.5" value="1" oninput="this.nextElementSibling.textContent=parseFloat(this.value).toFixed(1)+'px'"><span class="slider-val">1.0px</span></div></div>
+                <div class="color-wrap"><label>Color borde</label><div class="color-swatch"><input type="color" id="f-border-color" value="#dc2626" oninput="updateCardPreview()"></div></div>
+                <div class="field"><label>Grosor</label><div class="slider-wrap"><input type="range" id="f-border-width" min="1" max="5" step="0.5" value="1" oninput="this.nextElementSibling.textContent=parseFloat(this.value).toFixed(1)+'px';updateCardPreview()"><span class="slider-val">1.0px</span></div></div>
               </div>
             </div>
           </div>
