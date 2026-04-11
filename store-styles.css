@@ -595,3 +595,51 @@ body.light-mode .pi-meta{color:#666}
 .tag-cloud-item--active:hover{background:rgba(185,28,28,.85);color:#fff}
 .tag-cloud-item--hidden{display:none}
 .tag-cloud-items--expanded .tag-cloud-item--hidden{display:inline-flex}
+
+/* ═══ CardStyle Mega System ═══ */
+
+/* Secondary animation overlay */
+.anim2-flotar{animation:flotar var(--ad,2s) ease-in-out infinite;animation-delay:var(--adl,0s)}
+.anim2-pulsar{animation:pulsar var(--ad,2s) ease-in-out infinite;animation-delay:var(--adl,0s)}
+.anim2-respirar{animation:respirar var(--ad,2s) ease-in-out infinite;animation-delay:var(--adl,0s)}
+.anim2-latido{animation:latido var(--ad,2s) ease-in-out infinite;animation-delay:var(--adl,0s)}
+.anim2-rebotar{animation:rebotar var(--ad,2s) ease-in-out infinite;animation-delay:var(--adl,0s)}
+.anim2-balanceo{animation:balanceo var(--ad,2s) ease-in-out infinite;animation-delay:var(--adl,0s)}
+.anim2-brillo{animation:brillo var(--ad,2s) ease-in-out infinite;animation-delay:var(--adl,0s)}
+.anim2-cambio-color{animation:cambio-color var(--ad,4s) linear infinite;animation-delay:var(--adl,0s)}
+.anim2-holograma{animation:holograma var(--ad,4s) linear infinite;animation-delay:var(--adl,0s)}
+.anim2-neon-flicker{animation:neon-flicker var(--ad,2s) ease-in-out infinite;animation-delay:var(--adl,0s)}
+.anim2-glitch{animation:glitch var(--ad,0.5s) ease-in-out infinite;animation-delay:var(--adl,0s)}
+.anim2-drift{animation:drift var(--ad,4s) ease-in-out infinite;animation-delay:var(--adl,0s)}
+.anim2-zoom-in{animation:zoom-in var(--ad,1s) ease-out infinite;animation-delay:var(--adl,0s)}
+.anim2-pop{animation:pop var(--ad,0.5s) ease-out infinite;animation-delay:var(--adl,0s)}
+.anim2-spin-lento{animation:spin-lento var(--ad,8s) linear infinite;animation-delay:var(--adl,0s)}
+.anim2-temblor{animation:temblor var(--ad,0.5s) ease-in-out infinite;animation-delay:var(--adl,0s)}
+
+/* Glow hover-only: hidden until hover */
+.glow-hover-only .beat-card-inner{--glow-op-save:var(--glow-op,1)}
+.glow-hover-only.glow-active .beat-card-inner,
+.glow-hover-only.glow-rgb .beat-card-inner,
+.glow-hover-only.glow-pulse .beat-card-inner,
+.glow-hover-only.glow-breathe .beat-card-inner,
+.glow-hover-only.glow-neon .beat-card-inner{box-shadow:none!important;animation:none!important}
+.glow-hover-only:hover.glow-active .beat-card-inner{animation:bcpv-glow-pulse var(--glow-speed,3s) ease-in-out infinite!important}
+.glow-hover-only:hover.glow-rgb .beat-card-inner{animation:bcpv-glow-rgb var(--glow-speed,3s) linear infinite!important}
+.glow-hover-only:hover.glow-pulse .beat-card-inner{animation:bcpv-glow-beat var(--glow-speed,1.5s) ease-in-out infinite!important}
+.glow-hover-only:hover.glow-breathe .beat-card-inner{animation:bcpv-glow-breathe var(--glow-speed,3s) ease-in-out infinite!important}
+.glow-hover-only:hover.glow-neon .beat-card-inner{animation:bcpv-glow-neon var(--glow-speed,3s) linear infinite!important}
+
+/* Border radius per-card */
+.beat-card{border-radius:var(--card-radius,10px);overflow:hidden}
+
+/* ── Hover Effects System ── */
+.beat-card.has-hover-fx{transition:transform var(--hov-trans,0.3s) ease,filter var(--hov-trans,0.3s) ease,box-shadow var(--hov-trans,0.3s) ease,border-color var(--hov-trans,0.3s) ease}
+.beat-card.has-hover-fx:hover{transform:scale(var(--hov-scale,1))}
+.beat-card.has-hover-fx:hover{filter:brightness(var(--hov-bright,1)) saturate(var(--hov-sat,1))}
+.beat-card.has-hover-fx:hover{box-shadow:0 0 var(--hov-shadow,0px) rgba(0,0,0,.3)}
+.beat-card.has-hover-fx:hover .beat-card-inner{border-color:var(--hov-bdr,transparent)}
+
+/* Glow intensify on hover */
+.beat-card.hov-glow-int:hover{filter:brightness(1.1)}
+.beat-card.hov-glow-int.glow-active:hover .beat-card-inner{animation-duration:calc(var(--glow-speed,3s) * 0.5)!important;box-shadow:0 0 35px rgba(var(--glow-r,220),var(--glow-g,38),var(--glow-b,38),.7)!important}
+.beat-card.hov-glow-int.glow-breathe:hover .beat-card-inner{animation-duration:calc(var(--glow-speed,3s) * 0.5)!important}

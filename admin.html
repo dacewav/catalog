@@ -1873,8 +1873,27 @@ definen géneros.</textarea></div>
         <div class="tog-row"><input type="checkbox" class="tog" id="f-active" checked><span class="tog-lbl">Activo</span></div>
         <div class="tog-row"><input type="checkbox" class="tog" id="f-avail" checked><span class="tog-lbl">Disponible</span></div>
 
-        <!-- Per-beat Glow Animation -->
+        <!-- ═══ Filtros CSS ═══ -->
         <div class="card" style="margin-top:12px">
+          <div class="card-title" onclick="toggleCard(this)"><span>🌈 Filtros CSS</span><i class="fas fa-chevron-down"></i></div>
+          <div class="card-body">
+            <div class="field"><label>🔆 Brillo</label><div class="slider-wrap"><input type="range" id="f-cs-fb" min="0" max="3" step="0.05" value="1" oninput="sv(this);updateCardPreview()"><span class="slider-val">1.00</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,1)">↺</button></div></div>
+            <div class="field"><label>◑ Contraste</label><div class="slider-wrap"><input type="range" id="f-cs-fc" min="0" max="3" step="0.05" value="1" oninput="sv(this);updateCardPreview()"><span class="slider-val">1.00</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,1)">↺</button></div></div>
+            <div class="field"><label>🎨 Saturación</label><div class="slider-wrap"><input type="range" id="f-cs-fs" min="0" max="5" step="0.05" value="1" oninput="sv(this);updateCardPreview()"><span class="slider-val">1.00</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,1)">↺</button></div></div>
+            <div class="fg2">
+              <div class="field"><label>⬜ Grayscale</label><div class="slider-wrap"><input type="range" id="f-cs-fg" min="0" max="1" step="0.05" value="0" oninput="sv(this);updateCardPreview()"><span class="slider-val">0.00</span></div></div>
+              <div class="field"><label>🟤 Sepia</label><div class="slider-wrap"><input type="range" id="f-cs-fse" min="0" max="1" step="0.05" value="0" oninput="sv(this);updateCardPreview()"><span class="slider-val">0.00</span></div></div>
+            </div>
+            <div class="fg2">
+              <div class="field"><label>🔄 Hue rotate</label><div class="slider-wrap"><input type="range" id="f-cs-fh" min="0" max="360" step="1" value="0" oninput="this.nextElementSibling.textContent=this.value+'°';updateCardPreview()"><span class="slider-val">0°</span></div></div>
+              <div class="field"><label>💥 Blur</label><div class="slider-wrap"><input type="range" id="f-cs-fbl" min="0" max="20" step="0.5" value="0" oninput="this.nextElementSibling.textContent=parseFloat(this.value).toFixed(1)+'px';updateCardPreview()"><span class="slider-val">0.0px</span></div></div>
+            </div>
+            <div class="field"><label>🔀 Invertir</label><div class="slider-wrap"><input type="range" id="f-cs-fi" min="0" max="1" step="0.05" value="0" oninput="sv(this);updateCardPreview()"><span class="slider-val">0.00</span></div></div>
+          </div>
+        </div>
+
+        <!-- ═══ Glow animado ═══ -->
+        <div class="card" style="margin-top:8px">
           <div class="card-title" onclick="toggleCard(this)"><span>✨ Glow animado</span><i class="fas fa-chevron-down"></i></div>
           <div class="card-body">
             <div class="tog-row"><input type="checkbox" class="tog" id="f-glow-on" onchange="updateCardPreview()"><span class="tog-lbl">Activar glow</span></div>
@@ -1888,16 +1907,26 @@ definen géneros.</textarea></div>
               </select>
             </div>
             <div class="color-wrap"><label>Color glow</label><div class="color-swatch"><input type="color" id="f-glow-color" value="#dc2626" oninput="updateCardPreview()"></div><input type="text" class="color-hex" id="f-glow-color-h" value="#dc2626" oninput="updateCardPreview()"></div>
-            <div class="field"><label>Velocidad</label><div class="slider-wrap"><input type="range" id="f-glow-speed" min="0.5" max="10" step="0.1" value="3" oninput="this.nextElementSibling.textContent=parseFloat(this.value).toFixed(1)+'s';updateCardPreview()"><span class="slider-val">3.0s</span></div></div>
+            <div class="fg2">
+              <div class="field"><label>Velocidad</label><div class="slider-wrap"><input type="range" id="f-glow-speed" min="0.3" max="10" step="0.1" value="3" oninput="this.nextElementSibling.textContent=parseFloat(this.value).toFixed(1)+'s';updateCardPreview()"><span class="slider-val">3.0s</span></div></div>
+              <div class="field"><label>Intensidad</label><div class="slider-wrap"><input type="range" id="f-glow-int" min="0" max="10" step="0.1" value="1" oninput="this.nextElementSibling.textContent=parseFloat(this.value).toFixed(1)+'x';updateCardPreview()"><span class="slider-val">1.0x</span></div></div>
+            </div>
+            <div class="fg2">
+              <div class="field"><label>Blur</label><div class="slider-wrap"><input type="range" id="f-glow-blur" min="0" max="100" step="1" value="20" oninput="this.nextElementSibling.textContent=this.value+'px';updateCardPreview()"><span class="slider-val">20px</span></div></div>
+              <div class="field"><label>Spread</label><div class="slider-wrap"><input type="range" id="f-glow-spread" min="0" max="60" step="1" value="0" oninput="this.nextElementSibling.textContent=this.value+'px';updateCardPreview()"><span class="slider-val">0px</span></div></div>
+            </div>
+            <div class="fg2">
+              <div class="field"><label>Opacidad</label><div class="slider-wrap"><input type="range" id="f-glow-op" min="0" max="1" step="0.05" value="1" oninput="sv(this);updateCardPreview()"><span class="slider-val">1.00</span></div></div>
+              <div style="display:flex;align-items:end;padding-bottom:6px"><div class="tog-row" style="margin:0"><input type="checkbox" class="tog" id="f-glow-hover" onchange="updateCardPreview()"><span class="tog-lbl">Solo en hover</span></div></div>
+            </div>
           </div>
         </div>
 
-        <!-- Per-beat Card Animation -->
+        <!-- ═══ Animación de tarjeta ═══ -->
         <div class="card" style="margin-top:8px">
           <div class="card-title" onclick="toggleCard(this)"><span>🎬 Animación de tarjeta</span><i class="fas fa-chevron-down"></i></div>
           <div class="card-body">
-            <p style="font-size:9px;color:var(--hi);margin-bottom:10px">Animación única para esta tarjeta en el catálogo.</p>
-            <div class="field"><label>Tipo de animación</label>
+            <div class="field"><label>Animación principal</label>
               <select id="f-anim-type" onchange="updateCardPreview()" style="font-family:var(--fm);font-size:11px;background:var(--abg);color:var(--tx);border:1px solid var(--b);border-radius:var(--rad);padding:6px 10px;width:100%;cursor:pointer">
                 <option value="">Ninguna</option>
                 <option value="flotar">🫧 Flotar</option>
@@ -1917,31 +1946,163 @@ definen géneros.</textarea></div>
                 <option value="rubber-band">🎗️ Rubber band</option>
                 <option value="jello">🍮 Jello</option>
                 <option value="wobble">🪱 Wobble</option>
+                <option value="shake-x">↔️ Shake X</option>
+                <option value="heartbeat">💗 Heartbeat</option>
+                <option value="flip">🔄 Flip</option>
+                <option value="swing">🎪 Swing</option>
+                <option value="tada">🎉 Tada</option>
+                <option value="bounce-in">⬆️ Bounce in</option>
+                <option value="temblor">🫨 Temblor</option>
+              </select>
+            </div>
+            <div class="field"><label>Animación 2 (combo)</label>
+              <select id="f-anim-type2" onchange="updateCardPreview()" style="font-family:var(--fm);font-size:11px;background:var(--abg);color:var(--tx);border:1px solid var(--b);border-radius:var(--rad);padding:6px 10px;width:100%;cursor:pointer">
+                <option value="">Ninguna</option>
+                <option value="flotar">🫧 Flotar</option>
+                <option value="pulsar">💓 Pulsar</option>
+                <option value="respirar">🫁 Respirar</option>
+                <option value="latido">❤️ Latido</option>
+                <option value="rebotar">🏀 Rebotar</option>
+                <option value="balanceo">⚖️ Balanceo</option>
+                <option value="brillo">✨ Brillo</option>
+                <option value="cambio-color">🎨 Cambio de color</option>
+                <option value="holograma">🌈 Holograma</option>
+                <option value="neon-flicker">💡 Neón parpadeo</option>
+                <option value="glitch">📺 Glitch</option>
+                <option value="drift">🌊 Drift</option>
+                <option value="zoom-in">🔍 Zoom in</option>
+                <option value="pop">💥 Pop</option>
+                <option value="spin-lento">🌀 Spin lento</option>
+                <option value="temblor">🫨 Temblor</option>
               </select>
             </div>
             <div class="fg2">
-              <div class="field"><label>Duración</label><div class="slider-wrap"><input type="range" id="f-anim-dur" min="0.3" max="10" step="0.1" value="2" oninput="this.nextElementSibling.textContent=parseFloat(this.value).toFixed(1)+'s';updateCardPreview()"><span class="slider-val">2.0s</span></div></div>
-              <div class="field"><label>Delay</label><div class="slider-wrap"><input type="range" id="f-anim-del" min="0" max="5" step="0.1" value="0" oninput="this.nextElementSibling.textContent=parseFloat(this.value).toFixed(1)+'s';updateCardPreview()"><span class="slider-val">0.0s</span></div></div>
+              <div class="field"><label>Duración</label><div class="slider-wrap"><input type="range" id="f-anim-dur" min="0.1" max="15" step="0.1" value="2" oninput="this.nextElementSibling.textContent=parseFloat(this.value).toFixed(1)+'s';updateCardPreview()"><span class="slider-val">2.0s</span></div></div>
+              <div class="field"><label>Delay</label><div class="slider-wrap"><input type="range" id="f-anim-del" min="0" max="10" step="0.1" value="0" oninput="this.nextElementSibling.textContent=parseFloat(this.value).toFixed(1)+'s';updateCardPreview()"><span class="slider-val">0.0s</span></div></div>
+            </div>
+            <div class="fg2">
+              <div class="field"><label>Easing</label>
+                <select id="f-anim-ease" onchange="updateCardPreview()" style="font-family:var(--fm);font-size:11px;background:var(--abg);color:var(--tx);border:1px solid var(--b);border-radius:var(--rad);padding:6px 10px;width:100%;cursor:pointer">
+                  <option value="ease-in-out">Ease in-out</option>
+                  <option value="ease">Ease</option>
+                  <option value="ease-in">Ease in</option>
+                  <option value="ease-out">Ease out</option>
+                  <option value="linear">Linear</option>
+                  <option value="cubic-bezier(0.68,-0.55,0.27,1.55)">Elastic</option>
+                  <option value="cubic-bezier(0.34,1.56,0.64,1)">Back</option>
+                </select>
+              </div>
+              <div class="field"><label>Dirección</label>
+                <select id="f-anim-dir" onchange="updateCardPreview()" style="font-family:var(--fm);font-size:11px;background:var(--abg);color:var(--tx);border:1px solid var(--b);border-radius:var(--rad);padding:6px 10px;width:100%;cursor:pointer">
+                  <option value="normal">Normal</option>
+                  <option value="reverse">Reverse</option>
+                  <option value="alternate">Alternate</option>
+                  <option value="alternate-reverse">Alt reverse</option>
+                </select>
+              </div>
+            </div>
+            <div class="field"><label>Iteraciones</label>
+              <select id="f-anim-iter" onchange="updateCardPreview()" style="font-family:var(--fm);font-size:11px;background:var(--abg);color:var(--tx);border:1px solid var(--b);border-radius:var(--rad);padding:6px 10px;width:100%;cursor:pointer">
+                <option value="infinite">∞ Infinito</option>
+                <option value="1">1 vez</option>
+                <option value="2">2 veces</option>
+                <option value="3">3 veces</option>
+                <option value="5">5 veces</option>
+                <option value="10">10 veces</option>
+              </select>
             </div>
           </div>
         </div>
 
-        <!-- Per-beat Card Style -->
+        <!-- ═══ Estilo de tarjeta ═══ -->
         <div class="card" style="margin-top:8px">
           <div class="card-title" onclick="toggleCard(this)"><span>🎨 Estilo de tarjeta</span><i class="fas fa-chevron-down"></i></div>
           <div class="card-body">
             <div class="color-wrap"><label>Color acento</label><div class="color-swatch"><input type="color" id="f-accent-color" value="#dc2626" oninput="syncAccentColor('picker');updateCardPreview()"></div><input type="text" class="color-hex" id="f-accent-color-h" value="#dc2626" oninput="syncAccentColor('hex');updateCardPreview()"></div>
-            <div class="tog-row"><input type="checkbox" class="tog" id="f-shimmer" onchange="updateCardPreview()"><span class="tog-lbl">Efecto shimmer al hover</span></div>
+            <div class="fg2">
+              <div class="tog-row"><input type="checkbox" class="tog" id="f-shimmer" onchange="updateCardPreview()"><span class="tog-lbl">Shimmer</span></div>
+              <div class="field"><label>Border radius</label><div class="slider-wrap"><input type="range" id="f-cs-radius" min="0" max="40" step="1" value="0" oninput="this.nextElementSibling.textContent=this.value+'px';updateCardPreview()"><span class="slider-val">0px</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,0)">↺</button></div></div>
+            </div>
+            <div class="field"><label>Opacidad tarjeta</label><div class="slider-wrap"><input type="range" id="f-cs-opacity" min="0.05" max="1" step="0.05" value="1" oninput="sv(this);updateCardPreview()"><span class="slider-val">1.00</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,1)">↺</button></div></div>
             <div style="border-top:1px solid var(--b);margin-top:8px;padding-top:10px">
               <p style="font-size:9px;color:var(--hi);margin-bottom:8px">Borde personalizado</p>
               <div class="tog-row"><input type="checkbox" class="tog" id="f-border-on" onchange="updateCardPreview()"><span class="tog-lbl">Activar borde</span></div>
-              <div class="fg2">
-                <div class="color-wrap"><label>Color borde</label><div class="color-swatch"><input type="color" id="f-border-color" value="#dc2626" oninput="updateCardPreview()"></div></div>
-                <div class="field"><label>Grosor</label><div class="slider-wrap"><input type="range" id="f-border-width" min="1" max="5" step="0.5" value="1" oninput="this.nextElementSibling.textContent=parseFloat(this.value).toFixed(1)+'px';updateCardPreview()"><span class="slider-val">1.0px</span></div></div>
+              <div class="fg3">
+                <div class="color-wrap"><label>Color</label><div class="color-swatch"><input type="color" id="f-border-color" value="#dc2626" oninput="updateCardPreview()"></div></div>
+                <div class="field"><label>Grosor</label><div class="slider-wrap"><input type="range" id="f-border-width" min="0.5" max="10" step="0.5" value="1" oninput="this.nextElementSibling.textContent=parseFloat(this.value).toFixed(1)+'px';updateCardPreview()"><span class="slider-val">1.0px</span></div></div>
+                <div class="field"><label>Estilo</label>
+                  <select id="f-border-style" onchange="updateCardPreview()" style="font-family:var(--fm);font-size:11px;background:var(--abg);color:var(--tx);border:1px solid var(--b);border-radius:var(--rad);padding:6px 8px;width:100%;cursor:pointer">
+                    <option value="solid">── Sólido</option>
+                    <option value="dashed">- - Dashed</option>
+                    <option value="dotted">··· Dotted</option>
+                    <option value="double">══ Double</option>
+                  </select>
+                </div>
               </div>
             </div>
           </div>
         </div>
+
+        <!-- ═══ Sombra ═══ -->
+        <div class="card" style="margin-top:8px">
+          <div class="card-title" onclick="toggleCard(this)"><span>🌑 Sombra (box-shadow)</span><i class="fas fa-chevron-down"></i></div>
+          <div class="card-body">
+            <div class="tog-row"><input type="checkbox" class="tog" id="f-shadow-on" onchange="updateCardPreview()"><span class="tog-lbl">Activar sombra</span></div>
+            <div class="fg2">
+              <div class="color-wrap"><label>Color</label><div class="color-swatch"><input type="color" id="f-shadow-color" value="#000000" oninput="updateCardPreview()"></div></div>
+              <div class="field"><label>Opacidad</label><div class="slider-wrap"><input type="range" id="f-shadow-op" min="0" max="1" step="0.05" value="0.35" oninput="sv(this);updateCardPreview()"><span class="slider-val">0.35</span></div></div>
+            </div>
+            <div class="fg2">
+              <div class="field"><label>Offset X</label><div class="slider-wrap"><input type="range" id="f-shadow-x" min="-30" max="30" step="1" value="0" oninput="this.nextElementSibling.textContent=this.value+'px';updateCardPreview()"><span class="slider-val">0px</span></div></div>
+              <div class="field"><label>Offset Y</label><div class="slider-wrap"><input type="range" id="f-shadow-y" min="-30" max="30" step="1" value="4" oninput="this.nextElementSibling.textContent=this.value+'px';updateCardPreview()"><span class="slider-val">4px</span></div></div>
+            </div>
+            <div class="fg2">
+              <div class="field"><label>Blur</label><div class="slider-wrap"><input type="range" id="f-shadow-blur" min="0" max="60" step="1" value="12" oninput="this.nextElementSibling.textContent=this.value+'px';updateCardPreview()"><span class="slider-val">12px</span></div></div>
+              <div class="field"><label>Spread</label><div class="slider-wrap"><input type="range" id="f-shadow-spread" min="-20" max="40" step="1" value="0" oninput="this.nextElementSibling.textContent=this.value+'px';updateCardPreview()"><span class="slider-val">0px</span></div></div>
+            </div>
+            <div class="tog-row"><input type="checkbox" class="tog" id="f-shadow-inset" onchange="updateCardPreview()"><span class="tog-lbl">Inset (sombra interna)</span></div>
+          </div>
+        </div>
+
+        <!-- ═══ Hover ═══ -->
+        <div class="card" style="margin-top:8px">
+          <div class="card-title" onclick="toggleCard(this)"><span>🎭 Efectos Hover</span><i class="fas fa-chevron-down"></i></div>
+          <div class="card-body">
+            <p style="font-size:9px;color:var(--hi);margin-bottom:8px">Lo que pasa al pasar el mouse sobre la tarjeta.</p>
+            <div class="field"><label>Escala hover</label><div class="slider-wrap"><input type="range" id="f-hov-scale" min="1" max="1.25" step="0.01" value="1" oninput="this.nextElementSibling.textContent=parseFloat(this.value).toFixed(2)+'x';updateCardPreview()"><span class="slider-val">1.00x</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,1)">↺</button></div></div>
+            <div class="fg2">
+              <div class="field"><label>Brillo hover</label><div class="slider-wrap"><input type="range" id="f-hov-bright" min="0.5" max="2" step="0.05" value="1" oninput="sv(this);updateCardPreview()"><span class="slider-val">1.00</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,1)">↺</button></div></div>
+              <div class="field"><label>Saturación hover</label><div class="slider-wrap"><input type="range" id="f-hov-sat" min="0" max="3" step="0.05" value="1" oninput="sv(this);updateCardPreview()"><span class="slider-val">1.00</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,1)">↺</button></div></div>
+            </div>
+            <div class="fg2">
+              <div class="field"><label>Elevación</label><div class="slider-wrap"><input type="range" id="f-hov-shadow" min="0" max="40" step="1" value="0" oninput="this.nextElementSibling.textContent=this.value+'px';updateCardPreview()"><span class="slider-val">0px</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,0)">↺</button></div></div>
+              <div class="field"><label>Transición</label><div class="slider-wrap"><input type="range" id="f-hov-trans" min="0" max="1" step="0.05" value="0.3" oninput="this.nextElementSibling.textContent=parseFloat(this.value).toFixed(2)+'s';updateCardPreview()"><span class="slider-val">0.30s</span></div></div>
+            </div>
+            <div class="color-wrap"><label>Borde hover</label><div class="color-swatch"><input type="color" id="f-hov-border" value="#dc2626" oninput="updateCardPreview()"></div><span style="font-size:9px;color:var(--hi)">dejar igual para no cambiar</span></div>
+            <div class="tog-row"><input type="checkbox" class="tog" id="f-hov-glow" onchange="updateCardPreview()"><span class="tog-lbl">Intensificar glow en hover</span></div>
+          </div>
+        </div>
+
+        <!-- ═══ Transform ═══ -->
+        <div class="card" style="margin-top:8px">
+          <div class="card-title" onclick="toggleCard(this)"><span>📐 Transform inicial</span><i class="fas fa-chevron-down"></i></div>
+          <div class="card-body">
+            <p style="font-size:9px;color:var(--hi);margin-bottom:8px">Transformación CSS aplicada siempre a la tarjeta.</p>
+            <div class="fg2">
+              <div class="field"><label>Rotación</label><div class="slider-wrap"><input type="range" id="f-tf-rotate" min="-15" max="15" step="0.5" value="0" oninput="this.nextElementSibling.textContent=parseFloat(this.value).toFixed(1)+'°';updateCardPreview()"><span class="slider-val">0.0°</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,0)">↺</button></div></div>
+              <div class="field"><label>Escala</label><div class="slider-wrap"><input type="range" id="f-tf-scale" min="0.7" max="1.3" step="0.01" value="1" oninput="this.nextElementSibling.textContent=parseFloat(this.value).toFixed(2)+'x';updateCardPreview()"><span class="slider-val">1.00x</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,1)">↺</button></div></div>
+            </div>
+            <div class="fg2">
+              <div class="field"><label>Skew X</label><div class="slider-wrap"><input type="range" id="f-tf-skewX" min="-15" max="15" step="0.5" value="0" oninput="this.nextElementSibling.textContent=parseFloat(this.value).toFixed(1)+'°';updateCardPreview()"><span class="slider-val">0.0°</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,0)">↺</button></div></div>
+              <div class="field"><label>Skew Y</label><div class="slider-wrap"><input type="range" id="f-tf-skewY" min="-15" max="15" step="0.5" value="0" oninput="this.nextElementSibling.textContent=parseFloat(this.value).toFixed(1)+'°';updateCardPreview()"><span class="slider-val">0.0°</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,0)">↺</button></div></div>
+            </div>
+            <div class="fg2">
+              <div class="field"><label>Translate X</label><div class="slider-wrap"><input type="range" id="f-tf-x" min="-20" max="20" step="1" value="0" oninput="this.nextElementSibling.textContent=this.value+'px';updateCardPreview()"><span class="slider-val">0px</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,0)">↺</button></div></div>
+              <div class="field"><label>Translate Y</label><div class="slider-wrap"><input type="range" id="f-tf-y" min="-20" max="20" step="1" value="0" oninput="this.nextElementSibling.textContent=this.value+'px';updateCardPreview()"><span class="slider-val">0px</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,0)">↺</button></div></div>
+            </div>
+          </div>
+        </div>
+
       </div>
       <div style="margin-top:12px" class="btn-row">
         <button class="btn btn-ok" onclick="saveBeat()"><i class="fas fa-save"></i> Guardar</button>

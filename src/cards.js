@@ -26,36 +26,60 @@ export function beatCard(b, globalIdx) {
     : '<div class="beat-img-ph">♦</div>';
   const isWished = state.wishlist.indexOf(b.id) > -1;
 
-  // Per-beat glow animation classes
+  // ── New mega cardStyle system ──
+  const cs = b.cardStyle || {};
+  const csF = cs.filter || {};
+  const csG = cs.glow || (b.glowConfig && b.glowConfig.enabled ? b.glowConfig : {});
+  const csA = cs.anim || (b.cardAnim && b.cardAnim.type ? b.cardAnim : {});
+  const csS = cs.style || {};
+  const csBd = cs.border || (b.cardBorder && b.cardBorder.enabled ? b.cardBorder : {});
+  const csSh = cs.shadow || {};
+  const csH = cs.hover || {};
+  const csTf = cs.transform || {};
+
+  // Glow classes & vars
   let glowClasses = '';
   let glowStyle = '';
-  if (b.glowConfig && b.glowConfig.enabled) {
-    const gc = b.glowConfig;
-    const glowType = gc.type || 'active'; // active, rgb, pulse, breathe, neon
+  const glowEnabled = csG.enabled || (b.glowConfig && b.glowConfig.enabled);
+  if (glowEnabled) {
+    const glowType = csG.type || 'active';
     glowClasses = 'glow-' + glowType;
+    const gc = csG;
     if (gc.color) {
-      // Parse hex to RGB for CSS custom properties
       const hex = gc.color.replace('#', '');
       const r = parseInt(hex.substring(0, 2), 16) || 220;
       const gv = parseInt(hex.substring(2, 4), 16) || 38;
       const bl = parseInt(hex.substring(4, 6), 16) || 38;
       glowStyle = `--glow-clr:${gc.color};--glow-r:${r};--glow-g:${gv};--glow-b:${bl};--glow-speed:${gc.speed || 3}s`;
+      if (gc.intensity != null && gc.intensity !== 1) glowStyle += `;--glow-int:${gc.intensity}`;
+      if (gc.blur != null && gc.blur !== 20) glowStyle += `;--glow-blur:${gc.blur}px`;
+      if (gc.spread) glowStyle += `;--glow-spread:${gc.spread}px`;
+      if (gc.opacity != null && gc.opacity !== 1) glowStyle += `;--glow-op:${gc.opacity}`;
     }
+    if (gc.hoverOnly) glowClasses += ' glow-hover-only';
   }
 
-  // Per-beat card animation
+  // Card animation
   let animClass = '';
   let animStyle = '';
-  if (b.cardAnim && b.cardAnim.type) {
-    animClass = 'anim-' + b.cardAnim.type;
-    animStyle = `--ad:${b.cardAnim.dur || 2}s;--adl:${b.cardAnim.del || 0}s`;
+  if (csA && csA.type) {
+    animClass = 'anim-' + csA.type;
+    animStyle = `--ad:${csA.dur || 2}s;--adl:${csA.del || 0}s`;
+    if (csA.easing && csA.easing !== 'ease-in-out') animStyle += `;--aease:${csA.easing}`;
+    if (csA.direction && csA.direction !== 'normal') animStyle += `;--adir:${csA.direction}`;
+    if (csA.iterations && csA.iterations !== 'infinite') animStyle += `;--aiter:${csA.iterations}`;
   }
 
-  // Per-beat card border
+  // Card border
   let borderStyle = '';
-  if (b.cardBorder && b.cardBorder.enabled) {
-    borderStyle = `border:${b.cardBorder.width || 1}px solid ${b.cardBorder.color || '#dc2626'}`;
+  const borderEnabled = csBd.enabled || (b.cardBorder && b.cardBorder.enabled);
+  if (borderEnabled) {
+    borderStyle = `border:${csBd.width || 1}px ${csBd.style || 'solid'} ${csBd.color || '#dc2626'}`;
   }
+
+  // Accent color
+  const accentColor = csS.accentColor || b.accentColor;
+  const shimmer = csS.shimmer != null ? csS.shimmer : b.shimmer;
 
   // Combine all classes
   const allClasses = [
@@ -64,16 +88,66 @@ export function beatCard(b, globalIdx) {
     b.featured ? 'featured' : '',
     glowClasses,
     animClass,
-    b.shimmer ? 'shimmer-on' : ''
+    shimmer ? 'shimmer-on' : '',
+    // Secondary animation
+    (csA && csA.type2) ? 'anim2-' + csA.type2 : '',
+    // Hover classes
+    ((csH.scale && csH.scale !== 1) || (csH.brightness && csH.brightness !== 1) || (csH.saturate && csH.saturate !== 1) || csH.shadowBlur || csH.borderColor || csH.glowIntensify) ? 'has-hover-fx' : '',
+    csH.glowIntensify ? 'hov-glow-int' : ''
   ].filter(Boolean).join(' ');
 
-  // Combine all inline styles
-  const allStyles = [
-    `--card-tint:${b.accentColor ? `linear-gradient(135deg,${b.accentColor},transparent)` : 'linear-gradient(135deg,rgba(185,28,28,0.3),transparent)'}`,
-    glowStyle,
-    animStyle,
-    borderStyle
-  ].filter(Boolean).join(';');
+  // Build inline styles
+  const styleParts = [
+    `--card-tint:${accentColor ? `linear-gradient(135deg,${accentColor},transparent)` : 'linear-gradient(135deg,rgba(185,28,28,0.3),transparent)'}`
+  ];
+  if (glowStyle) styleParts.push(glowStyle);
+  if (animStyle) styleParts.push(animStyle);
+  if (borderStyle) styleParts.push(borderStyle);
+
+  // CSS Filters
+  const filters = [];
+  if (csF.brightness != null && csF.brightness !== 1) filters.push(`brightness(${csF.brightness})`);
+  if (csF.contrast != null && csF.contrast !== 1) filters.push(`contrast(${csF.contrast})`);
+  if (csF.saturate != null && csF.saturate !== 1) filters.push(`saturate(${csF.saturate})`);
+  if (csF.grayscale) filters.push(`grayscale(${csF.grayscale})`);
+  if (csF.sepia) filters.push(`sepia(${csF.sepia})`);
+  if (csF.hueRotate) filters.push(`hue-rotate(${csF.hueRotate}deg)`);
+  if (csF.blur) filters.push(`blur(${csF.blur}px)`);
+  if (csF.invert) filters.push(`invert(${csF.invert})`);
+  if (filters.length) styleParts.push(`filter:${filters.join(' ')}`);
+
+  // Opacity
+  if (csS.opacity != null && csS.opacity < 1) styleParts.push(`opacity:${csS.opacity}`);
+
+  // Box shadow
+  if (csSh.enabled) {
+    const rgba = `rgba(${parseInt((csSh.color||'#000000').replace('#','').substring(0,2),16)||0},${parseInt((csSh.color||'#000000').replace('#','').substring(2,4),16)||0},${parseInt((csSh.color||'#000000').replace('#','').substring(4,6),16)||0},${csSh.opacity != null ? csSh.opacity : 0.35})`;
+    const prefix = csSh.inset ? 'inset ' : '';
+    styleParts.push(`box-shadow:${prefix}${csSh.x||0}px ${csSh.y!=null?csSh.y:4}px ${csSh.blur!=null?csSh.blur:12}px ${csSh.spread||0}px ${rgba}`);
+  }
+
+  // Transform
+  const tfParts = [];
+  if (csTf.rotate) tfParts.push(`rotate(${csTf.rotate}deg)`);
+  if (csTf.scale && csTf.scale !== 1) tfParts.push(`scale(${csTf.scale})`);
+  if (csTf.skewX) tfParts.push(`skewX(${csTf.skewX}deg)`);
+  if (csTf.skewY) tfParts.push(`skewY(${csTf.skewY}deg)`);
+  if (csTf.x) tfParts.push(`translateX(${csTf.x}px)`);
+  if (csTf.y) tfParts.push(`translateY(${csTf.y}px)`);
+  if (tfParts.length) styleParts.push(`transform:${tfParts.join(' ')}`);
+
+  // Hover CSS vars
+  if (csH.scale && csH.scale !== 1) styleParts.push(`--hov-scale:${csH.scale}`);
+  if (csH.brightness && csH.brightness !== 1) styleParts.push(`--hov-bright:${csH.brightness}`);
+  if (csH.saturate && csH.saturate !== 1) styleParts.push(`--hov-sat:${csH.saturate}`);
+  if (csH.shadowBlur) styleParts.push(`--hov-shadow:${csH.shadowBlur}px`);
+  if (csH.transition != null) styleParts.push(`--hov-trans:${csH.transition}s`);
+  if (csH.borderColor) styleParts.push(`--hov-bdr:${csH.borderColor}`);
+
+  // Border radius
+  if (csS.borderRadius) styleParts.push(`--card-radius:${csS.borderRadius}px`);
+
+  const allStyles = styleParts.join(';');
 
   return `<div class="${allClasses}" id="card-${b.id}"
     onclick="handleCardClick('${b.id}',${globalIdx})"

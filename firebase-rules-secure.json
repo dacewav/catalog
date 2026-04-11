@@ -92,6 +92,98 @@
           "width":   { ".validate": "newData.isNumber() && newData.val() >= 0.5 && newData.val() <= 10" }
         },
 
+        "cardStyle": {
+          ".validate": "!newData.exists() || newData.hasChildren(['filter','glow','anim','style','border','shadow','hover','transform'])",
+
+          "filter": {
+            "brightness": { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 3" },
+            "contrast":   { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 3" },
+            "saturate":   { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 5" },
+            "grayscale":  { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 1" },
+            "sepia":      { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 1" },
+            "hueRotate":  { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 360" },
+            "blur":       { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 20" },
+            "invert":     { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 1" },
+            "$other":     { ".validate": false }
+          },
+
+          "glow": {
+            "enabled":    { ".validate": "newData.isBoolean()" },
+            "type":       { ".validate": "newData.isString() && newData.val().length <= 30" },
+            "color":      { ".validate": "newData.isString() && newData.val().length <= 20" },
+            "speed":      { ".validate": "newData.isNumber() && newData.val() >= 0.1 && newData.val() <= 30" },
+            "intensity":  { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 10" },
+            "blur":       { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 200" },
+            "spread":     { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 100" },
+            "opacity":    { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 1" },
+            "hoverOnly":  { ".validate": "newData.isBoolean()" },
+            "$other":     { ".validate": false }
+          },
+
+          "anim": {
+            ".validate": "!newData.exists() || newData.hasChildren(['type','dur','del'])",
+            "type":       { ".validate": "newData.isString() && newData.val().length <= 30" },
+            "type2":      { ".validate": "!newData.exists() || (newData.isString() && newData.val().length <= 30)" },
+            "dur":        { ".validate": "newData.isNumber() && newData.val() >= 0.1 && newData.val() <= 15" },
+            "del":        { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 10" },
+            "easing":     { ".validate": "!newData.exists() || (newData.isString() && newData.val().length <= 60)" },
+            "direction":  { ".validate": "!newData.exists() || (newData.isString() && newData.val().length <= 25)" },
+            "iterations": { ".validate": "!newData.exists() || (newData.isString() && newData.val().length <= 10)" },
+            "$other":     { ".validate": false }
+          },
+
+          "style": {
+            "accentColor":  { ".validate": "!newData.exists() || (newData.isString() && newData.val().length <= 20)" },
+            "shimmer":      { ".validate": "!newData.exists() || newData.isBoolean()" },
+            "borderRadius": { ".validate": "!newData.exists() || (newData.isNumber() && newData.val() >= 0 && newData.val() <= 40)" },
+            "opacity":      { ".validate": "!newData.exists() || (newData.isNumber() && newData.val() >= 0.05 && newData.val() <= 1)" },
+            "$other":       { ".validate": false }
+          },
+
+          "border": {
+            "enabled": { ".validate": "newData.isBoolean()" },
+            "color":   { ".validate": "newData.isString() && newData.val().length <= 20" },
+            "width":   { ".validate": "newData.isNumber() && newData.val() >= 0.5 && newData.val() <= 10" },
+            "style":   { ".validate": "!newData.exists() || (newData.isString() && newData.val().length <= 15)" },
+            "$other":  { ".validate": false }
+          },
+
+          "shadow": {
+            "enabled": { ".validate": "newData.isBoolean()" },
+            "color":   { ".validate": "newData.isString() && newData.val().length <= 20" },
+            "opacity": { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 1" },
+            "x":       { ".validate": "newData.isNumber() && newData.val() >= -30 && newData.val() <= 30" },
+            "y":       { ".validate": "newData.isNumber() && newData.val() >= -30 && newData.val() <= 30" },
+            "blur":    { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 60" },
+            "spread":  { ".validate": "newData.isNumber() && newData.val() >= -20 && newData.val() <= 40" },
+            "inset":   { ".validate": "newData.isBoolean()" },
+            "$other":  { ".validate": false }
+          },
+
+          "hover": {
+            "scale":         { ".validate": "newData.isNumber() && newData.val() >= 1 && newData.val() <= 1.25" },
+            "brightness":    { ".validate": "newData.isNumber() && newData.val() >= 0.5 && newData.val() <= 2" },
+            "saturate":      { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 3" },
+            "shadowBlur":    { ".validate": "!newData.exists() || (newData.isNumber() && newData.val() >= 0 && newData.val() <= 40)" },
+            "transition":    { ".validate": "!newData.exists() || (newData.isNumber() && newData.val() >= 0 && newData.val() <= 1)" },
+            "borderColor":   { ".validate": "!newData.exists() || (newData.isString() && newData.val().length <= 20)" },
+            "glowIntensify": { ".validate": "!newData.exists() || newData.isBoolean()" },
+            "$other":        { ".validate": false }
+          },
+
+          "transform": {
+            "rotate": { ".validate": "newData.isNumber() && newData.val() >= -15 && newData.val() <= 15" },
+            "scale":  { ".validate": "newData.isNumber() && newData.val() >= 0.7 && newData.val() <= 1.3" },
+            "skewX":  { ".validate": "!newData.exists() || (newData.isNumber() && newData.val() >= -15 && newData.val() <= 15)" },
+            "skewY":  { ".validate": "!newData.exists() || (newData.isNumber() && newData.val() >= -15 && newData.val() <= 15)" },
+            "x":      { ".validate": "!newData.exists() || (newData.isNumber() && newData.val() >= -20 && newData.val() <= 20)" },
+            "y":      { ".validate": "!newData.exists() || (newData.isNumber() && newData.val() >= -20 && newData.val() <= 20)" },
+            "$other": { ".validate": false }
+          },
+
+          "$other": { ".validate": false }
+        },
+
         "$other": { ".validate": false }
       }
     },
