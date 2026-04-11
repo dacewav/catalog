@@ -132,12 +132,15 @@ const PM_ORIGIN = (() => {
 })();
 
 // Post to iframe with fallback: try specific origin first, then '*'
-function _postToFrame(msg) {
+// Exported — any module can import this to send messages to the store iframe.
+export function postToFrame(msg) {
   const frame = g('preview-frame');
   if (!frame || !frame.contentWindow) return;
   try { frame.contentWindow.postMessage(msg, PM_ORIGIN); } catch {}
   if (PM_ORIGIN !== '*') { try { frame.contentWindow.postMessage(msg, '*'); } catch {} }
 }
+// Internal alias for backwards compat
+const _postToFrame = postToFrame;
 
 export function broadcastTheme() {
   // Debounce: only broadcast after 150ms of no calls (smooth slider dragging)

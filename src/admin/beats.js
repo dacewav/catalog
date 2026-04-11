@@ -2,7 +2,7 @@
 import { db, allBeats, setAllBeats, editId, setEditId, defLics, _edLics, setEdLics, _dragBeatId, setDragBeatId, _batchImgQueue, setBatchImgQueue } from './state.js';
 import { g, val, setVal, checked, setChecked, showToast, showSaving, confirmInline, promptInline, fmt } from './helpers.js';
 import { showSection } from './nav.js';
-import { autoSave } from './core.js';
+import { autoSave, postToFrame } from './core.js';
 import { R2_ENABLED, uploadToR2 } from './r2.js';
 
 // ═══ STYLE PRESETS ═══
@@ -1440,10 +1440,7 @@ renderHoverPresets();
     // localStorage fallback (other tabs)
     localStorage.setItem('dace-live-edit', JSON.stringify(payload));
     // postMessage to store iframe (same tab — the real channel)
-    var frame = document.getElementById('preview-frame');
-    if (frame && frame.contentWindow) {
-      try { frame.contentWindow.postMessage({ type: 'beat-update', beatId: payload.beatId, data: payload.data }, '*'); } catch(e) {}
-    }
+    postToFrame({ type: 'beat-update', beatId: payload.beatId, data: payload.data });
     console.log('[LiveEdit] sent:', window._liveEditId);
   }
 
@@ -1454,10 +1451,7 @@ renderHoverPresets();
     localStorage.setItem('dace-live-edit-revert', JSON.stringify(revertData));
     localStorage.removeItem('dace-live-edit');
     // postMessage to store iframe (same tab — the real channel)
-    var frame = document.getElementById('preview-frame');
-    if (frame && frame.contentWindow) {
-      try { frame.contentWindow.postMessage({ type: 'beat-revert', beatId: revertData.beatId, original: revertData.original }, '*'); } catch(e) {}
-    }
+    postToFrame({ type: 'beat-revert', beatId: revertData.beatId, original: revertData.original });
     console.log('[LiveEdit] revert sent:', window._liveEditId);
     window._liveEditId = null;
     window._liveEditOriginal = null;
