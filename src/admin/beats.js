@@ -1376,3 +1376,29 @@ Object.assign(window, {
 // Initialize preset grids on load
 renderPresets();
 renderHoverPresets();
+
+// ═══ REAL-TIME CARD PREVIEW ═══
+// Debounced re-render of store card preview when beat fields change
+(function() {
+  var _pvTimer = null;
+  function _debouncedPv() {
+    clearTimeout(_pvTimer);
+    _pvTimer = setTimeout(function() {
+      if (typeof window.renderFullPvInCard === 'function') window.renderFullPvInCard();
+    }, 250);
+  }
+  var pvFields = ['f-name','f-bpm','f-key','f-genre','f-genre-c','f-img','f-tags','f-desc','f-excl','f-active','f-avail'];
+  function _setupLivePv() {
+    pvFields.forEach(function(id) {
+      var el = document.getElementById(id);
+      if (!el) return;
+      el.addEventListener('input', _debouncedPv);
+      el.addEventListener('change', _debouncedPv);
+    });
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', _setupLivePv);
+  } else {
+    _setupLivePv();
+  }
+})();
