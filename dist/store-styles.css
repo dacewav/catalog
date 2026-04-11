@@ -123,6 +123,58 @@ body{overflow-x:hidden;min-height:100vh;opacity:var(--bg-opacity)}
 .anim-slide-up-fade{animation:slide-up-fade var(--ad,1s) ease-out infinite;animation-delay:var(--adl,0s)}
 .anim-typing{animation:typing var(--ad,2s) steps(20) infinite;animation-delay:var(--adl,0s);white-space:nowrap}
 
+/* ═══ Secondary Animations (anim2) ═══ */
+.anim2-flotar::after,.anim2-pulsar::after,.anim2-rotar::after,.anim2-rebotar::after,
+.anim2-parpadeo::after,.anim2-sacudida::after,.anim2-cambio-color::after,.anim2-brillo::after,
+.anim2-spin-lento::after,.anim2-deslizar-arriba::after,.anim2-deslizar-abajo::after,
+.anim2-deslizar-izq::after,.anim2-deslizar-der::after,.anim2-temblor::after,.anim2-balanceo::after,
+.anim2-drift::after,.anim2-spin-rapido::after,.anim2-wobble::after,.anim2-fade-in::after,
+.anim2-respirar::after,.anim2-latido::after,.anim2-zoom-in::after,.anim2-zoom-out::after,
+.anim2-pop::after,.anim2-rubber-band::after,.anim2-jello::after,.anim2-neon-flicker::after,
+.anim2-glitch::after,.anim2-holograma::after,.anim2-shake-x::after,.anim2-heartbeat::after,
+.anim2-flip::after,.anim2-swing::after,.anim2-tada::after,.anim2-bounce-in::after,
+.anim2-elastic::after,.anim2-slide-up-fade::after,.anim2-typing::after{
+  content:'';position:absolute;inset:0;border-radius:inherit;pointer-events:none;z-index:1
+}
+.anim2-flotar::after{animation:flotar var(--ad,2s) ease-in-out infinite;animation-delay:var(--adl,0s)}
+.anim2-pulsar::after{animation:pulsar var(--ad,2s) ease-in-out infinite;animation-delay:var(--adl,0s)}
+.anim2-rotar::after{animation:rotar var(--ad,2s) ease-in-out infinite;animation-delay:var(--adl,0s)}
+.anim2-rebotar::after{animation:rebotar var(--ad,2s) ease-in-out infinite;animation-delay:var(--adl,0s)}
+.anim2-parpadeo::after{animation:parpadeo var(--ad,2s) ease-in-out infinite;animation-delay:var(--adl,0s)}
+.anim2-sacudida::after{animation:sacudida var(--ad,2s) ease-in-out infinite;animation-delay:var(--adl,0s)}
+.anim2-cambio-color::after{animation:cambio-color var(--ad,4s) linear infinite;animation-delay:var(--adl,0s)}
+.anim2-brillo::after{animation:brillo var(--ad,2s) ease-in-out infinite;animation-delay:var(--adl,0s)}
+.anim2-spin-lento::after{animation:spin-lento var(--ad,8s) linear infinite;animation-delay:var(--adl,0s)}
+.anim2-deslizar-arriba::after{animation:deslizar-arriba var(--ad,2s) ease-in-out infinite;animation-delay:var(--adl,0s)}
+.anim2-deslizar-abajo::after{animation:deslizar-abajo var(--ad,2s) ease-in-out infinite;animation-delay:var(--adl,0s)}
+.anim2-deslizar-izq::after{animation:deslizar-izq var(--ad,2s) ease-in-out infinite;animation-delay:var(--adl,0s)}
+.anim2-deslizar-der::after{animation:deslizar-der var(--ad,2s) ease-in-out infinite;animation-delay:var(--adl,0s)}
+.anim2-temblor::after{animation:temblor var(--ad,2s) ease-in-out infinite;animation-delay:var(--adl,0s)}
+.anim2-balanceo::after{animation:balanceo var(--ad,2s) ease-in-out infinite;animation-delay:var(--adl,0s)}
+.anim2-drift::after{animation:drift var(--ad,4s) ease-in-out infinite;animation-delay:var(--adl,0s)}
+.anim2-spin-rapido::after{animation:spin-rapido var(--ad,1s) linear infinite;animation-delay:var(--adl,0s)}
+.anim2-wobble::after{animation:wobble var(--ad,2s) ease-in-out infinite;animation-delay:var(--adl,0s)}
+.anim2-fade-in::after{animation:fade-in var(--ad,1s) ease-out infinite;animation-delay:var(--adl,0s)}
+.anim2-respirar::after{animation:respirar var(--ad,3s) ease-in-out infinite;animation-delay:var(--adl,0s)}
+.anim2-latido::after{animation:latido var(--ad,1.5s) ease-in-out infinite;animation-delay:var(--adl,0s)}
+.anim2-zoom-in::after{animation:zoom-in var(--ad,1s) ease-out infinite;animation-delay:var(--adl,0s)}
+.anim2-zoom-out::after{animation:zoom-out var(--ad,1s) ease-out infinite;animation-delay:var(--adl,0s)}
+.anim2-pop::after{animation:pop var(--ad,.5s) ease-out infinite;animation-delay:var(--adl,0s)}
+.anim2-rubber-band::after{animation:rubber-band var(--ad,1s) ease-in-out infinite;animation-delay:var(--adl,0s)}
+.anim2-jello::after{animation:jello var(--ad,1s) ease-in-out infinite;animation-delay:var(--adl,0s)}
+.anim2-neon-flicker::after{animation:neon-flicker var(--ad,3s) linear infinite;animation-delay:var(--adl,0s)}
+.anim2-glitch::after{animation:glitch var(--ad,1s) linear infinite;animation-delay:var(--adl,0s)}
+.anim2-holograma::after{animation:holograma var(--ad,4s) linear infinite;animation-delay:var(--adl,0s)}
+.anim2-shake-x::after{animation:shake-x var(--ad,1s) ease-in-out infinite;animation-delay:var(--adl,0s)}
+.anim2-heartbeat::after{animation:heartbeat var(--ad,1.5s) ease-in-out infinite;animation-delay:var(--adl,0s)}
+.anim2-flip::after{animation:flip var(--ad,1s) ease-in-out infinite;animation-delay:var(--adl,0s)}
+.anim2-swing::after{animation:swing var(--ad,2s) ease-in-out infinite;animation-delay:var(--adl,0s)}
+.anim2-tada::after{animation:tada var(--ad,1.5s) ease-in-out infinite;animation-delay:var(--adl,0s)}
+.anim2-bounce-in::after{animation:bounce-in var(--ad,.8s) ease-out infinite;animation-delay:var(--adl,0s)}
+.anim2-elastic::after{animation:elastic var(--ad,1s) ease-out infinite;animation-delay:var(--adl,0s)}
+.anim2-slide-up-fade::after{animation:slide-up-fade var(--ad,1s) ease-out infinite;animation-delay:var(--adl,0s)}
+.anim2-typing::after{animation:typing var(--ad,2s) steps(20) infinite;animation-delay:var(--adl,0s)}
+
 /* ═══ SCROLL PROGRESS ═══ */
 #scroll-progress{position:fixed;top:0;left:0;height:2px;background:linear-gradient(90deg,var(--accent),#ff6b6b,var(--accent));z-index:99999;width:0%;transition:width .1s;box-shadow:0 0 10px var(--accent)}
 /* ═══ CURSOR GLOW ═══ */
