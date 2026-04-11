@@ -881,6 +881,9 @@ window._renderFullPvCard = function() {
 
 // ═══ Render full card in embedded container (Extras tab) ═══
 window.renderFullPvInCard = function() {
+  var c1 = document.getElementById('pv-full-card-container');
+  var c2 = document.getElementById('pv-store-card');
+  console.log('[PvRender] containers:', {extras: !!c1, panel: !!c2});
   var cs = _buildCardStyleFromInputs();
   var opts = {
     name: val('f-name') || 'Nombre del Beat',
@@ -892,10 +895,9 @@ window.renderFullPvInCard = function() {
     isExcl: checked('f-excl')
   };
   var html = window._buildCardHTML(cs, opts);
-  var c1 = document.getElementById('pv-full-card-container');
   if (c1) c1.innerHTML = html;
-  var c2 = document.getElementById('pv-store-card');
   if (c2) c2.innerHTML = html;
+  console.log('[PvRender] done, html length:', html.length);
 };
 
 var pvDetached = false;
