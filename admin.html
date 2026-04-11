@@ -747,8 +747,20 @@ body > * { position: relative; z-index: 1; }
   z-index: 100;
   display: flex; flex-direction: column;
   background: linear-gradient(180deg, rgba(19,17,26,0.95), rgba(12,10,14,0.98));
-  border-left: 1px solid rgba(255,255,255,0.08);
+  border-left: 3px solid rgba(255,255,255,0.08);
   overflow: hidden;
+  cursor: default;
+}
+.preview-panel .resize-strip {
+  position: absolute;
+  left: -6px; top: 0; bottom: 0;
+  width: 12px;
+  cursor: col-resize;
+  z-index: 200;
+}
+.preview-panel .resize-strip:hover,
+.preview-panel .resize-strip.active {
+  background: rgba(220,38,38,0.25);
 }
 .preview-panel[style*="display: none"] { display: none !important; }
 .preview-bar {
@@ -2888,11 +2900,9 @@ definen géneros.</textarea></div>
 
   </div><!-- end controls -->
 
-  <!-- ═══ RESIZE HANDLE ═══ -->
-  <div class="resize-handle-h" id="resize-handle"></div>
-
   <!-- ═══ PREVIEW PANEL ═══ -->
   <div class="preview-panel" id="preview-panel">
+    <div class="resize-strip" id="resize-handle"></div>
     <div class="preview-bar">
       <div class="preview-bar-left"><span class="preview-label"><i class="fas fa-eye"></i> Vista previa</span></div>
       <div class="preview-bar-center">
