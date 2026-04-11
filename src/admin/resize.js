@@ -21,12 +21,12 @@ export function initResize() {
 
   function onMove(e) {
     if (!dragging) return;
-    const diff = e.clientX - startX;
+    const diff = startX - e.clientX;
     const newW = Math.max(280, Math.min(window.innerWidth - 400, startPreviewW + diff));
-    const split = document.querySelector('.split');
-    if (split) {
-      split.style.gridTemplateColumns = 'var(--sbw) 1fr 4px ' + newW + 'px';
-    }
+    const preview = g('preview-panel');
+    const handle = g('resize-handle');
+    if (preview) preview.style.width = newW + 'px';
+    if (handle) handle.style.right = newW + 'px';
     const frame = document.getElementById('preview-frame');
     if (frame) {
       if (newW < 450) frame.className = 'mobile';

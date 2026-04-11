@@ -190,11 +190,13 @@ export function loadPreviewURL() {
 export function setViewport(mode) {
   const f = g('preview-frame'); if (!f) return;
   f.className = mode;
-  const split = document.querySelector('.split');
-  if (split) {
-    const widths = { mobile: 375, tablet: 768, desktop: Math.max(800, window.innerWidth * 0.5) };
-    const w = widths[mode] || 380;
-    split.style.gridTemplateColumns = 'var(--sbw) 1fr 4px ' + w + 'px';
+  const panel = g('preview-panel');
+  const handle = g('resize-handle');
+  if (panel) {
+    const widths = { mobile: 375, tablet: 768, desktop: Math.max(400, window.innerWidth * 0.5) };
+    const w = (widths[mode] || 380);
+    panel.style.width = w + 'px';
+    if (handle) handle.style.right = w + 'px';
   }
   document.querySelectorAll('.preview-bar-center .vp-btn').forEach(b => b.classList.remove('on'));
   const btnMap = { mobile: 0, tablet: 1, desktop: 2 };
@@ -1290,13 +1292,14 @@ export function setupHeroDrag() {
 // ═══ FULLSCREEN PREVIEW ═══
 export function toggleFullscreenPreview() {
   const panel = g('preview-panel'); if (!panel) return;
+  const handle = g('resize-handle');
   const isFs = panel.classList.toggle('fullscreen');
-  if (isFs) { panel.style.cssText = 'position:fixed;inset:0;z-index:9999;background:#000'; document.addEventListener('keydown', escFullscreen); }
-  else { panel.style.cssText = ''; document.removeEventListener('keydown', escFullscreen); }
+  if (isFs) { panel.style.cssText = 'position:fixed;inset:0;z-index:9999;background:#000'; if (handle) handle.style.display = 'none'; document.addEventListener('keydown', escFullscreen); }
+  else { panel.style.cssText = ''; if (handle) handle.style.display = ''; document.removeEventListener('keydown', escFullscreen); }
   showToast(isFs ? 'Preview fullscreen — ESC para salir' : 'Preview normal');
 }
 function escFullscreen(e) {
-  if (e.key === 'Escape') { const p = g('preview-panel'); if (p) { p.classList.remove('fullscreen'); p.style.cssText = ''; } document.removeEventListener('keydown', escFullscreen); }
+  if (e.key === 'Escape') { const p = g('preview-panel'); const h = g('resize-handle'); if (p) { p.classList.remove('fullscreen'); p.style.cssText = ''; } if (h) h.style.display = ''; document.removeEventListener('keydown', escFullscreen); }
 }
 
 // ═══ SNAPSHOTS ═══

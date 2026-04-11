@@ -197,10 +197,11 @@ body > * { position: relative; z-index: 1; }
 /* ═══ MAIN LAYOUT ═══ */
 .split {
   display: grid;
-  grid-template-columns: var(--sbw) 1fr 4px minmax(280px, 50%);
+  grid-template-columns: var(--sbw) 1fr;
   height: calc(100vh - var(--tbh));
   margin-top: var(--tbh);
   overflow: hidden;
+  position: relative;
 }
 
 /* ═══ SIDEBAR ═══ */
@@ -735,11 +736,14 @@ body > * { position: relative; z-index: 1; }
 
 /* ═══ PREVIEW PANEL ═══ */
 .preview-panel {
+  position: absolute;
+  top: 0; right: 0; bottom: 0;
+  width: 50%;
   min-width: 280px;
-  width: 100%;
+  z-index: 100;
   display: flex; flex-direction: column;
-  background: linear-gradient(180deg, rgba(19,17,26,0.5), rgba(12,10,14,0.7));
-  border-left: 1px solid rgba(255,255,255,0.03);
+  background: linear-gradient(180deg, rgba(19,17,26,0.95), rgba(12,10,14,0.98));
+  border-left: 1px solid rgba(255,255,255,0.08);
   overflow: hidden;
 }
 .preview-panel[style*="display: none"] { display: none !important; }
@@ -778,8 +782,12 @@ body > * { position: relative; z-index: 1; }
 
 /* ═══ RESIZE HANDLE ═══ */
 .resize-handle-h {
-  width: 4px; cursor: col-resize; flex-shrink: 0;
+  position: absolute;
+  right: 0; top: 0; bottom: 0;
+  width: 6px; cursor: col-resize;
   background: var(--b); transition: background var(--tr);
+  z-index: 101;
+}
 }
 .resize-handle-h:hover, .resize-handle-h.active { background: var(--acc); }
 
@@ -1046,10 +1054,10 @@ body > * { position: relative; z-index: 1; }
 
 /* ═══ RESPONSIVE ═══ */
 @media (max-width: 1100px) {
-  .split { grid-template-columns: var(--sbw) 1fr 4px 300px; }
+  .preview-panel { width: 300px; }
 }
 @media (max-width: 640px) {
-  .split { grid-template-columns: var(--sbw) 1fr 0px 240px; }
+  .preview-panel { width: 240px; }
   .resize-handle-h { display: none; }
 }
   .resize-handle-h { display: none; }
@@ -2960,24 +2968,6 @@ definen géneros.</textarea></div>
      JAVASCRIPT
      ═══════════════════════════════════════════════════════════ -->
 <script src="dist/admin-app.js"></script>
-<script>
-// DEBUG: Check preview panel visibility
-setTimeout(function() {
-  var panel = document.getElementById('preview-panel');
-  var split = document.querySelector('.split');
-  console.log('[DEBUG] preview-panel:', panel);
-  console.log('[DEBUG] preview-panel rect:', panel ? panel.getBoundingClientRect() : 'null');
-  console.log('[DEBUG] split computed:', split ? getComputedStyle(split).gridTemplateColumns : 'null');
-  console.log('[DEBUG] panel computed width:', panel ? getComputedStyle(panel).width : 'null');
-  console.log('[DEBUG] panel computed display:', panel ? getComputedStyle(panel).display : 'null');
-  console.log('[DEBUG] window.innerWidth:', window.innerWidth);
-  if (panel) {
-    panel.style.border = '3px solid lime';
-    panel.style.position = 'relative';
-    panel.setAttribute('data-debug', 'visible');
-  }
-}, 2000);
-</script>
 
 </body>
 </html>
