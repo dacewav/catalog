@@ -1188,13 +1188,7 @@ body.light .batch-img-drop input[type="file"] { opacity: 0; }
   position: relative; cursor: default;
   --ad: 2s; --adl: 0s;
 }
-.bcpv::before {
-  content: ''; position: absolute; inset: -1px;
-  border-radius: calc(var(--rlg) + 1px);
-  background: linear-gradient(135deg, var(--acc), transparent 40%, transparent 60%, var(--acc));
-  opacity: 0; transition: opacity .3s; z-index: 0;
-}
-.bcpv:hover::before { opacity: 1; }
+.bcpv::before { display: none; }
 .bcpv-inner {
   background: var(--sf2); border: 1px solid var(--b);
   border-radius: var(--rlg); overflow: hidden; position: relative; z-index: 1;
