@@ -2213,7 +2213,7 @@ definen géneros.</textarea></div>
                 <div class="field"><label>Opacidad mín</label><div class="slider-wrap"><input type="range" id="f-anim-scale-opacity" min="0" max="1" step="0.05" value="0.8" oninput="this.nextElementSibling.textContent=parseFloat(this.value).toFixed(2);updateCardPreview()"><span class="slider-val">0.80</span></div></div>
               </div>
               <!-- ═══ Sacudida/Temblor sub-settings ═══ -->
-              <id="sub-shake" class="anim-sub-panel" style="display:none">
+              <div id="sub-shake" class="anim-sub-panel" style="display:none">
                 <div class="fg2">
                   <div class="field"><label>Distancia X</label><div class="slider-wrap"><input type="range" id="f-anim-shake-x" min="0" max="30" step="1" value="4" oninput="this.nextElementSibling.textContent=this.value+'px';updateCardPreview()"><span class="slider-val">4px</span></div></div>
                   <div class="field"><label>Distancia Y</label><div class="slider-wrap"><input type="range" id="f-anim-shake-y" min="0" max="30" step="1" value="4" oninput="this.nextElementSibling.textContent=this.value+'px';updateCardPreview()"><span class="slider-val">4px</span></div></div>
@@ -2369,23 +2369,6 @@ definen géneros.</textarea></div>
       </div>
 
       <!-- Sticky Live Preview -->
-      <div class="bcpv-sticky" id="bcpv-sticky">
-        <div class="bcpv-sticky-toggle" onclick="this.parentElement.classList.toggle('collapsed')">👁️ <span>Vista previa</span></div>
-        <div class="bcpv" id="beat-card-pv">
-          <div class="bcpv-shimmer"></div>
-          <div class="bcpv-inner">
-            <div class="bcpv-img" id="bcpv-img"><div class="bcpv-img-ph">♪</div></div>
-            <div class="bcpv-body">
-              <div class="bcpv-name" id="bcpv-name">Nombre del Beat</div>
-              <div class="bcpv-meta">
-                <span id="bcpv-bpm">140 BPM</span>
-                <span id="bcpv-key">Am</span>
-                <span id="bcpv-genre">Trap</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
 
       <div style="margin-top:12px" class="btn-row">
         <button class="btn btn-ok" onclick="saveBeat()"><i class="fas fa-save"></i> Guardar</button>
@@ -2809,5 +2792,76 @@ definen géneros.</textarea></div>
      JAVASCRIPT
      ═══════════════════════════════════════════════════════════ -->
 <script src="dist/admin-app.js"></script>
+<!-- ═══ FLOATING CARD PREVIEW (draggable, shows on beat edit) ═══ -->
+<div id="float-pv" style="display:none;position:fixed;z-index:9000;width:220px;border-radius:12px;overflow:hidden;background:rgba(10,8,14,0.95);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,0.08);box-shadow:0 20px 60px rgba(0,0,0,0.6);right:40px;top:80px">
+  <div id="float-pv-handle" style="display:flex;align-items:center;justify-content:space-between;padding:6px 10px;cursor:grab;background:rgba(255,255,255,0.03);border-bottom:1px solid rgba(255,255,255,0.05);user-select:none">
+    <span style="font-size:9px;color:var(--mu);font-family:var(--fm);text-transform:uppercase;letter-spacing:.08em">👁️ Preview</span>
+    <div style="display:flex;gap:4px;align-items:center">
+      <button onclick="document.getElementById('float-pv').style.display='none'" style="background:none;border:none;color:var(--mu);cursor:pointer;font-size:11px;padding:2px 4px">✕</button>
+    </div>
+  </div>
+  <div style="padding:10px">
+    <div class="bcpv" id="beat-card-pv" style="width:100%">
+      <div class="bcpv-shimmer"></div>
+      <div class="bcpv-inner">
+        <div class="bcpv-img" id="bcpv-img"><div class="bcpv-img-ph">♪</div></div>
+        <div class="bcpv-body">
+          <div class="bcpv-name" id="bcpv-name">Nombre del Beat</div>
+          <div class="bcpv-meta">
+            <span id="bcpv-bpm">140 BPM</span>
+            <span id="bcpv-key">Am</span>
+            <span id="bcpv-genre">Trap</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+// Draggable floating preview
+(function(){
+  const el = document.getElementById('float-pv');
+  const handle = document.getElementById('float-pv-handle');
+  if (!el || !handle) return;
+  let dragging = false, startX, startY, origX, origY;
+  handle.addEventListener('mousedown', e => {
+    dragging = true;
+    startX = e.clientX; startY = e.clientY;
+    const r = el.getBoundingClientRect();
+    origX = r.left; origY = r.top;
+    handle.style.cursor = 'grabbing';
+    e.preventDefault();
+  });
+  document.addEventListener('mousemove', e => {
+    if (!dragging) return;
+    el.style.left = (origX + e.clientX - startX) + 'px';
+    el.style.top = (origY + e.clientY - startY) + 'px';
+    el.style.right = 'auto';
+  });
+  document.addEventListener('mouseup', () => {
+    if (!dragging) return;
+    dragging = false;
+    handle.style.cursor = 'grab';
+  });
+  // Touch support
+  handle.addEventListener('touchstart', e => {
+    const t = e.touches[0];
+    dragging = true;
+    startX = t.clientX; startY = t.clientY;
+    const r = el.getBoundingClientRect();
+    origX = r.left; origY = r.top;
+    e.preventDefault();
+  }, {passive: false});
+  document.addEventListener('touchmove', e => {
+    if (!dragging) return;
+    const t = e.touches[0];
+    el.style.left = (origX + t.clientX - startX) + 'px';
+    el.style.top = (origY + t.clientY - startY) + 'px';
+    el.style.right = 'auto';
+  }, {passive: true});
+  document.addEventListener('touchend', () => { dragging = false; });
+})();
+</script>
+
 </body>
 </html>

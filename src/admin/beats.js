@@ -862,6 +862,9 @@ export function openEditor(id) {
   }
   prevImg();
   updateCardPreview();
+  // Show floating card preview
+  const fpv = document.getElementById('float-pv');
+  if (fpv) fpv.style.display = 'block';
   document.querySelectorAll('#sec-add .et').forEach((t, i) => t.classList.toggle('on', i === 0));
   document.querySelectorAll('#sec-add .etp').forEach((p, i) => p.classList.toggle('on', i === 0));
 }

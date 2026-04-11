@@ -11,6 +11,9 @@ export function showSection(name) {
   if (name === 'hero') { setTimeout(updateHeroPv, 50); setTimeout(initParticlesPreview, 100); }
   if (name === 'elements') setTimeout(() => { if (typeof initPColors === 'function') initPColors(); }, 50);
   if (name === 'stats' && typeof window.loadStats === 'function') window.loadStats();
+  // Show/hide floating card preview
+  const fpv = document.getElementById('float-pv');
+  if (fpv) fpv.style.display = (name === 'add') ? 'block' : 'none';
 }
 export function showEt(name) {
   document.querySelectorAll('#sec-add .et').forEach(t => t.classList.remove('on'));
