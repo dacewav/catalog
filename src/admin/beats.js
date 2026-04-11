@@ -130,6 +130,8 @@ export function applyHoverPreset(id) {
   // Sync slider displays
   ['f-hov-scale','f-hov-bright','f-hov-sat','f-hov-shadow','f-hov-trans','f-hov-blur','f-hov-sib-blur','f-hov-hue','f-hov-opacity','f-hov-anim-dur'].forEach(syncSliderDisplay);
   updateCardPreview();
+  // Trigger live update to store — setVal() doesn't fire events, so force it
+  if (typeof window._sendLiveUpdate === 'function') window._sendLiveUpdate();
   showToast('Hover preset "' + preset.name.replace(/[^\w\s]/g, '').trim() + '" aplicado ✓');
 }
 
@@ -258,6 +260,8 @@ export function applyPreset(id) {
   ].forEach(syncSliderDisplay);
 
   updateCardPreview();
+  // Trigger live update to store — setVal() doesn't fire events, so force it
+  if (typeof window._sendLiveUpdate === 'function') window._sendLiveUpdate();
   showToast('Preset "' + preset.name + '" aplicado ✓');
 }
 
