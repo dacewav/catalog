@@ -735,9 +735,11 @@ body > * { position: relative; z-index: 1; }
 /* ═══ PREVIEW PANEL ═══ */
 .preview-panel {
   min-width: 280px;
+  width: 100%;
   display: flex; flex-direction: column;
   background: linear-gradient(180deg, rgba(19,17,26,0.5), rgba(12,10,14,0.7));
   border-left: 1px solid rgba(255,255,255,0.03);
+  overflow: hidden;
 }
 .preview-panel[style*="display: none"] { display: none !important; }
 .preview-bar {
@@ -2957,6 +2959,24 @@ definen géneros.</textarea></div>
      JAVASCRIPT
      ═══════════════════════════════════════════════════════════ -->
 <script src="dist/admin-app.js"></script>
+<script>
+// DEBUG: Check preview panel visibility
+setTimeout(function() {
+  var panel = document.getElementById('preview-panel');
+  var split = document.querySelector('.split');
+  console.log('[DEBUG] preview-panel:', panel);
+  console.log('[DEBUG] preview-panel rect:', panel ? panel.getBoundingClientRect() : 'null');
+  console.log('[DEBUG] split computed:', split ? getComputedStyle(split).gridTemplateColumns : 'null');
+  console.log('[DEBUG] panel computed width:', panel ? getComputedStyle(panel).width : 'null');
+  console.log('[DEBUG] panel computed display:', panel ? getComputedStyle(panel).display : 'null');
+  console.log('[DEBUG] window.innerWidth:', window.innerWidth);
+  if (panel) {
+    panel.style.border = '3px solid lime';
+    panel.style.position = 'relative';
+    panel.setAttribute('data-debug', 'visible');
+  }
+}, 2000);
+</script>
 
 </body>
 </html>
