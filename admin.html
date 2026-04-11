@@ -1753,6 +1753,34 @@ body.light .batch-img-drop input[type="file"] { opacity: 0; }
 }
 .batch-img-item .remove-img { background: none; border: none; color: var(--hi); cursor: pointer; font-size: 12px; }
 .batch-img-item .remove-img:hover { color: #e05555; }
+
+/* ═══ RESPONSIVE / MOBILE ═══ */
+@media (max-width: 768px) {
+  .split {
+    grid-template-columns: 1fr;
+    --sbw: 0px;
+  }
+  .sidebar {
+    position: fixed; left: -280px; top: var(--tbh); bottom: 0;
+    width: 260px; z-index: 200; transition: left 0.3s ease;
+    background: rgba(19,17,26,0.98); backdrop-filter: blur(20px);
+  }
+  .sidebar.open { left: 0; box-shadow: 8px 0 30px rgba(0,0,0,0.5); }
+  #sb-toggle { display: inline-flex !important; }
+  .topbar { padding: 0 12px; gap: 8px; }
+  .topbar-brand { font-size: 14px; }
+  .topbar-center { display: none; }
+  .tb span { display: none; }
+  .tb { padding: 7px 10px; }
+  .preview-panel { display: none; }
+}
+@media (max-width: 480px) {
+  .topbar-brand em { display: none; }
+  .topbar-right { gap: 4px; }
+  .tb { padding: 7px 8px; font-size: 10px; }
+  .section-title { font-size: 14px; padding: 16px; }
+  .card-body { padding: 12px; }
+}
 </style>
 </head>
 
@@ -1774,6 +1802,7 @@ body.light .batch-img-drop input[type="file"] { opacity: 0; }
 
 <!-- ═══ TOP BAR ═══ -->
 <div class="topbar" id="topbar">
+  <button class="tb" id="sb-toggle" onclick="document.querySelector('.sidebar').classList.toggle('open')" style="display:none"><i class="fas fa-bars"></i></button>
   <div class="topbar-brand">DACE<em>·</em> Admin</div>
   <div class="topbar-center">
     <button class="tb" onclick="undo()" title="Deshacer (Ctrl+Z)"><i class="fas fa-undo"></i></button>
