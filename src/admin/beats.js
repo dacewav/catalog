@@ -116,6 +116,22 @@ export function applyPreset(id) {
   const animEaseEl = g('f-anim-ease'); if (animEaseEl) animEaseEl.value = ca ? (ca.easing || 'ease-in-out') : 'ease-in-out';
   const animDirEl = g('f-anim-dir'); if (animDirEl) animDirEl.value = ca ? (ca.direction || 'normal') : 'normal';
   const animIterEl = g('f-anim-iter'); if (animIterEl) animIterEl.value = ca ? (ca.iterations || 'infinite') : 'infinite';
+  setVal('f-anim-int', ca ? (ca.intensity != null ? ca.intensity : 100) : 100);
+  setVal('f-anim-hue-start', ca ? (ca.hueStart != null ? ca.hueStart : 0) : 0);
+  setVal('f-anim-hue-end', ca ? (ca.hueEnd != null ? ca.hueEnd : 360) : 360);
+  // Per-type sub-settings
+  setVal('f-anim-holo-c1', ca ? (ca.holoColor1 || '#ff0080') : '#ff0080');
+  setVal('f-anim-holo-c2', ca ? (ca.holoColor2 || '#00ff80') : '#00ff80');
+  setVal('f-anim-holo-bright', ca ? (ca.holoBright || 1.3) : 1.3);
+  setVal('f-anim-holo-sat', ca ? (ca.holoSat || 1.5) : 1.5);
+  setVal('f-anim-brillo-max', ca ? (ca.brilloMax || 1.4) : 1.4);
+  setVal('f-anim-glitch-dist', ca ? (ca.glitchDist || 4) : 4);
+  setVal('f-anim-translate-dist', ca ? (ca.translateDist || 12) : 12);
+  setVal('f-anim-neon-min', ca ? (ca.neonMin || 0.5) : 0.5);
+  setVal('f-anim-parpadeo-min', ca ? (ca.parpadeoMin || 0.4) : 0.4);
+  setVal('f-anim-rotate-angle', ca ? (ca.rotateAngle || 5) : 5);
+  // Show correct sub-panel
+  _toggleAnimSubsettings(ca ? ca.type : '');
 
   // Style
   const st = cs.style || {};
@@ -191,6 +207,44 @@ function syncAccentColor(source) {
   else picker.value = hex.value;
 }
 
+// ═══ HELPER: toggle per-animation sub-settings panels ═══
+function _toggleAnimSubsettings(type) {
+  const container = document.getElementById('anim-subsettings');
+  if (!container) return;
+  const panels = container.querySelectorAll('.anim-sub-panel');
+  panels.forEach(p => p.style.display = 'none');
+  if (!type) { container.style.display = 'none'; return; }
+  container.style.display = 'block';
+
+  // Map animation types to sub-settings panels
+  const map = {
+    'holograma': 'sub-holograma',
+    'cambio-color': 'sub-holograma', // reuse hue/color controls
+    'brillo': 'sub-brillo',
+    'glitch': 'sub-glitch',
+    'temblor': 'sub-glitch', // reuse distance
+    'flotar': 'sub-translate',
+    'rebotar': 'sub-translate',
+    'deslizar-arriba': 'sub-translate',
+    'deslizar-abajo': 'sub-translate',
+    'deslizar-izq': 'sub-translate',
+    'deslizar-der': 'sub-translate',
+    'sacudida': 'sub-translate',
+    'neon-flicker': 'sub-neon',
+    'parpadeo': 'sub-parpadeo',
+    'rotar': 'sub-rotate',
+    'wobble': 'sub-rotate',
+    'balanceo': 'sub-rotate',
+    'swing': 'sub-rotate',
+    'drift': 'sub-translate'
+  };
+  const panelId = map[type];
+  if (panelId) {
+    const panel = document.getElementById(panelId);
+    if (panel) panel.style.display = 'block';
+  }
+}
+
 // ═══ HELPER: build cardStyle from inputs ═══
 function _buildCardStyleFromInputs() {
   const animType = val('f-anim-type');
@@ -223,7 +277,21 @@ function _buildCardStyleFromInputs() {
       del: parseFloat(val('f-anim-del')) || 0,
       easing: val('f-anim-ease') || 'ease-in-out',
       direction: val('f-anim-dir') || 'normal',
-      iterations: val('f-anim-iter') || 'infinite'
+      iterations: val('f-anim-iter') || 'infinite',
+      intensity: parseInt(val('f-anim-int')) || 100,
+      hueStart: parseInt(val('f-anim-hue-start')) || 0,
+      hueEnd: parseInt(val('f-anim-hue-end')) || 360,
+      // Per-type sub-settings
+      holoColor1: val('f-anim-holo-c1') || '#ff0080',
+      holoColor2: val('f-anim-holo-c2') || '#00ff80',
+      holoBright: parseFloat(val('f-anim-holo-bright')) || 1.3,
+      holoSat: parseFloat(val('f-anim-holo-sat')) || 1.5,
+      brilloMax: parseFloat(val('f-anim-brillo-max')) || 1.4,
+      glitchDist: parseInt(val('f-anim-glitch-dist')) || 4,
+      translateDist: parseInt(val('f-anim-translate-dist')) || 12,
+      neonMin: parseFloat(val('f-anim-neon-min')) || 0.5,
+      parpadeoMin: parseFloat(val('f-anim-parpadeo-min')) || 0.4,
+      rotateAngle: parseInt(val('f-anim-rotate-angle')) || 5
     } : null,
     style: {
       accentColor: val('f-accent-color') || '',
@@ -319,6 +387,19 @@ function _applyCardStyleToPreview(pv, cs) {
     pv.style.setProperty('--aease', ca.easing || 'ease-in-out');
     pv.style.setProperty('--adir', ca.direction || 'normal');
     pv.style.setProperty('--aiter', ca.iterations || 'infinite');
+    // Intensity (0-100% mapped to 0-1)
+    const intVal = (ca.intensity != null ? ca.intensity : 100) / 100;
+    pv.style.setProperty('--anim-int', intVal);
+    // Per-type sub-settings as CSS vars
+    if (ca.type === 'holograma' || ca.type === 'cambio-color') {
+      pv.style.setProperty('--anim-hue-start', (ca.hueStart != null ? ca.hueStart : 0) + 'deg');
+      pv.style.setProperty('--anim-hue-end', (ca.hueEnd != null ? ca.hueEnd : 360) + 'deg');
+      pv.style.setProperty('--anim-holo-bright', ca.holoBright || 1.3);
+      pv.style.setProperty('--anim-holo-sat', ca.holoSat || 1.5);
+    }
+    if (ca.type === 'brillo') {
+      pv.style.setProperty('--anim-brillo-max', ca.brilloMax || 1.4);
+    }
     // Secondary animation on ::before pseudo-element
     if (ca.type2) {
       pv.classList.add('anim2-' + ca.type2);
@@ -420,6 +501,10 @@ function updateCardPreview() {
   // Build and apply cardStyle
   const cs = _buildCardStyleFromInputs();
   _applyCardStyleToPreview(pv, cs);
+
+  // Toggle per-animation sub-settings panel
+  const animTypeVal = val('f-anim-type');
+  _toggleAnimSubsettings(animTypeVal);
 }
 function syncBorderColor(source) {
   const picker = g('f-border-color');

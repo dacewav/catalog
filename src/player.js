@@ -85,7 +85,50 @@ function _updateIcons() {
   if (_playing) startEQ();
   else stopEQ();
 
-  if (typeof window.renderAll === 'function') window.renderAll();
+  // Update playing state on cards WITHOUT re-rendering (prevents animation restart)
+  _updatePlayingState();
+}
+
+// Update is-playing class on cards without rebuilding DOM (avoids animation restart)
+function _updatePlayingState() {
+  const currentBeat = _idx >= 0 ? state.allBeats[_idx] : null;
+  const currentId = currentBeat ? currentBeat.id : null;
+
+  const cards = document.querySelectorAll('.beat-card');
+  cards.forEach((card) => {
+    const cardId = card.dataset.id;
+    const isCurrent = cardId === currentId;
+    const wasPlaying = card.classList.contains('is-playing');
+
+    if (isCurrent && _playing) {
+      if (!wasPlaying) {
+        card.classList.add('is-playing');
+        // Trigger play-pulse effect (non-disruptive, separate from main animation)
+        card.classList.remove('play-pulse');
+        void card.offsetWidth; // force reflow to restart pulse
+        card.classList.add('play-pulse');
+        setTimeout(() => card.classList.remove('play-pulse'), 600);
+      }
+      // Update play icon to pause
+      const playHint = card.querySelector('.play-hint svg');
+      if (playHint) playHint.innerHTML = '<path d="M4 2h2v12H4zM10 2h2v12h-2z"/>';
+    } else {
+      if (wasPlaying) card.classList.remove('is-playing');
+      // Update play icon
+      const playHint = card.querySelector('.play-hint svg');
+      if (playHint) playHint.innerHTML = '<path d="M5 3l10 5-10 5V3z"/>';
+    }
+  });
+
+  // Update waveform bars only in the currently playing card
+  document.querySelectorAll('.beat-card:not(.is-playing) .wbar.anim').forEach(bar => {
+    bar.classList.remove('anim');
+    bar.style.transform = 'scaleY(1)';
+  });
+  const playingCard = document.querySelector('.beat-card.is-playing');
+  if (playingCard && _playing) {
+    playingCard.querySelectorAll('.wbar').forEach(bar => bar.classList.add('anim'));
+  }
 }
 
 function _playIdx(idx) {

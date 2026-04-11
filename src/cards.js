@@ -67,6 +67,19 @@ export function beatCard(b, globalIdx) {
     animStyle = `--ad:${csA.dur || 2}s;--adl:${csA.del || 0}s`;
     if (csA.easing && csA.easing !== 'ease-in-out') animStyle += `;--aease:${csA.easing}`;
     if (csA.direction && csA.direction !== 'normal') animStyle += `;--adir:${csA.direction}`;
+    // Intensity (0-100 mapped to 0-1)
+    const animInt = (csA.intensity != null ? csA.intensity : 100) / 100;
+    if (animInt !== 1) animStyle += `;--anim-int:${animInt}`;
+    // Per-type sub-settings CSS vars
+    if (csA.type === 'holograma' || csA.type === 'cambio-color') {
+      if (csA.hueStart != null) animStyle += `;--anim-hue-start:${csA.hueStart}deg`;
+      if (csA.hueEnd != null) animStyle += `;--anim-hue-end:${csA.hueEnd}deg`;
+      if (csA.holoBright && csA.holoBright !== 1.3) animStyle += `;--anim-holo-bright:${csA.holoBright}`;
+      if (csA.holoSat && csA.holoSat !== 1.5) animStyle += `;--anim-holo-sat:${csA.holoSat}`;
+    }
+    if (csA.type === 'brillo' && csA.brilloMax && csA.brilloMax !== 1.4) {
+      animStyle += `;--anim-brillo-max:${csA.brilloMax}`;
+    }
     if (csA.iterations && csA.iterations !== 'infinite') animStyle += `;--aiter:${csA.iterations}`;
   }
 
@@ -158,7 +171,7 @@ export function beatCard(b, globalIdx) {
 
   const allStyles = styleParts.join(';');
 
-  return `<div class="${allClasses}" id="card-${b.id}"
+  return `<div class="${allClasses}" id="card-${b.id}" data-id="${b.id}"
     onclick="handleCardClick('${b.id}',${globalIdx})"
     style="${allStyles}">
     <div class="shimmer-overlay"></div>
