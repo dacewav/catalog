@@ -300,6 +300,7 @@ nav.nav-scrolled{background:rgba(6,4,4,0.95);border-bottom-color:rgba(185,28,28,
 .beat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:var(--beat-gap);align-items:start}
 .beat-card{position:relative;border-radius:var(--r-lg);overflow:hidden;cursor:pointer;transition:transform .35s cubic-bezier(.4,0,.2,1),box-shadow .35s}
 .beat-card::before{display:none}
+.beat-card[class*="anim2-"]::before{display:block}
 .beat-card-inner{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);height:100%;transition:border-color .35s,box-shadow .35s;box-shadow:var(--card-shadow);transform-style:preserve-3d;will-change:transform;display:flex;flex-direction:column}
 .beat-card:hover .beat-card-inner{border-color:rgba(185,28,28,0.35);box-shadow:0 20px 60px rgba(0,0,0,0.4),0 0 30px rgba(185,28,28,0.08)}
 .beat-card.is-playing .beat-card-inner{border-color:rgba(185,28,28,0.9);box-shadow:var(--glow-md)}
@@ -597,6 +598,7 @@ footer::before{content:'';position:absolute;top:0;left:10%;right:10%;height:1px;
   .modal-acts{flex-direction:column}
   #cursor-glow{display:none}
   .beat-card::before{display:none}
+  .beat-card[class*="anim2-"]::before{display:block}
   .beat-card .shimmer-overlay{display:none}
   /* Wishlist bottom-sheet on small screens */
   .wishlist-panel{width:100%;max-width:100%;top:auto;right:auto;left:0;bottom:0;height:70vh;border-left:none;border-top:1px solid rgba(185,28,28,0.2);border-radius:16px 16px 0 0;animation:slideUpSheet .35s cubic-bezier(.4,0,.2,1)}

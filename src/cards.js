@@ -87,12 +87,12 @@ export function beatCard(b, globalIdx) {
       if (csA.holoDir === 'gradient') animClass = 'anim-holograma-gradient';
       else if (csA.holoDir === 'pulse') animClass = 'anim-holograma-pulse';
     }
-    animStyle = `--ad:${csA.dur || 2}s;--adl:${csA.del || 0}s`;
+    // Intensity controls animation speed: 100% = normal, 200% = 2x faster, 50% = 2x slower
+    const animInt = (csA.intensity != null ? csA.intensity : 100) / 100;
+    const effectiveDur = animInt !== 1 ? (csA.dur || 2) / animInt : (csA.dur || 2);
+    animStyle = `--ad:${effectiveDur}s;--adl:${csA.del || 0}s`;
     if (csA.easing && csA.easing !== 'ease-in-out') animStyle += `;--aease:${csA.easing}`;
     if (csA.direction && csA.direction !== 'normal') animStyle += `;--adir:${csA.direction}`;
-    // Intensity (0-100 mapped to 0-1)
-    const animInt = (csA.intensity != null ? csA.intensity : 100) / 100;
-    if (animInt !== 1) animStyle += `;--anim-int:${animInt}`;
     // Per-type sub-settings CSS vars
     if (csA.type === 'holograma') {
       if (csA.hueStart != null) animStyle += `;--anim-hue-start:${csA.hueStart}deg`;

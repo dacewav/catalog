@@ -760,14 +760,14 @@ function _applyCardStyleToPreview(pv, cs) {
       else if (ca.holoDir === 'pulse') pvAnimSuffix = '-pulse';
     }
     pv.classList.add('anim-' + ca.type + pvAnimSuffix);
-    pv.style.setProperty('--ad', (ca.dur || 2) + 's');
+    // Intensity controls animation speed: 100% = normal, 200% = 2x faster, 50% = 2x slower
+    const intVal = (ca.intensity != null ? ca.intensity : 100) / 100;
+    const effectiveDur = intVal !== 1 ? (ca.dur || 2) / intVal : (ca.dur || 2);
+    pv.style.setProperty('--ad', effectiveDur + 's');
     pv.style.setProperty('--adl', (ca.del || 0) + 's');
     pv.style.setProperty('--aease', ca.easing || 'ease-in-out');
     pv.style.setProperty('--adir', ca.direction || 'normal');
     pv.style.setProperty('--aiter', ca.iterations || 'infinite');
-    // Intensity (0-100% mapped to 0-1)
-    const intVal = (ca.intensity != null ? ca.intensity : 100) / 100;
-    pv.style.setProperty('--anim-int', intVal);
     // Per-type sub-settings as CSS vars
     if (ca.type === 'holograma') {
       pv.style.setProperty('--anim-hue-start', (ca.hueStart || 0) + 'deg');

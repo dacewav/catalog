@@ -100,7 +100,7 @@ export function renderAnimHTML(prefix) {
         <option value="infinite">∞ Infinito</option><option value="1">1 vez</option><option value="2">2 veces</option><option value="3">3 veces</option><option value="5">5 veces</option><option value="10">10 veces</option>
       </select>
     </div>
-    <div class="field"><label>Intensidad</label><div class="slider-wrap"><input type="range" id="${p}anim-int" min="0" max="100" step="1" value="100" oninput="this.nextElementSibling.textContent=this.value+'%'"><span class="slider-val">100%</span></div></div>`;
+    <div class="field"><label>⚡ Velocidad</label><div class="slider-wrap"><input type="range" id="${p}anim-int" min="10" max="300" step="5" value="100" oninput="this.nextElementSibling.textContent=this.value+'%'"><span class="slider-val">100%</span></div></div>`;
 }
 
 export function renderStyleHTML(prefix) {
