@@ -2373,9 +2373,9 @@ definen géneros.</textarea></div>
           <i class="fas fa-chevron-down"></i>
         </div>
         <div class="card-body" id="pv-card-body">
-          <div style="display:flex;gap:12px;align-items:flex-start">
+          <div style="display:flex;gap:12px;align-items:flex-start;max-width:500px">
             <!-- Mini card preview -->
-            <div style="flex:0 0 180px">
+            <div style="flex:0 0 150px">
               <div class="bcpv" id="beat-card-pv" style="width:100%">
                 <div class="bcpv-shimmer"></div>
                 <div class="bcpv-inner">
@@ -2392,10 +2392,9 @@ definen géneros.</textarea></div>
               </div>
             </div>
             <!-- Full store card preview (togglable) -->
-            <div style="flex:1;min-width:0">
-              <div style="font-size:9px;color:var(--mu);margin-bottom:6px;font-family:var(--fm);text-transform:uppercase;letter-spacing:.06em">Vista tienda</div>
-              <div id="pv-full-card-container" style="border-radius:var(--rad);overflow:hidden;border:1px solid var(--b)"></div>
-              <button onclick="renderFullPvInCard()" style="margin-top:6px;font-size:9px;padding:3px 8px;border:1px solid var(--b);border-radius:var(--rad);background:none;color:var(--tx2);cursor:pointer;font-family:var(--fm)">↻ Actualizar vista tienda</button>
+            <div style="flex:0 0 280px;min-width:0">
+              <div style="font-size:9px;color:var(--mu);margin-bottom:4px;font-family:var(--fm);text-transform:uppercase;letter-spacing:.06em">Vista tienda</div>
+              <div id="pv-full-card-container" style="border-radius:var(--rad);overflow:hidden;border:1px solid var(--b);max-width:280px"></div>
             </div>
           </div>
         </div>
