@@ -247,9 +247,10 @@ body > * { position: relative; z-index: 1; }
 
 /* ═══ CONTENT AREA ═══ */
 .controls {
-  flex: 1 1 0; min-width: 0; overflow-y: auto; overflow-x: hidden;
+  overflow-y: auto; overflow-x: hidden;
   padding: 28px 32px 48px;
   scroll-behavior: smooth;
+  min-width: 0; width: 0;
 }
 .section { display: none; }
 .section.on { display: block; animation: section-in 0.35s ease-out; }
