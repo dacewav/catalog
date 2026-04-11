@@ -2792,8 +2792,18 @@ definen géneros.</textarea></div>
      JAVASCRIPT
      ═══════════════════════════════════════════════════════════ -->
 <script src="dist/admin-app.js"></script>
-<!-- ═══ FLOATING CARD PREVIEW (draggable + resizable, shows full card when large) ═══ -->
-<div id="float-pv" style="display:none;position:fixed;z-index:9000;width:220px;min-width:160px;min-height:100px;border-radius:12px;overflow:visible;background:rgba(10,8,14,0.95);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,0.08);box-shadow:0 20px 60px rgba(0,0,0,0.6);right:40px;top:80px;resize:both">
+<!-- ═══ FLOATING CARD PREVIEW (draggable + resizable from all edges) ═══ -->
+<div id="float-pv" style="display:none;position:fixed;z-index:9000;width:220px;height:auto;border-radius:12px;overflow:visible;background:rgba(10,8,14,0.95);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,0.08);box-shadow:0 20px 60px rgba(0,0,0,0.6);right:40px;top:80px">
+  <!-- Resize handles (all 8 directions) -->
+  <div class="fpv-rz" data-rz="n" style="position:absolute;top:-4px;left:10px;right:10px;height:8px;cursor:n-resize;z-index:10"></div>
+  <div class="fpv-rz" data-rz="s" style="position:absolute;bottom:-4px;left:10px;right:10px;height:8px;cursor:s-resize;z-index:10"></div>
+  <div class="fpv-rz" data-rz="e" style="position:absolute;right:-4px;top:10px;bottom:10px;width:8px;cursor:e-resize;z-index:10"></div>
+  <div class="fpv-rz" data-rz="w" style="position:absolute;left:-4px;top:10px;bottom:10px;width:8px;cursor:w-resize;z-index:10"></div>
+  <div class="fpv-rz" data-rz="ne" style="position:absolute;top:-4px;right:-4px;width:14px;height:14px;cursor:ne-resize;z-index:11"></div>
+  <div class="fpv-rz" data-rz="nw" style="position:absolute;top:-4px;left:-4px;width:14px;height:14px;cursor:nw-resize;z-index:11"></div>
+  <div class="fpv-rz" data-rz="se" style="position:absolute;bottom:-4px;right:-4px;width:14px;height:14px;cursor:se-resize;z-index:11"></div>
+  <div class="fpv-rz" data-rz="sw" style="position:absolute;bottom:-4px;left:-4px;width:14px;height:14px;cursor:sw-resize;z-index:11"></div>
+  <!-- Title bar (drag handle) -->
   <div id="float-pv-handle" style="display:flex;align-items:center;justify-content:space-between;padding:6px 10px;cursor:grab;background:rgba(255,255,255,0.03);border-bottom:1px solid rgba(255,255,255,0.05);user-select:none;border-radius:12px 12px 0 0">
     <span style="font-size:9px;color:var(--mu);font-family:var(--fm);text-transform:uppercase;letter-spacing:.08em">👁️ Preview</span>
     <div style="display:flex;gap:4px;align-items:center">
@@ -2801,7 +2811,7 @@ definen géneros.</textarea></div>
       <button onclick="document.getElementById('float-pv').style.display='none'" style="background:none;border:none;color:var(--mu);cursor:pointer;font-size:11px;padding:2px 4px">✕</button>
     </div>
   </div>
-  <div id="float-pv-body" style="padding:10px;overflow:auto;height:calc(100% - 34px)">
+  <div id="float-pv-body" style="padding:10px;overflow:auto;height:calc(100% - 34px);min-height:60px">
     <!-- Mini preview (default) -->
     <div id="float-pv-mini">
       <div class="bcpv" id="beat-card-pv" style="width:100%">
@@ -2824,76 +2834,114 @@ definen géneros.</textarea></div>
       <div id="float-pv-full-card"></div>
     </div>
   </div>
-  <!-- Resize indicator -->
-  <div style="position:absolute;bottom:2px;right:6px;font-size:8px;color:rgba(255,255,255,0.15);pointer-events:none">⋰⋱</div>
 </div>
 <script>
-// Draggable + resizable floating preview
 (function(){
   const el = document.getElementById('float-pv');
+  if (!el) return;
   const handle = document.getElementById('float-pv-handle');
-  if (!el || !handle) return;
-  let dragging = false, startX, startY, origX, origY;
-  handle.addEventListener('mousedown', e => {
-    if (e.target.tagName === 'BUTTON') return;
-    dragging = true;
-    startX = e.clientX; startY = e.clientY;
-    const r = el.getBoundingClientRect();
-    origX = r.left; origY = r.top;
-    el.style.resize = 'both';
-    handle.style.cursor = 'grabbing';
-    e.preventDefault();
-  });
+  const minW = 160, minH = 100;
+
+  // ─── Drag to move ───
+  let dragging = false, dStartX, dStartY, dOrigX, dOrigY;
+  if (handle) {
+    handle.addEventListener('mousedown', e => {
+      if (e.target.tagName === 'BUTTON') return;
+      dragging = true;
+      dStartX = e.clientX; dStartY = e.clientY;
+      const r = el.getBoundingClientRect();
+      dOrigX = r.left; dOrigY = r.top;
+      el.style.resize = 'none';
+      handle.style.cursor = 'grabbing';
+      e.preventDefault();
+    });
+  }
   document.addEventListener('mousemove', e => {
-    if (!dragging) return;
-    el.style.left = (origX + e.clientX - startX) + 'px';
-    el.style.top = (origY + e.clientY - startY) + 'px';
-    el.style.right = 'auto';
-  });
-  document.addEventListener('mouseup', () => {
-    if (!dragging) return;
-    dragging = false;
-    handle.style.cursor = 'grab';
-  });
-  // Touch support
-  handle.addEventListener('touchstart', e => {
-    if (e.target.tagName === 'BUTTON') return;
-    const t = e.touches[0];
-    dragging = true;
-    startX = t.clientX; startY = t.clientY;
-    const r = el.getBoundingClientRect();
-    origX = r.left; origY = r.top;
-    e.preventDefault();
-  }, {passive: false});
-  document.addEventListener('touchmove', e => {
-    if (!dragging) return;
-    const t = e.touches[0];
-    el.style.left = (origX + t.clientX - startX) + 'px';
-    el.style.top = (origY + t.clientY - startY) + 'px';
-    el.style.right = 'auto';
-  }, {passive: true});
-  document.addEventListener('touchend', () => { dragging = false; });
-  // Auto-switch to full card when resized large
-  const ro = new ResizeObserver(entries => {
-    for (const entry of entries) {
-      const w = entry.contentRect.width;
-      const fullEl = document.getElementById('float-pv-full');
-      const miniEl = document.getElementById('float-pv-mini');
-      if (!fullEl || !miniEl) return;
-      if (w >= 350) {
-        fullEl.style.display = 'block';
-        miniEl.style.display = 'none';
-        el.dataset.mode = 'full';
-        // Trigger full card render
-        if (typeof window._renderFullPvCard === 'function') window._renderFullPvCard();
-      } else {
-        fullEl.style.display = 'none';
-        miniEl.style.display = 'block';
-        el.dataset.mode = 'mini';
-      }
+    if (dragging) {
+      el.style.left = (dOrigX + e.clientX - dStartX) + 'px';
+      el.style.top = (dOrigY + e.clientY - dStartY) + 'px';
+      el.style.right = 'auto';
+      el.style.bottom = 'auto';
     }
   });
-  ro.observe(el);
+  document.addEventListener('mouseup', () => {
+    if (dragging) { dragging = false; if (handle) handle.style.cursor = 'grab'; }
+    if (resizing) { resizing = false; rzDir = ''; document.body.style.cursor = ''; document.body.style.userSelect = ''; }
+  });
+
+  // ─── Resize from any edge/corner ───
+  let resizing = false, rzDir = '', rzStartX, rzStartY, rzOrigRect;
+  el.querySelectorAll('.fpv-rz').forEach(h => {
+    h.addEventListener('mousedown', e => {
+      resizing = true;
+      rzDir = h.dataset.rz;
+      rzStartX = e.clientX; rzStartY = e.clientY;
+      rzOrigRect = el.getBoundingClientRect();
+      document.body.style.userSelect = 'none';
+      e.preventDefault();
+      e.stopPropagation();
+    });
+  });
+  document.addEventListener('mousemove', e => {
+    if (!resizing) return;
+    const dx = e.clientX - rzStartX;
+    const dy = e.clientY - rzStartY;
+    let newW = rzOrigRect.width, newH = rzOrigRect.height;
+    let newL = rzOrigRect.left, newT = rzOrigRect.top;
+
+    if (rzDir.includes('e')) newW = Math.max(minW, rzOrigRect.width + dx);
+    if (rzDir.includes('w')) { newW = Math.max(minW, rzOrigRect.width - dx); newL = rzOrigRect.left + dx; }
+    if (rzDir.includes('s')) newH = Math.max(minH, rzOrigRect.height + dy);
+    if (rzDir.includes('n')) { newH = Math.max(minH, rzOrigRect.height - dy); newT = rzOrigRect.top + dy; }
+
+    el.style.width = newW + 'px';
+    el.style.height = newH + 'px';
+    el.style.left = newL + 'px';
+    el.style.top = newT + 'px';
+    el.style.right = 'auto';
+    el.style.bottom = 'auto';
+
+    // Auto-switch mode
+    checkMode(newW);
+  });
+
+  function checkMode(w) {
+    const fullEl = document.getElementById('float-pv-full');
+    const miniEl = document.getElementById('float-pv-mini');
+    if (!fullEl || !miniEl) return;
+    if (w >= 350) {
+      fullEl.style.display = 'block';
+      miniEl.style.display = 'none';
+      el.dataset.mode = 'full';
+      if (typeof window._renderFullPvCard === 'function') window._renderFullPvCard();
+    } else {
+      fullEl.style.display = 'none';
+      miniEl.style.display = 'block';
+      el.dataset.mode = 'mini';
+    }
+  }
+
+  // ─── Touch support for drag ───
+  if (handle) {
+    handle.addEventListener('touchstart', e => {
+      if (e.target.tagName === 'BUTTON') return;
+      const t = e.touches[0];
+      dragging = true;
+      dStartX = t.clientX; dStartY = t.clientY;
+      const r = el.getBoundingClientRect();
+      dOrigX = r.left; dOrigY = r.top;
+      e.preventDefault();
+    }, {passive: false});
+  }
+  document.addEventListener('touchmove', e => {
+    if (dragging) {
+      const t = e.touches[0];
+      el.style.left = (dOrigX + t.clientX - dStartX) + 'px';
+      el.style.top = (dOrigY + t.clientY - dStartY) + 'px';
+      el.style.right = 'auto'; el.style.bottom = 'auto';
+    }
+  }, {passive: true});
+  document.addEventListener('touchend', () => { dragging = false; });
 })();
 // Toggle between mini and full card mode
 window.toggleFloatPvMode = function() {
@@ -2901,11 +2949,9 @@ window.toggleFloatPvMode = function() {
   if (!el) return;
   const isFull = el.dataset.mode === 'full';
   if (isFull) {
-    el.style.width = '220px';
-    el.style.height = 'auto';
+    el.style.width = '220px'; el.style.height = 'auto';
   } else {
-    el.style.width = '420px';
-    el.style.height = 'auto';
+    el.style.width = '420px'; el.style.height = 'auto';
   }
 };
 </script>
