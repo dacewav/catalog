@@ -1809,7 +1809,7 @@ definen géneros.</textarea></div>
         <div class="card" style="margin-top:8px">
           <div class="card-title" onclick="toggleCard(this)"><span>🎨 Estilo de tarjeta</span><i class="fas fa-chevron-down"></i></div>
           <div class="card-body">
-            <div class="color-wrap"><label>Color acento</label><div class="color-swatch"><input type="color" id="f-accent-color" value="#dc2626"></div><input type="text" class="color-hex" id="f-accent-color-h" value="#dc2626"></div>
+            <div class="color-wrap"><label>Color acento</label><div class="color-swatch"><input type="color" id="f-accent-color" value="#dc2626" oninput="syncAccentColor('picker')"></div><input type="text" class="color-hex" id="f-accent-color-h" value="#dc2626" oninput="syncAccentColor('hex')"></div>
             <div class="tog-row"><input type="checkbox" class="tog" id="f-shimmer"><span class="tog-lbl">Efecto shimmer al hover</span></div>
             <div style="border-top:1px solid var(--b);margin-top:8px;padding-top:10px">
               <p style="font-size:9px;color:var(--hi);margin-bottom:8px">Borde personalizado</p>

@@ -5,6 +5,30 @@ import { showSection } from './nav.js';
 import { autoSave } from './core.js';
 import { R2_ENABLED, uploadToR2 } from './r2.js';
 
+// Sync slider value display after programmatic setVal
+function syncSliderDisplay(inputId) {
+  const el = g(inputId); if (!el) return;
+  const sib = el.nextElementSibling; if (!sib) return;
+  const v = parseFloat(el.value);
+  if (inputId.includes('dur') || inputId.includes('del') || inputId.includes('speed')) sib.textContent = v.toFixed(1) + 's';
+  else if (inputId.includes('width')) sib.textContent = v.toFixed(1) + 'px';
+  else sib.textContent = v;
+}
+
+// Color picker ↔ hex input sync (bidirectional)
+function syncAccentColor(source) {
+  const picker = g('f-accent-color');
+  const hex = g('f-accent-color-h');
+  if (!picker || !hex) return;
+  if (source === 'picker') hex.value = picker.value;
+  else picker.value = hex.value;
+}
+function syncBorderColor(source) {
+  const picker = g('f-border-color');
+  if (!picker) return;
+  // border color has no hex text input, just the picker — but we could add one later
+}
+
 let _beatSearchQuery = '';
 export function filterBeatList(q) { _beatSearchQuery = (q || '').trim().toLowerCase(); renderBeatList(); }
 
@@ -62,13 +86,19 @@ export function openEditor(id) {
     const animTypeEl = g('f-anim-type'); if (animTypeEl) animTypeEl.value = ca.type || '';
     setVal('f-anim-dur', ca.dur || 2);
     setVal('f-anim-del', ca.del || 0);
+    // Update slider displays
+    syncSliderDisplay('f-anim-dur');
+    syncSliderDisplay('f-anim-del');
     // Card style
-    setVal('f-accent-color', b.accentColor || '#dc2626'); setVal('f-accent-color-h', b.accentColor || '#dc2626');
+    const accentClr = b.accentColor || '#dc2626';
+    setVal('f-accent-color', accentClr); setVal('f-accent-color-h', accentClr);
     setChecked('f-shimmer', b.shimmer || false);
     const cb = b.cardBorder || {};
     setChecked('f-border-on', cb.enabled || false);
-    setVal('f-border-color', cb.color || '#dc2626');
+    const borderClr = cb.color || '#dc2626';
+    setVal('f-border-color', borderClr);
     setVal('f-border-width', cb.width || 1);
+    syncSliderDisplay('f-border-width');
     renderLicEditor(b.licenses || []);
   } else {
     ['f-id', 'f-name', 'f-genre-c', 'f-bpm', 'f-key', 'f-desc', 'f-tags', 'f-img', 'f-audio', 'f-prev', 'f-spotify', 'f-youtube', 'f-soundcloud', 'f-date'].forEach(id => setVal(id, ''));
@@ -253,5 +283,6 @@ Object.assign(window, {
   saveBeat, deleteBeat, quickDel,
   inlineEditName, inlineEditBpm, inlineEditKey,
   openBatchImg, closeBatchImg, handleBatchImgFiles, clearBatchImgQueue, saveBatchImages,
-  batchAddBeats, toggleMP, seekMP
+  batchAddBeats, toggleMP, seekMP,
+  syncAccentColor, syncBorderColor
 });
