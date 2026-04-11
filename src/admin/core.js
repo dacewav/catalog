@@ -188,15 +188,14 @@ export function loadPreviewURL() {
   const f = g('preview-frame'); if (f) f.src = url; showToast('Cargando: ' + url);
 }
 export function setViewport(mode) {
-  const f = g('preview-frame'); if (!f) return;
+  var f = g('preview-frame'); if (!f) return;
   f.className = mode;
-  const panel = g('preview-panel');
-  const handle = g('resize-handle');
-  if (panel) {
-    const widths = { mobile: 375, tablet: 768, desktop: Math.max(400, window.innerWidth * 0.5) };
-    const w = (widths[mode] || 380);
-    panel.style.width = w + 'px';
-    if (handle) handle.style.right = w + 'px';
+  var widths = { mobile: 375, tablet: 768, desktop: Math.max(400, Math.round(window.innerWidth * 0.5)) };
+  var w = widths[mode] || 380;
+  if (typeof window._syncPanel === 'function') window._syncPanel(w);
+  else {
+    var panel = g('preview-panel');
+    if (panel) panel.style.width = w + 'px';
   }
   document.querySelectorAll('.preview-bar-center .vp-btn').forEach(b => b.classList.remove('on'));
   const btnMap = { mobile: 0, tablet: 1, desktop: 2 };
