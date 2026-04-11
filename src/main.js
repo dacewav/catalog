@@ -157,6 +157,22 @@ window.addEventListener('message', (e) => {
     state.floatingEls = d.elements;
     // Floating elements need immediate render (lightweight)
     renderFloating(state.floatingEls);
+  } else if (d.type === 'beat-update' && d.beatId && d.data) {
+    // Live edit: update beat in memory without Firebase write
+    const bi = state.allBeats.findIndex(x => x.id === d.beatId);
+    if (bi > -1) {
+      Object.assign(state.allBeats[bi], d.data);
+      renderAll();
+    }
+    return; // skip shared debounce
+  } else if (d.type === 'beat-revert' && d.beatId && d.original) {
+    // Cancel edit: restore original beat data
+    const bi = state.allBeats.findIndex(x => x.id === d.beatId);
+    if (bi > -1) {
+      Object.assign(state.allBeats[bi], d.original);
+      renderAll();
+    }
+    return;
   }
 
   // SINGLE shared debounce: batch all updates and run once after messages stop arriving

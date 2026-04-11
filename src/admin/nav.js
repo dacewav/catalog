@@ -4,6 +4,11 @@ import { updateHeroPv, initParticlesPreview } from './core.js';
 import { initPColors } from './colors.js';
 
 export function showSection(name) {
+  // Revert live edit if leaving the editor without saving
+  var current = document.querySelector('.section.on');
+  if (current && current.id === 'sec-add' && name !== 'add') {
+    if (typeof window._sendBeatRevert === 'function') window._sendBeatRevert();
+  }
   document.querySelectorAll('.section').forEach(s => s.classList.remove('on'));
   document.querySelectorAll('.si').forEach(s => s.classList.remove('on'));
   const sec = g('sec-' + name); if (sec) sec.classList.add('on');

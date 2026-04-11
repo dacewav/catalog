@@ -1063,6 +1063,8 @@ export function openEditor(id) {
   if (idField) { idField.readOnly = !!id; idField.style.opacity = id ? '0.5' : '1'; idField.style.cursor = id ? 'not-allowed' : 'text'; }
   if (id) {
     const b = allBeats.find(x => x.id === id); if (!b) return;
+    // Start live edit — snapshot for revert on cancel
+    if (typeof window._startLiveEdit === 'function') window._startLiveEdit(b);
     setVal('f-id', b.id); setVal('f-name', b.name); setVal('f-genre', b.genre || 'Trap'); setVal('f-genre-c', b.genreCustom || '');
     setVal('f-bpm', b.bpm || ''); setVal('f-key', b.key || ''); setVal('f-desc', b.description || ''); setVal('f-tags', (b.tags || []).join(', '));
     setVal('f-img', b.imageUrl || ''); setVal('f-audio', b.audioUrl || ''); setVal('f-prev', b.previewUrl || '');
@@ -1254,7 +1256,7 @@ export function saveBeat() {
     // New mega schema
     cardStyle: cardStyle
   };
-  showSaving(true); db.ref('beats/' + id).set(beat).then(() => { showSaving(false); showToast('Beat guardado ✓'); showSection('beats'); }).catch(err => { showSaving(false); showToast('Error: ' + err.message, true); });
+  showSaving(true); db.ref('beats/' + id).set(beat).then(() => { showSaving(false); if (typeof window._clearLiveEdit === 'function') window._clearLiveEdit(); showToast('Beat guardado ✓'); showSection('beats'); }).catch(err => { showSaving(false); showToast('Error: ' + err.message, true); });
 }
 export async function deleteBeat() {
   var delId = editId || val('f-id');
@@ -1385,6 +1387,7 @@ renderHoverPresets();
     clearTimeout(_pvTimer);
     _pvTimer = setTimeout(function() {
       if (typeof window.renderFullPvInCard === 'function') window.renderFullPvInCard();
+      _sendLiveUpdate();
     }, 250);
   }
   var pvFields = ['f-name','f-bpm','f-key','f-genre','f-genre-c','f-img','f-tags','f-desc','f-excl','f-active','f-avail'];
@@ -1401,4 +1404,57 @@ renderHoverPresets();
   } else {
     _setupLivePv();
   }
+
+  // ═══ LIVE EDIT: postMessage to store iframe ═══
+  var PM_ORIGIN = window.location.origin || '*';
+  window._liveEditId = null;
+  window._liveEditOriginal = null;
+
+  function _getPreviewFrame() {
+    return document.getElementById('preview-frame');
+  }
+
+  function _sendLiveUpdate() {
+    if (!window._liveEditId) return;
+    var frame = _getPreviewFrame();
+    if (!frame || !frame.contentWindow) return;
+    var data = {
+      name: val('f-name') || '',
+      genre: val('f-genre') || 'Trap',
+      genreCustom: val('f-genre-c') || '',
+      bpm: parseInt(val('f-bpm')) || 0,
+      key: val('f-key') || '',
+      description: val('f-desc') || '',
+      tags: (val('f-tags') || '').split(',').map(function(t) { return t.trim(); }).filter(Boolean),
+      imageUrl: val('f-img') || '',
+      audioUrl: val('f-audio') || '',
+      previewUrl: val('f-prev') || '',
+      featured: checked('f-feat'),
+      exclusive: checked('f-excl'),
+      active: checked('f-active'),
+      available: checked('f-avail'),
+      cardStyle: _buildCardStyleFromInputs()
+    };
+    frame.contentWindow.postMessage({ type: 'beat-update', beatId: window._liveEditId, data: data }, PM_ORIGIN);
+  }
+
+  window._sendBeatRevert = function() {
+    if (!window._liveEditId || !window._liveEditOriginal) return;
+    var frame = _getPreviewFrame();
+    if (!frame || !frame.contentWindow) return;
+    frame.contentWindow.postMessage({ type: 'beat-revert', beatId: window._liveEditId, original: window._liveEditOriginal }, PM_ORIGIN);
+    window._liveEditId = null;
+    window._liveEditOriginal = null;
+  };
+
+  window._startLiveEdit = function(beat) {
+    window._liveEditId = beat.id;
+    // Deep clone the original beat for revert
+    window._liveEditOriginal = JSON.parse(JSON.stringify(beat));
+  };
+
+  window._clearLiveEdit = function() {
+    window._liveEditId = null;
+    window._liveEditOriginal = null;
+  };
 })();
