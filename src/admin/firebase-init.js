@@ -13,28 +13,35 @@ import { renderBeatList } from './beats.js';
 import { renderLinksEditor, renderTestiEditor, renderDefLicsEditor } from './features.js';
 
 let _auth = null;
-const _DEFAULT_ALLOWED_EMAILS = { 'daceidk@gmail.com': true, 'xiligamesz@gmail.com': true, 'prodxce@gmail.com': true };
 const _BOOTSTRAP_ADMINS = ['daceidk@gmail.com', 'xiligamesz@gmail.com', 'prodxce@gmail.com'];
-let _allowedEmails = [...Object.keys(_DEFAULT_ALLOWED_EMAILS)];
+const _BOOTSTRAP_UIDS = { 'daceidk@gmail.com': 'Uks9YGSd6rS40zqlRujoe6pE6N22' };
 
-// Firebase keys can't contain ".", "#", "$", "/", "[", "]" — encode/decode emails
+// Local state — populated from Firebase
+let _approvedUIDs = {};   // { uid: email }
+let _pendingEmails = [];  // [ "email1", "email2" ]
+
+// Firebase keys can't contain ".", "#", "$", "/", "[", "]"
 function _encodeEmailKey(email) { return email.replace(/\./g, ','); }
 function _decodeEmailKey(key) { return key.replace(/,/g, '.'); }
-function _emailsToFBObj(emails) { const obj = {}; emails.forEach(e => { obj[_encodeEmailKey(e)] = true; }); return obj; }
-function _fbObjToEmails(obj) { return Object.keys(obj || {}).map(_decodeEmailKey).filter(e => e.includes('@')); }
+
+function _isApproved(email) {
+  return Object.values(_approvedUIDs).includes(email);
+}
+function _isPending(email) {
+  return _pendingEmails.includes(email);
+}
+function _isWhitelisted(email) {
+  return _isApproved(email) || _isPending(email);
+}
 
 // ═══ AUTH ═══
 async function doGoogleLogin() {
   const errEl = g('login-error'), btn = g('login-google-btn');
   btn.disabled = true; btn.textContent = 'Abriendo Google...'; errEl.textContent = '';
   const provider = new firebase.auth.GoogleAuthProvider();
-  if (_allowedEmails.length === 1) provider.setCustomParameters({ login_hint: _allowedEmails[0] });
   try {
     const result = await _auth.signInWithPopup(provider);
-    if (!_allowedEmails.includes(result.user.email)) {
-      errEl.textContent = 'Esta cuenta (' + result.user.email + ') no tiene acceso al admin.';
-      await _auth.signOut();
-    }
+    // onAuthStateChanged handles the rest (approve/pending check)
   } catch (e) {
     if (e.code === 'auth/popup-closed-by-user') errEl.textContent = 'Se cerró la ventana. Intenta de nuevo.';
     else if (e.code === 'auth/popup-blocked') errEl.textContent = 'El navegador bloqueó la ventana. Permite pop-ups.';
@@ -175,43 +182,109 @@ function initAdmin() {
   import('./r2.js').then(m => m.initR2Status?.());
 }
 
-// ═══ WHITELIST ═══
+// ═══ WHITELIST (UID-based with pending queue) ═══
 function renderWhitelistEditor() {
   const el = g('whitelist-list'); if (!el) return;
-  if (!_allowedEmails || _allowedEmails.length === 0) {
-    el.innerHTML = '<div style="color:var(--hi);font-size:10px">Sin emails configurados</div>'; return;
+
+  const approvedEntries = Object.entries(_approvedUIDs); // [ [uid, email], ... ]
+  const hasPending = _pendingEmails.length > 0;
+
+  if (approvedEntries.length === 0 && !hasPending) {
+    el.innerHTML = '<div style="color:var(--hi);font-size:10px">Sin miembros configurados</div>';
+    return;
   }
-  el.innerHTML = _allowedEmails.map((email, i) => {
-    const isYou = email === _auth?.currentUser?.email;
-    return '<div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--b)">' +
-      '<i class="fas fa-user-circle" style="color:var(--mu);font-size:14px"></i>' +
-      '<span style="flex:1;font-size:11px;font-family:var(--fm)">' + email + '</span>' +
-      (isYou ? '<span style="font-size:8px;color:var(--gn)">Tú</span>' : '') +
-      (!isYou ? '<button class="tb" onclick="removeWhitelistEmail(' + i + ')" style="font-size:9px;padding:3px 8px;color:#e05555"><i class="fas fa-trash"></i></button>' : '') +
-      '</div>';
-  }).join('');
+
+  let html = '';
+
+  // Approved members
+  if (approvedEntries.length > 0) {
+    html += '<div style="font-size:9px;color:var(--mu);text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px;font-weight:700">Aprobados</div>';
+    approvedEntries.forEach(([uid, email]) => {
+      const isYou = email === _auth?.currentUser?.email;
+      html += '<div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--b)">' +
+        '<i class="fas fa-user-check" style="color:var(--ok);font-size:14px"></i>' +
+        '<div style="flex:1">' +
+        '<div style="font-size:11px;font-family:var(--fm)">' + email + '</div>' +
+        '<div style="font-size:8px;color:var(--mu);font-family:var(--fx)">' + uid.substring(0, 12) + '...</div>' +
+        '</div>' +
+        (isYou ? '<span style="font-size:8px;color:var(--ok)">Tú</span>' : '') +
+        (!isYou ? '<button class="tb" onclick="removeWhitelistEmail(\'approved\',\'' + uid + '\')" style="font-size:9px;padding:3px 8px;color:#e05555"><i class="fas fa-trash"></i></button>' : '') +
+        '</div>';
+    });
+  }
+
+  // Pending members
+  if (hasPending) {
+    html += '<div style="font-size:9px;color:var(--wr);text-transform:uppercase;letter-spacing:.1em;margin:10px 0 6px;font-weight:700">⏳ Pendientes (esperando login)</div>';
+    _pendingEmails.forEach(email => {
+      html += '<div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--b)">' +
+        '<i class="fas fa-user-clock" style="color:var(--wr);font-size:14px"></i>' +
+        '<div style="flex:1">' +
+        '<div style="font-size:11px;font-family:var(--fm)">' + email + '</div>' +
+        '<div style="font-size:8px;color:var(--wr)">Esperando que inicie sesión</div>' +
+        '</div>' +
+        '<button class="tb" onclick="removeWhitelistEmail(\'pending\',\'' + email + '\')" style="font-size:9px;padding:3px 8px;color:#e05555"><i class="fas fa-trash"></i></button>' +
+        '</div>';
+    });
+  }
+
+  el.innerHTML = html;
 }
 
 function addWhitelistEmail() {
   const input = g('wl-new-email'); if (!input) return;
   const email = input.value.trim().toLowerCase();
   if (!email || !email.includes('@')) { showToast('Email inválido', true); return; }
-  if (_allowedEmails.includes(email)) { showToast('Ya está en la lista', true); return; }
-  _allowedEmails.push(email);
-  firebase.database().ref('adminWhitelist').set(_emailsToFBObj(_allowedEmails))
-    .catch(e => { showToast('Error: solo admins base pueden editar la whitelist', true); _allowedEmails.pop(); });
+  if (_isWhitelisted(email)) { showToast('Ya está en la lista', true); return; }
+
+  _pendingEmails.push(email);
+  const key = _encodeEmailKey(email);
+  firebase.database().ref('adminWhitelist/pending/' + key).set(true)
+    .then(() => { showToast('Email agregado: ' + email + ' (pendiente)'); renderWhitelistEditor(); })
+    .catch(e => { showToast('Error: ' + e.message, true); _pendingEmails.pop(); });
   input.value = '';
-  renderWhitelistEditor();
-  showToast('Email agregado: ' + email);
 }
 
-async function removeWhitelistEmail(idx) {
-  const email = _allowedEmails[idx];
-  if (!await confirmInline('¿Eliminar ' + email + '?')) return;
-  _allowedEmails.splice(idx, 1);
-  firebase.database().ref('adminWhitelist').set(_emailsToFBObj(_allowedEmails))
-    .catch(e => { showToast('Error: solo admins base pueden editar la whitelist', true); _allowedEmails.splice(idx, 0, email); renderWhitelistEditor(); });
-  renderWhitelistEditor();
+async function removeWhitelistEmail(type, id) {
+  if (type === 'approved') {
+    const email = _approvedUIDs[id];
+    if (!await confirmInline('¿Eliminar acceso de ' + email + '?')) return;
+    delete _approvedUIDs[id];
+    firebase.database().ref('adminWhitelist/approved/' + id).remove()
+      .then(() => { showToast('Eliminado ✓'); renderWhitelistEditor(); })
+      .catch(e => { showToast('Error: ' + e.message, true); });
+  } else {
+    const email = id; // for pending, id is the email
+    if (!await confirmInline('¿Eliminar pendiente ' + email + '?')) return;
+    const idx = _pendingEmails.indexOf(email);
+    if (idx > -1) _pendingEmails.splice(idx, 1);
+    const key = _encodeEmailKey(email);
+    firebase.database().ref('adminWhitelist/pending/' + key).remove()
+      .then(() => { showToast('Eliminado ✓'); renderWhitelistEditor(); })
+      .catch(e => { showToast('Error: ' + e.message, true); });
+  }
+}
+
+// Auto-resolve: if user's email is in pending, move to approved with their UID
+async function _resolvePendingUser(user) {
+  const email = user.email;
+  if (!_isPending(email)) return false;
+
+  const uid = user.uid;
+  _approvedUIDs[uid] = email;
+  const pendingKey = _encodeEmailKey(email);
+
+  try {
+    await firebase.database().ref('adminWhitelist/approved/' + uid).set(email);
+    await firebase.database().ref('adminWhitelist/pending/' + pendingKey).remove();
+    const idx = _pendingEmails.indexOf(email);
+    if (idx > -1) _pendingEmails.splice(idx, 1);
+    showToast('¡Bienvenido! Tu acceso ha sido aprobado ✓');
+    return true;
+  } catch (e) {
+    console.error('[DACE Admin] Pending resolve error:', e);
+    return false;
+  }
 }
 
 // ═══ BOOT ═══
@@ -233,36 +306,69 @@ window.addEventListener('load', () => {
   }
   _auth = firebase.auth();
 
-  // Load whitelist
+  // Load whitelist from new structure: approved/ and pending/
   firebase.database().ref('adminWhitelist').once('value', snap => {
-    const fbObj = snap.val();
-    if (fbObj && typeof fbObj === 'object') {
-      _allowedEmails = _fbObjToEmails(fbObj);
-    } else {
-      // Only bootstrap admins can seed the whitelist (rules enforce this)
-      const user = _auth.currentUser;
-      if (user && _BOOTSTRAP_ADMINS.includes(user.email)) {
-        firebase.database().ref('adminWhitelist').set(_emailsToFBObj(_BOOTSTRAP_ADMINS));
-      }
+    const data = snap.val() || {};
+
+    // New structure: { approved: { uid: email }, pending: { emailKey: true } }
+    if (data.approved) {
+      _approvedUIDs = data.approved;
+    } else if (data && typeof data === 'object' && !data.pending) {
+      // Legacy structure detected — migrate on first admin login
+      console.log('[DACE Admin] Legacy whitelist detected, will migrate on login');
+    }
+
+    if (data.pending) {
+      _pendingEmails = Object.keys(data.pending).map(_decodeEmailKey);
     }
   });
 
   // Auth state listener
-  _auth.onAuthStateChanged(user => {
+  _auth.onAuthStateChanged(async user => {
     if (user) {
-      console.log('[DACE Admin] Auth:', user.email);
-      if (!_allowedEmails.includes(user.email)) {
-        g('login-error').textContent = 'Esta cuenta (' + user.email + ') no tiene acceso al admin.';
-        _auth.signOut();
+      console.log('[DACE Admin] Auth:', user.email, 'UID:', user.uid);
+
+      // Check approved by UID
+      if (_approvedUIDs[user.uid]) {
+        g('login-overlay').classList.add('hidden');
+        try { initAdmin(); } catch (e) {
+          console.error('[DACE Admin] initAdmin error:', e);
+          showToast('Error al cargar admin: ' + e.message, true);
+        }
         return;
       }
-      g('login-overlay').classList.add('hidden');
-      try {
-        initAdmin();
-      } catch (e) {
-        console.error('[DACE Admin] initAdmin error:', e);
-        showToast('Error al cargar admin: ' + e.message, true);
+
+      // Check pending by email — auto-resolve
+      if (await _resolvePendingUser(user)) {
+        g('login-overlay').classList.add('hidden');
+        try { initAdmin(); } catch (e) {
+          console.error('[DACE Admin] initAdmin error:', e);
+          showToast('Error al cargar admin: ' + e.message, true);
+        }
+        return;
       }
+
+      // Check if bootstrap admin (first-time setup)
+      if (_BOOTSTRAP_ADMINS.includes(user.email)) {
+        const uid = user.uid;
+        _approvedUIDs[uid] = user.email;
+        try {
+          await firebase.database().ref('adminWhitelist/approved/' + uid).set(user.email);
+          showToast('Admin bootstrap: UID registrado ✓');
+          g('login-overlay').classList.add('hidden');
+          try { initAdmin(); } catch (e) {
+            console.error('[DACE Admin] initAdmin error:', e);
+            showToast('Error al cargar admin: ' + e.message, true);
+          }
+          return;
+        } catch (e) {
+          console.error('[DACE Admin] Bootstrap error:', e);
+        }
+      }
+
+      // Not whitelisted
+      g('login-error').textContent = 'Esta cuenta (' + user.email + ') no tiene acceso al admin. Contacta al administrador.';
+      await _auth.signOut();
     } else {
       console.log('[DACE Admin] No auth — showing login');
       g('login-overlay').classList.remove('hidden');
