@@ -181,10 +181,20 @@ window.addEventListener('message', (e) => {
   } else if (d.type === 'beat-update' && d.beatId && d.data) {
     // Live edit: update beat in memory without Firebase write
     const bi = state.allBeats.findIndex(x => x.id === d.beatId);
-    console.log('[LiveEdit] beat-update received:', d.beatId, 'index:', bi, 'cardStyle:', JSON.stringify(d.data?.cardStyle?.glow));
+    console.log('[LiveEdit] beat-update received:', d.beatId, 'index:', bi, 'glow:', JSON.stringify(d.data?.cardStyle?.glow), 'anim:', JSON.stringify(d.data?.cardStyle?.anim?.type), 'holoDir:', d.data?.cardStyle?.anim?.holoDir);
     if (bi > -1) {
       Object.assign(state.allBeats[bi], d.data);
       renderAll();
+      // Debug: log rendered card classes and inline styles
+      requestAnimationFrame(() => {
+        const card = document.getElementById('card-' + d.beatId);
+        if (card) {
+          console.log('[LiveEdit:render] card classes:', card.className);
+          console.log('[LiveEdit:render] card style:', card.getAttribute('style')?.substring(0, 300));
+        } else {
+          console.warn('[LiveEdit:render] card element not found:', 'card-' + d.beatId);
+        }
+      });
     }
     return;
   } else if (d.type === 'beat-revert' && d.beatId && d.original) {
