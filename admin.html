@@ -198,6 +198,7 @@ body > * { position: relative; z-index: 1; }
 .split {
   display: flex; height: calc(100vh - var(--tbh));
   margin-top: var(--tbh);
+  overflow: hidden;
 }
 
 /* ═══ SIDEBAR ═══ */
@@ -736,7 +737,7 @@ body > * { position: relative; z-index: 1; }
   min-width: 300px;
   display: flex; flex-direction: column;
   background: linear-gradient(180deg, rgba(19,17,26,0.5), rgba(12,10,14,0.7));
-  border-left: 1px solid rgba(255,255,255,0.03);
+  border-left: 3px solid red;
 }
 .preview-panel[style*="display: none"] { display: none !important; }
 .preview-bar {
@@ -2873,7 +2874,7 @@ definen géneros.</textarea></div>
         <button class="vp-btn" onclick="openQRPanel()" title="QR para móvil"><i class="fas fa-qrcode"></i></button>
       </div>
     </div>
-    <div id="pv-store-card" style="flex-shrink:0;padding:16px;display:flex;justify-content:center;overflow:auto;background:var(--bg);border-bottom:1px solid var(--b)"><div style="color:var(--mu);font-size:11px;font-family:var(--fm)">⏳ Preview cargando...</div></div>
+    <div id="pv-store-card" style="flex-shrink:0;padding:16px;display:flex;justify-content:center;overflow:auto;background:red;min-height:60px;border-bottom:1px solid var(--b)"><div style="color:white;font-size:14px;font-weight:70px">🔴 PANEL VISIBLE</div></div>
     <div class="preview-iframe-wrap">
       <iframe id="preview-frame" src="index.html" class="desktop"></iframe>
     </div>
