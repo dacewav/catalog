@@ -81,6 +81,11 @@ export function beatCard(b, globalIdx) {
   const accentColor = csS.accentColor || b.accentColor;
   const shimmer = csS.shimmer != null ? csS.shimmer : b.shimmer;
 
+  // Filter-based animations cannot work on transparent ::after overlays
+  // (they create stacking context artifacts — giant colored circles)
+  const _anim2FilterTypes = ['holograma', 'cambio-color', 'brillo', 'neon-flicker', 'parpadeo'];
+  const anim2Type = (csA && csA.type2 && !_anim2FilterTypes.includes(csA.type2)) ? csA.type2 : '';
+
   // Combine all classes
   const allClasses = [
     'beat-card',
@@ -89,8 +94,8 @@ export function beatCard(b, globalIdx) {
     glowClasses,
     animClass,
     shimmer ? 'shimmer-on' : '',
-    // Secondary animation
-    (csA && csA.type2) ? 'anim2-' + csA.type2 : '',
+    // Secondary animation (only transform/opacity-based — filter-based excluded)
+    anim2Type ? 'anim2-' + anim2Type : '',
     // Hover classes
     ((csH.scale && csH.scale !== 1) || (csH.brightness && csH.brightness !== 1) || (csH.saturate && csH.saturate !== 1) || csH.shadowBlur || csH.borderColor || csH.glowIntensify) ? 'has-hover-fx' : '',
     csH.glowIntensify ? 'hov-glow-int' : ''
