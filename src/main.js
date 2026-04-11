@@ -133,6 +133,7 @@ window.addEventListener('message', (e) => {
   }
   const d = e.data;
   if (!d || !d.type) return;
+  console.log('[Store:msg]', d.type, d.beatId || '');
 
   // Store latest data — skip if nothing changed (dedup before debounce)
   if (d.type === 'theme-update' && d.theme) {
