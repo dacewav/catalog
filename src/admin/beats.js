@@ -150,8 +150,11 @@ function _applyCardStyleToPreview(pv, cs) {
     pv.style.setProperty('--aease', ca.easing || 'ease-in-out');
     pv.style.setProperty('--adir', ca.direction || 'normal');
     pv.style.setProperty('--aiter', ca.iterations || 'infinite');
-    // Secondary animation via CSS var
-    if (ca.type2) pv.style.setProperty('--anim2', 'anim-' + ca.type2);
+    // Secondary animation
+    if (ca.type2) {
+      pv.classList.add('anim2-' + ca.type2);
+      pv.style.setProperty('--anim2', 'anim-' + ca.type2);
+    }
   }
 
   // 4. Style
