@@ -95,8 +95,9 @@ export function beatCard(b, globalIdx) {
     // Secondary animation (only transform/opacity-based — filter-based excluded)
     anim2Type ? 'anim2-' + anim2Type : '',
     // Hover classes
-    ((csH.scale && csH.scale !== 1) || (csH.brightness && csH.brightness !== 1) || (csH.saturate && csH.saturate !== 1) || csH.shadowBlur || csH.borderColor || csH.glowIntensify) ? 'has-hover-fx' : '',
-    csH.glowIntensify ? 'hov-glow-int' : ''
+    ((csH.scale && csH.scale !== 1) || (csH.brightness && csH.brightness !== 1) || (csH.saturate && csH.saturate !== 1) || csH.shadowBlur || csH.borderColor || csH.glowIntensify || csH.blur || csH.siblingsBlur || csH.hueRotate || (csH.opacity != null && csH.opacity !== 1)) ? 'has-hover-fx' : '',
+    csH.glowIntensify ? 'hov-glow-int' : '',
+    (csH.enableAnim && csH.animType) ? 'has-hover-anim' : ''
   ].filter(Boolean).join(' ');
 
   // Build inline styles
@@ -146,6 +147,11 @@ export function beatCard(b, globalIdx) {
   if (csH.shadowBlur) styleParts.push(`--hov-shadow:${csH.shadowBlur}px`);
   if (csH.transition != null) styleParts.push(`--hov-trans:${csH.transition}s`);
   if (csH.borderColor) styleParts.push(`--hov-bdr:${csH.borderColor}`);
+  if (csH.blur) styleParts.push(`--hov-blur:${csH.blur}px`);
+  if (csH.siblingsBlur) styleParts.push(`--hov-sib-blur:${csH.siblingsBlur}px`);
+  if (csH.hueRotate) styleParts.push(`--hov-hue:${csH.hueRotate}deg`);
+  if (csH.opacity != null && csH.opacity !== 1) styleParts.push(`--hov-opacity:${csH.opacity}`);
+  if (csH.enableAnim && csH.animType) { styleParts.push(`--hov-anim-name:anim-${csH.animType}`); styleParts.push(`--hov-anim-dur:${csH.animDur || 1}s`); }
 
   // Border radius
   if (csS.borderRadius) styleParts.push(`--card-radius:${csS.borderRadius}px`);

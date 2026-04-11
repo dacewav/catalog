@@ -5,6 +5,168 @@ import { showSection } from './nav.js';
 import { autoSave } from './core.js';
 import { R2_ENABLED, uploadToR2 } from './r2.js';
 
+// ═══ STYLE PRESETS ═══
+const STYLE_PRESETS = [
+  {
+    id: 'brutalist',
+    name: 'Industrial Brutal',
+    icon: '🏭',
+    desc: 'Crudo, monospace, alto contraste, sin redondeo. Estética militar/terminal.',
+    colors: ['#dc2626', '#1a1a1a', '#f5f5f0'],
+    apply: () => ({
+      filter: { brightness: 1.1, contrast: 1.3, saturate: 0.3, grayscale: 0.4, sepia: 0, hueRotate: 0, blur: 0, invert: 0 },
+      glow: { enabled: false, type: 'active', color: '#dc2626', speed: 3, intensity: 1, blur: 20, spread: 0, opacity: 1, hoverOnly: false },
+      anim: null,
+      style: { accentColor: '#dc2626', shimmer: false, borderRadius: 0, opacity: 1 },
+      border: { enabled: true, color: '#444444', width: 2, style: 'solid' },
+      shadow: { enabled: true, color: '#000000', opacity: 0.6, x: 4, y: 4, blur: 0, spread: 0, inset: false },
+      hover: { scale: 1, brightness: 1.2, saturate: 0.8, shadowBlur: 0, transition: 0.15, borderColor: '#dc2626', glowIntensify: false, blur: 0, siblingsBlur: 2, hueRotate: 0, opacity: 1, enableAnim: false, animType: '', animDur: 1 },
+      transform: { rotate: 0, scale: 1, skewX: 0, skewY: 0, x: 0, y: 0 }
+    })
+  },
+  {
+    id: 'minimalist',
+    name: 'Minimal Limpio',
+    icon: '◽',
+    desc: 'Líneas suaves, monocromo cálido, sin efectos agresivos. Editorial premium.',
+    colors: ['#f5f0eb', '#2f3437', '#b8a99a'],
+    apply: () => ({
+      filter: { brightness: 1, contrast: 1.05, saturate: 0.85, grayscale: 0, sepia: 0.08, hueRotate: 0, blur: 0, invert: 0 },
+      glow: { enabled: false, type: 'active', color: '#b8a99a', speed: 3, intensity: 1, blur: 20, spread: 0, opacity: 1, hoverOnly: false },
+      anim: null,
+      style: { accentColor: '#b8a99a', shimmer: false, borderRadius: 12, opacity: 1 },
+      border: { enabled: true, color: '#e0d8d0', width: 1, style: 'solid' },
+      shadow: { enabled: true, color: '#000000', opacity: 0.06, x: 0, y: 2, blur: 8, spread: 0, inset: false },
+      hover: { scale: 1.02, brightness: 1, saturate: 1, shadowBlur: 16, transition: 0.4, borderColor: '#c8bfb5', glowIntensify: false, blur: 0, siblingsBlur: 0, hueRotate: 0, opacity: 1, enableAnim: false, animType: '', animDur: 1 },
+      transform: { rotate: 0, scale: 1, skewX: 0, skewY: 0, x: 0, y: 0 }
+    })
+  },
+  {
+    id: 'luxury-glass',
+    name: 'Luxury Glass',
+    icon: '💎',
+    desc: 'Glassmorphism oscuro, glow neón, shimmer, blur. Estética Awwwards/SaaS premium.',
+    colors: ['#7c3aed', '#050505', '#a78bfa'],
+    apply: () => ({
+      filter: { brightness: 0.95, contrast: 1.1, saturate: 1.3, grayscale: 0, sepia: 0, hueRotate: 0, blur: 0, invert: 0 },
+      glow: { enabled: true, type: 'active', color: '#7c3aed', speed: 4, intensity: 2, blur: 30, spread: 5, opacity: 0.8, hoverOnly: false },
+      anim: { type: 'respirar', type2: '', dur: 4, del: 0, easing: 'ease-in-out', direction: 'normal', iterations: 'infinite' },
+      style: { accentColor: '#7c3aed', shimmer: true, borderRadius: 16, opacity: 0.92 },
+      border: { enabled: true, color: 'rgba(255,255,255,0.08)', width: 1, style: 'solid' },
+      shadow: { enabled: true, color: '#000000', opacity: 0.4, x: 0, y: 8, blur: 32, spread: 0, inset: false },
+      hover: { scale: 1.04, brightness: 1.1, saturate: 1.4, shadowBlur: 24, transition: 0.35, borderColor: '#a78bfa', glowIntensify: true, blur: 0, siblingsBlur: 3, hueRotate: 15, opacity: 1, enableAnim: false, animType: '', animDur: 1 },
+      transform: { rotate: 0, scale: 1, skewX: 0, skewY: 0, x: 0, y: 0 }
+    })
+  },
+  {
+    id: 'editorial',
+    name: 'Editorial Swiss',
+    icon: '📰',
+    desc: 'Tipográfico suizo, bordes marcados, grid visible. Sin animaciones, puro contenido.',
+    colors: ['#111111', '#ffffff', '#e63946'],
+    apply: () => ({
+      filter: { brightness: 1, contrast: 1.15, saturate: 1, grayscale: 0, sepia: 0, hueRotate: 0, blur: 0, invert: 0 },
+      glow: { enabled: false, type: 'active', color: '#e63946', speed: 3, intensity: 1, blur: 20, spread: 0, opacity: 1, hoverOnly: false },
+      anim: null,
+      style: { accentColor: '#e63946', shimmer: false, borderRadius: 2, opacity: 1 },
+      border: { enabled: true, color: '#111111', width: 2, style: 'solid' },
+      shadow: { enabled: false, color: '#000000', opacity: 0.15, x: 0, y: 3, blur: 6, spread: 0, inset: false },
+      hover: { scale: 1, brightness: 1, saturate: 1, shadowBlur: 0, transition: 0.2, borderColor: '#e63946', glowIntensify: false, blur: 0, siblingsBlur: 1, hueRotate: 0, opacity: 0.85, enableAnim: false, animType: '', animDur: 1 },
+      transform: { rotate: 0, scale: 1, skewX: 0, skewY: 0, x: 0, y: 0 }
+    })
+  }
+];
+
+function renderPresets() {
+  const grid = g('style-presets-grid'); if (!grid) return;
+  grid.innerHTML = STYLE_PRESETS.map(p => {
+    const swatches = p.colors.map(c => '<span style="background:' + c + '"></span>').join('');
+    return '<div class="preset-card" data-preset="' + p.id + '" onclick="applyPreset(\'' + p.id + '\')"><div class="preset-header"><span class="preset-icon">' + p.icon + '</span><span class="preset-name">' + p.name + '</span></div><div class="preset-desc">' + p.desc + '</div><div class="preset-swatches">' + swatches + '</div></div>';
+  }).join('');
+}
+
+export function applyPreset(id) {
+  const preset = STYLE_PRESETS.find(p => p.id === id); if (!preset) return;
+  const cs = preset.apply();
+
+  // Highlight active preset
+  document.querySelectorAll('.preset-card').forEach(c => c.classList.toggle('active', c.dataset.preset === id));
+
+  // Filters
+  const f = cs.filter || {};
+  setVal('f-cs-fb', f.brightness || 1); setVal('f-cs-fc', f.contrast || 1); setVal('f-cs-fs', f.saturate || 1);
+  setVal('f-cs-fg', f.grayscale || 0); setVal('f-cs-fse', f.sepia || 0); setVal('f-cs-fh', f.hueRotate || 0);
+  setVal('f-cs-fbl', f.blur || 0); setVal('f-cs-fi', f.invert || 0);
+
+  // Glow
+  const gc = cs.glow || {};
+  setChecked('f-glow-on', gc.enabled || false);
+  const glowTypeEl = g('f-glow-type'); if (glowTypeEl) glowTypeEl.value = gc.type || 'active';
+  setVal('f-glow-color', gc.color || '#dc2626'); setVal('f-glow-color-h', gc.color || '#dc2626');
+  setVal('f-glow-speed', gc.speed || 3); setVal('f-glow-int', gc.intensity != null ? gc.intensity : 1);
+  setVal('f-glow-blur', gc.blur != null ? gc.blur : 20); setVal('f-glow-spread', gc.spread || 0);
+  setVal('f-glow-op', gc.opacity != null ? gc.opacity : 1); setChecked('f-glow-hover', gc.hoverOnly || false);
+
+  // Animation
+  const ca = cs.anim;
+  const animTypeEl = g('f-anim-type'); if (animTypeEl) animTypeEl.value = ca ? (ca.type || '') : '';
+  const animType2El = g('f-anim-type2'); if (animType2El) animType2El.value = ca ? (ca.type2 || '') : '';
+  setVal('f-anim-dur', ca ? (ca.dur || 2) : 2);
+  setVal('f-anim-del', ca ? (ca.del || 0) : 0);
+  const animEaseEl = g('f-anim-ease'); if (animEaseEl) animEaseEl.value = ca ? (ca.easing || 'ease-in-out') : 'ease-in-out';
+  const animDirEl = g('f-anim-dir'); if (animDirEl) animDirEl.value = ca ? (ca.direction || 'normal') : 'normal';
+  const animIterEl = g('f-anim-iter'); if (animIterEl) animIterEl.value = ca ? (ca.iterations || 'infinite') : 'infinite';
+
+  // Style
+  const st = cs.style || {};
+  setVal('f-accent-color', st.accentColor || '#dc2626'); setVal('f-accent-color-h', st.accentColor || '#dc2626');
+  setChecked('f-shimmer', st.shimmer || false);
+  setVal('f-cs-radius', st.borderRadius || 0); setVal('f-cs-opacity', st.opacity != null ? st.opacity : 1);
+
+  // Border
+  const bd = cs.border || {};
+  setChecked('f-border-on', bd.enabled || false);
+  setVal('f-border-color', bd.color || '#dc2626'); setVal('f-border-width', bd.width || 1);
+  const borderStyleEl = g('f-border-style'); if (borderStyleEl) borderStyleEl.value = bd.style || 'solid';
+
+  // Shadow
+  const sh = cs.shadow || {};
+  setChecked('f-shadow-on', sh.enabled || false);
+  setVal('f-shadow-color', sh.color || '#000000'); setVal('f-shadow-op', sh.opacity != null ? sh.opacity : 0.35);
+  setVal('f-shadow-x', sh.x || 0); setVal('f-shadow-y', sh.y != null ? sh.y : 4);
+  setVal('f-shadow-blur', sh.blur != null ? sh.blur : 12); setVal('f-shadow-spread', sh.spread || 0);
+  setChecked('f-shadow-inset', sh.inset || false);
+
+  // Hover
+  const hv = cs.hover || {};
+  setVal('f-hov-scale', hv.scale || 1); setVal('f-hov-bright', hv.brightness != null ? hv.brightness : 1);
+  setVal('f-hov-sat', hv.saturate != null ? hv.saturate : 1); setVal('f-hov-shadow', hv.shadowBlur || 0);
+  setVal('f-hov-trans', hv.transition != null ? hv.transition : 0.3);
+  setVal('f-hov-border', hv.borderColor || '#dc2626'); setChecked('f-hov-glow', hv.glowIntensify || false);
+  setVal('f-hov-blur', hv.blur || 0); setVal('f-hov-sib-blur', hv.siblingsBlur || 0);
+  setVal('f-hov-hue', hv.hueRotate || 0); setVal('f-hov-opacity', hv.opacity != null ? hv.opacity : 1);
+  setChecked('f-hov-anim-on', hv.enableAnim || false);
+  const hovAnimTypeEl = g('f-hov-anim-type'); if (hovAnimTypeEl) hovAnimTypeEl.value = hv.animType || '';
+  setVal('f-hov-anim-dur', hv.animDur || 1);
+
+  // Transform
+  const tf = cs.transform || {};
+  setVal('f-tf-rotate', tf.rotate || 0); setVal('f-tf-scale', tf.scale || 1);
+  setVal('f-tf-skewX', tf.skewX || 0); setVal('f-tf-skewY', tf.skewY || 0);
+  setVal('f-tf-x', tf.x || 0); setVal('f-tf-y', tf.y || 0);
+
+  // Sync all slider displays
+  ['f-anim-dur','f-anim-del','f-border-width','f-glow-speed','f-glow-int','f-glow-blur','f-glow-spread','f-glow-op',
+   'f-cs-fb','f-cs-fc','f-cs-fs','f-cs-fg','f-cs-fse','f-cs-fh','f-cs-fbl','f-cs-fi','f-cs-radius','f-cs-opacity',
+   'f-shadow-op','f-shadow-x','f-shadow-y','f-shadow-blur','f-shadow-spread',
+   'f-hov-scale','f-hov-bright','f-hov-sat','f-hov-shadow','f-hov-trans','f-hov-blur','f-hov-sib-blur','f-hov-hue','f-hov-opacity','f-hov-anim-dur',
+   'f-tf-rotate','f-tf-scale','f-tf-skewX','f-tf-skewY','f-tf-x','f-tf-y'
+  ].forEach(syncSliderDisplay);
+
+  updateCardPreview();
+  showToast('Preset "' + preset.name + '" aplicado ✓');
+}
+
 // Sync slider value display after programmatic setVal
 function syncSliderDisplay(inputId) {
   const el = g(inputId); if (!el) return;
@@ -205,7 +367,17 @@ function _applyCardStyleToPreview(pv, cs) {
   if (hv.transition != null) pv.style.setProperty('--hov-trans', (hv.transition || 0.3) + 's');
   if (hv.borderColor) pv.style.setProperty('--hov-bdr', hv.borderColor);
   if (hv.glowIntensify) pv.classList.add('hov-glow-int');
-  const hasHoverEffects = (hv.scale && hv.scale !== 1) || (hv.brightness && hv.brightness !== 1) || (hv.saturate && hv.saturate !== 1) || hv.shadowBlur || hv.borderColor || hv.glowIntensify;
+  if (hv.blur) pv.style.setProperty('--hov-blur', hv.blur + 'px');
+  if (hv.siblingsBlur) pv.style.setProperty('--hov-sib-blur', hv.siblingsBlur + 'px');
+  if (hv.hueRotate) pv.style.setProperty('--hov-hue', hv.hueRotate + 'deg');
+  if (hv.opacity != null && hv.opacity !== 1) pv.style.setProperty('--hov-opacity', hv.opacity);
+  // Hover animation
+  if (hv.enableAnim && hv.animType) {
+    pv.classList.add('has-hover-anim');
+    pv.style.setProperty('--hov-anim-name', 'anim-' + hv.animType);
+    pv.style.setProperty('--hov-anim-dur', (hv.animDur || 1) + 's');
+  }
+  const hasHoverEffects = (hv.scale && hv.scale !== 1) || (hv.brightness && hv.brightness !== 1) || (hv.saturate && hv.saturate !== 1) || hv.shadowBlur || hv.borderColor || hv.glowIntensify || hv.blur || hv.siblingsBlur || hv.hueRotate || (hv.opacity != null && hv.opacity !== 1) || (hv.enableAnim && hv.animType);
   if (hasHoverEffects) pv.classList.add('has-hover-fx');
 }
 
@@ -373,6 +545,13 @@ export function openEditor(id) {
     setVal('f-hov-trans', csH.transition != null ? csH.transition : 0.3);
     setVal('f-hov-border', csH.borderColor || '#dc2626');
     setChecked('f-hov-glow', csH.glowIntensify || false);
+    setVal('f-hov-blur', csH.blur || 0);
+    setVal('f-hov-sib-blur', csH.siblingsBlur || 0);
+    setVal('f-hov-hue', csH.hueRotate || 0);
+    setVal('f-hov-opacity', csH.opacity != null ? csH.opacity : 1);
+    setChecked('f-hov-anim-on', csH.enableAnim || false);
+    const hovAnimTypeEl = g('f-hov-anim-type'); if (hovAnimTypeEl) hovAnimTypeEl.value = csH.animType || '';
+    setVal('f-hov-anim-dur', csH.animDur || 1);
 
     // Transform
     setVal('f-tf-rotate', csTf.rotate || 0);
@@ -386,7 +565,7 @@ export function openEditor(id) {
     ['f-anim-dur','f-anim-del','f-border-width','f-glow-speed','f-glow-int','f-glow-blur','f-glow-spread','f-glow-op',
      'f-cs-fb','f-cs-fc','f-cs-fs','f-cs-fg','f-cs-fse','f-cs-fh','f-cs-fbl','f-cs-fi','f-cs-radius','f-cs-opacity',
      'f-shadow-op','f-shadow-x','f-shadow-y','f-shadow-blur','f-shadow-spread',
-     'f-hov-scale','f-hov-bright','f-hov-sat','f-hov-shadow','f-hov-trans',
+     'f-hov-scale','f-hov-bright','f-hov-sat','f-hov-shadow','f-hov-trans','f-hov-blur','f-hov-sib-blur','f-hov-hue','f-hov-opacity','f-hov-anim-dur',
      'f-tf-rotate','f-tf-scale','f-tf-skewX','f-tf-skewY','f-tf-x','f-tf-y'
     ].forEach(syncSliderDisplay);
     renderLicEditor(b.licenses || []);
@@ -400,10 +579,12 @@ export function openEditor(id) {
     ['f-anim-dur','f-anim-del','f-glow-speed','f-glow-int','f-glow-blur','f-glow-spread','f-glow-op',
      'f-cs-fb','f-cs-fc','f-cs-fs','f-cs-fg','f-cs-fse','f-cs-fh','f-cs-fbl','f-cs-fi','f-cs-radius','f-cs-opacity',
      'f-shadow-op','f-shadow-x','f-shadow-y','f-shadow-blur','f-shadow-spread',
-     'f-hov-scale','f-hov-bright','f-hov-sat','f-hov-shadow','f-hov-trans',
+     'f-hov-scale','f-hov-bright','f-hov-sat','f-hov-shadow','f-hov-trans','f-hov-blur','f-hov-sib-blur','f-hov-hue','f-hov-opacity','f-hov-anim-dur',
      'f-tf-rotate','f-tf-scale','f-tf-skewX','f-tf-skewY','f-tf-x','f-tf-y'
     ].forEach(id => { const el = g(id); if (el) { el.value = el.defaultValue || (el.min != null ? el.min : 0); } });
     setChecked('f-glow-on', false); setChecked('f-glow-hover', false);
+    setChecked('f-hov-glow', false); setChecked('f-hov-anim-on', false);
+    const hovAnimTypeEl2 = g('f-hov-anim-type'); if (hovAnimTypeEl2) hovAnimTypeEl2.value = '';
     setVal('f-accent-color', '#dc2626'); setVal('f-accent-color-h', '#dc2626');
     setChecked('f-shimmer', false);
     setChecked('f-border-on', false); setVal('f-border-color', '#dc2626'); setVal('f-border-width', 1);
@@ -591,5 +772,8 @@ Object.assign(window, {
   inlineEditName, inlineEditBpm, inlineEditKey,
   openBatchImg, closeBatchImg, handleBatchImgFiles, clearBatchImgQueue, saveBatchImages,
   batchAddBeats, toggleMP, seekMP,
-  syncAccentColor, updateCardPreview
+  syncAccentColor, updateCardPreview, applyPreset, renderPresets
 });
+
+// Initialize preset grid on load
+renderPresets();

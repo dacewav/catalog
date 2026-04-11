@@ -684,13 +684,30 @@ body.light-mode .pi-meta{color:#666}
 .beat-card{border-radius:var(--card-radius,10px);overflow:hidden}
 
 /* ── Hover Effects System ── */
-.beat-card.has-hover-fx{transition:transform var(--hov-trans,0.3s) ease,filter var(--hov-trans,0.3s) ease,box-shadow var(--hov-trans,0.3s) ease,border-color var(--hov-trans,0.3s) ease}
-.beat-card.has-hover-fx:hover{transform:scale(var(--hov-scale,1))}
-.beat-card.has-hover-fx:hover{filter:brightness(var(--hov-bright,1)) saturate(var(--hov-sat,1))}
-.beat-card.has-hover-fx:hover{box-shadow:0 0 var(--hov-shadow,0px) rgba(0,0,0,.3)}
+.beat-card.has-hover-fx{transition:transform var(--hov-trans,0.3s) ease,filter var(--hov-trans,0.3s) ease,box-shadow var(--hov-trans,0.3s) ease,border-color var(--hov-trans,0.3s) ease,opacity var(--hov-trans,0.3s) ease}
+.beat-card.has-hover-fx:hover{transform:scale(var(--hov-scale,1));filter:brightness(var(--hov-bright,1)) saturate(var(--hov-sat,1)) blur(var(--hov-blur,0px)) hue-rotate(var(--hov-hue,0deg));box-shadow:0 0 var(--hov-shadow,0px) rgba(0,0,0,.3);opacity:var(--hov-opacity,1)}
 .beat-card.has-hover-fx:hover .beat-card-inner{border-color:var(--hov-bdr,transparent)}
+
+/* Siblings blur on hover — when hovering a card, blur the rest */
+.beat-grid:has(.beat-card.has-hover-fx:hover) .beat-card.has-hover-fx:not(:hover){filter:blur(var(--hov-sib-blur,0px));transition:filter var(--hov-trans,0.3s) ease}
+
+/* Hover animation — play animation only on hover */
+.beat-card.has-hover-anim{transition:transform var(--hov-trans,0.3s) ease,filter var(--hov-trans,0.3s) ease,box-shadow var(--hov-trans,0.3s) ease,border-color var(--hov-trans,0.3s) ease,opacity var(--hov-trans,0.3s) ease}
+.beat-card.has-hover-anim:hover{animation:var(--hov-anim-name) var(--hov-anim-dur,1s) ease-in-out infinite}
 
 /* Glow intensify on hover */
 .beat-card.hov-glow-int:hover{filter:brightness(1.1)}
 .beat-card.hov-glow-int.glow-active:hover .beat-card-inner{animation-duration:calc(var(--glow-speed,3s) * 0.5)!important;box-shadow:0 0 35px rgba(var(--glow-r,220),var(--glow-g,38),var(--glow-b,38),.7)!important}
 .beat-card.hov-glow-int.glow-breathe:hover .beat-card-inner{animation-duration:calc(var(--glow-speed,3s) * 0.5)!important}
+
+/* ── Preset Style Cards (admin) ── */
+.preset-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.preset-card{border:1px solid var(--b);border-radius:var(--rad);padding:10px;cursor:pointer;transition:border-color .2s,box-shadow .2s,transform .15s}
+.preset-card:hover{border-color:var(--b2);transform:translateY(-1px)}
+.preset-card.active{border-color:var(--acc);box-shadow:0 0 12px rgba(220,38,38,0.2)}
+.preset-card .preset-header{display:flex;align-items:center;gap:6px;margin-bottom:6px}
+.preset-card .preset-icon{font-size:16px}
+.preset-card .preset-name{font-size:11px;font-weight:700;color:var(--tx)}
+.preset-card .preset-desc{font-size:9px;color:var(--mu);line-height:1.4}
+.preset-card .preset-swatches{display:flex;gap:3px;margin-top:6px}
+.preset-card .preset-swatches span{width:14px;height:14px;border-radius:3px;border:1px solid rgba(255,255,255,0.1)}

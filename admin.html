@@ -973,21 +973,22 @@ body > * { position: relative; z-index: 1; }
 
 /* ═══ PRESET GRID ═══ */
 .preset-grid {
-  display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  display: grid; grid-template-columns: 1fr 1fr;
   gap: 8px; margin-bottom: 16px;
 }
 .preset-card {
-  padding: 14px; background: var(--abg);
-  border: 1px solid var(--b); border-radius: var(--rlg);
-  cursor: pointer; transition: var(--tr); text-align: center;
+  padding: 12px; background: var(--abg);
+  border: 1px solid var(--b); border-radius: var(--rad);
+  cursor: pointer; transition: border-color .2s, box-shadow .2s, transform .15s;
 }
-.preset-card:hover { border-color: var(--b2); }
-.preset-card.on { border-color: var(--acc); }
-.preset-name { font-size: 11px; font-weight: 600; color: var(--tx); margin-bottom: 4px; }
-.preset-preview {
-  display: flex; gap: 3px; justify-content: center; margin-top: 8px;
-}
-.preset-dot { width: 10px; height: 10px; border-radius: 50%; }
+.preset-card:hover { border-color: var(--b2); transform: translateY(-1px); }
+.preset-card.active { border-color: var(--acc); box-shadow: 0 0 12px rgba(220,38,38,0.2); }
+.preset-card .preset-header { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; }
+.preset-card .preset-icon { font-size: 16px; }
+.preset-card .preset-name { font-size: 11px; font-weight: 700; color: var(--tx); }
+.preset-card .preset-desc { font-size: 9px; color: var(--mu); line-height: 1.4; }
+.preset-card .preset-swatches { display: flex; gap: 3px; margin-top: 6px; }
+.preset-card .preset-swatches span { width: 14px; height: 14px; border-radius: 3px; border: 1px solid rgba(255,255,255,0.1); }
 
 /* ═══ WHITELIST ═══ */
 .wl-item {
@@ -1971,6 +1972,15 @@ definen géneros.</textarea></div>
         <div class="tog-row"><input type="checkbox" class="tog" id="f-active" checked><span class="tog-lbl">Activo</span></div>
         <div class="tog-row"><input type="checkbox" class="tog" id="f-avail" checked><span class="tog-lbl">Disponible</span></div>
 
+        <!-- ═══ Presets de Estilo ═══ -->
+        <div class="card" style="margin-top:12px">
+          <div class="card-title" onclick="toggleCard(this)"><span>🎨 Presets de Estilo</span><i class="fas fa-chevron-down"></i></div>
+          <div class="card-body">
+            <p style="font-size:9px;color:var(--hi);margin-bottom:8px">Aplica un preset completo de estilo a la tarjeta. Sobrescribe filtros, sombra, borde y hover.</p>
+            <div class="preset-grid" id="style-presets-grid"></div>
+          </div>
+        </div>
+
         <!-- ═══ Filtros CSS ═══ -->
         <div class="card" style="margin-top:12px">
           <div class="card-title" onclick="toggleCard(this)"><span>🌈 Filtros CSS</span><i class="fas fa-chevron-down"></i></div>
@@ -2184,6 +2194,45 @@ definen géneros.</textarea></div>
             </div>
             <div class="color-wrap"><label>Borde hover</label><div class="color-swatch"><input type="color" id="f-hov-border" value="#dc2626" oninput="updateCardPreview()"></div><span style="font-size:9px;color:var(--hi)">dejar igual para no cambiar</span></div>
             <div class="tog-row"><input type="checkbox" class="tog" id="f-hov-glow" onchange="updateCardPreview()"><span class="tog-lbl">Intensificar glow en hover</span></div>
+            <div style="border-top:1px solid var(--b);margin-top:8px;padding-top:10px">
+              <p style="font-size:9px;color:var(--hi);margin-bottom:8px">Propiedades nuevas</p>
+              <div class="field"><label>Blur hover</label><div class="slider-wrap"><input type="range" id="f-hov-blur" min="0" max="10" step="0.5" value="0" oninput="this.nextElementSibling.textContent=parseFloat(this.value).toFixed(1)+'px';updateCardPreview()"><span class="slider-val">0.0px</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,0)">↺</button></div></div>
+              <div class="field"><label>Blur hermanos</label><div class="slider-wrap"><input type="range" id="f-hov-sib-blur" min="0" max="8" step="0.5" value="0" oninput="this.nextElementSibling.textContent=parseFloat(this.value).toFixed(1)+'px';updateCardPreview()"><span class="slider-val">0.0px</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,0)">↺</button></div></div>
+              <div class="fg2">
+                <div class="field"><label>Hue rotate hover</label><div class="slider-wrap"><input type="range" id="f-hov-hue" min="0" max="360" step="1" value="0" oninput="this.nextElementSibling.textContent=this.value+'°';updateCardPreview()"><span class="slider-val">0°</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,0)">↺</button></div></div>
+                <div class="field"><label>Opacidad hover</label><div class="slider-wrap"><input type="range" id="f-hov-opacity" min="0.1" max="1" step="0.05" value="1" oninput="sv(this);updateCardPreview()"><span class="slider-val">1.00</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,1)">↺</button></div></div>
+              </div>
+              <div style="border-top:1px solid var(--b);margin-top:8px;padding-top:10px">
+                <p style="font-size:9px;color:var(--hi);margin-bottom:8px">Animación al hover</p>
+                <div class="tog-row"><input type="checkbox" class="tog" id="f-hov-anim-on" onchange="updateCardPreview()"><span class="tog-lbl">Activar animación hover</span></div>
+                <div class="field"><label>Tipo animación</label>
+                  <select id="f-hov-anim-type" onchange="updateCardPreview()" style="font-family:var(--fm);font-size:11px;background:var(--abg);color:var(--tx);border:1px solid var(--b);border-radius:var(--rad);padding:6px 10px;width:100%;cursor:pointer">
+                    <option value="">Ninguna</option>
+                    <option value="flotar">🫧 Flotar</option>
+                    <option value="pulsar">💓 Pulsar</option>
+                    <option value="respirar">🫁 Respirar</option>
+                    <option value="latido">❤️ Latido</option>
+                    <option value="rebotar">🏀 Rebotar</option>
+                    <option value="balanceo">⚖️ Balanceo</option>
+                    <option value="brillo">✨ Brillo</option>
+                    <option value="cambio-color">🎨 Cambio de color</option>
+                    <option value="holograma">🌈 Holograma</option>
+                    <option value="neon-flicker">💡 Neón parpadeo</option>
+                    <option value="glitch">📺 Glitch</option>
+                    <option value="drift">🌊 Drift</option>
+                    <option value="zoom-in">🔍 Zoom in</option>
+                    <option value="pop">💥 Pop</option>
+                    <option value="spin-lento">🌀 Spin lento</option>
+                    <option value="temblor">🫨 Temblor</option>
+                    <option value="shake-x">↔️ Shake X</option>
+                    <option value="heartbeat">💗 Heartbeat</option>
+                    <option value="flip">🔄 Flip</option>
+                    <option value="wobble">🪱 Wobble</option>
+                  </select>
+                </div>
+                <div class="field"><label>Duración anim hover</label><div class="slider-wrap"><input type="range" id="f-hov-anim-dur" min="0.1" max="5" step="0.1" value="1" oninput="this.nextElementSibling.textContent=parseFloat(this.value).toFixed(1)+'s';updateCardPreview()"><span class="slider-val">1.0s</span></div></div>
+              </div>
+            </div>
           </div>
         </div>
 
