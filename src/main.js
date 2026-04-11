@@ -408,16 +408,18 @@ window.addEventListener('load', () => {
     // Live edits from admin — overlay preview data on beats
     state.db.ref('liveEdits').on('value', (snap) => {
       const edits = snap.val() || {};
-      // First restore all beats to their Firebase state (clear previous overlays)
-      // The beats listener already set state.allBeats from Firebase
-      // Then apply any active live edits on top
+      const editCount = Object.keys(edits).length;
+      console.log('[LiveEdit:store] liveEdits changed, count:', editCount, editCount ? Object.keys(edits) : '');
       Object.keys(edits).forEach(beatId => {
         const bi = state.allBeats.findIndex(x => x.id === beatId);
+        console.log('[LiveEdit:store] overlay', beatId, 'index:', bi, 'beats loaded:', state.allBeats.length);
         if (bi > -1) {
           Object.assign(state.allBeats[bi], edits[beatId]);
         }
       });
-      if (Object.keys(edits).length) renderAll();
+      if (editCount) renderAll();
+    }, (err) => {
+      console.error('[LiveEdit:store] Firebase read error:', err.code, err.message);
     });
 
     initAnalytics();
