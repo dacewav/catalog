@@ -190,6 +190,12 @@ export function loadPreviewURL() {
 export function setViewport(mode) {
   const f = g('preview-frame'); if (!f) return;
   f.className = mode;
+  const panel = g('preview-panel');
+  if (panel) {
+    const widths = { mobile: 375, tablet: 768, desktop: Math.max(800, window.innerWidth * 0.5) };
+    panel.style.width = (widths[mode] || 380) + 'px';
+    panel.style.flexShrink = '0';
+  }
   document.querySelectorAll('.preview-bar-center .vp-btn').forEach(b => b.classList.remove('on'));
   const btnMap = { mobile: 0, tablet: 1, desktop: 2 };
   document.querySelectorAll('.preview-bar-center .vp-btn')[btnMap[mode]]?.classList.add('on');
