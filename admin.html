@@ -1267,14 +1267,14 @@ body.light .batch-img-drop input[type="file"] { opacity: 0; }
 .bcpv.anim-jello{animation:bcpv-jello var(--ad,1s) ease-in-out infinite;animation-delay:var(--adl,0s)}
 .bcpv.anim-wobble{animation:bcpv-wobble var(--ad,2s) ease-in-out infinite;animation-delay:var(--adl,0s)}
 
-/* ═══ Secondary animations for preview (anim2 via ::after) ═══ */
-/* Filter-based animations (holograma, cambio-color, brillo, neon-flicker) excluded —
-   they create stacking context artifacts on transparent ::after overlays */
+/* ═══ Secondary animations for preview (anim2 via ::before) ═══ */
 .bcpv.anim2-flotar::before,.bcpv.anim2-pulsar::before,.bcpv.anim2-respirar::before,
 .bcpv.anim2-latido::before,.bcpv.anim2-rebotar::before,.bcpv.anim2-balanceo::before,
 .bcpv.anim2-glitch::before,.bcpv.anim2-drift::before,
 .bcpv.anim2-zoom-in::before,.bcpv.anim2-pop::before,.bcpv.anim2-rubber-band::before,
-.bcpv.anim2-jello::before,.bcpv.anim2-wobble::before{
+.bcpv.anim2-jello::before,.bcpv.anim2-wobble::before,
+.bcpv.anim2-holograma::before,.bcpv.anim2-brillo::before,
+.bcpv.anim2-cambio-color::before,.bcpv.anim2-neon-flicker::before{
   content:'';position:absolute;inset:0;border-radius:inherit;pointer-events:none;z-index:1;
   background:transparent;border:none;outline:none;box-shadow:none
 }
@@ -1291,6 +1291,10 @@ body.light .batch-img-drop input[type="file"] { opacity: 0; }
 .bcpv.anim2-rubber-band::before{animation:bcpv-rubber-band var(--ad,1s) ease-in-out infinite;animation-delay:var(--adl,0s)}
 .bcpv.anim2-jello::before{animation:bcpv-jello var(--ad,1s) ease-in-out infinite;animation-delay:var(--adl,0s)}
 .bcpv.anim2-wobble::before{animation:bcpv-wobble var(--ad,2s) ease-in-out infinite;animation-delay:var(--adl,0s)}
+.bcpv.anim2-holograma::before{animation:bcpv-holograma var(--ad,4s) linear infinite;animation-delay:var(--adl,0s)}
+.bcpv.anim2-brillo::before{animation:bcpv-brillo var(--ad,2s) ease-in-out infinite;animation-delay:var(--adl,0s)}
+.bcpv.anim2-cambio-color::before{animation:bcpv-cambio-color var(--ad,4s) linear infinite;animation-delay:var(--adl,0s)}
+.bcpv.anim2-neon-flicker::before{animation:bcpv-neon-flicker var(--ad,3s) linear infinite;animation-delay:var(--adl,0s)}
 
 /* ═══ PRESET CARDS (JS-generated) ═══ */
 .preset-card.active { border-color: var(--acc); box-shadow: 0 0 12px rgba(220,38,38,0.2); }

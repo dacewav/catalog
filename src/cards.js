@@ -81,10 +81,8 @@ export function beatCard(b, globalIdx) {
   const accentColor = csS.accentColor || b.accentColor;
   const shimmer = csS.shimmer != null ? csS.shimmer : b.shimmer;
 
-  // Filter-based animations cannot work on transparent ::after overlays
-  // (they create stacking context artifacts — giant colored circles)
-  const _anim2FilterTypes = ['holograma', 'cambio-color', 'brillo', 'neon-flicker', 'parpadeo'];
-  const anim2Type = (csA && csA.type2 && !_anim2FilterTypes.includes(csA.type2)) ? csA.type2 : '';
+  // Secondary animation (any type — now on ::before to avoid conflicts)
+  const anim2Type = (csA && csA.type2) ? csA.type2 : '';
 
   // Combine all classes
   const allClasses = [
