@@ -1850,7 +1850,8 @@ renderHoverPresets();
     if (frame && frame.contentWindow) {
       try {
         frame.contentWindow.postMessage({ type: 'beat-update', beatId: payload.beatId, data: payload.data }, '*');
-        console.log('[LiveEdit] postMessage sent to iframe, beat:', payload.beatId);
+        console.log('[LiveEdit] postMessage sent to iframe, beat:', payload.beatId, 'cardStyle keys:', Object.keys(payload.data.cardStyle || {}));
+      console.log('[LiveEdit] cardStyle glow:', JSON.stringify(payload.data.cardStyle?.glow));
       } catch(e) { console.error('[LiveEdit] postMessage FAIL:', e); }
     } else {
       console.warn('[LiveEdit] preview-frame not found or no contentWindow');

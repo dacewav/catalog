@@ -181,7 +181,7 @@ window.addEventListener('message', (e) => {
   } else if (d.type === 'beat-update' && d.beatId && d.data) {
     // Live edit: update beat in memory without Firebase write
     const bi = state.allBeats.findIndex(x => x.id === d.beatId);
-    console.log('[LiveEdit] beat-update received:', d.beatId, 'index:', bi);
+    console.log('[LiveEdit] beat-update received:', d.beatId, 'index:', bi, 'cardStyle:', JSON.stringify(d.data?.cardStyle?.glow));
     if (bi > -1) {
       Object.assign(state.allBeats[bi], d.data);
       renderAll();
