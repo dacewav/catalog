@@ -206,6 +206,7 @@ export function resetCardStyle() {
   setVal('f-anim-scale-min', 1); setVal('f-anim-scale-max', 1.06); setVal('f-anim-scale-opacity', 0.8);
   setVal('f-anim-shake-x', 4); setVal('f-anim-shake-y', 4);
   setVal('f-anim-cs-hue-start', 0); setVal('f-anim-cs-hue-end', 360); setVal('f-anim-cs-sat', 1);
+  _toggleAnimSubsettings('');
   // Style — defaults
   setVal('f-accent-color', '#dc2626'); setVal('f-accent-color-h', '#dc2626');
   setChecked('f-shimmer', false);
@@ -331,6 +332,9 @@ export function resetBeatToGlobal() {
   setVal('f-hov-border', hv.borderColor || '#dc2626'); setChecked('f-hov-glow', hv.glowIntensify || false);
   setVal('f-hov-blur', hv.blur || 0); setVal('f-hov-sib-blur', hv.siblingsBlur || 0);
   setVal('f-hov-hue', hv.hueRotate || 0); setVal('f-hov-opacity', hv.opacity != null ? hv.opacity : 1);
+  setChecked('f-hov-anim-on', hv.enableAnim || false);
+  var hovAnimTypeElR = g('f-hov-anim-type'); if (hovAnimTypeElR) hovAnimTypeElR.value = hv.animType || '';
+  setVal('f-hov-anim-dur', hv.animDur || 1);
   // Transform
   var tf = cs.transform || {};
   setVal('f-tf-rotate', tf.rotate || 0); setVal('f-tf-scale', tf.scale || 1);
@@ -583,6 +587,14 @@ const SD_FMT = {
 function syncAccentColor(source) {
   const picker = g('f-accent-color');
   const hex = g('f-accent-color-h');
+  if (!picker || !hex) return;
+  if (source === 'picker') hex.value = picker.value;
+  else picker.value = hex.value;
+}
+
+function syncBeatGlowColor(source) {
+  const picker = g('f-glow-color');
+  const hex = g('f-glow-color-h');
   if (!picker || !hex) return;
   if (source === 'picker') hex.value = picker.value;
   else picker.value = hex.value;
@@ -846,6 +858,7 @@ function _applyCardStyleToPreview(pv, cs) {
     pv.style.setProperty('--glow-r', r);
     pv.style.setProperty('--glow-g', gv);
     pv.style.setProperty('--glow-b', b);
+    pv.style.setProperty('--glow-clr', gc.color || '#dc2626');
     pv.style.setProperty('--glow-speed', (gc.speed || 3) + 's');
     pv.style.setProperty('--glow-int', gc.intensity || 1);
     pv.style.setProperty('--glow-blur', (gc.blur || 20) + 'px');
@@ -868,6 +881,7 @@ function _applyCardStyleToPreview(pv, cs) {
     const effectiveDur = intVal !== 1 ? (ca.dur || 2) / intVal : (ca.dur || 2);
     pv.style.setProperty('--ad', effectiveDur + 's');
     pv.style.setProperty('--adl', (ca.del || 0) + 's');
+    if (intVal !== 1) pv.style.setProperty('--anim-int', intVal);
     pv.style.setProperty('--aease', ca.easing || 'ease-in-out');
     pv.style.setProperty('--adir', ca.direction || 'normal');
     pv.style.setProperty('--aiter', ca.iterations || 'infinite');
@@ -1135,7 +1149,7 @@ window._buildCardHTML = function(cs, opts) {
     if (ca.type === 'glitch') s.push('--anim-glitch-x:'+(ca.glitchX||4)+'px;--anim-glitch-y:'+(ca.glitchY||4)+'px;--anim-glitch-rot:'+(ca.glitchRot||0)+'deg');
     if (ca.type === 'pulsar' || ca.type === 'respirar' || ca.type === 'latido') s.push('--anim-scale-min:'+(ca.scaleMin||1)+';--anim-scale-max:'+(ca.scaleMax||1.06)+';--anim-scale-opacity:'+(ca.scaleOpacity||0.8));
     if (ca.type === 'flotar' || ca.type === 'rebotar' || ca.type === 'drift' || (ca.type && ca.type.startsWith('deslizar-'))) {
-      s.push('--anim-translate-x:'+(ca.translateX||0)+'px;--anim-translate-y:'+(ca.translateY||12)+'px');
+      s.push('--anim-translate-x:'+(ca.translateX||0)+'px;--anim-translate-y:'+(ca.translateY||12)+'px;--anim-translate-rot:'+(ca.translateRot||0)+'deg');
     }
     if (ca.type === 'neon-flicker') s.push('--anim-neon-min:'+(ca.neonMin||0.4)+';--anim-neon-max:'+(ca.neonMax||1)+';--anim-neon-bright:'+(ca.neonBright||1));
     if (ca.type === 'parpadeo') s.push('--anim-parpadeo-min:'+(ca.parpadeoMin||0.3)+';--anim-parpadeo-max:'+(ca.parpadeoMax||1));
@@ -1661,6 +1675,26 @@ export function uploadBeatPreview(input) {
   input.value = '';
 }
 
+// Batch preview upload — matches filenames to beats by name
+export function uploadPreviews(input) {
+  const files = Array.from(input.files || []); if (!files.length) return;
+  if (!R2_ENABLED) { showToast('R2 Worker no configurado.', true); input.value = ''; return; }
+  showSaving(true);
+  let done = 0, total = files.length;
+  files.forEach(f => {
+    const baseName = f.name.replace(/\.[^.]+$/, '').replace(/[^a-zA-Z0-9._-]/g, '_');
+    const match = allBeats.find(b => b.id === baseName || b.name.replace(/[^a-zA-Z0-9]/g, '_').toLowerCase() === baseName.toLowerCase());
+    const beatId = match ? match.id : baseName;
+    uploadToR2(f, 'beats/' + beatId + '/previews/' + f.name.replace(/[^a-zA-Z0-9._-]/g, '_'))
+      .then(r => {
+        if (match) { db.ref('beats/' + match.id + '/previewUrl').set(r.url).catch(()=>{}); }
+        done++; if (done >= total) { showSaving(false); showToast(total + ' previews subidos ✓'); }
+      })
+      .catch(() => { done++; if (done >= total) { showSaving(false); showToast('Error en algunos archivos', true); } });
+  });
+  input.value = '';
+}
+
 // Save/Delete
 export function saveBeat() {
   const id = val('f-id').trim(), name = val('f-name').trim();
@@ -1788,12 +1822,13 @@ export function seekMP(e) { if (!mpAudio2 || !mpAudio2.duration) return; const r
 Object.assign(window, {
   filterBeatList, renderBeatList, dragStart, dragOver, dropBeat, dragEnd,
   openEditor, upLic, addLicRow, rmLic, loadDefaultLics,
-  uploadBeatImg, uploadBeatAudio, uploadBeatPreview,
+  uploadBeatImg, uploadBeatAudio, uploadBeatPreview, uploadPreviews,
   saveBeat, deleteBeat, quickDel,
   inlineEditName, inlineEditBpm, inlineEditKey,
   openBatchImg, closeBatchImg, handleBatchImgFiles, clearBatchImgQueue, saveBatchImages,
   batchAddBeats, toggleMP, seekMP,
-  syncAccentColor, updateCardPreview, applyPreset, applyHoverPreset, resetCardStyle, resetBeatToGlobal, renderPresets
+  syncAccentColor, syncBeatGlowColor, syncBorderColor, prevImg,
+  updateCardPreview, applyPreset, applyHoverPreset, resetCardStyle, resetBeatToGlobal, renderPresets
 });
 
 // Initialize preset grids on load
@@ -1809,6 +1844,7 @@ renderHoverPresets();
   function _debouncedPv() {
     clearTimeout(_pvTimer);
     _pvTimer = setTimeout(function() {
+      updateCardPreview();
       if (typeof window.renderFullPvInCard === 'function') window.renderFullPvInCard();
       _sendLiveUpdate();
     }, 250);

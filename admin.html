@@ -2386,7 +2386,7 @@ definen géneros.</textarea></div>
                 <option value="neon">Neón parpadeo</option>
               </select>
             </div>
-            <div class="color-wrap"><label>Color glow</label><div class="color-swatch"><input type="color" id="f-glow-color" value="#dc2626" oninput="updateCardPreview()"></div><input type="text" class="color-hex" id="f-glow-color-h" value="#dc2626" oninput="updateCardPreview()"></div>
+            <div class="color-wrap"><label>Color glow</label><div class="color-swatch"><input type="color" id="f-glow-color" value="#dc2626" oninput="syncBeatGlowColor('picker');updateCardPreview()"></div><input type="text" class="color-hex" id="f-glow-color-h" value="#dc2626" oninput="syncBeatGlowColor('hex');updateCardPreview()"></div>
             <div class="fg2">
               <div class="field"><label>Velocidad</label><div class="slider-wrap"><input type="range" id="f-glow-speed" min="0.3" max="10" step="0.1" value="3" oninput="this.nextElementSibling.textContent=parseFloat(this.value).toFixed(1)+'s';updateCardPreview()"><span class="slider-val">3.0s</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,3)">↺</button></div></div>
               <div class="field"><label>Intensidad</label><div class="slider-wrap"><input type="range" id="f-glow-int" min="0" max="20" step="0.1" value="1" oninput="this.nextElementSibling.textContent=parseFloat(this.value).toFixed(1)+'x';updateCardPreview()"><span class="slider-val">1.0x</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,1)">↺</button></div></div>
