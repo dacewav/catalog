@@ -26,7 +26,7 @@ body{overflow-x:hidden;min-height:100vh;opacity:var(--bg-opacity)}
 @keyframes rebotar{0%,100%{transform:translateY(0)}30%{transform:translateY(-12px)}60%{transform:translateY(-4px)}}
 @keyframes parpadeo{0%,100%{opacity:1}50%{opacity:0.4}}
 @keyframes sacudida{0%,100%{transform:translateX(0)}20%{transform:translateX(-4px)}40%{transform:translateX(4px)}60%{transform:translateX(-3px)}80%{transform:translateX(3px)}}
-@keyframes cambio-color{0%{filter:hue-rotate(0deg)}100%{filter:hue-rotate(360deg)}}
+@keyframes cambio-color{0%{filter:hue-rotate(var(--anim-hue-start,0deg))}100%{filter:hue-rotate(var(--anim-hue-end,360deg))}}
 @keyframes brillo{0%,100%{filter:brightness(1)}50%{filter:brightness(1.4)}}
 @keyframes spin-lento{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
 @keyframes banner-scroll{from{transform:translateX(100%)}to{transform:translateX(-100%)}}
@@ -82,7 +82,7 @@ body{overflow-x:hidden;min-height:100vh;opacity:var(--bg-opacity)}
 @keyframes jello{0%,100%{transform:translateX(0)}11.1%{transform:translateX(-6px) skewX(-5deg)}22.2%{transform:translateX(4px) skewX(3deg)}33.3%{transform:translateX(-3px) skewX(-2deg)}44.4%{transform:translateX(2px) skewX(1deg)}55.5%{transform:translateX(-1px)}}
 @keyframes neon-flicker{0%,100%{opacity:1}7%{opacity:.7}10%{opacity:1}12%{opacity:.6}15%{opacity:1}20%{opacity:.8}50%{opacity:1}55%{opacity:.5}57%{opacity:1}}
 @keyframes glitch{0%,100%{transform:translate(0)}20%{transform:translate(-3px,3px)}40%{transform:translate(-3px,-3px)}60%{transform:translate(3px,3px)}80%{transform:translate(3px,-3px)}}
-@keyframes holograma{0%,100%{filter:hue-rotate(0deg) brightness(1)}25%{filter:hue-rotate(90deg) brightness(1.2)}50%{filter:hue-rotate(180deg) brightness(1)}75%{filter:hue-rotate(270deg) brightness(1.2)}}
+@keyframes holograma{0%,100%{filter:hue-rotate(var(--anim-hue-start,0deg)) brightness(1)}25%{filter:hue-rotate(calc((var(--anim-hue-start,0deg)*3 + var(--anim-hue-end,360deg))/4)) brightness(1.2)}50%{filter:hue-rotate(calc((var(--anim-hue-start,0deg) + var(--anim-hue-end,360deg))/2)) brightness(1)}75%{filter:hue-rotate(calc((var(--anim-hue-start,0deg) + var(--anim-hue-end,360deg)*3)/4)) brightness(1.2)}}
 @keyframes shake-x{0%,100%{transform:translateX(0)}10%{transform:translateX(-8px)}20%{transform:translateX(8px)}30%{transform:translateX(-6px)}40%{transform:translateX(6px)}50%{transform:translateX(-3px)}60%{transform:translateX(3px)}70%{transform:translateX(-1px)}80%{transform:translateX(1px)}}
 @keyframes heartbeat{0%,100%{transform:scale(1)}10%{transform:scale(1.15)}20%{transform:scale(1)}30%{transform:scale(1.15)}40%{transform:scale(1)}}
 @keyframes flip{0%{transform:perspective(400px) rotateY(0)}100%{transform:perspective(400px) rotateY(360deg)}}
@@ -124,26 +124,28 @@ body{overflow-x:hidden;min-height:100vh;opacity:var(--bg-opacity)}
 .anim-typing{animation:typing var(--ad,2s) steps(20) infinite;animation-delay:var(--adl,0s);white-space:nowrap}
 
 /* ═══ Secondary Animations (anim2) ═══ */
+/* NOTE: Only transform/opacity-based animations are safe on ::after overlays.
+   Filter-based animations (holograma, cambio-color, brillo, neon-flicker, parpadeo)
+   are EXCLUDED because they create stacking context artifacts on transparent pseudo-elements,
+   causing visual bugs like giant colored circles. */
 .anim2-flotar::after,.anim2-pulsar::after,.anim2-rotar::after,.anim2-rebotar::after,
-.anim2-parpadeo::after,.anim2-sacudida::after,.anim2-cambio-color::after,.anim2-brillo::after,
+.anim2-sacudida::after,
 .anim2-spin-lento::after,.anim2-deslizar-arriba::after,.anim2-deslizar-abajo::after,
 .anim2-deslizar-izq::after,.anim2-deslizar-der::after,.anim2-temblor::after,.anim2-balanceo::after,
 .anim2-drift::after,.anim2-spin-rapido::after,.anim2-wobble::after,.anim2-fade-in::after,
 .anim2-respirar::after,.anim2-latido::after,.anim2-zoom-in::after,.anim2-zoom-out::after,
-.anim2-pop::after,.anim2-rubber-band::after,.anim2-jello::after,.anim2-neon-flicker::after,
-.anim2-glitch::after,.anim2-holograma::after,.anim2-shake-x::after,.anim2-heartbeat::after,
+.anim2-pop::after,.anim2-rubber-band::after,.anim2-jello::after,
+.anim2-glitch::after,.anim2-shake-x::after,.anim2-heartbeat::after,
 .anim2-flip::after,.anim2-swing::after,.anim2-tada::after,.anim2-bounce-in::after,
 .anim2-elastic::after,.anim2-slide-up-fade::after,.anim2-typing::after{
-  content:'';position:absolute;inset:0;border-radius:inherit;pointer-events:none;z-index:1
+  content:'';position:absolute;inset:0;border-radius:inherit;pointer-events:none;z-index:1;
+  background:transparent;border:none;outline:none;box-shadow:none;opacity:1
 }
 .anim2-flotar::after{animation:flotar var(--ad,2s) ease-in-out infinite;animation-delay:var(--adl,0s)}
 .anim2-pulsar::after{animation:pulsar var(--ad,2s) ease-in-out infinite;animation-delay:var(--adl,0s)}
 .anim2-rotar::after{animation:rotar var(--ad,2s) ease-in-out infinite;animation-delay:var(--adl,0s)}
 .anim2-rebotar::after{animation:rebotar var(--ad,2s) ease-in-out infinite;animation-delay:var(--adl,0s)}
-.anim2-parpadeo::after{animation:parpadeo var(--ad,2s) ease-in-out infinite;animation-delay:var(--adl,0s)}
 .anim2-sacudida::after{animation:sacudida var(--ad,2s) ease-in-out infinite;animation-delay:var(--adl,0s)}
-.anim2-cambio-color::after{animation:cambio-color var(--ad,4s) linear infinite;animation-delay:var(--adl,0s)}
-.anim2-brillo::after{animation:brillo var(--ad,2s) ease-in-out infinite;animation-delay:var(--adl,0s)}
 .anim2-spin-lento::after{animation:spin-lento var(--ad,8s) linear infinite;animation-delay:var(--adl,0s)}
 .anim2-deslizar-arriba::after{animation:deslizar-arriba var(--ad,2s) ease-in-out infinite;animation-delay:var(--adl,0s)}
 .anim2-deslizar-abajo::after{animation:deslizar-abajo var(--ad,2s) ease-in-out infinite;animation-delay:var(--adl,0s)}
@@ -162,9 +164,7 @@ body{overflow-x:hidden;min-height:100vh;opacity:var(--bg-opacity)}
 .anim2-pop::after{animation:pop var(--ad,.5s) ease-out infinite;animation-delay:var(--adl,0s)}
 .anim2-rubber-band::after{animation:rubber-band var(--ad,1s) ease-in-out infinite;animation-delay:var(--adl,0s)}
 .anim2-jello::after{animation:jello var(--ad,1s) ease-in-out infinite;animation-delay:var(--adl,0s)}
-.anim2-neon-flicker::after{animation:neon-flicker var(--ad,3s) linear infinite;animation-delay:var(--adl,0s)}
 .anim2-glitch::after{animation:glitch var(--ad,1s) linear infinite;animation-delay:var(--adl,0s)}
-.anim2-holograma::after{animation:holograma var(--ad,4s) linear infinite;animation-delay:var(--adl,0s)}
 .anim2-shake-x::after{animation:shake-x var(--ad,1s) ease-in-out infinite;animation-delay:var(--adl,0s)}
 .anim2-heartbeat::after{animation:heartbeat var(--ad,1.5s) ease-in-out infinite;animation-delay:var(--adl,0s)}
 .anim2-flip::after{animation:flip var(--ad,1s) ease-in-out infinite;animation-delay:var(--adl,0s)}
