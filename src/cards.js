@@ -91,6 +91,7 @@ export function beatCard(b, globalIdx) {
     const animInt = (csA.intensity != null ? csA.intensity : 100) / 100;
     const effectiveDur = animInt !== 1 ? (csA.dur || 2) / animInt : (csA.dur || 2);
     animStyle = `--ad:${effectiveDur}s;--adl:${csA.del || 0}s`;
+    if (animInt !== 1) animStyle += `;--anim-int:${animInt}`;
     if (csA.easing && csA.easing !== 'ease-in-out') animStyle += `;--aease:${csA.easing}`;
     if (csA.direction && csA.direction !== 'normal') animStyle += `;--adir:${csA.direction}`;
     // Per-type sub-settings CSS vars
