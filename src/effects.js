@@ -76,6 +76,40 @@ export function setupCardTilt() {
       inner.style.transform = 'perspective(800px) rotateY(0) rotateX(0) scale(1)';
     });
   });
+  // Setup JS-driven sibling blur (avoids expensive :has() on large grids)
+  setupHoverSiblingBlur();
+}
+
+// ─── JS-driven sibling blur (throttled, performant for many cards) ───
+function setupHoverSiblingBlur() {
+  const grids = document.querySelectorAll('.beat-grid');
+  grids.forEach(grid => {
+    const cards = grid.querySelectorAll('.beat-card.has-hover-fx');
+    if (!cards.length) return;
+    // Only activate JS-driven mode if any card has siblingsBlur > 0
+    let hasSibBlur = false;
+    cards.forEach(c => {
+      const v = getComputedStyle(c).getPropertyValue('--hov-sib-blur').trim();
+      if (v && parseFloat(v) > 0) hasSibBlur = true;
+    });
+    if (!hasSibBlur) return;
+
+    let throttleTimer = null;
+    cards.forEach(card => {
+      card.addEventListener('mouseenter', () => {
+        if (throttleTimer) return;
+        throttleTimer = setTimeout(() => { throttleTimer = null; }, 80);
+        grid.classList.add('hovering');
+        card.classList.add('hover-active');
+      });
+      card.addEventListener('mouseleave', () => {
+        if (throttleTimer) return;
+        throttleTimer = setTimeout(() => { throttleTimer = null; }, 80);
+        grid.classList.remove('hovering');
+        card.classList.remove('hover-active');
+      });
+    });
+  });
 }
 
 // ─── Staggered Reveal ───

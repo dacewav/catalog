@@ -2221,6 +2221,11 @@ definen géneros.</textarea></div>
           <div class="card-title" onclick="toggleCard(this)"><span>🎭 Efectos Hover</span><i class="fas fa-chevron-down"></i></div>
           <div class="card-body">
             <p style="font-size:9px;color:var(--hi);margin-bottom:8px">Lo que pasa al pasar el mouse sobre la tarjeta.</p>
+            <!-- Hover presets -->
+            <div style="margin-bottom:10px">
+              <label style="font-size:10px;display:block;margin-bottom:5px">⚡ Preset rápido</label>
+              <div style="display:flex;flex-wrap:wrap;gap:5px" id="hover-presets-grid"></div>
+            </div>
             <div class="field"><label>Escala hover</label><div class="slider-wrap"><input type="range" id="f-hov-scale" min="1" max="1.25" step="0.01" value="1" oninput="this.nextElementSibling.textContent=parseFloat(this.value).toFixed(2)+'x';updateCardPreview()"><span class="slider-val">1.00x</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,1)">↺</button></div></div>
             <div class="fg2">
               <div class="field"><label>Brillo hover</label><div class="slider-wrap"><input type="range" id="f-hov-bright" min="0.5" max="2" step="0.05" value="1" oninput="sv(this);updateCardPreview()"><span class="slider-val">1.00</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,1)">↺</button></div></div>

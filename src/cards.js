@@ -236,6 +236,13 @@ function _restoreOG() {
 }
 
 // ─── Modal ───
+// Open modal from player bar click (uses current playing beat)
+export function openPlayerModal() {
+  const idx = AP.currentBeatIdx;
+  if (idx < 0 || idx >= state.allBeats.length) return;
+  openModal(state.allBeats[idx].id);
+}
+
 export function openModal(id) {
   const b = state.allBeats.find((x) => x.id === id);
   if (!b) return;

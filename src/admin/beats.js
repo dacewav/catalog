@@ -77,6 +77,62 @@ const STYLE_PRESETS = [
   }
 ];
 
+// ═══ HOVER PRESETS ═══
+const HOVER_PRESETS = [
+  { id: 'none', name: '🚫 Ninguno', desc: 'Sin efecto hover',
+    hover: { scale: 1, brightness: 1, saturate: 1, shadowBlur: 0, transition: 0.3, borderColor: '#dc2626', glowIntensify: false, blur: 0, siblingsBlur: 0, hueRotate: 0, opacity: 1, enableAnim: false, animType: '', animDur: 1 }
+  },
+  { id: 'sutil', name: '✨ Sutil', desc: 'Escala sutil + brillo',
+    hover: { scale: 1.03, brightness: 1.15, saturate: 1, shadowBlur: 12, transition: 0.35, borderColor: '#dc2626', glowIntensify: false, blur: 0, siblingsBlur: 0, hueRotate: 0, opacity: 1, enableAnim: false, animType: '', animDur: 1 }
+  },
+  { id: 'glow', name: '🔥 Glow', desc: 'Borde glow + elevación',
+    hover: { scale: 1.02, brightness: 1.05, saturate: 1, shadowBlur: 24, transition: 0.3, borderColor: '#dc2626', glowIntensify: true, blur: 0, siblingsBlur: 0, hueRotate: 0, opacity: 1, enableAnim: false, animType: '', animDur: 1 }
+  },
+  { id: 'blur', name: '🌫️ Blur', desc: 'La tarjeta se blurrea',
+    hover: { scale: 1, brightness: 1, saturate: 1, shadowBlur: 0, transition: 0.4, borderColor: '#dc2626', glowIntensify: false, blur: 2, siblingsBlur: 0, hueRotate: 0, opacity: 0.9, enableAnim: false, animType: '', animDur: 1 }
+  },
+  { id: 'spotlight', name: '🔦 Spotlight', desc: 'Hermanos blur + opacidad',
+    hover: { scale: 1.04, brightness: 1.1, saturate: 1.2, shadowBlur: 20, transition: 0.35, borderColor: '#dc2626', glowIntensify: false, blur: 0, siblingsBlur: 3, hueRotate: 0, opacity: 1, enableAnim: false, animType: '', animDur: 1 }
+  },
+  { id: 'holograma', name: '🌈 Holograma', desc: 'Hue rotate + saturación',
+    hover: { scale: 1.02, brightness: 1.1, saturate: 1.5, shadowBlur: 16, transition: 0.3, borderColor: '#a78bfa', glowIntensify: false, blur: 0, siblingsBlur: 0, hueRotate: 25, opacity: 1, enableAnim: false, animType: '', animDur: 1 }
+  },
+  { id: 'pop', name: '💥 Pop', desc: 'Escala grande + respirar',
+    hover: { scale: 1.08, brightness: 1.05, saturate: 1, shadowBlur: 16, transition: 0.25, borderColor: '#dc2626', glowIntensify: false, blur: 0, siblingsBlur: 1, hueRotate: 0, opacity: 1, enableAnim: true, animType: 'respirar', animDur: 1.5 }
+  },
+  { id: 'zen', name: '🧘 Zen', desc: 'Fade out + scale down',
+    hover: { scale: 0.98, brightness: 0.9, saturate: 0.8, shadowBlur: 0, transition: 0.5, borderColor: '#dc2626', glowIntensify: false, blur: 0, siblingsBlur: 0, hueRotate: 0, opacity: 0.75, enableAnim: false, animType: '', animDur: 1 }
+  }
+];
+
+function renderHoverPresets() {
+  const grid = document.getElementById('hover-presets-grid');
+  if (!grid) return;
+  grid.innerHTML = HOVER_PRESETS.map(p => `
+    <button onclick="applyHoverPreset('${p.id}')" title="${p.desc}"
+      style="font-family:var(--fm);font-size:9px;padding:4px 8px;border-radius:var(--rad);border:1px solid var(--b);background:var(--abg);color:var(--tx);cursor:pointer;transition:border-color .2s,background .2s;white-space:nowrap"
+      onmouseenter="this.style.borderColor='var(--acc)'" onmouseleave="this.style.borderColor='var(--b)'">${p.name}</button>
+  `).join('');
+}
+
+export function applyHoverPreset(id) {
+  const preset = HOVER_PRESETS.find(p => p.id === id); if (!preset) return;
+  const hv = preset.hover;
+  setVal('f-hov-scale', hv.scale); setVal('f-hov-bright', hv.brightness);
+  setVal('f-hov-sat', hv.saturate); setVal('f-hov-shadow', hv.shadowBlur);
+  setVal('f-hov-trans', hv.transition); setVal('f-hov-border', hv.borderColor);
+  setChecked('f-hov-glow', hv.glowIntensify);
+  setVal('f-hov-blur', hv.blur); setVal('f-hov-sib-blur', hv.siblingsBlur);
+  setVal('f-hov-hue', hv.hueRotate); setVal('f-hov-opacity', hv.opacity);
+  setChecked('f-hov-anim-on', hv.enableAnim);
+  const hovAnimEl = g('f-hov-anim-type'); if (hovAnimEl) hovAnimEl.value = hv.animType || '';
+  setVal('f-hov-anim-dur', hv.animDur || 1);
+  // Sync slider displays
+  ['f-hov-scale','f-hov-bright','f-hov-sat','f-hov-shadow','f-hov-trans','f-hov-blur','f-hov-sib-blur','f-hov-hue','f-hov-opacity','f-hov-anim-dur'].forEach(syncSliderDisplay);
+  updateCardPreview();
+  showToast('Hover preset "' + preset.name.replace(/[^\w\s]/g, '').trim() + '" aplicado ✓');
+}
+
 function renderPresets() {
   const grid = g('style-presets-grid'); if (!grid) return;
   grid.innerHTML = STYLE_PRESETS.map(p => {
@@ -860,5 +916,6 @@ Object.assign(window, {
   syncAccentColor, updateCardPreview, applyPreset, renderPresets
 });
 
-// Initialize preset grid on load
+// Initialize preset grids on load
 renderPresets();
+renderHoverPresets();

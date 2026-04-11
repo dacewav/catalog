@@ -7,7 +7,7 @@ import { initThemeSync, applyLightMode, applyTheme } from './theme.js';
 import { initAllEffects, observeStagger } from './effects.js';
 import { AP } from './player.js';
 import { updateWishBadge } from './wishlist.js';
-import { renderAll, closeModal, openModal, playModalBeat, selLic, showToast } from './cards.js';
+import { renderAll, closeModal, openModal, openPlayerModal, playModalBeat, selLic, showToast } from './cards.js';
 import {
   buildFilterOptions, buildFilters, buildTagCloud, applyFilters,
   setGenre, clearSearch, resetAllFilters, toggleTagFilter,
@@ -23,6 +23,7 @@ import { initAnalytics, trackEvent } from './analytics.js';
 
 // 1) Expose base functions from modules
 window.openModal = openModal;
+window.openPlayerModal = openPlayerModal;
 window.closeModal = closeModal;
 window.playModalBeat = playModalBeat;
 window.selLic = selLic;
