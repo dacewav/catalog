@@ -1508,7 +1508,7 @@ renderHoverPresets();
   window._liveEditId = null;
   window._liveEditOriginal = null;
 
-  function _sendLiveUpdate() {
+  window._sendLiveUpdate = function _sendLiveUpdate() {
     if (!window._liveEditId) return;
     var data = {
       name: val('f-name') || '',
