@@ -76,7 +76,7 @@ document.addEventListener('keydown', e => {
   // Ctrl+Y for redo (Windows convention)
   if (e.ctrlKey && e.key === 'y' && !inTextInput) { e.preventDefault(); redo(); }
   if (e.ctrlKey && e.key === 's') { e.preventDefault(); saveAll(); }
-  if (!inInput && !e.ctrlKey && !e.altKey) {
+  if (!inTextInput && !e.ctrlKey && !e.altKey) {
     if (e.key === '1') { e.preventDefault(); showSection('global'); }
     if (e.key === '2') { e.preventDefault(); showSection('hero'); }
     if (e.key === '3') { e.preventDefault(); showSection('beats'); }
