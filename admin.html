@@ -1249,6 +1249,27 @@ body.light .batch-img-drop input[type="file"] { opacity: 0; }
 @keyframes bcpv-rubber-band{0%{transform:scaleX(1) scaleY(1)}30%{transform:scaleX(1.15) scaleY(.85)}40%{transform:scaleX(.85) scaleY(1.15)}50%{transform:scaleX(1.08) scaleY(.92)}65%{transform:scaleX(.95) scaleY(1.05)}75%{transform:scaleX(1.03) scaleY(.97)}100%{transform:scaleX(1) scaleY(1)}}
 @keyframes bcpv-jello{0%,100%{transform:skewX(0) skewY(0)}22%{transform:skewX(-8deg) skewY(-1deg)}33%{transform:skewX(5deg) skewY(1deg)}44%{transform:skewX(-3deg) skewY(0)}55%{transform:skewX(2deg) skewY(0)}66%{transform:skewX(-1deg) skewY(0)}}
 @keyframes bcpv-wobble{0%,100%{transform:translateX(0) rotate(0)}15%{transform:translateX(-8px) rotate(-4deg)}30%{transform:translateX(6px) rotate(2deg)}45%{transform:translateX(-4px) rotate(-2deg)}60%{transform:translateX(2px) rotate(1deg)}75%{transform:translateX(-1px) rotate(0)}}
+@keyframes bcpv-deslizar-arriba{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+@keyframes bcpv-deslizar-abajo{0%,100%{transform:translateY(0)}50%{transform:translateY(10px)}}
+@keyframes bcpv-deslizar-izq{0%,100%{transform:translateX(0)}50%{transform:translateX(-10px)}}
+@keyframes bcpv-deslizar-der{0%,100%{transform:translateX(0)}50%{transform:translateX(10px)}}
+@keyframes bcpv-sacudida{0%,100%{transform:translateX(0)}20%{transform:translateX(-4px)}40%{transform:translateX(4px)}60%{transform:translateX(-3px)}80%{transform:translateX(3px)}}
+@keyframes bcpv-temblor{0%,100%{transform:translate(0)}10%{transform:translate(-2px,-2px)}20%{transform:translate(2px,-2px)}30%{transform:translate(-2px,2px)}40%{transform:translate(2px,2px)}50%{transform:translate(-1px,1px)}60%{transform:translate(1px,-1px)}70%{transform:translate(-1px,-1px)}80%{transform:translate(1px,1px)}90%{transform:translate(-1px,2px)}}
+@keyframes bcpv-rotar{0%{transform:rotate(-3deg)}50%{transform:rotate(3deg)}100%{transform:rotate(-3deg)}}
+@keyframes bcpv-spin-lento{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+@keyframes bcpv-spin-rapido{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+@keyframes bcpv-parpadeo{0%,100%{opacity:1}50%{opacity:0.4}}
+@keyframes bcpv-fade-in{from{opacity:0}to{opacity:1}}
+@keyframes bcpv-zoom-out{0%{transform:scale(1.2);opacity:.5}100%{transform:scale(1);opacity:1}}
+@keyframes bcpv-typing{from{clip-path:inset(0 100% 0 0)}to{clip-path:inset(0 0 0 0)}}
+@keyframes bcpv-shake-x{0%,100%{transform:translateX(0)}10%{transform:translateX(-8px)}20%{transform:translateX(8px)}30%{transform:translateX(-6px)}40%{transform:translateX(6px)}50%{transform:translateX(-3px)}60%{transform:translateX(3px)}70%{transform:translateX(-1px)}80%{transform:translateX(1px)}}
+@keyframes bcpv-heartbeat{0%,100%{transform:scale(1)}10%{transform:scale(1.15)}20%{transform:scale(1)}30%{transform:scale(1.15)}40%{transform:scale(1)}}
+@keyframes bcpv-flip{0%{transform:perspective(400px) rotateY(0)}100%{transform:perspective(400px) rotateY(360deg)}}
+@keyframes bcpv-swing{20%{transform:rotate(15deg)}40%{transform:rotate(-10deg)}60%{transform:rotate(5deg)}80%{transform:rotate(-5deg)}100%{transform:rotate(0deg)}}
+@keyframes bcpv-tada{0%{transform:scale(1)}10%,20%{transform:scale(.9) rotate(-3deg)}30%,50%,70%,90%{transform:scale(1.1) rotate(3deg)}40%,60%,80%{transform:scale(1.1) rotate(-3deg)}100%{transform:scale(1) rotate(0)}}
+@keyframes bcpv-bounce-in{0%{opacity:0;transform:scale(.3)}50%{transform:scale(1.08)}70%{transform:scale(.95)}100%{opacity:1;transform:scale(1)}}
+@keyframes bcpv-elastic{0%{transform:scale(0)}55%{transform:scale(1.1)}70%{transform:scale(.95)}100%{transform:scale(1)}}
+@keyframes bcpv-slide-up-fade{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
 .bcpv.anim-flotar{animation:bcpv-flotar var(--ad,2s) ease-in-out infinite;animation-delay:var(--adl,0s)}
 .bcpv.anim-pulsar{animation:bcpv-pulsar var(--ad,2s) ease-in-out infinite;animation-delay:var(--adl,0s)}
 .bcpv.anim-respirar{animation:bcpv-respirar var(--ad,3s) ease-in-out infinite;animation-delay:var(--adl,0s)}
@@ -1266,6 +1287,27 @@ body.light .batch-img-drop input[type="file"] { opacity: 0; }
 .bcpv.anim-rubber-band{animation:bcpv-rubber-band var(--ad,1s) ease-in-out infinite;animation-delay:var(--adl,0s)}
 .bcpv.anim-jello{animation:bcpv-jello var(--ad,1s) ease-in-out infinite;animation-delay:var(--adl,0s)}
 .bcpv.anim-wobble{animation:bcpv-wobble var(--ad,2s) ease-in-out infinite;animation-delay:var(--adl,0s)}
+.bcpv.anim-deslizar-arriba{animation:bcpv-deslizar-arriba var(--ad,2s) ease-in-out infinite;animation-delay:var(--adl,0s)}
+.bcpv.anim-deslizar-abajo{animation:bcpv-deslizar-abajo var(--ad,2s) ease-in-out infinite;animation-delay:var(--adl,0s)}
+.bcpv.anim-deslizar-izq{animation:bcpv-deslizar-izq var(--ad,2s) ease-in-out infinite;animation-delay:var(--adl,0s)}
+.bcpv.anim-deslizar-der{animation:bcpv-deslizar-der var(--ad,2s) ease-in-out infinite;animation-delay:var(--adl,0s)}
+.bcpv.anim-sacudida{animation:bcpv-sacudida var(--ad,2s) ease-in-out infinite;animation-delay:var(--adl,0s)}
+.bcpv.anim-temblor{animation:bcpv-temblor var(--ad,2s) ease-in-out infinite;animation-delay:var(--adl,0s)}
+.bcpv.anim-rotar{animation:bcpv-rotar var(--ad,2s) ease-in-out infinite;animation-delay:var(--adl,0s)}
+.bcpv.anim-spin-lento{animation:bcpv-spin-lento var(--ad,8s) linear infinite;animation-delay:var(--adl,0s)}
+.bcpv.anim-spin-rapido{animation:bcpv-spin-rapido var(--ad,1s) linear infinite;animation-delay:var(--adl,0s)}
+.bcpv.anim-parpadeo{animation:bcpv-parpadeo var(--ad,2s) ease-in-out infinite;animation-delay:var(--adl,0s)}
+.bcpv.anim-fade-in{animation:bcpv-fade-in var(--ad,1s) ease-out infinite;animation-delay:var(--adl,0s)}
+.bcpv.anim-zoom-out{animation:bcpv-zoom-out var(--ad,1s) ease-out infinite;animation-delay:var(--adl,0s)}
+.bcpv.anim-typing{animation:bcpv-typing var(--ad,2s) steps(20) infinite;animation-delay:var(--adl,0s);white-space:nowrap}
+.bcpv.anim-shake-x{animation:bcpv-shake-x var(--ad,1s) ease-in-out infinite;animation-delay:var(--adl,0s)}
+.bcpv.anim-heartbeat{animation:bcpv-heartbeat var(--ad,1.5s) ease-in-out infinite;animation-delay:var(--adl,0s)}
+.bcpv.anim-flip{animation:bcpv-flip var(--ad,1s) ease-in-out infinite;animation-delay:var(--adl,0s)}
+.bcpv.anim-swing{animation:bcpv-swing var(--ad,2s) ease-in-out infinite;animation-delay:var(--adl,0s)}
+.bcpv.anim-tada{animation:bcpv-tada var(--ad,1.5s) ease-in-out infinite;animation-delay:var(--adl,0s)}
+.bcpv.anim-bounce-in{animation:bcpv-bounce-in var(--ad,.8s) ease-out infinite;animation-delay:var(--adl,0s)}
+.bcpv.anim-elastic{animation:bcpv-elastic var(--ad,1s) ease-out infinite;animation-delay:var(--adl,0s)}
+.bcpv.anim-slide-up-fade{animation:bcpv-slide-up-fade var(--ad,1s) ease-out infinite;animation-delay:var(--adl,0s)}
 
 /* ═══ Secondary animations for preview (anim2 via ::before) ═══ */
 .bcpv.anim2-flotar::before,.bcpv.anim2-pulsar::before,.bcpv.anim2-respirar::before,
@@ -1274,7 +1316,18 @@ body.light .batch-img-drop input[type="file"] { opacity: 0; }
 .bcpv.anim2-zoom-in::before,.bcpv.anim2-pop::before,.bcpv.anim2-rubber-band::before,
 .bcpv.anim2-jello::before,.bcpv.anim2-wobble::before,
 .bcpv.anim2-holograma::before,.bcpv.anim2-brillo::before,
-.bcpv.anim2-cambio-color::before,.bcpv.anim2-neon-flicker::before{
+.bcpv.anim2-cambio-color::before,.bcpv.anim2-neon-flicker::before,
+.bcpv.anim2-deslizar-arriba::before,.bcpv.anim2-deslizar-abajo::before,
+.bcpv.anim2-deslizar-izq::before,.bcpv.anim2-deslizar-der::before,
+.bcpv.anim2-sacudida::before,.bcpv.anim2-temblor::before,
+.bcpv.anim2-rotar::before,.bcpv.anim2-spin-lento::before,
+.bcpv.anim2-spin-rapido::before,.bcpv.anim2-parpadeo::before,
+.bcpv.anim2-fade-in::before,.bcpv.anim2-zoom-out::before,
+.bcpv.anim2-typing::before,.bcpv.anim2-shake-x::before,
+.bcpv.anim2-heartbeat::before,.bcpv.anim2-flip::before,
+.bcpv.anim2-swing::before,.bcpv.anim2-tada::before,
+.bcpv.anim2-bounce-in::before,.bcpv.anim2-elastic::before,
+.bcpv.anim2-slide-up-fade::before{
   content:'';position:absolute;inset:0;border-radius:inherit;pointer-events:none;z-index:1;
   background:transparent;border:none;outline:none;box-shadow:none
 }
@@ -1295,6 +1348,27 @@ body.light .batch-img-drop input[type="file"] { opacity: 0; }
 .bcpv.anim2-brillo::before{animation:bcpv-brillo var(--ad,2s) ease-in-out infinite;animation-delay:var(--adl,0s)}
 .bcpv.anim2-cambio-color::before{animation:bcpv-cambio-color var(--ad,4s) linear infinite;animation-delay:var(--adl,0s)}
 .bcpv.anim2-neon-flicker::before{animation:bcpv-neon-flicker var(--ad,3s) linear infinite;animation-delay:var(--adl,0s)}
+.bcpv.anim2-deslizar-arriba::before{animation:bcpv-deslizar-arriba var(--ad,2s) ease-in-out infinite;animation-delay:var(--adl,0s)}
+.bcpv.anim2-deslizar-abajo::before{animation:bcpv-deslizar-abajo var(--ad,2s) ease-in-out infinite;animation-delay:var(--adl,0s)}
+.bcpv.anim2-deslizar-izq::before{animation:bcpv-deslizar-izq var(--ad,2s) ease-in-out infinite;animation-delay:var(--adl,0s)}
+.bcpv.anim2-deslizar-der::before{animation:bcpv-deslizar-der var(--ad,2s) ease-in-out infinite;animation-delay:var(--adl,0s)}
+.bcpv.anim2-sacudida::before{animation:bcpv-sacudida var(--ad,2s) ease-in-out infinite;animation-delay:var(--adl,0s)}
+.bcpv.anim2-temblor::before{animation:bcpv-temblor var(--ad,2s) ease-in-out infinite;animation-delay:var(--adl,0s)}
+.bcpv.anim2-rotar::before{animation:bcpv-rotar var(--ad,2s) ease-in-out infinite;animation-delay:var(--adl,0s)}
+.bcpv.anim2-spin-lento::before{animation:bcpv-spin-lento var(--ad,8s) linear infinite;animation-delay:var(--adl,0s)}
+.bcpv.anim2-spin-rapido::before{animation:bcpv-spin-rapido var(--ad,1s) linear infinite;animation-delay:var(--adl,0s)}
+.bcpv.anim2-parpadeo::before{animation:bcpv-parpadeo var(--ad,2s) ease-in-out infinite;animation-delay:var(--adl,0s)}
+.bcpv.anim2-fade-in::before{animation:bcpv-fade-in var(--ad,1s) ease-out infinite;animation-delay:var(--adl,0s)}
+.bcpv.anim2-zoom-out::before{animation:bcpv-zoom-out var(--ad,1s) ease-out infinite;animation-delay:var(--adl,0s)}
+.bcpv.anim2-typing::before{animation:bcpv-typing var(--ad,2s) steps(20) infinite;animation-delay:var(--adl,0s)}
+.bcpv.anim2-shake-x::before{animation:bcpv-shake-x var(--ad,1s) ease-in-out infinite;animation-delay:var(--adl,0s)}
+.bcpv.anim2-heartbeat::before{animation:bcpv-heartbeat var(--ad,1.5s) ease-in-out infinite;animation-delay:var(--adl,0s)}
+.bcpv.anim2-flip::before{animation:bcpv-flip var(--ad,1s) ease-in-out infinite;animation-delay:var(--adl,0s)}
+.bcpv.anim2-swing::before{animation:bcpv-swing var(--ad,2s) ease-in-out infinite;animation-delay:var(--adl,0s)}
+.bcpv.anim2-tada::before{animation:bcpv-tada var(--ad,1.5s) ease-in-out infinite;animation-delay:var(--adl,0s)}
+.bcpv.anim2-bounce-in::before{animation:bcpv-bounce-in var(--ad,.8s) ease-out infinite;animation-delay:var(--adl,0s)}
+.bcpv.anim2-elastic::before{animation:bcpv-elastic var(--ad,1s) ease-out infinite;animation-delay:var(--adl,0s)}
+.bcpv.anim2-slide-up-fade::before{animation:bcpv-slide-up-fade var(--ad,1s) ease-out infinite;animation-delay:var(--adl,0s)}
 
 /* ═══ PRESET CARDS (JS-generated) ═══ */
 .preset-card.active { border-color: var(--acc); box-shadow: 0 0 12px rgba(220,38,38,0.2); }
