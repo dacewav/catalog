@@ -1395,21 +1395,23 @@ renderHoverPresets();
     }, 250);
   }
 
-  var pvFields = ['f-name','f-bpm','f-key','f-genre','f-genre-c','f-img','f-tags','f-desc','f-excl','f-active','f-avail'];
-
   function _attachLiveListeners() {
     if (_liveListenersAttached) return;
     _liveListenersAttached = true;
-    pvFields.forEach(function(id) {
-      var el = document.getElementById(id);
-      if (!el) { console.warn('[LiveEdit] field not found:', id); return; }
-      el.addEventListener('input', _debouncedPv);
-      el.addEventListener('change', _debouncedPv);
+    // Event delegation: catch ALL input/change events in the editor section
+    // This covers every field (name, CSS filters, glow, anim, shadow, hover, transform…)
+    var editor = document.getElementById('sec-add');
+    if (!editor) { console.warn('[LiveEdit] #sec-add not found'); return; }
+    editor.addEventListener('input', function(e) {
+      if (e.target.matches('input, select, textarea')) _debouncedPv();
     });
-    console.log('[LiveEdit] listeners attached');
+    editor.addEventListener('change', function(e) {
+      if (e.target.matches('input, select, textarea')) _debouncedPv();
+    });
+    console.log('[LiveEdit] delegation listeners attached');
   }
 
-  // Attach when editor opens (fields might not exist at page load)
+  // Attach when editor opens (section might not exist at page load)
   window._attachLiveListeners = _attachLiveListeners;
 
   // ═══ LIVE EDIT: localStorage → store iframe ═══

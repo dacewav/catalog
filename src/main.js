@@ -135,10 +135,31 @@ window.addEventListener('message', (e) => {
   if (!d || !d.type) return;
   console.log('[Store:msg]', d.type, d.beatId || '');
 
-  // Store latest data — skip if nothing changed (dedup before debounce)
+  // ── Batch update from admin (single postMessage with all data) ──
+  if (d.type === 'admin-batch-update') {
+    if (d.theme) {
+      const json = JSON.stringify(d.theme);
+      if (json !== _lastThemeJSON) { _lastThemeJSON = json; state.T = d.theme; }
+    }
+    if (d.settings) {
+      const json = JSON.stringify(d.settings);
+      if (json !== _lastSettingsJSON) { _lastSettingsJSON = json; state.siteSettings = d.settings; }
+    }
+    if (d.emojis) {
+      const json = JSON.stringify(d.emojis);
+      if (json !== _lastEmojisJSON) { _lastEmojisJSON = json; state.customEmojis = d.emojis; }
+    }
+    if (d.elements) {
+      const json = JSON.stringify(d.elements);
+      if (json !== _lastFloatingJSON) { _lastFloatingJSON = json; state.floatingEls = d.elements; renderFloating(state.floatingEls); }
+    }
+    return;
+  }
+
+  // ── Individual message types (backwards compat + live edit) ──
   if (d.type === 'theme-update' && d.theme) {
     const json = JSON.stringify(d.theme);
-    if (json === _lastThemeJSON) return; // identical to last processed — skip
+    if (json === _lastThemeJSON) return;
     _lastThemeJSON = json;
     state.T = d.theme;
   } else if (d.type === 'settings-update' && d.settings) {
@@ -156,7 +177,6 @@ window.addEventListener('message', (e) => {
     if (json === _lastFloatingJSON) return;
     _lastFloatingJSON = json;
     state.floatingEls = d.elements;
-    // Floating elements need immediate render (lightweight)
     renderFloating(state.floatingEls);
   } else if (d.type === 'beat-update' && d.beatId && d.data) {
     // Live edit: update beat in memory without Firebase write
@@ -166,7 +186,7 @@ window.addEventListener('message', (e) => {
       Object.assign(state.allBeats[bi], d.data);
       renderAll();
     }
-    return; // skip shared debounce
+    return;
   } else if (d.type === 'beat-revert' && d.beatId && d.original) {
     // Cancel edit: restore original beat data
     const bi = state.allBeats.findIndex(x => x.id === d.beatId);

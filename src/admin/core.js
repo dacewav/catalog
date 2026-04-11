@@ -155,10 +155,14 @@ function _doBroadcast() {
   // Dedup: skip if nothing changed
   if (json === _lastBroadcastJSON) return;
   _lastBroadcastJSON = json;
-  _postToFrame({ type: 'theme-update', theme });
-  _postToFrame({ type: 'settings-update', settings: siteSettings });
-  _postToFrame({ type: 'emojis-update', emojis: customEmojis });
-  _postToFrame({ type: 'floating-update', elements: floatingEls });
+  // Batch: single postMessage instead of 4 separate calls
+  _postToFrame({
+    type: 'admin-batch-update',
+    theme,
+    settings: siteSettings,
+    emojis: customEmojis,
+    elements: floatingEls
+  });
 }
 
 // Force broadcast immediately (for undo/redo, preset changes, etc.)
