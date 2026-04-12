@@ -571,20 +571,24 @@ definen géneros.</textarea></div>
 
         <!-- Preview indicator — real preview lives in the iframe panel on the right -->
         <div class="card" id="pv-card-embed">
-          <div class="card-body" style="text-align:center;padding:16px">
-            <div style="font-size:20px;margin-bottom:6px">👁️</div>
-            <div style="font-size:11px;color:var(--tx);font-weight:600;margin-bottom:4px">Vista previa en tiempo real</div>
-            <div style="font-size:9px;color:var(--mu);line-height:1.5">Los cambios se reflejan automáticamente en el panel de la derecha →</div>
-            <div style="margin-top:10px;display:flex;justify-content:center;gap:6px">
-              <label for="pv-img-upload" style="background:var(--as2);border:1px solid var(--b);border-radius:var(--rad);color:var(--tx);cursor:pointer;font-size:10px;padding:6px 14px;font-family:var(--fm);display:inline-flex;align-items:center;gap:4px;margin:0;transition:all .2s" onmouseenter="this.style.borderColor='var(--acc)';this.style.color='var(--acc)'" onmouseleave="this.style.borderColor='var(--b)';this.style.color='var(--tx)'">📸 Subir imagen</label>
-              <input type="file" id="pv-img-upload" accept="image/*" style="display:none">
+          <div class="card-body" style="padding:12px">
+            <div style="text-align:center">
+              <div style="font-size:18px;margin-bottom:4px">👁️</div>
+              <div style="font-size:11px;color:var(--tx);font-weight:600;margin-bottom:2px">Vista previa en tiempo real</div>
+              <div style="font-size:9px;color:var(--mu);line-height:1.4;margin-bottom:8px">Los cambios se reflejan en el panel de la derecha →</div>
             </div>
-            <!-- Image preview after upload -->
-            <div id="pv-img-preview" style="margin-top:10px;display:none">
-              <img id="pv-img-preview-img" style="max-width:180px;max-height:120px;border-radius:6px;border:1px solid var(--b);object-fit:cover">
+            <!-- Image preview -->
+            <div id="pv-img-preview" style="display:none;text-align:center;margin-bottom:8px">
+              <img id="pv-img-preview-img" style="max-width:100%;max-height:140px;border-radius:6px;border:1px solid var(--b);object-fit:contain">
+            </div>
+            <!-- Upload button -->
+            <div style="display:flex;justify-content:center;gap:6px;margin-bottom:8px">
+              <label for="pv-img-upload" style="background:var(--as2);border:1px solid var(--b);border-radius:var(--rad);color:var(--tx);cursor:pointer;font-size:10px;padding:5px 12px;font-family:var(--fm);display:inline-flex;align-items:center;gap:4px;margin:0;transition:all .15s" onmouseenter="this.style.borderColor='var(--acc)';this.style.color='var(--acc)'" onmouseleave="this.style.borderColor='var(--b)';this.style.color='var(--tx)'">📸 Subir</label>
+              <input type="file" id="pv-img-upload" accept="image/*" style="display:none">
+              <button onclick="var f=document.getElementById('f-img');if(f){f.value='';if(typeof prevImg==='function')prevImg();if(typeof _sendLiveUpdate==='function')_sendLiveUpdate();}document.getElementById('pv-img-preview').style.display='none'" style="background:var(--as2);border:1px solid var(--b);border-radius:var(--rad);color:var(--tx);cursor:pointer;font-size:10px;padding:5px 10px;font-family:var(--fm);transition:all .15s" onmouseenter="this.style.borderColor='var(--acc)';this.style.color='var(--acc)'" onmouseleave="this.style.borderColor='var(--b)';this.style.color='var(--tx)'">🗑 Quitar img</button>
             </div>
             <!-- Mini image history -->
-            <div id="pv-img-history" style="margin-top:8px;display:flex;gap:4px;justify-content:center;flex-wrap:wrap"></div>
+            <div id="pv-img-history"></div>
           </div>
         </div>
 

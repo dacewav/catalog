@@ -324,6 +324,7 @@ window._showImgPreview = function(url) {
   if (!wrap || !img) return;
   if (url) {
     img.src = url;
+    img.onerror = function() { wrap.style.display = 'none'; };
     wrap.style.display = 'block';
   } else {
     wrap.style.display = 'none';
@@ -331,20 +332,33 @@ window._showImgPreview = function(url) {
 };
 
 window._addImgToHistory = function(url) {
-  if (!url) return;
+  if (!url || url.length < 10) return;
   // Avoid duplicates
   if (_imgHistory.indexOf(url) > -1) return;
   _imgHistory.unshift(url);
-  if (_imgHistory.length > 6) _imgHistory.pop();
+  if (_imgHistory.length > 8) _imgHistory.pop();
   _renderImgHistory();
 };
 
 window._renderImgHistory = function() {
   var el = document.getElementById('pv-img-history');
   if (!el) return;
-  el.innerHTML = _imgHistory.map(function(url, i) {
-    return '<img src="' + url + '" onclick="window._selectHistoryImg(' + i + ')" title="Usar esta imagen" style="width:36px;height:36px;border-radius:4px;object-fit:cover;border:1px solid var(--b);cursor:pointer;opacity:' + (i === 0 ? '1' : '0.6') + ';transition:opacity .2s" onmouseenter="this.style.opacity=1" onmouseleave="this.style.opacity=' + (i === 0 ? '1' : '0.6') + '">';
-  }).join('');
+  if (!_imgHistory.length) { el.innerHTML = ''; return; }
+  el.innerHTML = '<div style="font-size:8px;color:var(--mu);margin-bottom:4px;width:100%;text-align:center;letter-spacing:.06em;text-transform:uppercase">Historial</div>'
+    + '<div style="display:flex;gap:6px;justify-content:center;flex-wrap:wrap">'
+    + _imgHistory.map(function(url, i) {
+      return '<div style="position:relative;display:inline-block">'
+        + '<img src="' + url + '" onclick="window._selectHistoryImg(' + i + ')" title="Usar esta" style="width:40px;height:40px;border-radius:4px;object-fit:cover;border:1px solid var(--b);cursor:pointer;transition:border-color .15s" onmouseenter="this.style.borderColor=\'var(--acc)\'" onmouseleave="this.style.borderColor=\'var(--b)\'">'
+        + '<div onclick="event.stopPropagation();window._removeHistoryImg(' + i + ')" title="Quitar" style="position:absolute;top:-4px;right:-4px;width:14px;height:14px;border-radius:50%;background:var(--acc);color:#fff;font-size:8px;display:flex;align-items:center;justify-content:center;cursor:pointer;opacity:0;transition:opacity .15s;line-height:1" onmouseenter="this.parentNode.querySelector(\'img\').style.borderColor=\'var(--acc)\';this.style.opacity=1" onmouseleave="this.style.opacity=0">✕</div>'
+        + '</div>';
+    }).join('')
+    + '</div>';
+  // Show the X on hover via CSS-like behavior (already handled inline above)
+};
+
+window._removeHistoryImg = function(idx) {
+  _imgHistory.splice(idx, 1);
+  _renderImgHistory();
 };
 
 window._selectHistoryImg = function(idx) {
@@ -368,34 +382,27 @@ window._initPvImgUpload = function() {
   input.addEventListener('change', function(e) {
     var file = e.target.files[0];
     if (!file) return;
+    // Always show local preview immediately
+    var reader = new FileReader();
+    reader.onload = function(ev) {
+      var localUrl = ev.target.result;
+      window._showImgPreview(localUrl);
+      window._addImgToHistory(localUrl);
+      // Set the field and sync
+      var imgField = document.getElementById('f-img');
+      if (imgField) {
+        imgField.value = localUrl;
+        if (typeof window.prevImg === 'function') window.prevImg();
+        if (typeof window.updateCardPreview === 'function') window.updateCardPreview();
+        if (typeof window._sendLiveUpdate === 'function') window._sendLiveUpdate();
+      }
+    };
+    reader.readAsDataURL(file);
+
+    // If R2 is configured, also upload to R2 (will update URL when done)
     var r2Enabled = typeof window._r2IsEnabled === 'function' && window._r2IsEnabled();
     if (r2Enabled && typeof window.uploadBeatImg === 'function') {
-      // R2 configured — upload then show preview
-      var origThen = null;
-      // Monkey-patch to capture the URL after upload
-      var reader = new FileReader();
-      reader.onload = function(ev) {
-        window._showImgPreview(ev.target.result);
-        window._addImgToHistory(ev.target.result);
-      };
-      reader.readAsDataURL(file);
       window.uploadBeatImg(input);
-    } else {
-      // Fallback: local FileReader
-      var reader = new FileReader();
-      reader.onload = function(ev) {
-        var url = ev.target.result;
-        var imgField = document.getElementById('f-img');
-        if (imgField) {
-          imgField.value = url;
-          if (typeof window.prevImg === 'function') window.prevImg();
-          if (typeof window.updateCardPreview === 'function') window.updateCardPreview();
-          if (typeof window._sendLiveUpdate === 'function') window._sendLiveUpdate();
-        }
-        window._showImgPreview(url);
-        window._addImgToHistory(url);
-      };
-      reader.readAsDataURL(file);
     }
     input.value = '';
   });
