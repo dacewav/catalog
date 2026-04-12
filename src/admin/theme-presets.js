@@ -117,29 +117,7 @@ export async function resetTheme() {
 // Text colorizer → src/admin/text-colorizer.js
 // Export/Import/CSS → src/admin/export.js
 
-// ═══ WINDOW ASSIGNMENTS ═══
-Object.assign(window, {
-  pushUndo, pushUndoInitial, undo, redo, autoSave, saveAll,
-  broadcastTheme, broadcastThemeNow, broadcastHighlight, clearHighlight,
-  refreshIframe, loadPreviewURL, setViewport,
-  toggleInspector, toggleAdminTheme,
-  updateGlowDesc, updateGlowAnimDesc, computeGlowCSS, applyGlowTo, applyGlowPreset,
-  updatePreview, collectTheme, loadThemeUI, setupHeroSync, loadSettingsUI,
-  buildAnimControls, collectAnim, loadAnimValues,
-  renderPresets, applyPreset,
-  renderSaveSlots, slotAction,
-  saveCustomTheme, renderCustomThemes, loadCustomTheme, deleteCustomTheme, resetTheme,
-  renderEmojiGrid, insertEmoji, renderCustomEmojis, addCustomEmoji, uploadEmojiFile, removeCE,
-  logChange, renderChangeLog, logFieldChange,
-  addTooltips,
-  renderFloatingEditor, renderFloatingPreview, addFE, saveFE, rmFE,
-  renderGradEditor, buildGradCSS, addGradStop, updateGradStop, rmGradStop, startDragStop, applyGradToHero,
-  takeSnapshot, renderSnapshots, loadSnapshot, rmSnapshot,
-  populateDiffSelects, updateDiff,
-  promptImportURL, importThemeFromURL,
-  setShowSectionNav
-});
-
+// ═══ WINDOW ASSIGNMENTS (only functions defined in this file) ═══
 Object.assign(window, {
   buildAnimControls, collectAnim, loadAnimValues,
   renderPresets, applyPreset,
