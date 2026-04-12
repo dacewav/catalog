@@ -1751,7 +1751,6 @@ body.light .batch-img-drop input[type="file"] { opacity: 0; }
 .batch-img-item .remove-img { background: none; border: none; color: var(--hi); cursor: pointer; font-size: 12px; }
 .batch-img-item .remove-img:hover { color: #e05555; }
 
-</style>
 
 
 /* ═══ UTILITY CLASSES (reduce inline styles) ═══ */
