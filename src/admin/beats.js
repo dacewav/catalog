@@ -68,6 +68,8 @@ export function openEditor(id) {
     setVal('f-spotify', b.spotify || ''); setVal('f-youtube', b.youtube || ''); setVal('f-soundcloud', b.soundcloud || '');
     setVal('f-date', b.date || ''); setVal('f-order', b.order || 0); setVal('f-plays', b.plays || 0);
     setChecked('f-feat', b.featured); setChecked('f-excl', b.exclusive); setChecked('f-active', b.active !== false); setChecked('f-avail', b.available !== false);
+    // Load image gallery — prefer images array, fallback to single imageUrl
+    _imgGallery = (b.images && b.images.length) ? b.images.slice() : (b.imageUrl ? [b.imageUrl] : []);
     // Load cardStyle (new mega schema) or fall back to legacy fields
     const cs = b.cardStyle || {};
     const csF = cs.filter || {};
@@ -209,6 +211,7 @@ export function openEditor(id) {
     ['f-id', 'f-name', 'f-genre-c', 'f-bpm', 'f-key', 'f-desc', 'f-tags', 'f-img', 'f-audio', 'f-prev', 'f-spotify', 'f-youtube', 'f-soundcloud', 'f-date'].forEach(id => setVal(id, ''));
     setVal('f-order', 0); setVal('f-plays', 0); setChecked('f-feat', false); setChecked('f-excl', false); setChecked('f-active', true); setChecked('f-avail', true);
     g('f-genre').value = 'Trap';
+    _imgGallery = [];
     // Reset all cardStyle fields to defaults
     const animTypeEl = g('f-anim-type'); if (animTypeEl) animTypeEl.value = '';
     const animType2El = g('f-anim-type2'); if (animType2El) animType2El.value = '';
@@ -282,12 +285,74 @@ function collectLics() { const lics = []; g('le-editor').querySelectorAll('.lic-
 export function loadDefaultLics() { renderLicEditor(JSON.parse(JSON.stringify(defLics))); showToast('Licencias base cargadas'); }
 
 // Upload helpers
-function prevImg() { const url = val('f-img'); g('img-prev').innerHTML = url ? '<img src="' + url + '" style="max-width:160px;max-height:100px;border-radius:6px;border:1px solid var(--b)">' : ''; if (typeof window.renderFullPvInCard === 'function') window.renderFullPvInCard(); if (url && typeof window._showImgPreview === 'function') window._showImgPreview(url); if (url && typeof window._addImgToHistory === 'function') window._addImgToHistory(url); if (typeof window._sendLiveUpdate === 'function') { clearTimeout(window._prevImgLiveTimer); window._prevImgLiveTimer = setTimeout(function() { window._sendLiveUpdate(); }, 300); } }
+// Image gallery: track all images for current beat
+let _imgGallery = [];
+
+function prevImg() {
+  const url = val('f-img');
+  // Add current URL to gallery if not already there
+  if (url && url.length > 10 && _imgGallery.indexOf(url) === -1) {
+    _imgGallery.push(url);
+  }
+  renderImgGallery();
+
+  if (typeof window.renderFullPvInCard === 'function') window.renderFullPvInCard();
+  if (url && typeof window._showImgPreview === 'function') window._showImgPreview(url);
+  if (url && typeof window._addImgToHistory === 'function') window._addImgToHistory(url);
+  if (typeof window._sendLiveUpdate === 'function') {
+    clearTimeout(window._prevImgLiveTimer);
+    window._prevImgLiveTimer = setTimeout(function() { window._sendLiveUpdate(); }, 300);
+  }
+}
+
+function renderImgGallery() {
+  const container = g('img-prev');
+  if (!container) return;
+
+  if (_imgGallery.length === 0) {
+    container.innerHTML = '';
+    return;
+  }
+
+  container.innerHTML = '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:4px">'
+    + _imgGallery.map(function(url, i) {
+      var isMain = (url === val('f-img'));
+      return '<div style="position:relative;display:inline-block">'
+        + '<img src="' + url + '" style="width:64px;height:64px;border-radius:6px;object-fit:cover;border:2px solid ' + (isMain ? 'var(--acc)' : 'var(--b)') + ';cursor:pointer" onclick="window._selectGalleryImg(' + i + ')" title="' + (isMain ? '★ Principal' : 'Hacer principal') + '">'
+        + '<div onclick="event.stopPropagation();window._removeGalleryImg(' + i + ')" title="Quitar" style="position:absolute;top:-4px;right:-4px;width:16px;height:16px;border-radius:50%;background:var(--acc);color:#fff;font-size:9px;display:flex;align-items:center;justify-content:center;cursor:pointer;line-height:1">✕</div>'
+        + (isMain ? '<div style="position:absolute;bottom:0;left:0;right:0;text-align:center;font-size:7px;color:var(--acc);background:rgba(0,0,0,.7);border-radius:0 0 4px 4px">★</div>' : '')
+        + '</div>';
+    }).join('')
+    + '</div>';
+}
+
+window._selectGalleryImg = function(idx) {
+  if (_imgGallery[idx]) {
+    setVal('f-img', _imgGallery[idx]);
+    renderImgGallery();
+    _triggerLiveUpdate();
+  }
+};
+
+window._removeGalleryImg = function(idx) {
+  var removed = _imgGallery.splice(idx, 1)[0];
+  // If we removed the current main image, set to first remaining
+  if (removed === val('f-img')) {
+    setVal('f-img', _imgGallery[0] || '');
+  }
+  renderImgGallery();
+  _triggerLiveUpdate();
+};
 export function uploadBeatImg(input) {
   const file = input.files[0]; if (!file) return;
   if (!R2_ENABLED) { showToast('R2 Worker no configurado.', true); input.value = ''; return; }
   const beatId = editId || ('beat_' + Date.now());
   const btn = input.parentElement.querySelector('button'); btn.disabled = true; btn.textContent = '⏳'; showSaving(true);
+  // Save current URL to gallery before overwriting
+  const oldUrl = val('f-img');
+  if (oldUrl && oldUrl.length > 10 && _imgGallery.indexOf(oldUrl) === -1) {
+    _imgGallery.push(oldUrl);
+  }
   uploadToR2(file, 'beats/' + beatId + '/cover-' + file.name.replace(/[^a-zA-Z0-9._-]/g, '_'))
     .then(r => { setVal('f-img', r.url); prevImg(); _triggerLiveUpdate(); showSaving(false); btn.disabled = false; btn.textContent = '📤'; showToast('Imagen subida ✓'); if (typeof window.saveUrlToGallery === 'function') window.saveUrlToGallery(r.url, file.name.replace(/\.[^.]+$/, ''), 'cover', []); })
     .catch(err => { showSaving(false); btn.disabled = false; btn.textContent = '📤'; showToast('Error: ' + err.message, true); });
@@ -345,7 +410,7 @@ export function saveBeat() {
   const animType = val('f-anim-type');
   // Determine if this beat has custom style (non-default)
   const _hasCustom = !_isCardStyleDefault(cardStyle);
-  const beat = { name, genre: val('f-genre'), genreCustom: val('f-genre-c'), bpm: parseInt(val('f-bpm')) || 0, key: val('f-key'), description: val('f-desc'), tags: val('f-tags').split(',').map(t => t.trim()).filter(Boolean), imageUrl: val('f-img'), audioUrl: val('f-audio'), previewUrl: val('f-prev'), spotify: val('f-spotify'), youtube: val('f-youtube'), soundcloud: val('f-soundcloud'), date: val('f-date'), order: parseInt(val('f-order')) || 0, plays: parseInt(val('f-plays')) || 0, featured: checked('f-feat'), exclusive: checked('f-excl'), active: checked('f-active'), available: checked('f-avail'), licenses: _edLics.filter(l => l.name),
+  const beat = { name, genre: val('f-genre'), genreCustom: val('f-genre-c'), bpm: parseInt(val('f-bpm')) || 0, key: val('f-key'), description: val('f-desc'), tags: val('f-tags').split(',').map(t => t.trim()).filter(Boolean), imageUrl: val('f-img'), images: _imgGallery.slice(), audioUrl: val('f-audio'), previewUrl: val('f-prev'), spotify: val('f-spotify'), youtube: val('f-youtube'), soundcloud: val('f-soundcloud'), date: val('f-date'), order: parseInt(val('f-order')) || 0, plays: parseInt(val('f-plays')) || 0, featured: checked('f-feat'), exclusive: checked('f-excl'), active: checked('f-active'), available: checked('f-avail'), licenses: _edLics.filter(l => l.name),
     // Legacy fields (backwards compat)
     glowConfig: cardStyle.glow, cardAnim: cardStyle.anim, accentColor: cardStyle.style.accentColor, shimmer: cardStyle.style.shimmer, cardBorder: cardStyle.border,
     // New mega schema
