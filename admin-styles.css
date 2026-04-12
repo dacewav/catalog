@@ -206,7 +206,7 @@ body > * { position: relative; z-index: 1; }
   grid-template-columns: 80px 1fr;
   height: calc(100vh - 48px);
   margin-top: 48px;
-  overflow: hidden;
+  overflow: clip;
   position: relative;
 }
 
