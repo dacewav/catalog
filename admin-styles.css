@@ -778,7 +778,8 @@ body > * { position: relative; z-index: 1; }
   border-left: 3px solid rgba(255,255,255,0.08);
   overflow: hidden;
   cursor: default;
-  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: width 0.18s cubic-bezier(0.25, 0.1, 0.25, 1);
+  will-change: width;
   position: relative;
   flex-shrink: 0;
 }
@@ -792,6 +793,13 @@ body > * { position: relative; z-index: 1; }
 .preview-panel.collapsed .preview-iframe-wrap,
 .preview-panel.collapsed .resize-strip {
   display: none !important;
+}
+/* Skip iframe during transition to avoid reflow jank */
+.preview-panel:not(.collapsed) .preview-iframe-wrap {
+  transition: none;
+}
+.preview-panel .preview-iframe-wrap iframe {
+  transition: none;
 }
 .preview-panel.collapsed .preview-bar {
   writing-mode: vertical-rl;

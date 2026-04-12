@@ -1496,6 +1496,10 @@ if (_pf) _pf.addEventListener('load', function() { setTimeout(pushAllThemeToFram
 
   // ── Toggle collapse ──
   window.togglePreviewCollapse = function() {
+    var iframe = panel.querySelector('.preview-iframe-wrap');
+    // Hide iframe during transition to prevent reflow jank
+    if (iframe) iframe.style.visibility = 'hidden';
+    
     panel.classList.toggle('collapsed');
     var btn = document.getElementById('preview-collapse-btn');
     var icon = btn ? btn.querySelector('i') : null;
@@ -1504,6 +1508,8 @@ if (_pf) _pf.addEventListener('load', function() { setTimeout(pushAllThemeToFram
     }
     // Save state
     localStorage.setItem('dace-preview-collapsed', panel.classList.contains('collapsed') ? '1' : '0');
+    // Restore iframe after transition
+    setTimeout(function() { if (iframe) iframe.style.visibility = ''; }, 200);
   };
 
   // ── Restore state ──
@@ -1530,6 +1536,9 @@ if (_pf) _pf.addEventListener('load', function() { setTimeout(pushAllThemeToFram
       handle.classList.add('active');
       document.body.style.cursor = 'col-resize';
       document.body.style.userSelect = 'none';
+      // Hide iframe during drag for smooth resize
+      var iframe = panel.querySelector('.preview-iframe-wrap');
+      if (iframe) iframe.style.visibility = 'hidden';
       e.preventDefault();
     });
     document.addEventListener('mousemove', function(e) {
@@ -1546,6 +1555,9 @@ if (_pf) _pf.addEventListener('load', function() { setTimeout(pushAllThemeToFram
       handle.classList.remove('active');
       document.body.style.cursor = '';
       document.body.style.userSelect = '';
+      // Restore iframe visibility after resize
+      var iframe = panel.querySelector('.preview-iframe-wrap');
+      if (iframe) iframe.style.visibility = '';
       // Save width
       localStorage.setItem('dace-preview-width', panel.offsetWidth);
     });
