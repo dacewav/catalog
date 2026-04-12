@@ -11,7 +11,7 @@ Menos bugs, más mantenible, código que coincida entre ambos lados.
 
 ---
 
-## Progreso core.js: 1405 → 1271 líneas (-134)
+## Progreso core.js: 1405 → 130 líneas (-1275, -91%)
 
 ## ✅ Completados
 
@@ -37,44 +37,34 @@ Menos bugs, más mantenible, código que coincida entre ambos lados.
 
 Bloques 3-5 commit: `352f793`
 
+### Bloque 6: Snapshots + Diff → snapshots.js (195 líneas) ✅
+- takeSnapshot, renderSnapshots, loadSnapshot, rmSnapshot, populateDiffSelects, updateDiff
+
+### Bloque 7: Emoji System → emojis.js (107 líneas) ✅
+
+### Bloque 8: Export/Import → export.js (160 líneas) ✅
+
+### Bloque 9: Hero Preview → hero-preview.js (191 líneas) ✅
+
+### Bloque 10: Glow System → glow.js (145 líneas) ✅
+
+### Bloque 11: Text Colorizer → text-colorizer.js (196 líneas) ✅
+
+### Bloque 12: Theme IO + Preview Sync + Auto-Save ✅
+- collectTheme + loadThemeUI → theme-io.js (139 líneas)
+- broadcast + iframe comm → preview-sync.js (89 líneas)
+- autoSave + saveAll + collectSiteSettings → autosave.js (81 líneas)
+- core.js: 386 → 130 líneas (-66%)
+- Commit: `44da90b`
+
 ---
 
-## ⏳ Pendientes (en orden de dificultad)
+## ⏳ Pendientes
 
-### Bloque 6: Snapshots + Diff
-Funciones: takeSnapshot, renderSnapshots, loadSnapshot, rmSnapshot, populateDiffSelects, updateDiff
-Dependen de: setT, loadThemeUI, autoSave (circular) → usar dependency injection
-Archivo: `src/admin/snapshots.js`
-
-### Bloque 7: Emoji System
-Funciones: renderEmojiGrid, insertEmoji, renderCustomEmojis, addCustomEmoji, uploadEmojiFile, removeCE
-Dependen de: customEmojis de state.js, db de state.js
-Archivo: `src/admin/emojis.js`
-
-### Bloque 8: Export/Import
-Funciones: exportAll, importAll, exportCSS, promptImportURL, importThemeFromURL
-Dependen de: collectTheme, loadThemeUI, autoSave (circular)
-Archivo: `src/admin/export.js`
-
-### Bloque 9: Hero Preview + Banner + Divider
-Funciones: updateHeroPv, updateBannerPv, updateDividerPv, setupHeroSync
-Dependen de: muchas vars de state.js + helpers.js
-Archivo: `src/admin/hero-preview.js`
-
-### Bloque 10: Glow System
-Funciones: updateGlowDesc, updateGlowAnimDesc, computeGlowCSS, applyGlowTo, applyGlowPreset
-Archivo: `src/admin/glow.js`
-
-### Bloque 11: Text Colorizer
-Funciones: initTextColorizers, tczSetColor, tczMarkPreset, tczWordClick, tczClearColors, tczSplitAtCursor, tczGetSegments, segmentsToHTML
-Archivo: `src/admin/text-colorizer.js` (ya existe, mover de core.js)
-
-### Bloque 12: Auto-Save + Broadcast (dejar para el final)
-autoSave, saveAll, _collectSiteSettings, broadcastTheme, broadcastThemeNow, postToFrame
-Son el núcleo de core.js — extraer cuando todo lo demás esté fuera.
-
-### Bloque 13: Theme collect/load
-collectTheme, loadThemeUI, loadSettingsUI
+### Bloque 13: Admin final cleanup
+- [ ] Limpiar CSS !important de `.etp` rules (ya no se necesitan con inline styles)
+- [ ] Migrar onclick → addEventListener (beats.js primero, luego archivo por archivo)
+- [ ] Tests básicos del admin (showEt, openEditor, saveBeat, prevImg)
 Son las funciones más grandes y con más deps — extraer al final.
 
 ### Bloque 14: Limpiar CSS !important
@@ -91,11 +81,25 @@ Test showEt, openEditor, saveBeat, prevImg.
 ## Archivos del admin (actualizado)
 | Archivo | Líneas | Rol |
 |---------|--------|-----|
-| src/admin/core.js | 1271 | Main module (era 1405) |
+| src/admin/core.js | 130 | Wiring hub (era 1405) |
+| src/admin/theme-io.js | 139 | collectTheme + loadThemeUI |
+| src/admin/preview-sync.js | 89 | iframe broadcast + viewport |
+| src/admin/autosave.js | 81 | autoSave + saveAll + collectSiteSettings |
 | src/admin/undo.js | 68 | Undo/redo |
 | src/admin/gradient.js | 133 | Gradient editor |
 | src/admin/changelog.js | 109 | Change log + tooltips |
 | src/admin/floating.js | 148 | Floating elements |
+| src/admin/snapshots.js | 195 | Snapshots + diff |
+| src/admin/emojis.js | 107 | Emoji system |
+| src/admin/export.js | 160 | Export/import/CSS |
+| src/admin/hero-preview.js | 191 | Hero/banner/divider preview |
+| src/admin/glow.js | 145 | Glow system |
+| src/admin/text-colorizer.js | 196 | Text color segments |
+| src/admin/particles.js | 81 | Particles preview |
+| src/admin/fullscreen.js | 66 | Fullscreen preview |
+| src/admin/theme-presets.js | 148 | Presets + slots + anim controls |
+| src/admin/toggles.js | 98 | Inspector + admin theme + settings UI |
+| src/admin/colors.js | 67 | Color value loader |
 | src/admin/beats.js | 460 | CRUD beats |
 | src/admin/theme.js | 472 | Theme editor |
 | src/admin/settings.js | 373 | Config + precios |
