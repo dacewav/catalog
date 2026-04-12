@@ -1,7 +1,7 @@
 // ═══ DACEWAV Admin — Text Colorizer ═══
 // Visual text editor: click words to color them. Stores segments for multi-color text.
 
-import { g, val } from './helpers.js';
+import { g, val, showToast } from './helpers.js';
 
 let _tczState = {};
 
@@ -145,7 +145,7 @@ export function tczSplitAtCursor(containerId, inputId) {
     if (textEl) textEl.innerHTML = _tczRenderWords(containerId, state.segments);
     _tczSyncToInput(containerId);
   }, { once: false });
-  if (typeof showToast === 'function') showToast('Edita el texto raw. Los <em> se convierten en colores.');
+  showToast('Edita el texto raw. Los <em> se convierten en colores.');
 }
 
 function _tczParseHTML(html) {

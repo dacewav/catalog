@@ -113,10 +113,14 @@ export function promptInline(msg, defVal) {
   });
 }
 
+export function escapeHtml(s) {
+  return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
 // Assign to window for onclick handlers
 Object.assign(window, {
   g, val, setVal, checked, setChecked,
   hexRgba, hexFromRgba, rgbaFromHex, loadFont,
   showToast, showSaving, fmt, sv, resetSlider, toggleCard,
-  confirmInline, promptInline
+  confirmInline, promptInline, escapeHtml
 });

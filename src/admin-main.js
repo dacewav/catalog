@@ -12,6 +12,7 @@ import './admin/core.js';
 import './admin/colors.js';
 import './admin/fonts.js';
 import './admin/nav.js';
+import './admin/text-colorizer.js';
 import './admin/qr.js';
 import './admin/cmd-palette.js';
 import './admin/resize.js';
