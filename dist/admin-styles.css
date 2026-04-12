@@ -1949,3 +1949,29 @@ body.light .batch-img-drop input[type="file"] { opacity: 0; }
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   max-width: 100%;
 }
+
+/* ═══ BLUR FX PREVIEW (Admin) ═══ */
+.bcpv.blur-fx-vigneta .bcpv-inner { position: relative; }
+.bcpv.blur-fx-vigneta .bcpv-inner::after {
+  content: ''; position: absolute; inset: 0; z-index: 3; pointer-events: none;
+  border-radius: inherit;
+  background: radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.6) 100%);
+  opacity: var(--blur-int, 0.5);
+  mix-blend-mode: multiply;
+}
+.bcpv.blur-fx-aura {
+  filter: drop-shadow(0 0 var(--blur-int, 12px) var(--blur-aura-clr, var(--accent, #dc2626)));
+}
+.bcpv.blur-fx-focus .bcpv-inner { position: relative; }
+.bcpv.blur-fx-focus .bcpv-inner::after {
+  content: ''; position: absolute; inset: 0; z-index: 2; pointer-events: none;
+  background: radial-gradient(ellipse at center, transparent 30%, rgba(0,0,0,0.4) 100%);
+  opacity: var(--blur-int, 0.4);
+}
+.fx-cat-label {
+  font-size: 9px; font-weight: 700;
+  color: var(--hi, #666);
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  padding: 4px 0 2px;
+}

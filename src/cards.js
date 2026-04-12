@@ -186,7 +186,8 @@ export function beatCard(b, globalIdx) {
     ((csH.scale && csH.scale !== 1) || (csH.brightness && csH.brightness !== 1) || (csH.saturate && csH.saturate !== 1) || csH.shadowBlur || csH.borderColor || csH.glowIntensify || csH.blur || csH.siblingsBlur || csH.hueRotate || (csH.opacity != null && csH.opacity !== 1)) ? 'has-hover-fx' : '',
     csH.glowIntensify ? 'hov-glow-int' : '',
     (csH.enableAnim && csH.animType) ? 'has-hover-anim' : '',
-    csSh.enabled ? 'has-custom-shadow' : ''
+    csSh.enabled ? 'has-custom-shadow' : '',
+    csF.blurType && csF.blur ? 'blur-fx-' + csF.blurType : ''
   ].filter(Boolean).join(' ');
 
   // Build inline styles
@@ -237,7 +238,7 @@ export function beatCard(b, globalIdx) {
   if (csF.grayscale) filters.push(`grayscale(${csF.grayscale})`);
   if (csF.sepia) filters.push(`sepia(${csF.sepia})`);
   if (csF.hueRotate) filters.push(`hue-rotate(${csF.hueRotate}deg)`);
-  if (csF.blur) filters.push(`blur(${csF.blur}px)`);
+  // Blur is handled as CSS class, not filter — it affects surrounding area, not card content
   if (csF.invert) filters.push(`invert(${csF.invert})`);
   if (csF.opacity != null && csF.opacity < 1) filters.push(`opacity(${csF.opacity})`);
   if (csF.dropShadowOpacity) {
@@ -250,6 +251,16 @@ export function beatCard(b, globalIdx) {
     filters.push(`drop-shadow(${csF.dropShadowX || 0}px ${csF.dropShadowY || 0}px ${csF.dropShadowBlur || 0}px rgba(${r},${gv},${b},${a}))`);
   }
   if (filters.length) styleParts.push(`filter:${filters.join(' ')}`);
+
+  // Blur FX type variables
+  if (csF.blurType && csF.blur) {
+    const blurInt = Math.min(csF.blur / 30, 1); // normalize 0-30 to 0-1
+    styleParts.push(`--blur-int:${blurInt.toFixed(2)}`);
+    if (csF.blurType === 'aura') {
+      const acHex = (accentColor || '#dc2626').replace('#', '');
+      styleParts.push(`--blur-aura-clr:#${acHex}`);
+    }
+  }
 
   // Opacity
   if (csS.opacity != null && csS.opacity < 1) styleParts.push(`opacity:${csS.opacity}`);

@@ -163,6 +163,7 @@ export function _buildCardStyleFromInputs() {
       sepia: parseFloat(val('f-cs-fse')) || 0,
       hueRotate: parseInt(val('f-cs-fh')) || 0,
       blur: parseFloat(val('f-cs-fbl')) || 0,
+      blurType: val('f-cs-fbl-type') || '',
       invert: parseFloat(val('f-cs-fi')) || 0,
       opacity: parseFloat(val('f-cs-fo')) || 1,
       dropShadowX: parseInt(val('f-cs-ds-x')) || 0,
@@ -297,10 +298,21 @@ export function _applyCardStyleToPreview(pv, cs) {
   if (f.grayscale) filters.push('grayscale(' + f.grayscale + ')');
   if (f.sepia) filters.push('sepia(' + f.sepia + ')');
   if (f.hueRotate) filters.push('hue-rotate(' + f.hueRotate + 'deg)');
-  if (f.blur) filters.push('blur(' + f.blur + 'px)');
+  // Blur is handled as CSS class (blurType), not filter
   if (f.invert) filters.push('invert(' + f.invert + ')');
   if (filters.length) pv.style.filter = filters.join(' ');
   else pv.style.filter = '';
+
+  // Blur FX type
+  if (f.blurType && f.blur) {
+    pv.classList.add('blur-fx-' + f.blurType);
+    const blurInt = Math.min(f.blur / 30, 1);
+    pv.style.setProperty('--blur-int', blurInt.toFixed(2));
+    if (f.blurType === 'aura') {
+      const acHex = (accentColor || '#dc2626').replace('#','');
+      pv.style.setProperty('--blur-aura-clr', '#' + acHex);
+    }
+  }
 
   // 1.5 Accent color propagation
   const accentColor = (cs.style || {}).accentColor;

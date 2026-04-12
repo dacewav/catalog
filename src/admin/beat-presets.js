@@ -165,7 +165,7 @@ export function renderPresets() {
 export function resetCardStyle() {
   setVal('f-cs-fb', 1); setVal('f-cs-fc', 1); setVal('f-cs-fs', 1);
   setVal('f-cs-fg', 0); setVal('f-cs-fse', 0); setVal('f-cs-fh', 0);
-  setVal('f-cs-fbl', 0); setVal('f-cs-fi', 0);
+  setVal('f-cs-fbl', 0); setVal('f-cs-fbl-type', ''); setVal('f-cs-fi', 0);
   setVal('f-cs-fo', 1);
   setVal('f-cs-ds-x', 0); setVal('f-cs-ds-y', 0); setVal('f-cs-ds-bl', 0); setVal('f-cs-ds-op', 0); setVal('f-cs-ds-clr', '#000000'); setVal('f-cs-ds-clr-h', '#000000');
   setChecked('f-glow-on', false);
@@ -234,7 +234,7 @@ export function resetBeatToGlobal() {
   setVal('f-cs-fb', f.brightness != null ? f.brightness : 1); setVal('f-cs-fc', f.contrast != null ? f.contrast : 1);
   setVal('f-cs-fs', f.saturate != null ? f.saturate : 1); setVal('f-cs-fg', f.grayscale || 0);
   setVal('f-cs-fse', f.sepia || 0); setVal('f-cs-fh', f.hueRotate || 0);
-  setVal('f-cs-fbl', f.blur || 0); setVal('f-cs-fi', f.invert || 0);
+  setVal('f-cs-fbl', f.blur || 0); setVal('f-cs-fbl-type', f.blurType || ''); setVal('f-cs-fi', f.invert || 0);
   setVal('f-cs-fo', f.opacity != null ? f.opacity : 1);
   setVal('f-cs-ds-x', f.dropShadowX || 0); setVal('f-cs-ds-y', f.dropShadowY || 0);
   setVal('f-cs-ds-bl', f.dropShadowBlur || 0); setVal('f-cs-ds-op', f.dropShadowOpacity || 0);
@@ -329,7 +329,7 @@ export function applyPreset(id) {
   // RESET ALL FIELDS FIRST
   setVal('f-cs-fb', 1); setVal('f-cs-fc', 1); setVal('f-cs-fs', 1);
   setVal('f-cs-fg', 0); setVal('f-cs-fse', 0); setVal('f-cs-fh', 0);
-  setVal('f-cs-fbl', 0); setVal('f-cs-fi', 0);
+  setVal('f-cs-fbl', 0); setVal('f-cs-fbl-type', ''); setVal('f-cs-fi', 0);
   setVal('f-cs-fo', 1);
   setVal('f-cs-ds-x', 0); setVal('f-cs-ds-y', 0); setVal('f-cs-ds-bl', 0); setVal('f-cs-ds-op', 0); setVal('f-cs-ds-clr', '#000000'); setVal('f-cs-ds-clr-h', '#000000');
   setChecked('f-glow-on', false); setChecked('f-glow-hover', false);
@@ -382,7 +382,7 @@ export function applyPreset(id) {
   const f = cs.filter || {};
   setVal('f-cs-fb', f.brightness || 1); setVal('f-cs-fc', f.contrast || 1); setVal('f-cs-fs', f.saturate || 1);
   setVal('f-cs-fg', f.grayscale || 0); setVal('f-cs-fse', f.sepia || 0); setVal('f-cs-fh', f.hueRotate || 0);
-  setVal('f-cs-fbl', f.blur || 0); setVal('f-cs-fi', f.invert || 0);
+  setVal('f-cs-fbl', f.blur || 0); setVal('f-cs-fbl-type', f.blurType || ''); setVal('f-cs-fi', f.invert || 0);
   setVal('f-cs-fo', f.opacity != null ? f.opacity : 1);
   setVal('f-cs-ds-x', f.dropShadowX || 0); setVal('f-cs-ds-y', f.dropShadowY || 0);
   setVal('f-cs-ds-bl', f.dropShadowBlur || 0); setVal('f-cs-ds-op', f.dropShadowOpacity || 0);

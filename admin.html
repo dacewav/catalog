@@ -655,7 +655,15 @@ definen géneros.</textarea></div>
             <div style="margin:10px 0 8px">
               <div style="font-size:10px;font-weight:600;color:var(--hi);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">Blur</div>
             </div>
-            <div class="field"><label>💥 Blur</label><div class="slider-wrap"><input type="range" id="f-cs-fbl" min="0" max="100" step="0.5" value="0" oninput="this.nextElementSibling.textContent=parseFloat(this.value).toFixed(1)+'px';updateCardPreview()"><span class="slider-val">0.0px</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,0)">↺</button></div></div>
+            <div class="field"><label>Tipo de blur</label>
+              <select id="f-cs-fbl-type" onchange="updateCardPreview()" class="inline-select">
+                <option value="">Ninguno</option>
+                <option value="vigneta">Vigneta</option>
+                <option value="aura">Aura</option>
+                <option value="focus">Focus</option>
+              </select>
+            </div>
+            <div class="field"><label>Intensidad</label><div class="slider-wrap"><input type="range" id="f-cs-fbl" min="0" max="50" step="0.5" value="0" oninput="this.nextElementSibling.textContent=parseFloat(this.value).toFixed(1)+'px';updateCardPreview()"><span class="slider-val">0.0px</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,0)">↺</button></div></div>
 
             <div style="margin:10px 0 8px">
               <div style="font-size:10px;font-weight:600;color:var(--hi);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">Drop Shadow</div>
