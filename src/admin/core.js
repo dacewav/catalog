@@ -2,7 +2,7 @@
 // Undo/redo, auto-save, preview, theme collect/load, hero/banner preview,
 // glow, animation controls, presets, particles, emojis, change log, export/import
 
-import { ANIMS, EMOJIS } from './config.js';
+import { ANIMS } from './config.js';
 import {
   db, T, setT, siteSettings, customEmojis, floatingEls,
   _undoStack,
@@ -21,6 +21,15 @@ import {
 import {
   renderFloatingEditor, renderFloatingPreview, addFE, saveFE, rmFE
 } from './floating.js';
+import {
+  takeSnapshot, renderSnapshots, loadSnapshot, rmSnapshot,
+  populateDiffSelects, updateDiff, promptImportURL, importThemeFromURL,
+  setSnapshotDeps
+} from './snapshots.js';
+import {
+  renderEmojiGrid, insertEmoji, renderCustomEmojis, addCustomEmoji,
+  uploadEmojiFile, removeCE, setEmojiDeps
+} from './emojis.js';
 import {
   g, val, setVal, checked, setChecked, hexRgba, hexFromRgba, rgbaFromHex,
   loadFont, showToast, showSaving, fmt, sv, resetSlider, toggleCard, setAutoSaveRef,
@@ -104,6 +113,12 @@ setAutoSaveRef(autoSave);
 
 // Wire up undo/redo dependencies (breaks circular import with undo.js)
 setUndoDeps({ collectTheme, loadThemeUI, broadcastThemeNow });
+
+// Wire up snapshot dependencies
+setSnapshotDeps({ collectTheme, loadThemeUI, autoSave });
+
+// Wire up emoji dependencies
+setEmojiDeps({ updateBannerPv, autoSave });
 
 // ═══ IFRAME COMMUNICATION ═══
 const PM_ORIGIN = (() => {
@@ -806,53 +821,7 @@ export function animPP(canvas) {
   setPpAnim(requestAnimationFrame(() => animPP(canvas)));
 }
 
-// ═══ EMOJIS ═══
-export function renderEmojiGrid() { g('emoji-grid').innerHTML = EMOJIS.map(e => '<div class="emoji-btn" onclick="insertEmoji(\'' + e + '\')">' + e + '</div>').join(''); }
-export function insertEmoji(e) { const b = g('b-text'); if (b) { b.value += e; updateBannerPv(); autoSave(); } }
-export function renderCustomEmojis() {
-  g('ce-list').innerHTML = customEmojis.length ? customEmojis.map((e, i) => '<div class="ce-item"><img src="' + e.url + '"><div class="ce-name">:' + e.name + ':</div><button class="btn btn-del" onclick="removeCE(' + i + ')" style="font-size:9px">✕</button></div>').join('') : '<div style="color:var(--hi);font-size:10px">Sin emojis personalizados</div>';
-}
-export function addCustomEmoji() {
-  const name = val('ce-name').trim(), url = val('ce-url').trim();
-  if (!name || !url) { showToast('Nombre y URL', true); return; }
-  customEmojis.push({ name, url, width: parseInt(val('ce-w')) || 24, height: parseInt(val('ce-h')) || 24, anim: val('ce-anim') || 'none' });
-  localStorage.setItem('dace-custom-emojis', JSON.stringify(customEmojis)); renderCustomEmojis(); updateBannerPv();
-  setVal('ce-name', ''); setVal('ce-url', '');
-  if (db) db.ref('customEmojis').set(customEmojis).catch(() => {});
-}
-export function uploadEmojiFile(input) {
-  const file = input.files && input.files[0];
-  if (!file) return;
-  // Auto-name from filename
-  const baseName = file.name.replace(/\.[^.]+$/, '').replace(/[^a-zA-Z0-9_-]/g, '-').toLowerCase();
-  const reader = new FileReader();
-  reader.onload = function(e) {
-    const dataUrl = e.target.result;
-    // Check size (warn if > 200KB for performance)
-    if (dataUrl.length > 200 * 1024) {
-      showToast('Imagen muy grande (>200KB). Comprime primero.', true);
-    }
-    customEmojis.push({
-      name: baseName,
-      url: dataUrl,
-      width: parseInt(val('ce-w')) || 24,
-      height: parseInt(val('ce-h')) || 24,
-      anim: val('ce-anim') || 'none'
-    });
-    localStorage.setItem('dace-custom-emojis', JSON.stringify(customEmojis));
-    renderCustomEmojis();
-    updateBannerPv();
-    if (db) db.ref('customEmojis').set(customEmojis).catch(() => {});
-    showToast('Emoji "' + baseName + '" subido ✓');
-    input.value = ''; // Reset input
-  };
-  reader.readAsDataURL(file);
-}
-export function removeCE(i) {
-  customEmojis.splice(i, 1); localStorage.setItem('dace-custom-emojis', JSON.stringify(customEmojis));
-  renderCustomEmojis(); updateBannerPv();
-  if (db) db.ref('customEmojis').set(customEmojis).catch(() => {});
-}
+// Emoji system → src/admin/emojis.js
 
 // ═══ TEXT COLORIZER ═══
 // Visual text editor: click words to color them. Replaces <em> tag workflow.
@@ -1175,72 +1144,7 @@ function escFullscreen(e) {
 }
 
 // ═══ SNAPSHOTS ═══
-export function takeSnapshot() {
-  const snaps = JSON.parse(localStorage.getItem('dace-snapshots') || '[]');
-  snaps.push({ name: val('snap-name') || 'Snapshot ' + (snaps.length + 1), theme: collectTheme(), date: new Date().toISOString() });
-  if (snaps.length > 10) snaps.shift();
-  localStorage.setItem('dace-snapshots', JSON.stringify(snaps));
-  setVal('snap-name', ''); renderSnapshots(); showToast('Snapshot guardado');
-}
-export function renderSnapshots() {
-  const wrap = g('snapshots-list'); if (!wrap) return;
-  const snaps = JSON.parse(localStorage.getItem('dace-snapshots') || '[]');
-  wrap.innerHTML = snaps.length ? snaps.map((s, i) => '<div style="display:flex;align-items:center;gap:6px;padding:4px 0;border-bottom:1px solid var(--b)"><div style="flex:1"><div style="font-size:11px;font-weight:700">' + s.name + '</div><div style="font-size:9px;color:var(--hi)">' + new Date(s.date).toLocaleString() + '</div></div><button class="btn btn-g" onclick="loadSnapshot(' + i + ')" style="font-size:9px">Cargar</button><button class="btn btn-del" onclick="rmSnapshot(' + i + ')" style="font-size:9px">✕</button></div>').join('') : '<div style="color:var(--hi);font-size:10px">Sin snapshots</div>';
-  populateDiffSelects();
-}
-export function loadSnapshot(i) {
-  const snaps = JSON.parse(localStorage.getItem('dace-snapshots') || '[]'); if (!snaps[i]) return;
-  setT(snaps[i].theme); loadThemeUI(); autoSave(); showToast('Snapshot: ' + snaps[i].name);
-}
-export function rmSnapshot(i) {
-  const snaps = JSON.parse(localStorage.getItem('dace-snapshots') || '[]'); snaps.splice(i, 1);
-  localStorage.setItem('dace-snapshots', JSON.stringify(snaps)); renderSnapshots();
-}
-
-// ═══ VISUAL DIFF ═══
-export function populateDiffSelects() {
-  const snaps = JSON.parse(localStorage.getItem('dace-snapshots') || '[]');
-  const opts = '<option value="">— Seleccionar —</option>' + snaps.map((s, i) => '<option value="' + i + '">' + s.name + '</option>').join('');
-  const da = g('diff-a'), db2 = g('diff-b');
-  if (da) da.innerHTML = opts; if (db2) db2.innerHTML = opts;
-}
-export function updateDiff() {
-  const aIdx = val('diff-a'), bIdx = val('diff-b');
-  const wrap = g('diff-result'); if (!wrap) return;
-  if (aIdx === '' || bIdx === '') { wrap.innerHTML = '<div style="color:var(--hi);font-size:10px">Selecciona dos snapshots</div>'; return; }
-  const snaps = JSON.parse(localStorage.getItem('dace-snapshots') || '[]');
-  const a = snaps[aIdx], b = snaps[bIdx]; if (!a || !b) { wrap.innerHTML = ''; return; }
-  const themeA = a.theme || {}, themeB = b.theme || {};
-  const allKeys = [...new Set([...Object.keys(themeA), ...Object.keys(themeB)])].sort();
-  const diffs = allKeys.filter(k => JSON.stringify(themeA[k]) !== JSON.stringify(themeB[k]));
-  if (!diffs.length) { wrap.innerHTML = '<div style="color:var(--gn);font-size:10px">✓ Sin diferencias</div>'; return; }
-  const labels = { bg: 'Fondo', surface: 'Surface', accent: 'Acento', text: 'Texto', fontDisplay: 'Font Display', fontBody: 'Font Body', glowColor: 'Glow', glowType: 'Glow Type', glowBlur: 'Glow Blur', glowIntensity: 'Glow Int', radiusGlobal: 'Border Radius', heroTitleSize: 'Hero Title', particlesOn: 'Partículas', beatGap: 'Beat Gap', padSection: 'Pad', blurBg: 'Blur', cardOpacity: 'Card Op' };
-  wrap.innerHTML = '<div style="font-size:10px;color:var(--acc);font-weight:700;margin-bottom:6px">' + diffs.length + ' cambios</div>' + diffs.map(k => {
-    const label = labels[k] || k;
-    const va = themeA[k] !== undefined ? String(themeA[k]).slice(0, 40) : '—';
-    const vb = themeB[k] !== undefined ? String(themeB[k]).slice(0, 40) : '—';
-    return '<div style="display:flex;align-items:center;gap:6px;padding:3px 0;border-bottom:1px solid var(--b);font-size:10px"><span style="min-width:80px;font-weight:600">' + label + '</span><span style="color:var(--mu);text-decoration:line-through">' + va + '</span><span style="color:var(--mu)">→</span><span style="color:var(--acc);font-weight:600">' + vb + '</span></div>';
-  }).join('');
-}
-
-// ═══ IMPORT URL ═══
-export async function promptImportURL() {
-  const url = await promptInline('URL del tema JSON (Ej: https://mi-servidor.com/tema.json)');
-  if (!url || !url.trim()) return; importThemeFromURL(url.trim());
-}
-export function importThemeFromURL(url) {
-  showSaving(true);
-  fetch(url).then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); }).then(data => {
-    showSaving(false);
-    let theme = null;
-    if (data.theme) theme = data.theme; else if (data.bg || data.accent || data.fontDisplay) theme = data;
-    else { showToast('Formato no reconocido', true); return; }
-    const snaps = JSON.parse(localStorage.getItem('dace-snapshots') || '[]');
-    snaps.push({ name: 'Backup antes de import URL', theme: collectTheme(), date: new Date().toISOString() });
-    if (snaps.length > 10) snaps.shift(); localStorage.setItem('dace-snapshots', JSON.stringify(snaps));
-    setT({ ...T, ...theme }); loadThemeUI(); autoSave(); showToast('Tema importado desde URL ✓'); renderSnapshots();
-  }).catch(err => { showSaving(false); showToast('Error: ' + err.message, true); });
-}
+// Snapshots, diff, import URL → src/admin/snapshots.js
 
 // ═══ WINDOW ASSIGNMENTS ═══
 Object.assign(window, {
