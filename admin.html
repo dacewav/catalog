@@ -33,20 +33,23 @@
 <!-- ═══ TOP BAR ═══ -->
 <div class="topbar" id="topbar">
   <div class="topbar-brand">DACE<em>·</em> Admin</div>
+  <div class="save-status">
+    <span class="sdot" id="sdot"></span>
+    <span id="sdot-text">Guardado</span>
+  </div>
   <div class="topbar-center">
-    <button class="tb" onclick="undo()" title="Deshacer (Ctrl+Z)"><i class="fas fa-undo"></i></button>
-    <button class="tb" onclick="redo()" title="Rehacer (Ctrl+Shift+Z)"><i class="fas fa-redo"></i></button>
-    <button class="tb" onclick="openCmdPalette()" title="Buscar (Ctrl+K)"><i class="fas fa-search"></i> <span class="fs-hint">Ctrl+K</span></button>
+    <button class="tb" onclick="openCmdPalette()"><i class="fas fa-search"></i><span class="tb-label">Ctrl+K</span></button>
+    <button class="tb" onclick="undo()"><i class="fas fa-undo"></i><span class="tb-label">Deshacer</span></button>
+    <button class="tb" onclick="redo()"><i class="fas fa-redo"></i><span class="tb-label">Rehacer</span></button>
   </div>
   <div class="topbar-right">
-    <span class="sdot" id="sdot"></span>
-    <button class="tb gn" onclick="saveAll()"><i class="fas fa-save"></i> Guardar</button>
-    <button class="tb" onclick="exportAll()"><i class="fas fa-download"></i></button>
-    <button class="tb" onclick="document.getElementById('imp-f').click()"><i class="fas fa-upload"></i></button>
+    <button class="tb gn" onclick="saveAll()"><i class="fas fa-save"></i><span class="tb-label">Guardar</span></button>
+    <button class="tb" onclick="exportAll()"><i class="fas fa-download"></i><span class="tb-label">Exportar</span></button>
+    <button class="tb" onclick="document.getElementById('imp-f').click()"><i class="fas fa-upload"></i><span class="tb-label">Importar</span></button>
     <input type="file" id="imp-f" accept=".json" style="display:none" onchange="importAll(event)">
-    <button class="tb" id="theme-toggle" onclick="toggleAdminTheme()"><i class="fas fa-moon"></i></button>
-    <button class="tb" id="inspector-btn" onclick="toggleInspector()"><i class="fas fa-crosshairs"></i></button>
-    <button class="tb" onclick="doLogout()" title="Cerrar sesión"><i class="fas fa-sign-out-alt"></i></button>
+    <button class="tb" id="theme-toggle" onclick="toggleAdminTheme()"><i class="fas fa-moon"></i><span class="tb-label">Tema</span></button>
+    <button class="tb" id="inspector-btn" onclick="toggleInspector()"><i class="fas fa-crosshairs"></i><span class="tb-label">Inspector</span></button>
+    <button class="tb" onclick="doLogout()"><i class="fas fa-sign-out-alt"></i><span class="tb-label">Salir</span></button>
   </div>
 </div>
 
@@ -54,21 +57,23 @@
 <div class="split">
   <!-- Sidebar -->
   <div class="sidebar">
-    <div class="sb-label">Trabajo</div>
-    <div class="si" data-s="beats" onclick="showSection('beats')"><i class="fas fa-music"></i><span>Catálogo de Beats</span></div>
-    <div class="si" data-s="stats" onclick="showSection('stats')"><i class="fas fa-chart-bar"></i><span>Estadísticas</span></div>
-    <div class="si" data-s="settings" onclick="showSection('settings')"><i class="fas fa-cog"></i><span>Configuración</span></div>
-    <div class="si" data-s="team" onclick="showSection('team')"><i class="fas fa-users"></i><span>Equipo</span></div>
+    <div class="sidebar-group-label">Contenido</div>
+    <div class="si" data-s="beats" onclick="showSection('beats')"><i class="fas fa-music"></i><span>Beats</span></div>
+    <div class="si" data-s="hero" onclick="showSection('hero')"><i class="fas fa-star"></i><span>Hero</span></div>
+    <div class="si" data-s="elements" onclick="showSection('elements')"><i class="fas fa-shopping-bag"></i><span>Elems</span></div>
     <div class="sidebar-sep"></div>
-    <div class="sb-label">Diseño</div>
-    <div class="si on" data-s="global" onclick="showSection('global')"><i class="fas fa-palette"></i><span>Estilos globales</span></div>
+    <div class="sidebar-group-label">Diseño</div>
+    <div class="si on" data-s="global" onclick="showSection('global')"><i class="fas fa-palette"></i><span>Global</span></div>
     <div class="si" data-s="card-global" onclick="showSection('card-global')"><i class="fas fa-id-card"></i><span>Tarjetas</span></div>
-    <div class="si" data-s="hero" onclick="showSection('hero')"><i class="fas fa-star"></i><span>Hero & Banner</span></div>
     <div class="si" data-s="layout" onclick="showSection('layout')"><i class="fas fa-th-large"></i><span>Layout</span></div>
-    <div class="si" data-s="elements" onclick="showSection('elements')"><i class="fas fa-shopping-bag"></i><span>Elementos</span></div>
-    <div class="si" data-s="animations" onclick="showSection('animations')"><i class="fas fa-magic"></i><span>Animaciones</span></div>
-    <div class="si" data-s="floating" onclick="showSection('floating')"><i class="fas fa-arrows-alt"></i><span>Flotantes</span></div>
-    <div class="si" data-s="themes" onclick="showSection('themes')"><i class="fas fa-swatchbook"></i><span>Temas & Presets</span></div>
+    <div class="si" data-s="animations" onclick="showSection('animations')"><i class="fas fa-magic"></i><span>Anims</span></div>
+    <div class="si" data-s="floating" onclick="showSection('floating')"><i class="fas fa-arrows-alt"></i><span>Float</span></div>
+    <div class="si" data-s="themes" onclick="showSection('themes')"><i class="fas fa-swatchbook"></i><span>Temas</span></div>
+    <div class="sidebar-sep"></div>
+    <div class="sidebar-group-label">Sistema</div>
+    <div class="si" data-s="settings" onclick="showSection('settings')"><i class="fas fa-cog"></i><span>Ajustes</span></div>
+    <div class="si" data-s="team" onclick="showSection('team')"><i class="fas fa-users"></i><span>Equipo</span></div>
+    <div class="si" data-s="stats" onclick="showSection('stats')"><i class="fas fa-chart-bar"></i><span>Stats</span></div>
   </div>
 
   <!-- ═══ CONTROLS ═══ -->
@@ -1246,9 +1251,6 @@ definen géneros.</textarea></div>
             <div class="field"><label>Instagram</label><input type="text" id="s-ig" placeholder="dace.wav" oninput="autoSave()"></div>
             <div class="field"><label>Email</label><input type="email" id="s-email" placeholder="hola@dace.com" oninput="autoSave()"></div>
           </div>
-          <div class="field full"><label>Título hero</label><textarea id="s-hero" oninput="autoSave()">Beats que
-definen géneros.</textarea></div>
-          <div class="field full"><label>Subtítulo hero</label><textarea id="s-sub" oninput="autoSave()"></textarea></div>
         </div>
       </div>
 
@@ -1350,7 +1352,7 @@ definen géneros.</textarea></div>
   <div class="preview-panel" id="preview-panel">
     <div class="resize-strip resize-handle-h" id="resize-handle"></div>
     <div class="preview-bar">
-      <div class="preview-bar-left"><span class="preview-label"><i class="fas fa-eye"></i> Vista previa</span></div>
+      <div class="preview-bar-left"><span class="preview-label"><i class="fas fa-eye"></i> Vista previa</span><div class="preview-sync-badge" id="preview-sync-badge"><span class="preview-sync-dot" id="preview-sync-dot"></span><span id="preview-sync-label">En vivo</span></div></div>
       <div class="preview-bar-center">
         <button class="vp-btn" onclick="setViewport('mobile')" title="Móvil"><i class="fas fa-mobile-alt"></i></button>
         <button class="vp-btn" onclick="setViewport('tablet')" title="Tablet"><i class="fas fa-tablet-alt"></i></button>
@@ -1444,6 +1446,46 @@ definen géneros.</textarea></div>
 <!-- ═══════════════════════════════════════════════════════════
      JAVASCRIPT
      ═══════════════════════════════════════════════════════════ -->
+<!-- ═══════════════════════════════════════════════════════════
+     PREVIEW SYNC — postMessage bridge
+     ═══════════════════════════════════════════════════════════ -->
+<script>
+function syncToPreview(varName, value) {
+  document.documentElement.style.setProperty(varName, value);
+  var frame = document.getElementById('preview-frame');
+  if (frame && frame.contentWindow) {
+    frame.contentWindow.postMessage({ type: 'DACE_THEME', updates: { [varName]: value } }, '*');
+  }
+}
+function pushAllThemeToFrame() {
+  var frame = document.getElementById('preview-frame');
+  if (!frame || !frame.contentWindow) return;
+  var style = document.documentElement.style;
+  var vars = ['--acc','--bg','--fg','--blur','--rad','--grain-op','--card-op','--nav-op','--tx-op','--hero-bg-op','--section-op','--beat-img-op','--text-op','--font-size','--line-h','--pad','--gap'];
+  var updates = {};
+  vars.forEach(function(v) { var val = style.getPropertyValue(v); if (val) updates[v] = val.trim(); });
+  if (Object.keys(updates).length > 0) frame.contentWindow.postMessage({ type: 'DACE_THEME', updates: updates }, '*');
+}
+var _idToVar = {
+  't-blur':'--blur','t-card-op':'--card-op','t-grain':'--grain-op','t-radius':'--rad',
+  't-nav-op':'--nav-op','t-beat-img-op':'--beat-img-op','t-text-op':'--text-op',
+  't-hero-bg-op':'--hero-bg-op','t-section-op':'--section-op','t-font-size':'--font-size',
+  't-line-h':'--line-h','t-pad':'--pad','t-gap':'--gap'
+};
+document.addEventListener('input', function(e) {
+  if (e.target.type !== 'range') return;
+  var v = _idToVar[e.target.id]; if (!v) return;
+  var s = e.target.nextElementSibling;
+  syncToPreview(v, (s && s.classList.contains('slider-val')) ? s.textContent : e.target.value);
+});
+(function() {
+  var _o = window.autoSave;
+  window.autoSave = function() { if (_o) _o(); clearTimeout(window._sst); window._sst = setTimeout(pushAllThemeToFrame, 300); };
+})();
+var _pf = document.getElementById('preview-frame');
+if (_pf) _pf.addEventListener('load', function() { setTimeout(pushAllThemeToFrame, 100); });
+</script>
+
 <script src="dist/admin-app.js"></script>
 
 </body>
