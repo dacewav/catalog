@@ -198,6 +198,23 @@
       ".write": "auth != null && root.child('adminWhitelist/approved').child(auth.uid).exists()"
     },
 
+    "imageGallery": {
+      ".read": "auth != null && root.child('adminWhitelist/approved').child(auth.uid).exists()",
+      ".write": "auth != null && root.child('adminWhitelist/approved').child(auth.uid).exists()",
+      "$imgId": {
+        ".validate": "newData.hasChildren(['url', 'name', 'type'])",
+        "url":       { ".validate": "newData.isString() && newData.val().length <= 2000" },
+        "name":      { ".validate": "newData.isString() && newData.val().length <= 200" },
+        "type":      { ".validate": "newData.isString() && newData.val().length <= 30" },
+        "size":      { ".validate": "!newData.exists() || newData.isNumber()" },
+        "width":     { ".validate": "!newData.exists() || newData.isNumber()" },
+        "height":    { ".validate": "!newData.exists() || newData.isNumber()" },
+        "mimeType":  { ".validate": "!newData.exists() || (newData.isString() && newData.val().length <= 50)" },
+        "createdAt": { ".validate": "!newData.exists() || newData.isNumber()" },
+        "tags":      { ".validate": "!newData.exists() || newData.isString()" }
+      }
+    },
+
     "customLinks": {
       ".read": true,
       ".write": "auth != null && root.child('adminWhitelist/approved').child(auth.uid).exists()"

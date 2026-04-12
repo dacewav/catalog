@@ -75,6 +75,7 @@
     <div class="si" data-s="team" onclick="showSection('team')"><i class="fas fa-users"></i><span>Equipo</span></div>
     <div class="si" data-s="stats" onclick="showSection('stats')"><i class="fas fa-chart-bar"></i><span>Stats</span></div>
     <div class="si" data-s="trash" onclick="showSection('trash')"><i class="fas fa-trash-alt"></i><span>Trash</span></div>
+    <div class="si" data-s="gallery" onclick="showSection('gallery')"><i class="fas fa-images"></i><span>Galería</span></div>
   </div>
 
   <!-- ═══ CONTROLS ═══ -->
@@ -557,7 +558,7 @@ definen géneros.</textarea></div>
         <button class="btn btn-g" onclick="addLicRow()"><i class="fas fa-plus"></i></button>
       </div>
       <div class="etp" id="etp-media">
-        <div class="field"><label>Imagen URL</label><div class="flex-row"><input type="url" id="f-img" placeholder="https://..." oninput="prevImg()" class="flex-1"><input type="file" id="f-img-file" accept="image/*" style="display:none" onchange="uploadBeatImg(this)"><button class="btn btn-g" onclick="document.getElementById('f-img-file').click()" class="fs-xs" title="Subir a R2">📤</button></div></div>
+        <div class="field"><label>Imagen URL</label><div class="flex-row"><input type="url" id="f-img" placeholder="https://..." oninput="prevImg()" class="flex-1"><input type="file" id="f-img-file" accept="image/*" style="display:none" onchange="uploadBeatImg(this)"><button class="btn btn-g" onclick="document.getElementById('f-img-file').click()" class="fs-xs" title="Subir a R2">📤</button><button class="btn btn-g" onclick="openGalleryPicker(function(url){var f=document.getElementById('f-img');if(f){f.value=url;if(typeof prevImg==='function')prevImg();if(typeof updateCardPreview==='function')updateCardPreview();if(typeof _sendLiveUpdate==='function')_sendLiveUpdate();}})" class="fs-xs" title="Seleccionar de galería">🖼️</button></div></div>
         <div id="img-prev" class="mb-sm"></div>
         <div class="field"><label>Audio WAV URL</label><div class="flex-row"><input type="url" id="f-audio" placeholder="https://..." class="flex-1"><input type="file" id="f-audio-file" accept=".wav,.mp3,.flac" style="display:none" onchange="uploadBeatAudio(this)"><button class="btn btn-g" onclick="document.getElementById('f-audio-file').click()" class="fs-xs" title="Subir WAV a R2">📤</button><button class="btn btn-del fs-xs" onclick="var f=document.getElementById('f-audio');if(f&&f.value){if(typeof trashItem==='function'){var bid=document.getElementById('f-id'),bn=document.getElementById('f-name');trashItem(bid?bid.value:'',bn?bn.value:'','audio',f.value,'audio-wav');}f.value='';if(typeof _sendLiveUpdate==='function')_sendLiveUpdate();}" title="Mover a papelera" style="font-size:9px">🗑</button></div></div>
         <div class="field"><label>Preview MP3 URL</label><div class="flex-row"><input type="url" id="f-prev" placeholder="https://..." oninput="updateMP()" class="flex-1"><input type="file" id="f-prev-file" accept=".mp3,.wav,.ogg,.m4a" style="display:none" onchange="uploadBeatPreview(this)"><button class="btn btn-g" onclick="document.getElementById('f-prev-file').click()" class="fs-xs" title="Subir Preview a R2">📤</button><button class="btn btn-del fs-xs" onclick="var f=document.getElementById('f-prev');if(f&&f.value){if(typeof trashItem==='function'){var bid=document.getElementById('f-id'),bn=document.getElementById('f-name');trashItem(bid?bid.value:'',bn?bn.value:'','preview',f.value,'preview-mp3');}f.value='';updateMP();if(typeof _sendLiveUpdate==='function')_sendLiveUpdate();}" title="Mover a papelera" style="font-size:9px">🗑</button></div></div>
@@ -586,6 +587,7 @@ definen géneros.</textarea></div>
             <div style="display:flex;justify-content:center;gap:6px;margin-bottom:8px">
               <label for="pv-img-upload" style="background:var(--as2);border:1px solid var(--b);border-radius:var(--rad);color:var(--tx);cursor:pointer;font-size:10px;padding:5px 12px;font-family:var(--fm);display:inline-flex;align-items:center;gap:4px;margin:0;transition:all .15s" onmouseenter="this.style.borderColor='var(--acc)';this.style.color='var(--acc)'" onmouseleave="this.style.borderColor='var(--b)';this.style.color='var(--tx)'">📸 Subir</label>
               <input type="file" id="pv-img-upload" accept="image/*" style="display:none">
+              <button onclick="openGalleryPicker(function(url){var f=document.getElementById('f-img');if(f){f.value=url;if(typeof prevImg==='function')prevImg();if(typeof updateCardPreview==='function')updateCardPreview();if(typeof _sendLiveUpdate==='function')_sendLiveUpdate();}})" style="background:var(--as2);border:1px solid var(--b);border-radius:var(--rad);color:var(--tx);cursor:pointer;font-size:10px;padding:5px 12px;font-family:var(--fm);display:inline-flex;align-items:center;gap:4px;margin:0;transition:all .15s" onmouseenter="this.style.borderColor='var(--acc)';this.style.color='var(--acc)'" onmouseleave="this.style.borderColor='var(--b)';this.style.color='var(--tx)'">🖼️ Galería</button>
               <button onclick="var f=document.getElementById('f-img');if(f&&f.value){if(typeof trashItem==='function'){var bid=document.getElementById('f-id');trashItem(bid?bid.value:'','beat','image',f.value,'cover');}f.value='';if(typeof prevImg==='function')prevImg();if(typeof _sendLiveUpdate==='function')_sendLiveUpdate();document.getElementById('pv-img-preview').style.display='none'}" style="background:var(--as2);border:1px solid var(--b);border-radius:var(--rad);color:var(--tx);cursor:pointer;font-size:10px;padding:5px 10px;font-family:var(--fm);transition:all .15s" onmouseenter="this.style.borderColor='var(--acc)';this.style.color='var(--acc)'" onmouseleave="this.style.borderColor='var(--b)';this.style.color='var(--tx)'">🗑 Papelera</button>
             </div>
             <!-- Mini image history -->
@@ -1409,6 +1411,46 @@ definen géneros.</textarea></div>
       <div id="trash-list"></div>
     </div>
 
+    <!-- ═══ IMAGE GALLERY ═══ -->
+    <div class="section" id="sec-gallery">
+      <div class="section-title"><i class="fas fa-images"></i> Galería de Imágenes</div>
+      <p style="font-size:10px;color:var(--mu);margin-bottom:12px">Imágenes centralizadas. Sube una vez, usa en cualquier beat o sección.</p>
+      
+      <!-- Upload bar -->
+      <div style="display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap;align-items:center">
+        <label style="background:var(--acc);color:#fff;border:none;border-radius:var(--rad);padding:6px 14px;font-size:10px;font-family:var(--fm);cursor:pointer;display:inline-flex;align-items:center;gap:4px;margin:0">
+          <i class="fas fa-cloud-upload-alt"></i> Subir
+          <input type="file" id="gallery-file-input" accept="image/*" multiple style="display:none" onchange="handleGalleryUpload(this)">
+        </label>
+        <select id="gallery-upload-type" style="font-size:10px;font-family:var(--fm);background:var(--as);color:var(--tx);border:1px solid var(--b);border-radius:var(--rad);padding:4px 8px">
+          <option value="cover">Cover</option>
+          <option value="avatar">Avatar</option>
+          <option value="banner">Banner</option>
+          <option value="other" selected>Otro</option>
+        </select>
+        <input type="text" id="gallery-upload-tags" placeholder="Tags (coma separados)" style="font-size:10px;font-family:var(--fm);background:var(--as);color:var(--tx);border:1px solid var(--b);border-radius:var(--rad);padding:4px 8px;width:160px">
+        <span id="gallery-count" style="font-size:10px;color:var(--mu);margin-left:auto"></span>
+      </div>
+      
+      <!-- Filter & search -->
+      <div style="display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap">
+        <select id="gallery-filter" onchange="renderGallery()" style="font-size:10px;font-family:var(--fm);background:var(--as);color:var(--tx);border:1px solid var(--b);border-radius:var(--rad);padding:4px 8px">
+          <option value="all">Todos</option>
+          <option value="cover">🖼 Covers</option>
+          <option value="avatar">👤 Avatars</option>
+          <option value="banner">🎌 Banners</option>
+          <option value="other">📎 Otros</option>
+        </select>
+        <div style="flex:1;position:relative">
+          <input type="text" id="gallery-search" placeholder="Buscar por nombre o tag..." oninput="renderGallery()" style="width:100%;font-size:10px;font-family:var(--fm);background:var(--as);color:var(--tx);border:1px solid var(--b);border-radius:var(--rad);padding:4px 8px 4px 26px;outline:none">
+          <span style="position:absolute;left:8px;top:50%;transform:translateY(-50%);color:var(--hi);font-size:11px">🔍</span>
+        </div>
+      </div>
+      
+      <!-- Grid -->
+      <div class="gallery-grid" id="gallery-grid"></div>
+    </div>
+
   </div><!-- end controls -->
 
   <!-- ═══ PREVIEW PANEL ═══ -->
@@ -1694,6 +1736,64 @@ if (_pf) _pf.addEventListener('load', function() { setTimeout(pushAllThemeToFram
       if (icon) icon.className = 'fas fa-expand';
       document.removeEventListener('keydown', escHandler);
     }
+  }
+})();
+</script>
+
+<!-- ═══ GALLERY PICKER MODAL ═══ -->
+<div class="gallery-picker-overlay" id="gallery-picker-overlay" onclick="if(event.target===this)closeGalleryPicker()">
+  <div class="gallery-picker-modal">
+    <div class="gallery-picker-header">
+      <span style="font-weight:700;font-size:13px">🖼️ Seleccionar imagen</span>
+      <button onclick="closeGalleryPicker()" style="background:none;border:none;color:var(--mu);cursor:pointer;font-size:16px;padding:4px">✕</button>
+    </div>
+    <div style="padding:8px 12px">
+      <div style="display:flex;gap:6px;margin-bottom:8px">
+        <div style="flex:1;position:relative">
+          <input type="text" id="gallery-picker-search" placeholder="Buscar..." oninput="renderPickerGrid()" style="width:100%;font-size:10px;font-family:var(--fm);background:var(--as);color:var(--tx);border:1px solid var(--b);border-radius:var(--rad);padding:5px 8px 5px 26px;outline:none">
+          <span style="position:absolute;left:8px;top:50%;transform:translateY(-50%);color:var(--hi);font-size:11px">🔍</span>
+        </div>
+        <label style="background:var(--acc);color:#fff;border:none;border-radius:var(--rad);padding:5px 12px;font-size:10px;font-family:var(--fm);cursor:pointer;display:inline-flex;align-items:center;gap:4px;margin:0;white-space:nowrap">
+          📤 Subir nueva
+          <input type="file" id="gallery-picker-upload" accept="image/*" style="display:none">
+        </label>
+      </div>
+    </div>
+    <div class="gallery-picker-grid" id="gallery-picker-grid"></div>
+  </div>
+</div>
+
+<!-- ═══ Inline script: wire gallery picker upload ═══ -->
+<script>
+(function() {
+  var pickerUpload = document.getElementById('gallery-picker-upload');
+  if (pickerUpload) {
+    pickerUpload.addEventListener('change', function(e) {
+      var file = e.target.files[0];
+      if (!file || !file.type.startsWith('image/')) return;
+      var reader = new FileReader();
+      reader.onload = function(ev) {
+        var url = ev.target.result;
+        // If R2 is available, upload properly
+        if (typeof window.uploadToR2 === 'function' && typeof window._r2IsEnabled === 'function' && window._r2IsEnabled()) {
+          window.uploadToR2(file, 'gallery/' + Date.now() + '-' + file.name).then(function(result) {
+            // Save to gallery
+            if (typeof window.saveUrlToGallery === 'function') {
+              window.saveUrlToGallery(result.url, file.name.replace(/\.[^.]+$/, ''), 'other', []);
+            }
+            // Also pick it
+            if (window.__pickGalleryImg) window.__pickGalleryImg(result.url);
+          }).catch(function(err) {
+            alert('Error uploading: ' + err.message);
+          });
+        } else {
+          // Fallback: use data URL and pick directly
+          if (window.__pickGalleryImg) window.__pickGalleryImg(url);
+        }
+        pickerUpload.value = '';
+      };
+      reader.readAsDataURL(file);
+    });
   }
 })();
 </script>

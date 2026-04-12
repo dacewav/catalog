@@ -117,6 +117,9 @@ function initAdmin() {
     window._db = database; // accessible from IIFEs that captured db=null at load time
     console.log('[DACE Admin] Firebase DB ready, window._db set');
 
+    // Init image gallery
+    import('./gallery.js').then(m => m.initGallery(database)).catch(e => console.warn('[gallery]', e));
+
     // Load from localStorage first
     const lt = localStorage.getItem('dace-theme');
     if (lt) setT(JSON.parse(lt));
