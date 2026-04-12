@@ -1,19 +1,16 @@
 // ═══ DACEWAV Admin — Beat Preview ═══
-// Card HTML builder, full preview renderer (iframe with store CSS), draggable preview, resize handles.
+// Card HTML builder, full preview renderer (iframe via document.write), draggable preview, resize handles.
 
 import { g, val, checked } from './helpers.js';
 import { _buildCardStyleFromInputs, SD_FMT } from './beat-card-style.js';
 
-// ═══ Store CSS cache (fetched once, reused for all iframe previews) ═══
+// ═══ Store CSS cache ═══
 var _storeCSSCache = null;
-var _storeCSSFetching = false;
 var _storeCSSCallbacks = [];
-
 function _getStoreCSS(cb) {
   if (_storeCSSCache) { cb(_storeCSSCache); return; }
   _storeCSSCallbacks.push(cb);
-  if (_storeCSSFetching) return;
-  _storeCSSFetching = true;
+  if (_storeCSSCallbacks.length > 1) return; // fetch in progress
   fetch('store-styles.css')
     .then(function(r) { return r.text(); })
     .then(function(css) {
@@ -21,21 +18,13 @@ function _getStoreCSS(cb) {
       _storeCSSCallbacks.forEach(function(c) { c(css); });
       _storeCSSCallbacks = [];
     })
-    .catch(function(err) {
-      console.warn('[Preview] Failed to load store-styles.css:', err);
+    .catch(function() {
       _storeCSSCache = '/* failed to load */';
       _storeCSSCallbacks.forEach(function(c) { c(_storeCSSCache); });
       _storeCSSCallbacks = [];
     });
 }
-
-// Start fetching immediately on load
-_getStoreCSS(function(){});
-
-// Resize iframe when Extras tab becomes visible
-document.addEventListener('extras-tab-shown', function() {
-  setTimeout(function() { _resizePvIframe(); }, 50);
-});
+_getStoreCSS(function(){}); // prefetch
 
 // ═══ Shared card HTML builder (DRY) ═══
 window._buildCardHTML = function(cs, opts) {
@@ -220,67 +209,8 @@ window._renderFullPvCard = function() {
   });
 };
 
-// ═══ Render full card in embedded container (Extras tab) — uses iframe with store CSS ═══
-var _pvIframe = null;
-var _pvIframeReady = false;
-var _pvPendingUpdate = null;
-
-// Init: create iframe once, load store CSS + fonts
-function _initPvIframe(container) {
-  if (_pvIframe) return _pvIframe;
-  _pvIframeReady = false;
-
-  _getStoreCSS(function(storeCSS) {
-    var iframe = document.createElement('iframe');
-    iframe.style.cssText = 'width:100%;border:none;display:block;background:transparent;min-height:280px';
-    iframe.setAttribute('scrolling', 'no');
-
-    // Use blob URL for same-origin iframe (allows future DOM access)
-    var html = '<!DOCTYPE html><html><head><meta charset="UTF-8">'
-      + '<link rel="preconnect" href="https://fonts.googleapis.com">'
-      + '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>'
-      + '<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">'
-      + '<style>'
-      + 'body{margin:0;padding:16px;display:flex;justify-content:center;align-items:flex-start;background:#0a0808;min-height:100vh;box-sizing:border-box}'
-      + storeCSS
-      + '</style></head><body>'
-      + '<div id="pv-card-slot"></div>'
-      + '</body></html>';
-
-    var blob = new Blob([html], { type: 'text/html' });
-    iframe.src = URL.createObjectURL(blob);
-
-    iframe.onload = function() {
-      _pvIframeReady = true;
-      // Apply pending update if any
-      if (_pvPendingUpdate) {
-        var fn = _pvPendingUpdate;
-        _pvPendingUpdate = null;
-        fn();
-      }
-      // Auto-resize
-      _resizePvIframe(iframe);
-    };
-
-    container.innerHTML = '';
-    container.appendChild(iframe);
-    _pvIframe = iframe;
-  });
-
-  return null;
-}
-
-function _resizePvIframe(iframe) {
-  if (!iframe) iframe = _pvIframe;
-  if (!iframe) return;
-  try {
-    var body = iframe.contentDocument.body;
-    var html = iframe.contentDocument.documentElement;
-    var h = Math.max(body.scrollHeight, html.scrollHeight, body.offsetHeight);
-    iframe.style.height = (h + 16) + 'px';
-  } catch(e) {}
-}
-
+// ═══ Render full card in embedded container (Extras tab) ═══
+// Uses iframe + document.write for same-origin rendering with store CSS
 window.renderFullPvInCard = function() {
   var container = document.getElementById('pv-full-card-container');
   if (!container) return;
@@ -295,33 +225,49 @@ window.renderFullPvInCard = function() {
     isExcl: checked('f-excl')
   });
 
-  function doUpdate() {
-    if (!_pvIframe || !_pvIframeReady) return;
-    try {
-      var doc = _pvIframe.contentDocument;
-      var slot = doc.getElementById('pv-card-slot');
-      if (slot) {
-        slot.innerHTML = cardHTML;
-        // Resize after content update
-        requestAnimationFrame(function() { _resizePvIframe(); });
-      }
-    } catch(e) {
-      // Cross-origin fallback: rebuild iframe
-      console.warn('[Preview] iframe access failed, rebuilding:', e);
-      _pvIframe = null;
-      _pvIframeReady = false;
-      _initPvIframe(container);
+  _getStoreCSS(function(storeCSS) {
+    // Reuse or create iframe
+    var iframe = container.querySelector('iframe');
+    if (!iframe) {
+      iframe = document.createElement('iframe');
+      iframe.style.cssText = 'width:100%;border:none;display:block;background:transparent';
+      iframe.setAttribute('scrolling', 'no');
+      iframe.setAttribute('sandbox', 'allow-same-origin');
+      container.innerHTML = '';
+      container.appendChild(iframe);
     }
-  }
 
-  if (!_pvIframe) {
-    _initPvIframe(container);
-    _pvPendingUpdate = doUpdate;
-  } else if (_pvIframeReady) {
-    doUpdate();
-  } else {
-    _pvPendingUpdate = doUpdate;
-  }
+    // document.write gives the iframe same origin — no CSP issues
+    var doc = iframe.contentDocument || iframe.contentWindow.document;
+    doc.open();
+    doc.write(
+      '<!DOCTYPE html><html><head><meta charset="UTF-8">' +
+      '<link rel="preconnect" href="https://fonts.googleapis.com">' +
+      '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>' +
+      '<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">' +
+      '<style>' +
+      'body{margin:0;padding:16px 8px;display:flex;justify-content:center;background:#0a0808}' +
+      storeCSS +
+      '</style>' +
+      '</head><body>' + cardHTML + '</body></html>'
+    );
+    doc.close();
+
+    // Auto-resize after render
+    iframe.onload = function() {
+      try {
+        var h = Math.max(doc.body.scrollHeight, doc.documentElement.scrollHeight);
+        iframe.style.height = (h + 16) + 'px';
+      } catch(e) {}
+    };
+    // Also resize shortly after write (onload might not fire for document.write)
+    setTimeout(function() {
+      try {
+        var h = Math.max(doc.body.scrollHeight, doc.documentElement.scrollHeight);
+        if (h > 10) iframe.style.height = (h + 16) + 'px';
+      } catch(e) {}
+    }, 100);
+  });
 };
 
 // ═══ Detach/attach preview ═══
