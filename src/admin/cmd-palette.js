@@ -1,8 +1,9 @@
 // ═══ DACEWAV Admin — Command Palette & Keyboard Shortcuts ═══
 import { g } from './helpers.js';
 import { showSection } from './nav.js';
-import { saveAll, toggleFullscreenPreview } from './core.js';
+import { saveAll } from './core.js';
 import { undo, redo } from './undo.js';
+import { toggleFullscreenPreview } from './fullscreen.js';
 import { openBatchImg } from './beats.js';
 
 const CMD_ITEMS = [];
