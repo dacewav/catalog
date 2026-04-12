@@ -1,5 +1,53 @@
 # Catalog Project Memory
 
+## 2026-04-13 (sesión 2) — Glow system fix, Live edit sync, Papelera audio
+
+### Problemas resueltos
+
+**6. admin-batch-update no aplicaba tema/settings (CRÍTICO)**
+- `src/main.js` handler `admin-batch-update` guardaba `state.T = d.theme` pero nunca llamaba `applyTheme()` ni `applySettings()`
+- Cambios de colores, glow global, tipografía, etc. quedaban en memoria sin renderizar
+- Mismo problema en handlers individuales `theme-update` y `settings-update`
+- Fix: agregar `applyTheme(state.T)`, `applySettings()` y `renderAll()` cuando data cambia
+- Archivo: `src/main.js` líneas ~139-175
+
+**7. Glow per-beat — CSS vars ignoradas en keyframes**
+- Keyframes CSS (`beat-glow`, `beat-glow-pulse`, `beat-glow-breathe`, `beat-glow-neon`, `beat-glow-rgb`) tenían blur hardcoded a 20px, spread 0px
+- `--glow-int` y `--glow-op` NUNCA se usaban en los keyframes → sliders sin efecto
+- Fix: reescritos todos los keyframes para usar `var(--glow-blur)`, `var(--glow-spread)`, `calc(alfa * var(--glow-int) * var(--glow-op))`
+- Aplicado en `store-styles.css` Y `admin-styles.css` (keyframes `bcpv-glow-*`)
+- Archivos: `store-styles.css` (keyframes beat-glow-*), `admin-styles.css` (keyframes bcpv-glow-*)
+
+**8. glow-hover-only referenciaba keyframes inexistentes**
+- `store-styles.css` usaba `bcpv-glow-pulse`, `bcpv-glow-rgb`, etc. que solo existían en admin-styles
+- Fix: cambiados a `beat-glow-*` que sí están definidos en store-styles
+- Archivo: `store-styles.css` línea ~724
+
+**9. Papelera conectada a audio y preview**
+- Tab Media solo tenía botón de upload, sin botón de borrar/papelera para audio y preview
+- Fix: agregados botones 🗑 junto a Audio WAV y Preview MP3 que llaman `trashItem()` con type `'audio'`/`'preview'`
+- Archivo: `admin.html` líneas ~562-563
+
+**10. beatCard() glow blur siempre seteado**
+- `src/cards.js` condicionaba `--glow-blur` con `gc.blur !== 20` → si el usuario ponía 20px no se seteaba
+- Fix: quitar la condición, siempre setear si existe el valor
+- Archivo: `src/cards.js` línea ~72
+
+### Pendientes (re-sesión)
+- [ ] Animaciones en Media tab — no se pudo reproducir. Queda para investigar si reaparece.
+- [ ] El sync a Firebase de imágenes grandes (base64) puede ser lento
+- [ ] Tests de glow con CSS vars (no hay tests de CSS output todavía)
+
+### Commit
+`5c47f5d` — "fix: glow system + live edit sync + papelera audio/preview"
+
+### Archivos clave (adicionales a los de sesión 1)
+- `src/main.js` — handler `admin-batch-update` fix (applyTheme/applySettings)
+- `store-styles.css` — keyframes glow reescritos con CSS vars
+- `admin-styles.css` — keyframes bcpv-glow reescritos con CSS vars
+
+---
+
 ## 2026-04-13 — Sesión completa: Preview, Sync, Imágenes, Trash
 
 ### Resumen de cambios
