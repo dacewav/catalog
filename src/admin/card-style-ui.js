@@ -625,3 +625,30 @@ window.__applyFxPreset = function(presetId, prefix) {
     if (section) section.dispatchEvent(new Event('input', { bubbles: true }));
   }
 };
+
+// ═══ Universal slider → preview bridge ═══
+// Catches ALL range/slider input events and routes to the correct preview function.
+// This ensures dynamically generated sliders (from renderFiltersHTML, renderGlowHTML, etc.)
+// always trigger a preview update, even if their oninput only calls sv(this).
+document.addEventListener('input', function(e) {
+  if (e.target.type !== 'range' && e.target.type !== 'color') return;
+  var id = e.target.id || '';
+  if (id.startsWith('f-')) {
+    if (typeof window.updateCardPreview === 'function') window.updateCardPreview();
+  } else if (id.startsWith('g-')) {
+    var section = document.getElementById('sec-card-global');
+    if (section) section.dispatchEvent(new Event('input', { bubbles: true }));
+  }
+});
+
+// Also catch select changes and checkbox changes in the generated controls
+document.addEventListener('change', function(e) {
+  var id = e.target.id || '';
+  // Only handle f-/g- prefixed controls (beat editor or global card style)
+  if (id.startsWith('f-') && (e.target.type === 'checkbox' || e.target.tagName === 'SELECT')) {
+    if (typeof window.updateCardPreview === 'function') window.updateCardPreview();
+  } else if (id.startsWith('g-') && (e.target.type === 'checkbox' || e.target.tagName === 'SELECT')) {
+    var section = document.getElementById('sec-card-global');
+    if (section) section.dispatchEvent(new Event('input', { bubbles: true }));
+  }
+});
