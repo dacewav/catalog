@@ -34,9 +34,10 @@ git pull
 ---
 
 ## Estado actual (última actualización: 2026-04-13)
-- ✅ Bloque 1-5 completados (cache busting, undo, gradient, changelog, floating)
-- core.js: 1405 → 1271 líneas
-- ⏳ Bloque 6: Snapshots + Diff → snapshots.js (SIGUIENTE)
+- ✅ Bloque 1-7 completados (cache busting, undo, gradient, changelog, floating, snapshots, emojis)
+- core.js: 1405 → 1175 líneas (-230, -41%)
+- Nuevos módulos: undo.js, gradient.js, changelog.js, floating.js, snapshots.js, emojis.js
+- ⏳ Bloque 8: Export/Import → export.js (SIGUIENTE)
 - Branch: `fix-panel-overlap`
 - Build: `npm install && node build.js`
 
