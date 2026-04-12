@@ -719,6 +719,9 @@ body > * { position: relative; z-index: 1; }
 .et.on { color: var(--tx); border-bottom-color: var(--acc); }
 .etp { display: none !important; }
 .etp.on { display: block !important; }
+/* Belt-and-suspenders: even if display:none fails due to cascade, children stay invisible */
+.etp:not(.on) > * { visibility: hidden !important; }
+.etp.on > * { visibility: visible !important; }
 
 /* ═══ LICENCE EDITOR ═══ */
 .lic-ed, .lic-row {
