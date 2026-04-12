@@ -1,8 +1,36 @@
 // ═══ DACEWAV Admin — Beat Preview ═══
-// Card HTML builder, full preview renderer, draggable preview, resize handles.
+// Card HTML builder, full preview renderer (iframe with store CSS), draggable preview, resize handles.
 
 import { g, val, checked } from './helpers.js';
 import { _buildCardStyleFromInputs, SD_FMT } from './beat-card-style.js';
+
+// ═══ Store CSS cache (fetched once, reused for all iframe previews) ═══
+var _storeCSSCache = null;
+var _storeCSSFetching = false;
+var _storeCSSCallbacks = [];
+
+function _getStoreCSS(cb) {
+  if (_storeCSSCache) { cb(_storeCSSCache); return; }
+  _storeCSSCallbacks.push(cb);
+  if (_storeCSSFetching) return;
+  _storeCSSFetching = true;
+  fetch('store-styles.css')
+    .then(function(r) { return r.text(); })
+    .then(function(css) {
+      _storeCSSCache = css;
+      _storeCSSCallbacks.forEach(function(c) { c(css); });
+      _storeCSSCallbacks = [];
+    })
+    .catch(function(err) {
+      console.warn('[Preview] Failed to load store-styles.css:', err);
+      _storeCSSCache = '/* failed to load */';
+      _storeCSSCallbacks.forEach(function(c) { c(_storeCSSCache); });
+      _storeCSSCallbacks = [];
+    });
+}
+
+// Start fetching immediately on load
+_getStoreCSS(function(){});
 
 // ═══ Shared card HTML builder (DRY) ═══
 window._buildCardHTML = function(cs, opts) {
@@ -187,11 +215,12 @@ window._renderFullPvCard = function() {
   });
 };
 
-// ═══ Render full card in embedded container (Extras tab) ═══
+// ═══ Render full card in embedded container (Extras tab) — uses iframe with store CSS ═══
 window.renderFullPvInCard = function() {
   var container = document.getElementById('pv-full-card-container');
   if (!container) return;
-  container.innerHTML = window._buildCardHTML(_buildCardStyleFromInputs(), {
+
+  var cardHTML = window._buildCardHTML(_buildCardStyleFromInputs(), {
     name: val('f-name') || 'Nombre del Beat',
     bpm: val('f-bpm') || '140',
     key: val('f-key') || 'Am',
@@ -199,6 +228,42 @@ window.renderFullPvInCard = function() {
     imgUrl: val('f-img'),
     tags: (val('f-tags') || '').split(',').map(function(t) { return t.trim(); }).filter(Boolean),
     isExcl: checked('f-excl')
+  });
+
+  _getStoreCSS(function(storeCSS) {
+    var html = '<!DOCTYPE html><html><head><meta charset="UTF-8">'
+      + '<link rel="preconnect" href="https://fonts.googleapis.com">'
+      + '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>'
+      + '<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">'
+      + '<style>'
+      + 'body{margin:0;padding:20px;display:flex;justify-content:center;align-items:flex-start;background:#0a0808;min-height:100vh;box-sizing:border-box}'
+      + storeCSS
+      + '</style></head><body>'
+      + cardHTML
+      + '</body></html>';
+
+    // Reuse existing iframe or create new
+    var iframe = container.querySelector('iframe');
+    if (!iframe) {
+      iframe = document.createElement('iframe');
+      iframe.style.cssText = 'width:100%;border:none;display:block;background:transparent;min-height:300px';
+      iframe.setAttribute('scrolling', 'no');
+      container.innerHTML = '';
+      container.appendChild(iframe);
+    }
+
+    // Use srcdoc for same-origin access
+    iframe.srcdoc = html;
+
+    // Auto-resize iframe to content height
+    iframe.onload = function() {
+      try {
+        var body = iframe.contentDocument.body;
+        var html = iframe.contentDocument.documentElement;
+        var h = Math.max(body.scrollHeight, html.scrollHeight);
+        iframe.style.height = (h + 20) + 'px';
+      } catch(e) {}
+    };
   });
 };
 
