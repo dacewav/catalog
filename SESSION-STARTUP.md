@@ -34,9 +34,10 @@ git pull
 ---
 
 ## Estado actual (última actualización: 2026-04-13)
-- ✅ core.js: 1405 → 463 líneas (-942, -67%)
-- 13 módulos extraídos: undo, gradient, changelog, floating, snapshots, emojis, text-colorizer, glow, hero-preview, particles, fullscreen, export, theme-presets
-- ⏳ Quedan en core.js (463): auto-save, broadcast, collectTheme, loadThemeUI, loadSettingsUI, setupHeroSync, toggle functions, window assignments
+- ✅ core.js (admin): 1405 → 463 líneas (-942, -67%)
+- 13 módulos extraídos del admin
+- ⏳ Admin: quedan auto-save, broadcast, collectTheme, loadThemeUI (~463 líneas)
+- ⏳ Store: SIN optimizar aún (src/main.js 474, cards.js 525, effects.js 346, etc — 2952 líneas total)
 - Branch: `fix-panel-overlap`
 - Build: `npm install && node build.js`
 

@@ -1,7 +1,8 @@
-# DACEWAV Admin — Refactor Master Plan
+# DACEWAV — Refactor Master Plan (Admin + Store)
 
 ## Objetivo
-Simplificar el admin sin cambiar funcionalidad. Menos bugs, más mantenible.
+Simplificar TODO el código sin cambiar funcionalidad. Admin Y Store optimizados.
+Menos bugs, más mantenible, código que coincida entre ambos lados.
 
 ## Reglas
 - **Cada bloque se testea en browser ANTES de pasar al siguiente**
@@ -101,3 +102,62 @@ Test showEt, openEditor, saveBeat, prevImg.
 | src/admin/card-style-ui.js | ~400 | Style control generator |
 | src/admin/beat-card-style.js | ~200 | Card style reader |
 | src/admin/beat-preview.js | ~400 | Preview + image history |
+
+
+---
+
+# 🛒 STORE — Optimización (SIGUIENTE DESPUÉS DEL ADMIN)
+
+## Estado: SIN optimizar (2952 líneas en 15 archivos)
+
+## Archivos de la store
+| Archivo | Líneas | Rol |
+|---------|--------|-----|
+| src/main.js | 474 | Entry point + Firebase sync + live edit |
+| src/cards.js | 525 | Card render + modal + OG tags |
+| src/effects.js | 346 | Animations, tilt, counters, particles |
+| src/player.js | 277 | Audio player |
+| src/settings.js | 280 | Site settings + floating elements render |
+| src/theme.js | 230 | Theme CSS application |
+| src/filters.js | 224 | Advanced filters + tag cloud |
+| src/waveform.js | 126 | Waveform bars |
+| src/wishlist.js | 110 | Wishlist system |
+| src/hash-router.js | 91 | Hash-based routing |
+| src/analytics.js | 72 | Firebase analytics |
+| src/error-handler.js | 72 | Error handling |
+| src/utils.js | 67 | Helpers |
+| src/state.js | 34 | Global state |
+| src/config.js | 24 | Constants |
+| store-styles.css | 762 | All store CSS |
+
+## Bloques de optimización store
+
+### Store-1: main.js — reducir (474 líneas)
+- El sync de Firebase (liveEdits listener) es la parte más grande
+- Separar live-edit sync a `src/live-edit.js`
+- Separar banner/stats a `src/store-init.js`
+
+### Store-2: cards.js — reducir (525 líneas)
+- `beatCard()` es la función más grande (render de card HTML)
+- `openModal()` tiene mucho HTML inline
+- Separar modal a `src/modal.js`
+- Separar OG tags a `src/og-tags.js`
+
+### Store-3: effects.js — reducir (346 líneas)
+- Particles, tilt, counters, stagger observer
+- Separar particles a `src/particles.js`
+- Separar tilt + stagger a `src/card-effects.js`
+
+### Store-4: Limpiar CSS
+- store-styles.css tiene 762 líneas con muchos keyframes
+- Los keyframes de glow son duplicados del admin
+- Verificar que no hay !important wars
+
+### Store-5: Nombres consistentes admin↔store
+- Admin usa `name`, store debería usar `name` (no `title`)
+- Admin usa `imageUrl`, store debería usar `imageUrl` (no `coverUrl`)
+- Verificar que Firebase data model es consistente
+
+### Store-6: Tests
+- Ya hay tests para filters, cards, player, utils
+- Agregar tests para modal, wishlist, live-edit sync
