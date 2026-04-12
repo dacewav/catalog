@@ -4,7 +4,7 @@
 
 import { db, allBeats, setAllBeats, editId, setEditId, defLics, _edLics, setEdLics, _dragBeatId, setDragBeatId, _batchImgQueue, setBatchImgQueue } from './state.js';
 import { g, val, setVal, checked, setChecked, showToast, showSaving, confirmInline, promptInline, fmt } from './helpers.js';
-import { showSection } from './nav.js';
+import { showSection, showEt } from './nav.js';
 import { autoSave, postToFrame } from './core.js';
 import { siteSettings } from './state.js';
 import { R2_ENABLED, uploadToR2 } from './r2.js';
@@ -272,12 +272,8 @@ export function openEditor(id) {
   updateCardPreview();
   // Render full card preview in container
   if (typeof window.renderFullPvInCard === 'function') window.renderFullPvInCard();
-  // Reset tabs to first — use inline styles for reliability
-  document.querySelectorAll('#sec-add .et').forEach((t, i) => t.classList.toggle('on', i === 0));
-  document.querySelectorAll('#sec-add .etp').forEach((p, i) => {
-    p.classList.toggle('on', i === 0);
-    p.style.display = i === 0 ? 'block' : 'none';
-  });
+  // Reset tabs to first — use showEt for reliable panel switching
+  showEt('info');
 }
 
 // License Editor

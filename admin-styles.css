@@ -717,8 +717,8 @@ body > * { position: relative; z-index: 1; }
 }
 .et:hover { color: var(--hi); }
 .et.on { color: var(--tx); border-bottom-color: var(--acc); }
-.etp { display: none !important; }
-.etp.on { display: block !important; }
+.etp { display: none; }
+.etp.on { display: block; }
 /* Belt-and-suspenders: even if display:none fails due to cascade, children stay invisible */
 .etp:not(.on) > * { visibility: hidden !important; }
 .etp.on > * { visibility: visible !important; }
