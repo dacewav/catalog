@@ -301,7 +301,7 @@ nav.nav-scrolled{background:rgba(6,4,4,0.95);border-bottom-color:rgba(185,28,28,
 .beat-card{position:relative;border-radius:var(--card-radius,var(--r-lg));overflow:hidden;cursor:pointer;transition:transform .35s cubic-bezier(.4,0,.2,1),box-shadow .35s}
 .beat-card::before{display:none}
 .beat-card[class*="anim2-"]::before{display:block}
-.beat-card-inner{background:var(--surface);border:1px solid var(--border);border-radius:var(--card-radius,var(--r-lg));height:100%;transition:border-color .35s,box-shadow .35s;box-shadow:var(--card-shadow);transform-style:preserve-3d;will-change:transform;display:flex;flex-direction:column}
+.beat-card-inner{background:var(--surface);border:1px solid var(--border);border-radius:var(--card-radius,var(--r-lg));overflow:hidden;height:100%;transition:border-color .35s,box-shadow .35s;box-shadow:var(--card-shadow);transform-style:preserve-3d;will-change:transform;display:flex;flex-direction:column}
 .beat-card:hover .beat-card-inner{border-color:rgba(185,28,28,0.35)}
 .beat-card:not(.has-custom-shadow):hover .beat-card-inner{box-shadow:0 20px 60px rgba(0,0,0,0.4),0 0 30px rgba(185,28,28,0.08)}
 .beat-card.is-playing .beat-card-inner{border-color:rgba(185,28,28,0.9);box-shadow:var(--glow-md)}
