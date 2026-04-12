@@ -569,23 +569,16 @@ definen géneros.</textarea></div>
       </div>
       <div class="etp" id="etp-extras">
 
-        <!-- Preview Card — Store-matched preview with image upload -->
-        <div class="card" id="pv-card-embed" class="mb-md">
-          <div class="card-title" onclick="toggleCard(this)" style="position:relative">
-            <span>👁️ Vista previa</span>
-            <div style="display:flex;gap:4px;align-items:center;margin-left:auto;margin-right:8px">
-              <label for="pv-img-upload" title="Subir imagen" style="background:none;border:1px solid var(--b);border-radius:4px;color:var(--mu);cursor:pointer;font-size:10px;padding:2px 8px;font-family:var(--fm);display:inline-flex;align-items:center;gap:4px;margin:0;transition:all .2s" onmouseenter="this.style.borderColor='var(--acc)';this.style.color='var(--acc)'" onmouseleave="this.style.borderColor='var(--b)';this.style.color='var(--mu)'">📸 Imagen</label>
+        <!-- Preview indicator — real preview lives in the iframe panel on the right -->
+        <div class="card" id="pv-card-embed">
+          <div class="card-body" style="text-align:center;padding:16px">
+            <div style="font-size:20px;margin-bottom:6px">👁️</div>
+            <div style="font-size:11px;color:var(--tx);font-weight:600;margin-bottom:4px">Vista previa en tiempo real</div>
+            <div style="font-size:9px;color:var(--mu);line-height:1.5">Los cambios se reflejan automáticamente en el panel de la derecha →<br>Sube imagen con el botón 📸 aquí abajo</div>
+            <div style="margin-top:10px;display:flex;justify-content:center;gap:6px">
+              <label for="pv-img-upload" style="background:var(--as2);border:1px solid var(--b);border-radius:var(--rad);color:var(--tx);cursor:pointer;font-size:10px;padding:6px 14px;font-family:var(--fm);display:inline-flex;align-items:center;gap:4px;margin:0;transition:all .2s" onmouseenter="this.style.borderColor='var(--acc)';this.style.color='var(--acc)'" onmouseleave="this.style.borderColor='var(--b)';this.style.color='var(--tx)'">📸 Subir imagen</label>
               <input type="file" id="pv-img-upload" accept="image/*" style="display:none">
-              <button onclick="event.stopPropagation();toggleDetachPv()" id="pv-detach-btn" title="Desprender/adjuntar" style="background:none;border:1px solid var(--b);border-radius:4px;color:var(--mu);cursor:pointer;font-size:10px;padding:2px 8px;font-family:var(--fm)">📌 Fijado</button>
             </div>
-            <i class="fas fa-chevron-down"></i>
-          </div>
-          <div class="card-body" id="pv-card-body">
-            <!-- Store-matched card preview (uses same _buildCardHTML as the store) -->
-            <div style="display:flex;justify-content:center">
-              <div id="pv-full-card-container" style="max-width:320px;width:100%"></div>
-            </div>
-            <div style="font-size:9px;color:var(--mu);margin-top:8px;text-align:center;font-family:var(--fm);text-transform:uppercase;letter-spacing:.06em">↑ Tarjeta idéntica a la tienda · Sube imagen con el botón 📸</div>
           </div>
         </div>
 

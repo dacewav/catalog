@@ -1,41 +1,9 @@
 // ═══ DACEWAV Admin — Beat Preview ═══
-// Card HTML builder, full preview renderer, draggable preview, resize handles.
+// Card HTML builder (used by _renderFullPvCard for floating preview), draggable preview, resize handles.
+// NOTE: The main preview lives in the iframe panel (preview-frame). The mini preview was removed.
 
 import { g, val, checked } from './helpers.js';
 import { _buildCardStyleFromInputs, SD_FMT } from './beat-card-style.js';
-
-// ═══ Load store CSS scoped to preview container (once) ═══
-(function _injectStoreCSS() {
-  fetch('store-styles.css')
-    .then(function(r) { return r.text(); })
-    .then(function(css) {
-      // Scope all rules to #pv-full-card-container to avoid conflicts with admin CSS
-      // Skip global selectors: *, html, body, :root
-      var scoped = css
-        // Remove @charset, @import
-        .replace(/@charset[^;]+;/g, '')
-        .replace(/@import[^;]+;/g, '')
-        // Scope @keyframes (they're global but don't conflict)
-        // Scope all other selectors
-        .replace(/([^{}@]+)\{/g, function(match, selector) {
-          var sel = selector.trim();
-          // Skip @-rules selectors
-          if (sel.startsWith('@')) return match;
-          // Skip * (too broad)
-          if (sel === '*' || sel === '*,*' || sel.match(/^\*\s*,\s*\*/)) return match;
-          // Prefix with container
-          return '#pv-full-card-container ' + selector + '{';
-        });
-
-      var style = document.createElement('style');
-      style.id = 'store-card-pv-styles';
-      style.textContent = scoped;
-      document.head.appendChild(style);
-    })
-    .catch(function(err) {
-      console.warn('[Preview] Could not load store-styles.css:', err);
-    });
-})();
 
 // ═══ Shared card HTML builder (DRY) ═══
 window._buildCardHTML = function(cs, opts) {
@@ -220,20 +188,8 @@ window._renderFullPvCard = function() {
   });
 };
 
-// ═══ Render full card in embedded container (Extras tab) ═══
-window.renderFullPvInCard = function() {
-  var container = document.getElementById('pv-full-card-container');
-  if (!container) return;
-  container.innerHTML = window._buildCardHTML(_buildCardStyleFromInputs(), {
-    name: val('f-name') || 'Nombre del Beat',
-    bpm: val('f-bpm') || '140',
-    key: val('f-key') || 'Am',
-    genre: g('f-genre') ? g('f-genre').value : 'Trap',
-    imgUrl: val('f-img'),
-    tags: (val('f-tags') || '').split(',').map(function(t) { return t.trim(); }).filter(Boolean),
-    isExcl: checked('f-excl')
-  });
-};
+// ═══ Mini preview removed — real preview lives in the iframe panel (preview-frame) ═══
+window.renderFullPvInCard = function() {};
 
 // ═══ Detach/attach preview ═══
 var pvDetached = false;
