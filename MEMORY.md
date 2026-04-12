@@ -1,162 +1,72 @@
 # Catalog Project Memory
 
-## ⚠️ LECCIÓN CRÍTICA — Panel Overlap (2026-04-13 sesión 4)
-
-### El bug que no se iba (4 intentos)
-Los paneles del editor de beats (Animación 2, Estilo de Tarjeta, Glow, Hover, etc.) aparecían en TODAS las pestañas (Info, Media, Plat) en vez de solo en Extras.
-
-### Por qué fallé 3 veces
-1. **Intento 1**: Cambié CSS (`!important` → sin `!important`). No era un problema de CSS.
-2. **Intento 2**: Usé `showEt('info')` en `openEditor`. No era un problema de JS.
-3. **Intento 3**: Quité un `</div>` de admin.html "para mover los panels adentro de etp-extras". Ese `</div>` era el que cerraba `sec-add`, NO `etp-extras`. Resultado: TODAS las secciones (elements, animations, themes, settings, etc.) quedaron DENTRO de `sec-add`, haciendo el bug 10x peor.
-
-### La causa real
-En admin.html, `etp-extras` cerraba en línea 896, pero los paneles de estilo/animación estaban en líneas 897-1081. Estaban DENTRO de `sec-add` pero FUERA de `etp-extras`. Como solo los `.etp` divs tienen `display:none/block` por CSS, los paneles fuera de `.etp` eran siempre visibles.
-
-### El fix correcto
-- Quitar el `</div>` que cerraba `etp-extras` prematuramente (línea 896 original)
-- Agregar un `</div>` para cerrar `sec-add` donde antes cerraba `etp-extras`
-- Resultado: `etp-extras` ahora cierra en la línea 1084 (contiene todos los panels huérfanos), `sec-add` cierra en 1085
-
-### REGLA PARA FUTURO
-**NUNCA tocar el HTML sin verificar la estructura de nesting después.** Siempre ejecutar el script de auditoría de nesting después de cualquier cambio al HTML:
-```python
-# Verificar que cada .etp y .section cierra correctamente
-# y que no hay nesting roto
-```
-
-### Patrón de debugging correcto
-1. **ENTENDER EL BUG primero** — preguntar al usuario qué exactamente pasa
-2. **No asumir** — las imágenes pueden ser engañosas
-3. **Verificar estructura DOM** antes de tocar CSS o JS
-4. **Auditoría después de cada fix** — verificar nesting, no asumir que funcionó
+## 🧠 Instrucciones para futuras sesiones
+- **Guardar memorias importantes** en `memory/YYYY-MM-DD.md` al final de cada sesión
+- **Actualizar pendientes**: cuando un bug se resuelva, moverlo a "Resueltos" con el commit
+- **Actualizar este MEMORY.md** con lecciones aprendidas y estado actual
+- No acumular bugs pendientes sin resolver — si no se puede reproducir, documentar condiciones
+- Borrar de pendientes lo que ya se resolvió
 
 ---
 
-## 2026-04-13 (sesión 3) — Image history + glow investigation (WIP)
+## Estado actual
 
-### Cambios
-- `prevImg()` ahora llama `_addImgToHistory()` para que URLs pegadas/escritas también se guardan en historial (antes solo subidas por file picker)
-- Archivo: `src/admin/beats.js` — 1 línea
-
-### Issues investigándose (no resueltos aún)
-- **Glow no visible en iframe preview** — admin `.bcpv` preview funciona, pero el store iframe no muestra glow tras live edit. Falta verificar si `liveEdits` Firebase listener recibe datos en el iframe
-- **CSS filters aparecen en Media tab** — estructura HTML es correcta, puede ser browser cache o rendering issue. Se tomó screenshot para debug
-- **Media tab animaciones** — controles de animación aparecen donde no deberían. Bug intermitente, no reproducible consistentemente
-
-### Pendientes (estado actual)
-- [ ] Verificar glow en iframe preview (live edit → store)
-- [ ] Investigar CSS filters en Media tab (browser cache?)
-- [ ] Shimmer/Shadow/Hover en la tienda — CSS specificity issue
-- [ ] CDN CORS — `cdn.dacewav.store` sin `Access-Control-Allow-Origin`
-- [ ] Firebase Analytics — `PERMISSION_DENIED` en `/analytics/*`
-- [ ] core.js modularizar (1405 líneas)
-
----
-
-## 2026-04-13 (sesión 2) — Glow system fix, Live edit sync, Papelera audio
-
-### Problemas resueltos
-
-**6. admin-batch-update no aplicaba tema/settings (CRÍTICO)**
-- `src/main.js` handler `admin-batch-update` guardaba `state.T = d.theme` pero nunca llamaba `applyTheme()` ni `applySettings()`
-- Cambios de colores, glow global, tipografía, etc. quedaban en memoria sin renderizar
-- Mismo problema en handlers individuales `theme-update` y `settings-update`
-- Fix: agregar `applyTheme(state.T)`, `applySettings()` y `renderAll()` cuando data cambia
-- Archivo: `src/main.js` líneas ~139-175
-
-**7. Glow per-beat — CSS vars ignoradas en keyframes**
-- Keyframes CSS (`beat-glow`, `beat-glow-pulse`, `beat-glow-breathe`, `beat-glow-neon`, `beat-glow-rgb`) tenían blur hardcoded a 20px, spread 0px
-- `--glow-int` y `--glow-op` NUNCA se usaban en los keyframes → sliders sin efecto
-- Fix: reescritos todos los keyframes para usar `var(--glow-blur)`, `var(--glow-spread)`, `calc(alfa * var(--glow-int) * var(--glow-op))`
-- Aplicado en `store-styles.css` Y `admin-styles.css` (keyframes `bcpv-glow-*`)
-- Archivos: `store-styles.css` (keyframes beat-glow-*), `admin-styles.css` (keyframes bcpv-glow-*)
-
-**8. glow-hover-only referenciaba keyframes inexistentes**
-- `store-styles.css` usaba `bcpv-glow-pulse`, `bcpv-glow-rgb`, etc. que solo existían en admin-styles
-- Fix: cambiados a `beat-glow-*` que sí están definidos en store-styles
-- Archivo: `store-styles.css` línea ~724
-
-**9. Papelera conectada a audio y preview**
-- Tab Media solo tenía botón de upload, sin botón de borrar/papelera para audio y preview
-- Fix: agregados botones 🗑 junto a Audio WAV y Preview MP3 que llaman `trashItem()` con type `'audio'`/`'preview'`
-- Archivo: `admin.html` líneas ~562-563
-
-**10. beatCard() glow blur siempre seteado**
-- `src/cards.js` condicionaba `--glow-blur` con `gc.blur !== 20` → si el usuario ponía 20px no se seteaba
-- Fix: quitar la condición, siempre setear si existe el valor
-- Archivo: `src/cards.js` línea ~72
-
-### Pendientes (re-sesión)
-- [ ] Animaciones en Media tab — no se pudo reproducir. Queda para investigar si reaparece.
-- [ ] El sync a Firebase de imágenes grandes (base64) puede ser lento
-- [ ] Tests de glow con CSS vars (no hay tests de CSS output todavía)
-
-### Commit
-`5c47f5d` — "fix: glow system + live edit sync + papelera audio/preview"
-
-### Archivos clave (adicionales a los de sesión 1)
-- `src/main.js` — handler `admin-batch-update` fix (applyTheme/applySettings)
-- `store-styles.css` — keyframes glow reescritos con CSS vars
-- `admin-styles.css` — keyframes bcpv-glow reescritos con CSS vars
-
----
-
-## 2026-04-13 — Sesión completa: Preview, Sync, Imágenes, Trash
-
-### Resumen de cambios
-Sesión larga con múltiples iteraciones sobre el preview de tarjetas y sistema de imágenes.
-
-### Problemas resueltos
-
-**1. beat-preview.js nunca importado**
-- `admin-main.js` no importaba `beat-preview.js` → `renderFullPvInCard` nunca existía
-- Fix: `import './admin/beat-preview.js'` en admin-main.js
-
-**2. Live update no se disparaba desde sliders generados**
-- `card-style-ui.js` genera sliders con `oninput="sv(this)"` que NO llamaban `updateCardPreview()`
-- Fix: listener global en `card-style-ui.js` que captura input/change en controles `f-` y `g-`
-
-**3. Mini preview eliminado**
-- `_buildCardHTML()` era copia simplificada de `beatCard()` del store — nunca iba a ser idéntica
-- Decisión: eliminar mini preview, usar solo el iframe de la derecha (`preview-frame`)
-- El tab Extras ahora muestra indicador + botón de upload de imagen
-
-**4. Sistema de imágenes**
-- Preview inmediato al subir imagen (FileReader)
-- Historial mini con thumbnails (hasta 8, con X para quitar)
-- Botón "Papelera" mueve imagen a trash en vez de borrar directo
-- `_sendLiveUpdate()` se llama automáticamente desde `updateCardPreview()` y `prevImg()`
-
-**5. Papelera (Trash)**
-- Nueva sección `#sec-trash` en sidebar
-- `src/admin/trash.js` — localStorage, restore, delete perm, filters
-- Badge en sidebar muestra cantidad de elementos
+### Arquitectura de deploy
+- **Hosting**: Cloudflare Pages (lee de GitHub, sirve estáticos)
+- **Headers**: `_headers` (formato Cloudflare Pages) — CSP, security
+- **Build**: Local (`npm run build`), dist/ commiteado a git
+- **CDN**: Cloudflare (frente al site)
+- **Vercel**: desconectado del repo
 
 ### Pendientes
-- [ ] Animaciones en Media tab — el usuario reporta controles de animación apareciendo en el tab Media. No se pudo reproducir/aislar el bug. Investigar en siguiente sesión.
-- [ ] Conectar trash a audios y previews (solo imágenes por ahora)
-- [ ] El sync a Firebase de imágenes grandes (base64) puede ser lento
+- [ ] Glow no visible en iframe preview (live edit → store)
+- [ ] CSS filters aparecen en Media tab (posible browser cache)
+- [ ] Shimmer/Shadow/Hover en la tienda — CSS specificity
+- [ ] CDN CORS — `cdn.dacewav.store` sin Access-Control-Allow-Origin
+- [ ] Firebase Analytics — PERMISSION_DENIED en `/analytics/*`
+- [ ] Migrar onclick inline → addEventListener (beats.js primero)
+- [ ] Tests básicos admin (showEt, openEditor, saveBeat, prevImg)
 
-### Arquitectura de live update (final)
-```
-Slider/control cambia
-  → oninput="sv(this)" (display update)
-  → document 'input' listener (card-style-ui.js)
-  → updateCardPreview()
-    → _buildCardStyleFromInputs() [lee valores]
-    → _sendLiveUpdate() debounced (300ms)
-      → postMessage → preview-frame iframe
-      → Firebase liveEdits/{beatId}
-    → renderFullPvInCard() [no-op, preview eliminado]
-```
+---
 
-### Archivos clave
-- `src/admin/beats.js` — CRUD beats, editor, uploads, prevImg, live edit
-- `src/admin/beat-card-style.js` — updateCardPreview, _buildCardStyleFromInputs
-- `src/admin/beat-preview.js` — _buildCardHTML, renderFullPvInCard (no-op), image upload handler
-- `src/admin/card-style-ui.js` — effect gallery, generated controls, universal slider listener
-- `src/admin/trash.js` — papelera
-- `src/admin/nav.js` — showSection, showEt
-- `src/cards.js` — store's beatCard() (the REAL renderer)
-- `src/main.js` — store's live edit receiver
+## ⚠️ Lecciones críticas
+
+### Nunca tocar HTML sin verificar nesting (sesión 4)
+Mover divs en admin.html sin verificar el árbol DOM después causó que paneles huérfanos aparecieran en todas las pestañas. 4 intentos fallidos porque no verifiqué la estructura.
+**Regla**: después de cualquier cambio al HTML, verificar nesting de `.etp` y `.section`.
+
+### Nunca clonar un repo dentro de sí mismo (sesión 5)
+Clonar el repo en `catalog/catalog` creó un submodule huérfano que rompió Cloudflare Pages. `fatal: No url found for submodule path 'catalog' in .gitmodules`
+
+### Verificar CI logs antes de asumir deploy correcto (sesión 5)
+El CDN servía HTML cacheado por horas. El hash en el HTML (`7b96efbe`) no coincidía con el commit (`f3598870`). Solo se resolvió revisando el build log de Cloudflare Pages.
+
+### Depurar el bundle, no el botón (sesión 5)
+El error `doGoogleLogin is not defined` parecía un problema de auth, pero la causa real era que el bundle JS crasheaba al cargar por un `ReferenceError` en `theme-presets.js`. Verificar la consola del browser PRIMERO.
+
+---
+
+## Bugs resueltos (historial)
+
+### Sesión 5 — Login fix + Deploy (2026-04-13)
+- `theme-presets.js` tenía `Object.assign(window)` huérfano → bundle crasheaba → doGoogleLogin undefined → fix: eliminar bloque huérfano
+- Deploy: submodule huérfano `catalog/` rompía Cloudflare Pages → fix: `git rm --cached`
+- Deploy: Vercel sin vercel.json, deployments fallaban → desconectado Vercel
+- Commits: `f6bab3c`, `2432c06`, `abf979f`, `84a1264`, `dab839c`
+
+### Sesión 4 — Panel Overlap (2026-04-13)
+- Paneles de editor en todas las tabs → fix: mover orphaned panels dentro de `#etp-extras`
+- Commit: `34c50b2`
+
+### Sesión 2 — Glow + Live edit + Papelera (2026-04-13)
+- admin-batch-update no aplicaba tema/settings → fix: agregar applyTheme/applySettings en handlers
+- Glow CSS vars ignoradas en keyframes → fix: reescribir keyframes con var() reales
+- glow-hover-only referenciaba keyframes inexistentes → fix: usar beat-glow-* correctos
+- beatCard() glow blur condicional → fix: siempre setear si existe
+- Commit: `5c47f5d`
+
+### Sesión 1 — Preview + Sync + Imágenes + Trash (2026-04-13)
+- beat-preview.js nunca importado → fix: import en admin-main.js
+- Live update no se disparaba desde sliders → fix: listener global en card-style-ui.js
+- Mini preview eliminado (no podía ser idéntico al store real)
+- Sistema de imágenes con historial + papelera implementado
