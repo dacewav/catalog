@@ -335,12 +335,16 @@ window._initPvImgUpload = function() {
   input.addEventListener('change', function(e) {
     var file = e.target.files[0];
     if (!file) return;
-    // Use the same upload system as beats.js
-    if (typeof window.uploadBeatImg === 'function') {
-      // Delegate to the existing beat image upload (sets f-img and triggers R2 upload)
+    // Check if R2 is actually configured — uploadBeatImg will fail silently otherwise
+    var r2Enabled = false;
+    try { r2Enabled = (typeof require !== 'undefined') ? false : !!document.querySelector('#r2-status-dot.ok'); } catch(ex) {}
+    // Also check the R2_ENABLED export from r2.js if available
+    if (typeof window._r2IsEnabled === 'function') r2Enabled = window._r2IsEnabled();
+    if (r2Enabled && typeof window.uploadBeatImg === 'function') {
+      // R2 configured — delegate to the existing beat image upload
       window.uploadBeatImg(input);
     } else {
-      // Fallback: local file preview (no R2)
+      // Fallback: local FileReader preview (no R2 needed)
       var reader = new FileReader();
       reader.onload = function(ev) {
         var imgField = document.getElementById('f-img');
@@ -348,7 +352,7 @@ window._initPvImgUpload = function() {
           imgField.value = ev.target.result;
           if (typeof window.prevImg === 'function') window.prevImg();
           if (typeof window.updateCardPreview === 'function') window.updateCardPreview();
-          if (typeof window.renderFullPvInCard === 'function') window.renderFullPvInCard();
+          if (typeof window._triggerLiveUpdate === 'function') window._triggerLiveUpdate();
           if (typeof window._sendLiveUpdate === 'function') window._sendLiveUpdate();
         }
       };

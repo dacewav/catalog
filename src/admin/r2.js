@@ -84,4 +84,7 @@ export async function purgeCache() {
   } catch (err) { showToast('Error: ' + err.message, true); }
 }
 
+// Expose R2 status check for other modules
+window._r2IsEnabled = function() { return R2_ENABLED; };
+
 Object.assign(window, { loadR2Config, uploadToR2, initR2Status, saveR2Config, testR2Connection, purgeCache });

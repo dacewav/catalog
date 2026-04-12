@@ -282,7 +282,7 @@ function collectLics() { const lics = []; g('le-editor').querySelectorAll('.lic-
 export function loadDefaultLics() { renderLicEditor(JSON.parse(JSON.stringify(defLics))); showToast('Licencias base cargadas'); }
 
 // Upload helpers
-function prevImg() { const url = val('f-img'); g('img-prev').innerHTML = url ? '<img src="' + url + '" style="max-width:160px;max-height:100px;border-radius:6px;border:1px solid var(--b)">' : ''; }
+function prevImg() { const url = val('f-img'); g('img-prev').innerHTML = url ? '<img src="' + url + '" style="max-width:160px;max-height:100px;border-radius:6px;border:1px solid var(--b)">' : ''; if (typeof window.renderFullPvInCard === 'function') window.renderFullPvInCard(); }
 export function uploadBeatImg(input) {
   const file = input.files[0]; if (!file) return;
   if (!R2_ENABLED) { showToast('R2 Worker no configurado.', true); input.value = ''; return; }
@@ -449,6 +449,13 @@ export async function batchAddBeats() {
 
 // MP3 Player
 let mpAudio2 = null;
+export function updateMP() {
+  // Called when preview URL changes — stop current playback and reset UI
+  if (mpAudio2) { mpAudio2.pause(); mpAudio2 = null; }
+  const fill = g('mp-fill'); if (fill) fill.style.width = '0%';
+  const t = g('mp-t'); if (t) t.textContent = '0:00 / 0:00';
+  _triggerLiveUpdate();
+}
 export function toggleMP() {
   const url = val('f-prev') || val('f-audio'); if (!url) return;
   if (mpAudio2 && !mpAudio2.paused) { mpAudio2.pause(); return; }
@@ -467,7 +474,7 @@ Object.assign(window, {
   saveBeat, deleteBeat, quickDel,
   inlineEditName, inlineEditBpm, inlineEditKey,
   openBatchImg, closeBatchImg, handleBatchImgFiles, clearBatchImgQueue, saveBatchImages,
-  batchAddBeats, toggleMP, seekMP, prevImg
+  batchAddBeats, toggleMP, seekMP, prevImg, updateMP
 });
 
 // Initialize preset grids (safe if DOM not ready — functions bail early)
