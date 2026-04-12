@@ -1,5 +1,38 @@
 # Catalog Project Memory
 
+## ⚠️ LECCIÓN CRÍTICA — Panel Overlap (2026-04-13 sesión 4)
+
+### El bug que no se iba (4 intentos)
+Los paneles del editor de beats (Animación 2, Estilo de Tarjeta, Glow, Hover, etc.) aparecían en TODAS las pestañas (Info, Media, Plat) en vez de solo en Extras.
+
+### Por qué fallé 3 veces
+1. **Intento 1**: Cambié CSS (`!important` → sin `!important`). No era un problema de CSS.
+2. **Intento 2**: Usé `showEt('info')` en `openEditor`. No era un problema de JS.
+3. **Intento 3**: Quité un `</div>` de admin.html "para mover los panels adentro de etp-extras". Ese `</div>` era el que cerraba `sec-add`, NO `etp-extras`. Resultado: TODAS las secciones (elements, animations, themes, settings, etc.) quedaron DENTRO de `sec-add`, haciendo el bug 10x peor.
+
+### La causa real
+En admin.html, `etp-extras` cerraba en línea 896, pero los paneles de estilo/animación estaban en líneas 897-1081. Estaban DENTRO de `sec-add` pero FUERA de `etp-extras`. Como solo los `.etp` divs tienen `display:none/block` por CSS, los paneles fuera de `.etp` eran siempre visibles.
+
+### El fix correcto
+- Quitar el `</div>` que cerraba `etp-extras` prematuramente (línea 896 original)
+- Agregar un `</div>` para cerrar `sec-add` donde antes cerraba `etp-extras`
+- Resultado: `etp-extras` ahora cierra en la línea 1084 (contiene todos los panels huérfanos), `sec-add` cierra en 1085
+
+### REGLA PARA FUTURO
+**NUNCA tocar el HTML sin verificar la estructura de nesting después.** Siempre ejecutar el script de auditoría de nesting después de cualquier cambio al HTML:
+```python
+# Verificar que cada .etp y .section cierra correctamente
+# y que no hay nesting roto
+```
+
+### Patrón de debugging correcto
+1. **ENTENDER EL BUG primero** — preguntar al usuario qué exactamente pasa
+2. **No asumir** — las imágenes pueden ser engañosas
+3. **Verificar estructura DOM** antes de tocar CSS o JS
+4. **Auditoría después de cada fix** — verificar nesting, no asumir que funcionó
+
+---
+
 ## 2026-04-13 (sesión 3) — Image history + glow investigation (WIP)
 
 ### Cambios
