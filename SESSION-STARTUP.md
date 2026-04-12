@@ -34,10 +34,9 @@ git pull
 ---
 
 ## Estado actual (última actualización: 2026-04-13)
-- ✅ Bloque 1-7 completados (cache busting, undo, gradient, changelog, floating, snapshots, emojis)
-- core.js: 1405 → 1175 líneas (-230, -41%)
-- Nuevos módulos: undo.js, gradient.js, changelog.js, floating.js, snapshots.js, emojis.js
-- ⏳ Bloque 8: Export/Import → export.js (SIGUIENTE)
+- ✅ core.js: 1405 → 976 líneas (-429, -30%)
+- Módulos extraídos: undo.js, gradient.js, changelog.js, floating.js, snapshots.js, emojis.js, text-colorizer.js
+- ⏳ Siguiente: Export/Import, Glow, Hero preview, Auto-save, CollectTheme (los más acoplados)
 - Branch: `fix-panel-overlap`
 - Build: `npm install && node build.js`
 
