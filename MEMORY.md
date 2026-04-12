@@ -38,9 +38,27 @@ This dual-path ensures updates reach the store even when:
 - Event delegation isn't attached yet
 - The source doesn't directly call `_sendLiveUpdate()`
 
-### Files modified
+## 2026-04-13 — beat-preview.js never imported (vista previa rota)
+
+### Bug
+La vista previa de tarjeta en el tab Extras (`#pv-full-card-container`) no aparecía nunca.
+
+### Root cause
+`beat-preview.js` (que define `renderFullPvInCard` y `_buildCardHTML`) **nunca fue importado** por ningún módulo. Solo se mencionaba en un comentario en `beats.js`. Todas las llamadas a `window.renderFullPvInCard()` fallaban silenciosamente porque `typeof window.renderFullPvInCard === 'undefined'`.
+
+### Fix
+- Agregué `import './admin/beat-preview.js';` en `admin-main.js` (antes de `beats.js`)
+- Corregí un typo de quote en `beat-preview.js:70` (extra `'` al final de un `s.push()`)
+- El bundle creció de 221KB → 233.9KB (el módulo ahora sí está incluido)
+
+### Lesson
+Los módulos que se asignan a `window.*` necesitan ser importados explícitamente en el entry point (`admin-main.js`) — aunque otros módulos los usen vía `window.functionName`, el import del módulo que DEFINE la función es independiente.
+
+### Files modified (this session)
 - `/catalog/src/admin/beat-card-style.js` — added debounced `_sendLiveUpdate()` at end of `updateCardPreview()`
 - `/catalog/src/admin/beats.js` — added debounced `_sendLiveUpdate()` in `prevImg()`
+- `/catalog/src/admin-main.js` — added `import './admin/beat-preview.js'`
+- `/catalog/src/admin/beat-preview.js` — fixed syntax error (extra quote on line 70)
 
 ### Verification
 - `#pv-full-card-container` exists in admin.html line 586 (Extras tab)
