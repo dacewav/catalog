@@ -46,11 +46,16 @@ import {
   saveCustomTheme, renderCustomThemes, loadCustomTheme, deleteCustomTheme, resetTheme,
   setPresetDeps
 } from './theme-presets.js';
+import {
+  setShowSectionNav, toggleInspector, toggleAdminTheme,
+  setupHeroSync, loadSettingsUI, setToggleDeps
+} from './toggles.js';
 
 // Re-export for modules that import from core.js
 export { updatePreview } from './glow.js';
 export { updateHeroPv, updateBannerPv, updateDividerPv } from './hero-preview.js';
 export { initParticlesPreview } from './particles.js';
+export { loadSettingsUI } from './toggles.js';
 import {
   g, val, setVal, checked, setChecked, hexRgba, hexFromRgba, rgbaFromHex,
   loadFont, showToast, showSaving, fmt, sv, resetSlider, toggleCard, setAutoSaveRef,
@@ -150,6 +155,9 @@ setExportDeps({ collectTheme });
 // Wire up preset/slot dependencies
 setPresetDeps({ collectTheme, loadThemeUI, autoSave, broadcastThemeNow });
 
+// Wire up toggle/setup dependencies
+setToggleDeps({ postToFrame, PM_ORIGIN });
+
 // ═══ IFRAME COMMUNICATION ═══
 const PM_ORIGIN = (() => {
   try { return window.location.origin || '*'; } catch { return '*'; }
@@ -232,39 +240,8 @@ export function setViewport(mode) {
   const btnMap = { mobile: 0, tablet: 1, desktop: 2 };
   document.querySelectorAll('.preview-bar-center .vp-btn')[btnMap[mode]]?.classList.add('on');
 }
-// Circular dep workaround: nav showSection called from message handler
-let showSectionNav = () => {};
-export function setShowSectionNav(fn) { showSectionNav = fn; }
+// Toggle + inspector → src/admin/toggles.js
 
-// ═══ INSPECTOR ═══
-export function toggleInspector() {
-  const btn = g('inspector-btn');
-  const isActive = btn.classList.toggle('acc');
-  const frame = g('preview-frame');
-  if (frame && frame.contentWindow) frame.contentWindow.postMessage({ type: 'inspector-mode', enabled: isActive }, PM_ORIGIN);
-  showToast(isActive ? 'Inspector ON — haz clic en el preview' : 'Inspector OFF');
-}
-
-// ═══ ADMIN THEME ═══
-export function toggleAdminTheme() {
-  document.body.classList.toggle('light');
-  const isLight = document.body.classList.contains('light');
-  g('theme-toggle').innerHTML = isLight ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
-  localStorage.setItem('dace-admin-theme', isLight ? 'light' : 'dark');
-}
-
-// ═══ HERO PREVIEW ═══
-// ═══ HERO PREVIEW — Clean rewrite ═══
-// Reads all hero-related inputs and renders the preview in #hero-pv
-// Hero/Banner/Divider preview → src/admin/hero-preview.js
-
-// ═══ GLOW EFFECTS ═══
-// Glow system → src/admin/glow.js
-
-// ═══ PREVIEW UPDATE ═══
-// Preview update → src/admin/glow.js
-
-// ═══ COLLECT THEME ═══
 export function collectTheme() {
   return {
     bg: val('tc-bg-h') || '#060404', surface: val('tc-surface-h') || '#0f0808', surface2: val('tc-surface2-h') || '#1a0c0c',
@@ -381,60 +358,8 @@ export function loadThemeUI() {
   // Save initial state for undo (only if stack is empty — don't reset on undo/redo reloads)
   if (!_undoStack.length) pushUndoInitial();
 }
+// Setup hero sync + load settings → src/admin/toggles.js
 
-// ═══ SYNC s-hero ↔ h-title ═══
-export function setupHeroSync() {
-  const sHero = g('s-hero'), hTitle = g('h-title');
-  if (sHero && hTitle) {
-    sHero.addEventListener('input', function () {
-      if (hTitle.value !== sHero.value) { hTitle.value = sHero.value; updateHeroPv(); }
-    });
-    hTitle.addEventListener('input', function () {
-      if (sHero.value !== hTitle.value) sHero.value = hTitle.value;
-    });
-  }
-  // Also sync subtitle
-  const sSub = g('s-sub'), hSub = g('h-sub');
-  if (sSub && hSub) {
-    sSub.addEventListener('input', function () {
-      if (hSub.value !== sSub.value) { hSub.value = sSub.value; updateHeroPv(); }
-    });
-    hSub.addEventListener('input', function () {
-      if (sSub.value !== hSub.value) sSub.value = hSub.value;
-    });
-  }
-}
-
-// ═══ LOAD SETTINGS UI ═══
-export function loadSettingsUI() {
-  setVal('s-name', siteSettings.siteName || 'DACE'); setVal('s-wa', siteSettings.whatsapp || '');
-  setVal('s-ig', siteSettings.instagram || ''); setVal('s-email', siteSettings.email || '');
-  setVal('s-hero', siteSettings.heroTitle || ''); setVal('s-sub', siteSettings.heroSubtitle || '');
-  setVal('s-div-title', siteSettings.dividerTitle || ''); setVal('s-div-sub', siteSettings.dividerSub || '');
-  // Divider extra settings
-  if (siteSettings.dividerTitleSize) setVal('d-title-size', siteSettings.dividerTitleSize);
-  if (siteSettings.dividerLetterSpacing != null) setVal('d-ls', siteSettings.dividerLetterSpacing);
-  if (siteSettings.dividerSubColor) setVal('d-sub-clr', siteSettings.dividerSubColor);
-  if (siteSettings.dividerSubSize) setVal('d-sub-size', siteSettings.dividerSubSize);
-  if (siteSettings.dividerGlowOn) setChecked('d-glow-on', true);
-  if (siteSettings.dividerGlowInt != null) setVal('d-glow-int', siteSettings.dividerGlowInt);
-  if (siteSettings.dividerGlowBlur) setVal('d-glow-blur', siteSettings.dividerGlowBlur);
-  setChecked('s-testi', siteSettings.testimonialsActive);
-  setChecked('b-active', siteSettings.bannerActive);
-  setVal('b-text', siteSettings.bannerText || '');
-  setVal('b-bg', siteSettings.bannerBg || '#7f1d1d');
-  setVal('b-speed', siteSettings.bannerSpeed || 20);
-  setVal('b-anim', siteSettings.bannerAnim || 'scroll');
-  setVal('b-easing', siteSettings.bannerEasing || 'linear');
-  setVal('b-dir', siteSettings.bannerDir || 'normal');
-  setVal('b-delay', siteSettings.bannerDelay || 0);
-  setVal('b-txt-clr', siteSettings.bannerTxtClr || '#ffffff');
-  // Init text colorizers after settings are loaded
-  initTextColorizers();
-  updateDividerPv();
-}
-
-// ═══ ANIM CONTROLS ═══
 // Theme presets, slots, anim controls → src/admin/theme-presets.js
 
 // Emoji system → src/admin/emojis.js
@@ -448,9 +373,8 @@ Object.assign(window, {
   pushUndo, pushUndoInitial, undo, redo, autoSave, saveAll,
   broadcastTheme, broadcastThemeNow, broadcastHighlight, clearHighlight,
   refreshIframe, loadPreviewURL, setViewport,
-  toggleInspector, toggleAdminTheme,
   updateGlowDesc, updateGlowAnimDesc, computeGlowCSS, applyGlowTo, applyGlowPreset,
-  updatePreview, collectTheme, loadThemeUI, setupHeroSync, loadSettingsUI,
+  updatePreview, collectTheme, loadThemeUI,
   renderEmojiGrid, insertEmoji, renderCustomEmojis, addCustomEmoji, uploadEmojiFile, removeCE,
   logChange, renderChangeLog, logFieldChange,
   addTooltips,
@@ -458,6 +382,5 @@ Object.assign(window, {
   renderGradEditor, buildGradCSS, addGradStop, updateGradStop, rmGradStop, startDragStop, applyGradToHero,
   takeSnapshot, renderSnapshots, loadSnapshot, rmSnapshot,
   populateDiffSelects, updateDiff,
-  promptImportURL, importThemeFromURL,
-  setShowSectionNav
+  promptImportURL, importThemeFromURL
 });
