@@ -34,13 +34,11 @@ git pull
 ---
 
 ## Estado actual (última actualización: 2026-04-13)
-- ✅ Bloque 1: Cache busting en build.js
-- ✅ Bloque 2: Extraer undo/redo de core.js → undo.js
-- ⏳ Bloque 3: Extraer auto-save de core.js (SIGUIENTE)
+- ✅ Bloque 1-5 completados (cache busting, undo, gradient, changelog, floating)
+- core.js: 1405 → 1271 líneas
+- ⏳ Bloque 6: Snapshots + Diff → snapshots.js (SIGUIENTE)
 - Branch: `fix-panel-overlap`
-- Repo: `dacewav/catalog` en GitHub
 - Build: `npm install && node build.js`
-- Push: `git push origin fix-panel-overlap` (usar token del chat si es necesario)
 
 ## Bugs pendientes de verificación en browser
 - Panel overlap: showEt usa inline styles ahora → verificar

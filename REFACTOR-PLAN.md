@@ -6,97 +6,98 @@ Simplificar el admin sin cambiar funcionalidad. Menos bugs, más mantenible.
 ## Reglas
 - **Cada bloque se testea en browser ANTES de pasar al siguiente**
 - Zero cambios de funcionalidad visible (solo refactor interno)
-- Si algo no está claro, parar y preguntar
 - Build + commit después de cada bloque
-- Si un bloque rompe algo, revertir y replantear
 
 ---
 
-## Bloque 1: Foundation ✅ COMPLETADO (2026-04-13)
-- [x] Cache busting automático en build.js
-- [x] build.js calcula MD5 hash de CSS/JS y reescribe HTML con ?v=HASH
-- [x] Idempotent: re-build no duplica hashes
-- [x] Commit: `8df3c88`
-- **Test en browser:** Abrir admin → DevTools → Network → verificar que CSS/JS cargan con ?v=HASH. Hacer cambio en CSS → rebuild → verificar hash cambia y browser carga nuevo.
+## Progreso core.js: 1405 → 1271 líneas (-134)
 
-## Bloque 2: Matar core.js — Undo/Redo ✅ COMPLETADO (2026-04-13)
-- [x] Crear `src/admin/undo.js` con pushUndo, pushUndoInitial, undo, redo
-- [x] Dependency injection via `setUndoDeps()` para romper imports circulares
-- [x] core.js importa de undo.js, elimina definiciones inline
-- [x] cmd-palette.js importa undo/redo de undo.js
-- [x] Build OK (admin 249.1KB)
-- [x] Commit: `b161990`
-- **Test en browser:** Abrir admin → cambiar color de fondo → Ctrl+Z (deshacer) → verificar que revierte. Ctrl+Shift+Z (rehacer) → verificar que aplica de nuevo.
+## ✅ Completados
 
-## Bloque 3: Matar core.js — Auto-Save (SIGUIENTE)
-### Qué mover:
-- `_autoSaveTimer` variable
-- `autoSave()` function
-- `saveAll()` / `saveTheme()` function
-- `showSaving()` → ya está en helpers.js
+### Bloque 1: Cache busting automático
+- build.js calcula MD5 hash de CSS/JS, reescribe HTML con ?v=HASH
+- Commit: `8df3c88`
 
-### A dónde:
-`src/admin/autosave.js`
+### Bloque 2: Undo/Redo → undo.js (68 líneas)
+- Dependency injection via `setUndoDeps()` rompe circularidad
+- cmd-palette.js importa de undo.js
+- Commit: `b0033ff`
 
-### Dependencias:
-- `collectTheme` de core.js → usar mismo patrón de setter
-- `db` de state.js
-- `showSaving` de helpers.js
+### Bloque 3: Gradient Editor → gradient.js (133 líneas)
+- renderGradEditor, buildGradCSS, addGradStop, updateGradStop, rmGradStop, startDragStop, applyGradToHero
+- Cero dependencias circulares
 
-## Bloque 4: Matar core.js — Live Edit / Preview Sync
-### Qué mover:
-- `_broadcastTimer`, `_lastBroadcastJSON`
-- `broadcastTheme()`, `broadcastThemeNow()`, `broadcastHighlight()`
-- `_sendLiveUpdate()`, `_startLiveEdit()`, `_clearLiveEdit()`, `_sendBeatRevert()`
-- `_attachLiveListeners()`
-- window postMessage handler
+### Bloque 4: Change Log + Tooltips → changelog.js (109 líneas)
+- logChange, renderChangeLog, logFieldChange, addTooltips
+- TRACKED_FIELDS + TOOLTIPS extraídos como constantes
 
-### A dónde:
-`src/admin/live-edit.js`
+### Bloque 5: Floating Elements → floating.js (148 líneas)
+- renderFloatingEditor, renderFloatingPreview, addFE, saveFE, rmFE
 
-### Nota:
-Este es el más complejo porque tiene el postMessage listener que interactúa con el iframe del preview. Testear bien.
+Bloques 3-5 commit: `352f793`
 
-## Bloque 5: Matar core.js — Theme IO
-`collectTheme()`, `loadThemeUI()`, `exportAll()`, `importAll()`, `exportCSS()`
-→ `src/admin/theme-io.js`
+---
 
-## Bloque 6: Matar core.js — Gradient Editor
-`renderGradEditor()`, `buildGradCSS()`, `addGradStop()`, etc.
-→ `src/admin/gradient.js`
+## ⏳ Pendientes (en orden de dificultad)
 
-## Bloque 7: Matar core.js — Resto
-Hero preview, particles, floating elements, emojis, text colorizer
-→ archivos separados
-core.js debería quedar < 200 líneas (solo init + wiring)
+### Bloque 6: Snapshots + Diff
+Funciones: takeSnapshot, renderSnapshots, loadSnapshot, rmSnapshot, populateDiffSelects, updateDiff
+Dependen de: setT, loadThemeUI, autoSave (circular) → usar dependency injection
+Archivo: `src/admin/snapshots.js`
 
-## Bloque 8: Limpiar CSS !important
+### Bloque 7: Emoji System
+Funciones: renderEmojiGrid, insertEmoji, renderCustomEmojis, addCustomEmoji, uploadEmojiFile, removeCE
+Dependen de: customEmojis de state.js, db de state.js
+Archivo: `src/admin/emojis.js`
+
+### Bloque 8: Export/Import
+Funciones: exportAll, importAll, exportCSS, promptImportURL, importThemeFromURL
+Dependen de: collectTheme, loadThemeUI, autoSave (circular)
+Archivo: `src/admin/export.js`
+
+### Bloque 9: Hero Preview + Banner + Divider
+Funciones: updateHeroPv, updateBannerPv, updateDividerPv, setupHeroSync
+Dependen de: muchas vars de state.js + helpers.js
+Archivo: `src/admin/hero-preview.js`
+
+### Bloque 10: Glow System
+Funciones: updateGlowDesc, updateGlowAnimDesc, computeGlowCSS, applyGlowTo, applyGlowPreset
+Archivo: `src/admin/glow.js`
+
+### Bloque 11: Text Colorizer
+Funciones: initTextColorizers, tczSetColor, tczMarkPreset, tczWordClick, tczClearColors, tczSplitAtCursor, tczGetSegments, segmentsToHTML
+Archivo: `src/admin/text-colorizer.js` (ya existe, mover de core.js)
+
+### Bloque 12: Auto-Save + Broadcast (dejar para el final)
+autoSave, saveAll, _collectSiteSettings, broadcastTheme, broadcastThemeNow, postToFrame
+Son el núcleo de core.js — extraer cuando todo lo demás esté fuera.
+
+### Bloque 13: Theme collect/load
+collectTheme, loadThemeUI, loadSettingsUI
+Son las funciones más grandes y con más deps — extraer al final.
+
+### Bloque 14: Limpiar CSS !important
 Quitar `!important` de `.etp` rules (ya no se necesitan con inline styles).
-Verificar tabs en browser.
 
-## Bloque 9: Migrar onclick → addEventListener
+### Bloque 15: Migrar onclick → addEventListener
 Empezar por beats.js, ir archivo por archivo.
 
-## Bloque 10: Tests básicos del admin
-- Test `showEt()` — solo un panel visible
-- Test `openEditor()` — campos se llenan
-- Test `saveBeat()` — datos se serializan
-- Test `prevImg()` — galería se puebla
+### Bloque 16: Tests básicos del admin
+Test showEt, openEditor, saveBeat, prevImg.
 
 ---
 
-## Archivos clave del admin
+## Archivos del admin (actualizado)
 | Archivo | Líneas | Rol |
 |---------|--------|-----|
-| src/admin/core.js | 1405 | EL MONSTRUO — refactorizar |
-| src/admin/beats.js | 460 | CRUD beats + editor |
-| src/admin/theme.js | 472 | Theme editor (store-side) |
-| src/admin/settings.js | 373 | Config + precios + órdenes |
-| src/admin/nav.js | ~60 | Navegación + tabs |
-| src/admin/colors.js | ~300 | Color pickers |
-| src/admin/helpers.js | ~200 | Utilidades |
-| src/admin/state.js | ~100 | Estado compartido |
-| src/admin/card-style-ui.js | ~400 | Generador de controles de estilo |
-| src/admin/beat-card-style.js | ~200 | Lector de estilos de tarjeta |
+| src/admin/core.js | 1271 | Main module (era 1405) |
+| src/admin/undo.js | 68 | Undo/redo |
+| src/admin/gradient.js | 133 | Gradient editor |
+| src/admin/changelog.js | 109 | Change log + tooltips |
+| src/admin/floating.js | 148 | Floating elements |
+| src/admin/beats.js | 460 | CRUD beats |
+| src/admin/theme.js | 472 | Theme editor |
+| src/admin/settings.js | 373 | Config + precios |
+| src/admin/card-style-ui.js | ~400 | Style control generator |
+| src/admin/beat-card-style.js | ~200 | Card style reader |
 | src/admin/beat-preview.js | ~400 | Preview + image history |
-| src/admin-main.js | ~30 | Entry point |
