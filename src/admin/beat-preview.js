@@ -67,7 +67,7 @@ window._buildCardHTML = function(cs, opts) {
     if (animInt !== 1) s.push('--anim-int:'+animInt);
     if (ca.type === 'holograma') {
       s.push('--anim-hue-start:'+(ca.hueStart||0)+'deg;--anim-hue-end:'+(ca.hueEnd||360)+'deg');
-      s.push('--anim-holo-bright-min:'+(ca.holoBrightMin||0.9)+';--anim-holo-bright-max:'+(ca.holoBrightMax||1.4)');
+      s.push('--anim-holo-bright-min:'+(ca.holoBrightMin||0.9)+';--anim-holo-bright-max:'+(ca.holoBrightMax||1.4));
       s.push('--anim-holo-sat-min:'+(ca.holoSatMin||0.8)+';--anim-holo-sat-max:'+(ca.holoSatMax||2));
       if (ca.holoGlow) s.push('--anim-holo-glow:'+ca.holoGlow+'px');
       if (ca.holoBlur) s.push('--anim-holo-blur:'+ca.holoBlur+'px');
