@@ -34,9 +34,9 @@ git pull
 ---
 
 ## Estado actual (última actualización: 2026-04-13)
-- ✅ core.js: 1405 → 711 líneas (-694, -49%)
-- 9 módulos extraídos: undo, gradient, changelog, floating, snapshots, emojis, text-colorizer, glow, hero-preview
-- ⏳ Quedan en core.js (711 líneas): auto-save, broadcast, collectTheme, loadThemeUI, presets, anim controls, particles, iframe comm
+- ✅ core.js: 1405 → 681 líneas (-724, -52%)
+- 10 módulos extraídos: undo, gradient, changelog, floating, snapshots, emojis, text-colorizer, glow, hero-preview, particles
+- ⏳ Quedan en core.js (681): auto-save, broadcast, collectTheme, loadThemeUI, presets, anim controls, export/import, hero drag, fullscreen
 - Branch: `fix-panel-overlap`
 - Build: `npm install && node build.js`
 
