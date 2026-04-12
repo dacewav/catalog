@@ -1351,7 +1351,7 @@ definen géneros.</textarea></div>
   <div class="preview-panel" id="preview-panel">
     <div class="resize-strip resize-handle-h" id="resize-handle"></div>
     <div class="preview-bar">
-      <div class="preview-bar-left"><span class="preview-label"><i class="fas fa-eye"></i> Vista previa</span><div class="preview-sync-badge" id="preview-sync-badge"><span class="preview-sync-dot" id="preview-sync-dot"></span><span id="preview-sync-label">En vivo</span></div></div>
+      <div class="preview-bar-left"><button class="vp-btn" onclick="togglePreviewCollapse()" id="preview-collapse-btn" title="Colapsar preview (P)"><i class="fas fa-chevron-right"></i></button><span class="preview-label"><i class="fas fa-eye"></i> Vista previa</span><div class="preview-sync-badge" id="preview-sync-badge"><span class="preview-sync-dot" id="preview-sync-dot"></span><span id="preview-sync-label">En vivo</span></div></div>
       <div class="preview-bar-center">
         <button class="vp-btn" onclick="setViewport('mobile')" title="Móvil"><i class="fas fa-mobile-alt"></i></button>
         <button class="vp-btn" onclick="setViewport('tablet')" title="Tablet"><i class="fas fa-tablet-alt"></i></button>
@@ -1486,6 +1486,102 @@ if (_pf) _pf.addEventListener('load', function() { setTimeout(pushAllThemeToFram
 </script>
 
 <script src="dist/admin-app.js"></script>
+
+<!-- ═══ PREVIEW COLLAPSE & RESIZE ═══ -->
+<script>
+(function() {
+  var panel = document.getElementById('preview-panel');
+  var handle = document.getElementById('resize-handle');
+  if (!panel) return;
+
+  // ── Toggle collapse ──
+  window.togglePreviewCollapse = function() {
+    panel.classList.toggle('collapsed');
+    var btn = document.getElementById('preview-collapse-btn');
+    var icon = btn ? btn.querySelector('i') : null;
+    if (icon) {
+      icon.className = panel.classList.contains('collapsed') ? 'fas fa-chevron-left' : 'fas fa-chevron-right';
+    }
+    // Save state
+    localStorage.setItem('dace-preview-collapsed', panel.classList.contains('collapsed') ? '1' : '0');
+  };
+
+  // ── Restore state ──
+  if (localStorage.getItem('dace-preview-collapsed') === '1') {
+    panel.classList.add('collapsed');
+  }
+
+  // ── Keyboard shortcut: P to toggle ──
+  document.addEventListener('keydown', function(e) {
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') return;
+    if (e.key === 'p' || e.key === 'P') {
+      if (!e.ctrlKey && !e.metaKey && !e.altKey) {
+        togglePreviewCollapse();
+        e.preventDefault();
+      }
+    }
+  });
+
+  // ── Resize drag ──
+  if (handle) {
+    var dragging = false, startX = 0, startW = 0;
+    handle.addEventListener('mousedown', function(e) {
+      dragging = true; startX = e.clientX; startW = panel.offsetWidth;
+      handle.classList.add('active');
+      document.body.style.cursor = 'col-resize';
+      document.body.style.userSelect = 'none';
+      e.preventDefault();
+    });
+    document.addEventListener('mousemove', function(e) {
+      if (!dragging) return;
+      var delta = startX - e.clientX; // drag left = wider preview
+      var newW = Math.max(280, Math.min(window.innerWidth * 0.7, startW + delta));
+      panel.style.width = newW + 'px';
+      panel.style.minWidth = newW + 'px';
+      panel.style.maxWidth = newW + 'px';
+    });
+    document.addEventListener('mouseup', function() {
+      if (!dragging) return;
+      dragging = false;
+      handle.classList.remove('active');
+      document.body.style.cursor = '';
+      document.body.style.userSelect = '';
+      // Save width
+      localStorage.setItem('dace-preview-width', panel.offsetWidth);
+    });
+
+    // Restore saved width
+    var savedW = parseInt(localStorage.getItem('dace-preview-width'));
+    if (savedW && savedW >= 280) {
+      panel.style.width = savedW + 'px';
+      panel.style.minWidth = savedW + 'px';
+      panel.style.maxWidth = savedW + 'px';
+    }
+  }
+
+  // ── Override fullscreen toggle ──
+  var _origFullscreen = window.toggleFullscreenPreview;
+  window.toggleFullscreenPreview = function() {
+    panel.classList.toggle('fullscreen');
+    var isFs = panel.classList.contains('fullscreen');
+    var icon = panel.querySelector('.preview-bar-right .vp-btn[title*="Fullscreen"] i');
+    if (icon) icon.className = isFs ? 'fas fa-compress' : 'fas fa-expand';
+    if (isFs) {
+      document.addEventListener('keydown', escHandler);
+    } else {
+      document.removeEventListener('keydown', escHandler);
+    }
+  };
+  function escHandler(e) {
+    if (e.key === 'Escape') {
+      panel.classList.remove('fullscreen');
+      var icon = panel.querySelector('.preview-bar-right .vp-btn[title*="Fullscreen"] i');
+      if (icon) icon.className = 'fas fa-expand';
+      document.removeEventListener('keydown', escHandler);
+    }
+  }
+})();
+</script>
 
 </body>
 </html>
