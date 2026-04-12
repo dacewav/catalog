@@ -477,15 +477,6 @@ export function renderAll() {
   const sk = document.getElementById('skeleton-grid');
   if (sk) sk.style.display = 'none';
 
-  // Populate genre showcase
-  const genreEl = document.getElementById('genre-showcase');
-  if (genreEl) {
-    const genres = [...new Set(state.allBeats.map(b => b.genre).filter(Boolean))];
-    const allTags = [...new Set(state.allBeats.flatMap(b => b.tags || []))].slice(0, 12);
-    const pills = [...genres, ...allTags];
-    genreEl.innerHTML = pills.map(g => `<span class="genre-pill">${g}</span>`).join('');
-  }
-
   setTimeout(() => { setupCardTilt(); observeStagger(); }, 50);
   setTimeout(() => {
     state.allBeats.forEach((b) => { if (b.previewUrl) applyWaveformToCard(b.id); });
