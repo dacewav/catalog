@@ -4,6 +4,234 @@
 
 import { g } from './helpers.js';
 
+// ═══ EFFECT PRESETS GALLERY ═══
+// Photoshop-style gallery of visual effect presets.
+// Each preset is a complete visual style: filters + glow + anim + shadow.
+// Clicking a preset applies ALL its values at once. User can then fine-tune with sliders.
+export const EFFECT_PRESETS = [
+  {
+    id: 'none', name: 'Original', icon: '⊘', cat: 'basic',
+    desc: 'Sin efectos — tarjeta limpia',
+    preview: { bg: 'linear-gradient(135deg, #1a1a2e, #16213e)', filter: 'none' },
+    apply: () => ({
+      filter: { brightness: 1, contrast: 1, saturate: 1, grayscale: 0, sepia: 0, hueRotate: 0, blur: 0, invert: 0, opacity: 1, dropShadowX: 0, dropShadowY: 0, dropShadowBlur: 0, dropShadowColor: '#000000', dropShadowOpacity: 0 },
+      glow: { enabled: false, type: 'active', color: '#dc2626', speed: 3, intensity: 1, blur: 20, spread: 0, opacity: 1, hoverOnly: false },
+      anim: null, style: { accentColor: '#dc2626', shimmer: false, borderRadius: 0, opacity: 1 },
+      border: { enabled: false, color: '#dc2626', width: 1, style: 'solid' },
+      shadow: { enabled: false, color: '#000000', opacity: 0.35, x: 0, y: 4, blur: 12, spread: 0, inset: false },
+      hover: { scale: 1, brightness: 1, saturate: 1, shadowBlur: 0, transition: 0.3, borderColor: '#dc2626', glowIntensify: false, blur: 0, siblingsBlur: 0, hueRotate: 0, opacity: 1, enableAnim: false, animType: '', animDur: 1 },
+      transform: { rotate: 0, scale: 1, skewX: 0, skewY: 0, x: 0, y: 0 }
+    })
+  },
+  {
+    id: 'noir', name: 'Noir', icon: '🎬', cat: 'color',
+    desc: 'Alto contraste B&W, estilo cine negro',
+    preview: { bg: 'linear-gradient(135deg, #1a1a1a, #333)', filter: 'grayscale(1) contrast(1.5) brightness(0.9)' },
+    apply: () => ({
+      filter: { brightness: 0.9, contrast: 1.5, saturate: 0, grayscale: 1, sepia: 0, hueRotate: 0, blur: 0, invert: 0, opacity: 1, dropShadowX: 0, dropShadowY: 8, dropShadowBlur: 20, dropShadowColor: '#000000', dropShadowOpacity: 0.6 },
+      glow: { enabled: false, type: 'active', color: '#ffffff', speed: 3, intensity: 1, blur: 20, spread: 0, opacity: 1, hoverOnly: false },
+      anim: null, style: { accentColor: '#dc2626', shimmer: false, borderRadius: 0, opacity: 1 },
+      border: { enabled: false, color: '#dc2626', width: 1, style: 'solid' },
+      shadow: { enabled: true, color: '#000000', opacity: 0.7, x: 0, y: 8, blur: 20, spread: 0, inset: false },
+      hover: { scale: 1.03, brightness: 1.2, saturate: 0, shadowBlur: 30, transition: 0.3, borderColor: '#ffffff', glowIntensify: false, blur: 0, siblingsBlur: 3, hueRotate: 0, opacity: 1, enableAnim: false, animType: '', animDur: 1 },
+      transform: { rotate: 0, scale: 1, skewX: 0, skewY: 0, x: 0, y: 0 }
+    })
+  },
+  {
+    id: 'vintage', name: 'Vintage', icon: '📷', cat: 'color',
+    desc: 'Sepia cálido con sombras suaves',
+    preview: { bg: 'linear-gradient(135deg, #8B4513, #D2691E)', filter: 'sepia(0.8) contrast(1.1) brightness(0.95)' },
+    apply: () => ({
+      filter: { brightness: 0.95, contrast: 1.1, saturate: 0.8, grayscale: 0, sepia: 0.8, hueRotate: 0, blur: 0, invert: 0, opacity: 1, dropShadowX: 0, dropShadowY: 4, dropShadowBlur: 15, dropShadowColor: '#8B4513', dropShadowOpacity: 0.4 },
+      glow: { enabled: false, type: 'active', color: '#D2691E', speed: 3, intensity: 1, blur: 20, spread: 0, opacity: 1, hoverOnly: false },
+      anim: null, style: { accentColor: '#D2691E', shimmer: false, borderRadius: 8, opacity: 1 },
+      border: { enabled: true, color: '#8B4513', width: 1, style: 'solid' },
+      shadow: { enabled: true, color: '#8B4513', opacity: 0.4, x: 0, y: 6, blur: 15, spread: 0, inset: false },
+      hover: { scale: 1.02, brightness: 1.1, saturate: 1, shadowBlur: 20, transition: 0.4, borderColor: '#D2691E', glowIntensify: false, blur: 0, siblingsBlur: 2, hueRotate: 0, opacity: 1, enableAnim: false, animType: '', animDur: 1 },
+      transform: { rotate: 0, scale: 1, skewX: 0, skewY: 0, x: 0, y: 0 }
+    })
+  },
+  {
+    id: 'neon-glow', name: 'Neón', icon: '💡', cat: 'glow',
+    desc: 'Resplandor neón pulsante, colores vivos',
+    preview: { bg: 'linear-gradient(135deg, #0f0f23, #1a0a2e)', filter: 'brightness(1.1) saturate(1.5)' },
+    apply: () => ({
+      filter: { brightness: 1.1, contrast: 1.2, saturate: 1.5, grayscale: 0, sepia: 0, hueRotate: 0, blur: 0, invert: 0, opacity: 1, dropShadowX: 0, dropShadowY: 0, dropShadowBlur: 0, dropShadowColor: '#000000', dropShadowOpacity: 0 },
+      glow: { enabled: true, type: 'active', color: '#ff00ff', speed: 2, intensity: 1.5, blur: 30, spread: 0, opacity: 0.8, hoverOnly: false },
+      anim: null, style: { accentColor: '#ff00ff', shimmer: true, borderRadius: 4, opacity: 1 },
+      border: { enabled: true, color: '#ff00ff', width: 1, style: 'solid' },
+      shadow: { enabled: false, color: '#ff00ff', opacity: 0.35, x: 0, y: 4, blur: 12, spread: 0, inset: false },
+      hover: { scale: 1.04, brightness: 1.3, saturate: 1.8, shadowBlur: 0, transition: 0.25, borderColor: '#00ffff', glowIntensify: true, blur: 0, siblingsBlur: 4, hueRotate: 0, opacity: 1, enableAnim: false, animType: '', animDur: 1 },
+      transform: { rotate: 0, scale: 1, skewX: 0, skewY: 0, x: 0, y: 0 }
+    })
+  },
+  {
+    id: 'cyberpunk', name: 'Cyberpunk', icon: '🤖', cat: 'glow',
+    desc: 'Magenta/cyan, alto contraste, futurista',
+    preview: { bg: 'linear-gradient(135deg, #ff006e, #00f5d4)', filter: 'contrast(1.4) saturate(2)' },
+    apply: () => ({
+      filter: { brightness: 1.15, contrast: 1.4, saturate: 2, grayscale: 0, sepia: 0, hueRotate: 0, blur: 0, invert: 0, opacity: 1, dropShadowX: -3, dropShadowY: 3, dropShadowBlur: 12, dropShadowColor: '#ff006e', dropShadowOpacity: 0.5 },
+      glow: { enabled: true, type: 'rgb', color: '#ff006e', speed: 4, intensity: 1.2, blur: 25, spread: 0, opacity: 0.7, hoverOnly: false },
+      anim: null, style: { accentColor: '#ff006e', shimmer: false, borderRadius: 2, opacity: 1 },
+      border: { enabled: true, color: '#00f5d4', width: 1, style: 'solid' },
+      shadow: { enabled: true, color: '#ff006e', opacity: 0.3, x: -4, y: 4, blur: 15, spread: 0, inset: false },
+      hover: { scale: 1.05, brightness: 1.2, saturate: 2.5, shadowBlur: 0, transition: 0.2, borderColor: '#ff006e', glowIntensify: true, blur: 0, siblingsBlur: 6, hueRotate: 0, opacity: 1, enableAnim: false, animType: '', animDur: 1 },
+      transform: { rotate: 0, scale: 1, skewX: 0, skewY: 0, x: 0, y: 0 }
+    })
+  },
+  {
+    id: 'hologram', name: 'Holograma', icon: '🌈', cat: 'anim',
+    desc: 'Ciclo de tono + brillo, efecto iridiscente',
+    preview: { bg: 'linear-gradient(135deg, #ff0080, #00ff80, #0080ff)', filter: 'hue-rotate(90deg) brightness(1.1)' },
+    apply: () => ({
+      filter: { brightness: 1.05, contrast: 1.1, saturate: 1.3, grayscale: 0, sepia: 0, hueRotate: 0, blur: 0, invert: 0, opacity: 1, dropShadowX: 0, dropShadowY: 0, dropShadowBlur: 0, dropShadowColor: '#000000', dropShadowOpacity: 0 },
+      glow: { enabled: true, type: 'rgb', color: '#ff0080', speed: 5, intensity: 1, blur: 20, spread: 0, opacity: 0.6, hoverOnly: false },
+      anim: { type: 'holograma', dur: 4, del: 0, easing: 'ease-in-out', direction: 'normal', iterations: 'infinite', intensity: 100, hueStart: 0, hueEnd: 360, holoBrightMin: 0.9, holoBrightMax: 1.4, holoSatMin: 0.8, holoSatMax: 2, holoGlow: 0, holoBlur: 0 },
+      style: { accentColor: '#ff0080', shimmer: true, borderRadius: 8, opacity: 1 },
+      border: { enabled: false, color: '#dc2626', width: 1, style: 'solid' },
+      shadow: { enabled: false, color: '#000000', opacity: 0.35, x: 0, y: 4, blur: 12, spread: 0, inset: false },
+      hover: { scale: 1.05, brightness: 1.3, saturate: 1.5, shadowBlur: 0, transition: 0.3, borderColor: '#ff0080', glowIntensify: true, blur: 0, siblingsBlur: 5, hueRotate: 30, opacity: 1, enableAnim: false, animType: '', animDur: 1 },
+      transform: { rotate: 0, scale: 1, skewX: 0, skewY: 0, x: 0, y: 0 }
+    })
+  },
+  {
+    id: 'glitch', name: 'Glitch', icon: '📺', cat: 'anim',
+    desc: 'Distorsión digital, chromatic aberration',
+    preview: { bg: 'linear-gradient(135deg, #ff0040, #0040ff)', filter: 'saturate(2) contrast(1.3)' },
+    apply: () => ({
+      filter: { brightness: 1.1, contrast: 1.3, saturate: 1.8, grayscale: 0, sepia: 0, hueRotate: 0, blur: 0, invert: 0, opacity: 1, dropShadowX: -4, dropShadowY: 0, dropShadowBlur: 0, dropShadowColor: '#ff0040', dropShadowOpacity: 0.7 },
+      glow: { enabled: false, type: 'active', color: '#ff0040', speed: 3, intensity: 1, blur: 20, spread: 0, opacity: 1, hoverOnly: false },
+      anim: { type: 'glitch', dur: 0.3, del: 0, easing: 'steps(2)', direction: 'normal', iterations: 'infinite', intensity: 100, glitchX: 3, glitchY: 2, glitchRot: 0.5 },
+      style: { accentColor: '#ff0040', shimmer: false, borderRadius: 0, opacity: 1 },
+      border: { enabled: false, color: '#dc2626', width: 1, style: 'solid' },
+      shadow: { enabled: false, color: '#000000', opacity: 0.35, x: 0, y: 4, blur: 12, spread: 0, inset: false },
+      hover: { scale: 1, brightness: 1.4, saturate: 2, shadowBlur: 0, transition: 0.1, borderColor: '#ff0040', glowIntensify: false, blur: 0, siblingsBlur: 0, hueRotate: 0, opacity: 1, enableAnim: false, animType: '', animDur: 1 },
+      transform: { rotate: 0, scale: 1, skewX: 0, skewY: 0, x: 0, y: 0 }
+    })
+  },
+  {
+    id: 'ghost', name: 'Fantasma', icon: '👻', cat: 'anim',
+    desc: 'Opacidad baja + blur, efecto etéreo',
+    preview: { bg: 'linear-gradient(135deg, #2d2d44, #4a4a6a)', filter: 'blur(1px) opacity(0.6)' },
+    apply: () => ({
+      filter: { brightness: 1, contrast: 0.9, saturate: 0.6, grayscale: 0.3, sepia: 0, hueRotate: 0, blur: 2, invert: 0, opacity: 0.7, dropShadowX: 0, dropShadowY: 0, dropShadowBlur: 25, dropShadowColor: '#6366f1', dropShadowOpacity: 0.3 },
+      glow: { enabled: true, type: 'breathe', color: '#6366f1', speed: 5, intensity: 0.8, blur: 30, spread: 0, opacity: 0.4, hoverOnly: false },
+      anim: { type: 'respirar', dur: 5, del: 0, easing: 'ease-in-out', direction: 'normal', iterations: 'infinite', intensity: 80 },
+      style: { accentColor: '#6366f1', shimmer: false, borderRadius: 12, opacity: 0.7 },
+      border: { enabled: true, color: '#6366f1', width: 1, style: 'solid' },
+      shadow: { enabled: false, color: '#6366f1', opacity: 0.35, x: 0, y: 4, blur: 12, spread: 0, inset: false },
+      hover: { scale: 1.02, brightness: 1.3, saturate: 1, shadowBlur: 0, transition: 0.5, borderColor: '#a78bfa', glowIntensify: true, blur: 0, siblingsBlur: 4, hueRotate: 0, opacity: 1, enableAnim: false, animType: '', animDur: 1 },
+      transform: { rotate: 0, scale: 1, skewX: 0, skewY: 0, x: 0, y: 0 }
+    })
+  },
+  {
+    id: 'ember', name: 'Brasa', icon: '🔥', cat: 'glow',
+    desc: 'Glow cálido pulsante, tonos fuego',
+    preview: { bg: 'linear-gradient(135deg, #8B0000, #FF4500)', filter: 'brightness(1.1) saturate(1.3)' },
+    apply: () => ({
+      filter: { brightness: 1.05, contrast: 1.15, saturate: 1.3, grayscale: 0, sepia: 0.1, hueRotate: 0, blur: 0, invert: 0, opacity: 1, dropShadowX: 0, dropShadowY: 4, dropShadowBlur: 15, dropShadowColor: '#FF4500', dropShadowOpacity: 0.5 },
+      glow: { enabled: true, type: 'pulse', color: '#FF4500', speed: 1.5, intensity: 1.3, blur: 25, spread: 5, opacity: 0.7, hoverOnly: false },
+      anim: null, style: { accentColor: '#FF4500', shimmer: false, borderRadius: 4, opacity: 1 },
+      border: { enabled: false, color: '#FF4500', width: 1, style: 'solid' },
+      shadow: { enabled: true, color: '#8B0000', opacity: 0.5, x: 0, y: 6, blur: 18, spread: 0, inset: false },
+      hover: { scale: 1.04, brightness: 1.3, saturate: 1.5, shadowBlur: 0, transition: 0.25, borderColor: '#FF6347', glowIntensify: true, blur: 0, siblingsBlur: 5, hueRotate: 0, opacity: 1, enableAnim: false, animType: '', animDur: 1 },
+      transform: { rotate: 0, scale: 1, skewX: 0, skewY: 0, x: 0, y: 0 }
+    })
+  },
+  {
+    id: 'frost', name: 'Escarcha', icon: '❄️', cat: 'color',
+    desc: 'Tinte azul frío + brillo suave',
+    preview: { bg: 'linear-gradient(135deg, #0c4a6e, #38bdf8)', filter: 'brightness(1.1) saturate(0.8) hue-rotate(-10deg)' },
+    apply: () => ({
+      filter: { brightness: 1.1, contrast: 1.05, saturate: 0.8, grayscale: 0, sepia: 0, hueRotate: -10, blur: 0, invert: 0, opacity: 1, dropShadowX: 0, dropShadowY: 0, dropShadowBlur: 20, dropShadowColor: '#38bdf8', dropShadowOpacity: 0.3 },
+      glow: { enabled: true, type: 'breathe', color: '#38bdf8', speed: 4, intensity: 0.9, blur: 25, spread: 0, opacity: 0.5, hoverOnly: true },
+      anim: null, style: { accentColor: '#38bdf8', shimmer: true, borderRadius: 10, opacity: 1 },
+      border: { enabled: true, color: '#38bdf8', width: 1, style: 'solid' },
+      shadow: { enabled: true, color: '#0c4a6e', opacity: 0.4, x: 0, y: 6, blur: 16, spread: 0, inset: false },
+      hover: { scale: 1.03, brightness: 1.2, saturate: 1, shadowBlur: 0, transition: 0.35, borderColor: '#7dd3fc', glowIntensify: false, blur: 0, siblingsBlur: 3, hueRotate: 0, opacity: 1, enableAnim: false, animType: '', animDur: 1 },
+      transform: { rotate: 0, scale: 1, skewX: 0, skewY: 0, x: 0, y: 0 }
+    })
+  },
+  {
+    id: 'film', name: 'Película', icon: '🎞️', cat: 'color',
+    desc: 'Desaturado + grano, look cinematográfico',
+    preview: { bg: 'linear-gradient(135deg, #3d3d3d, #5a5a5a)', filter: 'grayscale(0.4) contrast(1.15) sepia(0.15)' },
+    apply: () => ({
+      filter: { brightness: 0.95, contrast: 1.15, saturate: 0.7, grayscale: 0.4, sepia: 0.15, hueRotate: 0, blur: 0, invert: 0, opacity: 1, dropShadowX: 0, dropShadowY: 6, dropShadowBlur: 18, dropShadowColor: '#000000', dropShadowOpacity: 0.5 },
+      glow: { enabled: false, type: 'active', color: '#dc2626', speed: 3, intensity: 1, blur: 20, spread: 0, opacity: 1, hoverOnly: false },
+      anim: null, style: { accentColor: '#dc2626', shimmer: false, borderRadius: 2, opacity: 1 },
+      border: { enabled: false, color: '#dc2626', width: 1, style: 'solid' },
+      shadow: { enabled: true, color: '#000000', opacity: 0.5, x: 0, y: 6, blur: 18, spread: 0, inset: false },
+      hover: { scale: 1.02, brightness: 1.15, saturate: 0.9, shadowBlur: 25, transition: 0.4, borderColor: '#888888', glowIntensify: false, blur: 0, siblingsBlur: 2, hueRotate: 0, opacity: 1, enableAnim: false, animType: '', animDur: 1 },
+      transform: { rotate: 0, scale: 1, skewX: 0, skewY: 0, x: 0, y: 0 }
+    })
+  },
+  {
+    id: 'pop', name: 'Pop Art', icon: '🎨', cat: 'color',
+    desc: 'Saturación extrema, colores vibrantes',
+    preview: { bg: 'linear-gradient(135deg, #ff006e, #8338ec, #3a86ff)', filter: 'saturate(3) contrast(1.3) brightness(1.1)' },
+    apply: () => ({
+      filter: { brightness: 1.1, contrast: 1.3, saturate: 3, grayscale: 0, sepia: 0, hueRotate: 0, blur: 0, invert: 0, opacity: 1, dropShadowX: 3, dropShadowY: 3, dropShadowBlur: 0, dropShadowColor: '#000000', dropShadowOpacity: 0.3 },
+      glow: { enabled: false, type: 'active', color: '#ff006e', speed: 3, intensity: 1, blur: 20, spread: 0, opacity: 1, hoverOnly: false },
+      anim: null, style: { accentColor: '#ff006e', shimmer: false, borderRadius: 0, opacity: 1 },
+      border: { enabled: true, color: '#000000', width: 3, style: 'solid' },
+      shadow: { enabled: true, color: '#000000', opacity: 0.3, x: 4, y: 4, blur: 0, spread: 0, inset: false },
+      hover: { scale: 1.06, brightness: 1.2, saturate: 3.5, shadowBlur: 0, transition: 0.15, borderColor: '#ff006e', glowIntensify: false, blur: 0, siblingsBlur: 3, hueRotate: 20, opacity: 1, enableAnim: false, animType: '', animDur: 1 },
+      transform: { rotate: 0, scale: 1, skewX: 0, skewY: 0, x: 0, y: 0 }
+    })
+  },
+  {
+    id: 'float', name: 'Flotante', icon: '🫧', cat: 'anim',
+    desc: 'Flotación suave, animación sutil',
+    preview: { bg: 'linear-gradient(135deg, #1e1b4b, #312e81)', filter: 'brightness(1.05)' },
+    apply: () => ({
+      filter: { brightness: 1.05, contrast: 1, saturate: 1, grayscale: 0, sepia: 0, hueRotate: 0, blur: 0, invert: 0, opacity: 1, dropShadowX: 0, dropShadowY: 8, dropShadowBlur: 20, dropShadowColor: '#312e81', dropShadowOpacity: 0.4 },
+      glow: { enabled: false, type: 'active', color: '#dc2626', speed: 3, intensity: 1, blur: 20, spread: 0, opacity: 1, hoverOnly: false },
+      anim: { type: 'flotar', dur: 3, del: 0, easing: 'ease-in-out', direction: 'alternate', iterations: 'infinite', intensity: 100 },
+      style: { accentColor: '#6366f1', shimmer: false, borderRadius: 12, opacity: 1 },
+      border: { enabled: false, color: '#dc2626', width: 1, style: 'solid' },
+      shadow: { enabled: true, color: '#312e81', opacity: 0.3, x: 0, y: 10, blur: 25, spread: 0, inset: false },
+      hover: { scale: 1.05, brightness: 1.1, saturate: 1, shadowBlur: 35, transition: 0.35, borderColor: '#6366f1', glowIntensify: false, blur: 0, siblingsBlur: 3, hueRotate: 0, opacity: 1, enableAnim: false, animType: '', animDur: 1 },
+      transform: { rotate: 0, scale: 1, skewX: 0, skewY: 0, x: 0, y: 0 }
+    })
+  },
+  {
+    id: 'underwater', name: 'Submarino', icon: '🌊', cat: 'anim',
+    desc: 'Azul profundo, onda lenta, ambiente oceánico',
+    preview: { bg: 'linear-gradient(135deg, #042f2e, #0d9488)', filter: 'hue-rotate(-5deg) brightness(0.9) saturate(1.2)' },
+    apply: () => ({
+      filter: { brightness: 0.9, contrast: 1.1, saturate: 1.2, grayscale: 0, sepia: 0, hueRotate: -5, blur: 1, invert: 0, opacity: 0.9, dropShadowX: 0, dropShadowY: 0, dropShadowBlur: 30, dropShadowColor: '#0d9488', dropShadowOpacity: 0.3 },
+      glow: { enabled: true, type: 'breathe', color: '#0d9488', speed: 6, intensity: 0.7, blur: 35, spread: 0, opacity: 0.4, hoverOnly: false },
+      anim: { type: 'respirar', dur: 6, del: 0, easing: 'ease-in-out', direction: 'normal', iterations: 'infinite', intensity: 70 },
+      style: { accentColor: '#0d9488', shimmer: false, borderRadius: 16, opacity: 0.9 },
+      border: { enabled: true, color: '#0d9488', width: 1, style: 'solid' },
+      shadow: { enabled: true, color: '#042f2e', opacity: 0.5, x: 0, y: 8, blur: 25, spread: 0, inset: false },
+      hover: { scale: 1.02, brightness: 1.2, saturate: 1.5, shadowBlur: 0, transition: 0.5, borderColor: '#2dd4bf', glowIntensify: true, blur: 0, siblingsBlur: 6, hueRotate: 10, opacity: 1, enableAnim: false, animType: '', animDur: 1 },
+      transform: { rotate: 0, scale: 1, skewX: 0, skewY: 0, x: 0, y: 0 }
+    })
+  }
+];
+
+// Render effect gallery HTML for a given prefix
+export function renderEffectGalleryHTML(prefix) {
+  const cats = { basic: 'Básico', color: 'Color', glow: 'Glow', anim: 'Animación' };
+  let html = '<div class="fx-gallery">';
+  for (const [catKey, catName] of Object.entries(cats)) {
+    const presets = EFFECT_PRESETS.filter(p => p.cat === catKey);
+    if (!presets.length) continue;
+    html += '<div class="fx-cat-row">';
+    presets.forEach(p => {
+      html += `<div class="fx-preset" data-fx="${p.id}" data-prefix="${prefix}" onclick="window.__applyFxPreset && window.__applyFxPreset('${p.id}','${prefix}')" title="${p.desc}">
+        <div class="fx-pv" style="background:${p.preview.bg};filter:${p.preview.filter}"></div>
+        <div class="fx-preset-name">${p.name}</div>
+      </div>`;
+    });
+    html += '</div>';
+  }
+  html += '</div>';
+  return html;
+}
+
 // Default cardStyle shape
 export const DEFAULT_CARD_STYLE = {
   filter: { brightness: 1, contrast: 1, saturate: 1, grayscale: 0, sepia: 0, hueRotate: 0, blur: 0, invert: 0, opacity: 1, dropShadowX: 0, dropShadowY: 0, dropShadowBlur: 0, dropShadowColor: '#000000', dropShadowOpacity: 0 },
@@ -364,3 +592,29 @@ export function syncSliderDisplays(prefix) {
     else sib.textContent = v.toFixed(2);
   });
 }
+
+// ═══ Global function: apply an effect preset to a panel with given prefix ═══
+window.__applyFxPreset = function(presetId, prefix) {
+  const preset = EFFECT_PRESETS.find(p => p.id === presetId);
+  if (!preset) return;
+  const cs = preset.apply();
+  // Reset all inputs first
+  resetCardStyleInputs(prefix);
+  // Populate with preset values
+  populateFromCardStyle(cs, prefix);
+  syncSliderDisplays(prefix);
+  // Highlight active preset in gallery
+  const galleryEl = document.querySelector(`[data-prefix="${prefix}"]`)?.closest('.fx-gallery');
+  if (galleryEl) {
+    galleryEl.querySelectorAll('.fx-preset').forEach(el => el.classList.toggle('active', el.dataset.fx === presetId));
+  }
+  // Trigger preview — depends on which panel
+  if (prefix === 'f-') {
+    if (typeof window.updateCardPreview === 'function') window.updateCardPreview();
+    if (typeof window._sendLiveUpdate === 'function') window._sendLiveUpdate();
+  } else {
+    // Global panel: trigger input event on the section to fire delegation
+    const section = document.getElementById('sec-card-global');
+    if (section) section.dispatchEvent(new Event('input', { bubbles: true }));
+  }
+};

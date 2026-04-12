@@ -6,6 +6,7 @@ import { siteSettings, db } from './state.js';
 import {
   renderFiltersHTML, renderGlowHTML, renderAnimHTML, renderStyleHTML,
   renderBorderHTML, renderShadowHTML, renderHoverHTML, renderTransformHTML,
+  renderEffectGalleryHTML,
   buildCardStyleFromPrefix, populateFromCardStyle, resetCardStyleInputs,
   syncSliderDisplays, DEFAULT_CARD_STYLE, isCardStyleEmpty
 } from './card-style-ui.js';
@@ -18,6 +19,8 @@ let _previewTimer = null;
 export function initGlobalCardStyle() {
   const filters = g('gcs-filters');
   if (filters && !filters.children.length) {
+    const gallery = g('gcs-fx-gallery');
+    if (gallery) gallery.innerHTML = renderEffectGalleryHTML(PREFIX);
     filters.innerHTML = renderFiltersHTML(PREFIX);
     g('gcs-glow').innerHTML = renderGlowHTML(PREFIX);
     g('gcs-anim').innerHTML = renderAnimHTML(PREFIX);

@@ -9,6 +9,7 @@ import { autoSave, postToFrame } from './core.js';
 import { siteSettings } from './state.js';
 import { R2_ENABLED, uploadToR2 } from './r2.js';
 import { updateCardPreview, syncSliderDisplay, _buildCardStyleFromInputs, _isCardStyleDefault, _setHoloColors, _toggleAnimSubsettings } from './beat-card-style.js';
+import { renderEffectGalleryHTML } from './card-style-ui.js';
 import { ALL_SLIDER_IDS, renderPresets, renderHoverPresets, applyPreset, applyHoverPreset, resetCardStyle, resetBeatToGlobal } from './beat-presets.js';
 
 function _triggerLiveUpdate() {
@@ -468,6 +469,11 @@ Object.assign(window, {
 // Initialize preset grids (safe if DOM not ready — functions bail early)
 renderPresets();
 renderHoverPresets();
+// Initialize effect gallery
+if (typeof document !== 'undefined' && document.getElementById) {
+  var _fxGallery = document.getElementById('beat-fx-gallery');
+  if (_fxGallery && !_fxGallery.children.length) _fxGallery.innerHTML = renderEffectGalleryHTML('f-');
+}
 // ═══ REAL-TIME CARD PREVIEW ═══
 // Debounced re-render of store card preview when beat fields change
 (function() {
