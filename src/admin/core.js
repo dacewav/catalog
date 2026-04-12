@@ -8,11 +8,19 @@ import {
   _undoStack,
   _iframeReady, setIframeReady, _ldTheme, _ldSettings, _ldBeats,
   setLdTheme, setLdSettings, setLdBeats,
-  _changeLog, _lastChangeValues,
-  ppCtx, ppParts, ppAnim, setPpCtx, setPpParts, setPpAnim,
-  _gradStops, setGradStops, _gradRerenderTimer, setGradRerenderTimer
+  ppCtx, ppParts, ppAnim, setPpCtx, setPpParts, setPpAnim
 } from './state.js';
 import { pushUndo, pushUndoInitial, undo, redo, setUndoDeps } from './undo.js';
+import {
+  renderGradEditor, buildGradCSS, addGradStop, updateGradStop,
+  rmGradStop, startDragStop, applyGradToHero
+} from './gradient.js';
+import {
+  logChange, renderChangeLog, logFieldChange, addTooltips
+} from './changelog.js';
+import {
+  renderFloatingEditor, renderFloatingPreview, addFE, saveFE, rmFE
+} from './floating.js';
 import {
   g, val, setVal, checked, setChecked, hexRgba, hexFromRgba, rgbaFromHex,
   loadFont, showToast, showSaving, fmt, sv, resetSlider, toggleCard, setAutoSaveRef,
@@ -1125,126 +1133,13 @@ export function exportCSS() {
 }
 
 // ═══ CHANGE LOG ═══
-export function logChange(label, oldVal, newVal) {
-  _changeLog.unshift({ label, oldVal, newVal, time: new Date().toLocaleTimeString() });
-  if (_changeLog.length > 50) _changeLog.pop();
-  renderChangeLog();
-}
-export function renderChangeLog() {
-  const wrap = g('change-log'); if (!wrap) return;
-  wrap.innerHTML = _changeLog.length ? _changeLog.slice(0, 20).map(c => '<div style="display:flex;gap:6px;padding:3px 0;border-bottom:1px solid var(--b);font-size:10px"><span style="color:var(--hi);min-width:50px">' + c.time + '</span><span style="flex:1">' + c.label + '</span><span style="color:var(--mu)">' + (c.oldVal || '—') + ' → ' + (c.newVal || '—') + '</span></div>').join('') : '<div style="color:var(--hi);font-size:10px">Sin cambios registrados</div>';
-}
-export function logFieldChange() {
-  const fields = ['tc-bg', 'tc-surface', 'tc-accent', 'tc-text', 'tc-muted', 'tc-border', 't-font-d', 't-font-m', 't-font-size', 't-line-h', 't-glow', 't-glow-type', 't-glow-blur', 't-glow-int', 't-glow-op', 't-glow-anim', 't-blur', 't-card-op', 't-grain', 't-radius', 't-bg-op', 't-btn-op', 't-btn-hop', 'h-title', 'h-sub', 'h-eyebrow', 'h-title-size', 'h-ls', 'h-lh', 'h-pad-top', 'h-stroke-on', 'h-glow-on', 'h-grad-on', 'h-grad-clr', 'h-grad-w', 'h-grad-h', 'h-word-blur', 'h-word-op', 'h-glow-clr', 'h-stroke-clr', 'p-on', 'p-type', 'p-count', 'p-color', 'p-speed', 'p-opacity', 'b-active', 'b-text', 'b-anim', 'b-speed', 'b-bg', 'b-txt-clr', 't-hero-top', 't-player-bot', 't-logo-ox', 't-logo-url', 't-logo-w', 't-logo-scale', 't-logo-rot', 'tt-wbar', 'tt-wbar-a', 'tt-btn-clr', 'tt-btn-bdr', 'tt-btn-bg', 's-name', 's-wa', 's-ig', 's-email', 's-hero', 's-sub'];
-  fields.forEach(id => {
-    const el = g(id); if (!el) return;
-    const v = el.type === 'checkbox' ? el.checked : el.value;
-    if (_lastChangeValues[id] !== undefined && _lastChangeValues[id] !== v) {
-      const label = el.closest('.field,.color-wrap,.tog-row')?.querySelector('label')?.textContent || id;
-      const fmtVal = v => String(v).length > 30 ? String(v).slice(0, 27) + '…' : v;
-      logChange(label, fmtVal(_lastChangeValues[id]), fmtVal(v));
-    }
-    _lastChangeValues[id] = v;
-  });
-}
+// Change log + tooltips → src/admin/changelog.js
 
-// ═══ TOOLTIPS ═══
-export function addTooltips() {
-  const tips = { 'tc-bg': 'Color de fondo principal', 'tc-surface': 'Color de superficie de tarjetas', 'tc-accent': 'Color de acento / resaltado', 't-font-d': 'Fuente para títulos', 't-font-m': 'Fuente para textos secundarios', 't-font-size': 'Tamaño base de toda la tienda', 't-line-h': 'Espacio entre líneas', 't-glow': 'Activa/desactiva glow global', 't-glow-type': 'Tipo de efecto glow', 't-glow-anim': 'Animación del glow', 't-blur': 'Desenfoque del fondo', 't-grain': 'Intensidad del grano', 't-radius': 'Radio de bordes', 'p-on': 'Partículas flotantes', 'p-type': 'Forma de partículas', 'p-count': 'Número de partículas', 'h-title': 'Título principal del hero', 'h-sub': 'Subtítulo', 'h-grad-on': 'Degradado radial', 'h-title-size': 'Tamaño del título', 'h-stroke-on': 'Outline última palabra', 'h-glow-on': 'Brillo del título', 't-logo-url': 'URL del logo', 't-logo-w': 'Ancho del logo', 's-name': 'Nombre del sitio', 's-wa': 'WhatsApp', 's-ig': 'Instagram' };
-  Object.entries(tips).forEach(([id, text]) => {
-    const el = g(id); if (!el) return;
-    const label = el.closest('.field,.color-wrap,.tog-row')?.querySelector('label');
-    if (label && !label.querySelector('.tip')) { const tip = document.createElement('span'); tip.className = 'tip'; tip.title = text; tip.textContent = '?'; label.appendChild(tip); }
-  });
-}
+// Floating elements → src/admin/floating.js
 
-// ═══ FLOATING CANVAS EDITOR ═══
-export function renderFloatingEditor() {
-  const container = g('floating-editor'); if (!container) return;
-  const els = Object.entries(floatingEls);
-  container.innerHTML = els.length ? els.map(([k, el]) => {
-    return '<div class="fe-ed-item" data-key="' + k + '" style="background:var(--as2);border:1px solid var(--b);border-radius:var(--rad);padding:8px;margin-bottom:6px">'
-      + '<div class="fg3"><div class="field"><label>X</label><input type="number" value="' + (el.x || 0) + '" data-f="x"></div>'
-      + '<div class="field"><label>Y</label><input type="number" value="' + (el.y || 0) + '" data-f="y"></div>'
-      + '<div class="field"><label>Ancho</label><input type="number" value="' + (el.width || 100) + '" data-f="width"></div></div>'
-      + '<div class="fg3"><div class="field"><label>Alto</label><input type="number" value="' + (el.height || 100) + '" data-f="height"></div>'
-      + '<div class="field"><label>Opacidad</label><input type="number" min="0" max="1" step="0.05" value="' + (el.opacity != null ? el.opacity : 1) + '" data-f="opacity"></div>'
-      + '<div class="field"><label>Visible</label><input type="checkbox" class="tog" ' + (el.visible !== false ? 'checked' : '') + ' data-f="visible"></div></div>'
-      + '<div class="fg2"><div class="field"><label>Tipo</label><select data-f="type"><option value="image"' + (el.type === 'image' ? ' selected' : '') + '>Imagen</option><option value="text"' + (el.type === 'text' ? ' selected' : '') + '>Texto</option></select></div>'
-      + '<div class="field"><label>Anim</label><select data-f="anim">' + ANIMS.map(a => '<option value="' + a + '"' + (el.anim === a ? ' selected' : '') + '>' + a + '</option>').join('') + '</select></div></div>'
-      + '<div class="field"><label>Contenido (URL o texto)</label><input type="text" value="' + (el.content || '') + '" data-f="content"></div>'
-      + '<div class="btn-row" style="margin-top:6px"><button class="btn btn-ok" onclick="saveFE(\'' + k + '\')" style="font-size:9px">Guardar</button><button class="btn btn-del" onclick="rmFE(\'' + k + '\')" style="font-size:9px">✕</button></div></div>';
-  }).join('') : '<div style="color:var(--hi);font-size:10px">Sin elementos flotantes.</div>';
-}
-export function renderFloatingPreview() {
-  const pv = g('floating-preview'); if (!pv) return; pv.innerHTML = '';
-  Object.entries(floatingEls).forEach(([k, el]) => {
-    if (!el || !el.visible) return;
-    const d = document.createElement('div');
-    const scaleX = pv.offsetWidth / 1200, scaleY = 120 / 800;
-    d.style.cssText = 'position:absolute;left:' + ((el.x || 0) * scaleX) + 'px;top:' + ((el.y || 0) * scaleY) + 'px;width:' + ((el.width || 100) * scaleX) + 'px;height:' + ((el.height || 100) * scaleY) + 'px;opacity:' + (el.opacity || 1) + ';pointer-events:none';
-    if (el.type === 'text') d.innerHTML = '<div style="font-size:' + Math.max(6, (el.fontSize || 16) * scaleX) + 'px;color:var(--tx);white-space:nowrap">' + (el.content || '') + '</div>';
-    else if (el.content) d.innerHTML = '<img src="' + el.content + '" style="width:100%;height:100%;object-fit:contain" onerror="this.style.display=\'none\'">';
-    pv.appendChild(d);
-  });
-}
-export function addFE() {
-  const k = 'fe_' + Date.now();
-  floatingEls[k] = { type: 'image', content: '', x: 100, y: 100, width: 100, height: 100, opacity: 1, visible: true, anim: 'none', animDur: 2, fontSize: 16 };
-  renderFloatingEditor(); renderFloatingPreview();
-}
-export function saveFE(k) {
-  const el = document.querySelector('.fe-ed-item[data-key="' + k + '"]'); if (!el) return;
-  const f = {}; el.querySelectorAll('[data-f]').forEach(inp => { f[inp.dataset.f] = inp.type === 'checkbox' ? inp.checked : inp.value; });
-  floatingEls[k] = { ...floatingEls[k], ...f, x: parseFloat(f.x) || 0, y: parseFloat(f.y) || 0, width: parseFloat(f.width) || 100, height: parseFloat(f.height) || 100, opacity: parseFloat(f.opacity) || 1, fontSize: parseInt(f.fontSize) || 16 };
-  localStorage.setItem('dace-floating', JSON.stringify(floatingEls));
-  if (db) db.ref('floatingElements/' + k).set(floatingEls[k]).catch(() => {});
-  renderFloatingPreview(); showToast('Elemento guardado');
-}
-export function rmFE(k) {
-  delete floatingEls[k]; localStorage.setItem('dace-floating', JSON.stringify(floatingEls));
-  if (db) db.ref('floatingElements/' + k).remove().catch(() => {});
-  renderFloatingEditor(); renderFloatingPreview(); showToast('Eliminado');
-}
 
 // ═══ GRADIENT EDITOR ═══
-export function renderGradEditor() {
-  const wrap = g('grad-stops'); if (!wrap) return;
-  const gradCSS = buildGradCSS();
-  wrap.innerHTML = '<div style="height:40px;border-radius:var(--rad);border:1px solid var(--b);margin-bottom:8px;position:relative;overflow:hidden;cursor:pointer" id="grad-bar" onclick="addGradStop(event)">'
-    + '<div style="width:100%;height:100%;background:linear-gradient(90deg,' + gradCSS + ');transition:background .2s"></div>'
-    + _gradStops.map((s, i) => '<div style="position:absolute;left:' + s.pos + '%;top:0;bottom:0;width:12px;margin-left:-6px;cursor:ew-resize;display:flex;flex-direction:column;align-items:center;padding-top:2px" onmousedown="startDragStop(event,' + i + ')"><div style="width:10px;height:10px;border-radius:50%;background:' + s.color + ';border:2px solid #fff;box-shadow:0 1px 3px rgba(0,0,0,0.5)"></div><div style="width:2px;flex:1;background:rgba(255,255,255,0.5)"></div></div>').join('')
-    + '</div><div style="display:flex;flex-direction:column;gap:4px">'
-    + _gradStops.map((s, i) => '<div style="display:flex;align-items:center;gap:6px;padding:4px 6px;background:var(--as2);border-radius:var(--rad)"><span style="font-size:9px;color:var(--mu);min-width:16px">' + i + '</span><input type="range" min="0" max="100" value="' + s.pos + '" style="width:70px" oninput="updateGradStop(' + i + ',\'pos\',this.value)"><input type="color" value="' + s.color + '" style="width:22px;height:18px;border:1px solid var(--b);border-radius:3px;padding:0" oninput="updateGradStop(' + i + ',\'color\',this.value)"><input type="range" min="0" max="0.5" step="0.01" value="' + s.opacity + '" style="width:50px" oninput="updateGradStop(' + i + ',\'opacity\',this.value)"><span style="font-size:9px;color:var(--acc);min-width:28px">' + s.opacity.toFixed(2) + '</span><button class="btn btn-del" onclick="rmGradStop(' + i + ')" style="font-size:8px;padding:2px 5px;margin-left:auto">✕</button></div>').join('')
-    + '</div>';
-}
-export function buildGradCSS() {
-  const sorted = [..._gradStops].sort((a, b) => a.pos - b.pos);
-  return sorted.map(s => 'rgba(' + parseInt(s.color.slice(1, 3), 16) + ',' + parseInt(s.color.slice(3, 5), 16) + ',' + parseInt(s.color.slice(5, 7), 16) + ',' + s.opacity + ') ' + s.pos + '%').join(', ');
-}
-export function addGradStop(e) {
-  const bar = g('grad-bar'); if (!bar) return; const r = bar.getBoundingClientRect();
-  const pos = Math.round(((e.clientX - r.left) / r.width) * 100);
-  _gradStops.push({ pos, color: '#dc2626', opacity: 0.1 }); renderGradEditor(); applyGradToHero();
-}
-export function updateGradStop(i, field, v) {
-  if (!_gradStops[i]) return;
-  _gradStops[i][field] = field === 'pos' ? parseInt(v) : field === 'opacity' ? parseFloat(v) : v;
-  clearTimeout(_gradRerenderTimer);
-  setGradRerenderTimer(setTimeout(() => { renderGradEditor(); applyGradToHero(); }, field === 'color' ? 300 : 0));
-}
-export function rmGradStop(i) { _gradStops.splice(i, 1); renderGradEditor(); applyGradToHero(); }
-export function startDragStop(e, i) {
-  e.preventDefault(); const bar = g('grad-bar'); if (!bar) return; const r = bar.getBoundingClientRect();
-  function onMove(ev) { const pos = Math.round(Math.max(0, Math.min(100, ((ev.clientX - r.left) / r.width) * 100))); _gradStops[i].pos = pos; renderGradEditor(); applyGradToHero(); }
-  function onUp() { document.removeEventListener('mousemove', onMove); document.removeEventListener('mouseup', onUp); }
-  document.addEventListener('mousemove', onMove); document.addEventListener('mouseup', onUp);
-}
-export function applyGradToHero() {
-  const css = buildGradCSS();
-  const pvg = g('hpv-grad');
-  if (pvg) pvg.style.background = 'radial-gradient(ellipse ' + (parseInt(val('h-grad-w')) || 80) + '% ' + (parseInt(val('h-grad-h')) || 60) + '% at 50% 0%, ' + css + ')';
-}
+// Gradient editor → src/admin/gradient.js
 
 // ═══ HERO DRAG ═══
 export function setupHeroDrag() {
