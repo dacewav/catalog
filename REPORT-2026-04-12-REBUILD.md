@@ -51,6 +51,7 @@
 | `skills-ui-ux-pro-max/` | [nextlevelbuilder/ui-ux-pro-max-skill](https://github.com/nextlevelbuilder/ui-ux-pro-max-skill) | 67 UI styles, 161 color palettes, 57 font pairings, 99 UX guidelines, 25 chart types |
 | `skills-vercel-agent/` | [vercel-labs/agent-skills](https://github.com/vercel-labs/agent-skills) | Deploy to Vercel, React best practices, web design guidelines, composition patterns |
 | `skills-bencium-marketplace/` | [bencium/bencium-marketplace](https://github.com/bencium/bencium-marketplace) | 13 skills: design-audit, typography, controlled-ux-designer, impact-designer, negentropy-lens, etc. |
+| `skills-web-quality/` | [addyosmani/web-quality-skills](https://github.com/addyosmani/web-quality-skills) | Lighthouse optimization, Core Web Vitals, performance, accessibility, SEO best practices |
 
 ### Skills referenciadas en SKILLS-REFERENCE.md (repo)
 
@@ -138,6 +139,21 @@ dacewav-catalog/
 │
 └── src/admin-main.js        ← Entry point (NO modificado)
 ```
+
+---
+
+## 🔧 FIXES POST-REBUILD (08:25-08:35)
+
+### Commit `258b4e3`
+- cards.js: `--shim-speed`, `--shim-op`, `--card-radius` CSS vars
+- store-styles.css: shimmer usa variables, border-radius fallback cascade
+- beats.js: imports faltantes `_setHoloColors`, `_toggleAnimSubsettings`
+- beats.js: `renderFullPvInCard()` → `window.renderFullPvInCard()`
+- beats.js: guards para `window.location.origin`, `document.getElementById`
+- tests: 87 → 104 tests (admin-beats.test.js mocks)
+
+### Commit `2266923`
+- admin-styles.css: eliminado `</style>` residual en línea 1754
 
 ---
 
