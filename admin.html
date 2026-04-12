@@ -1512,6 +1512,25 @@ definen géneros.</textarea></div>
 
 <script src="dist/admin-app.js"></script>
 
+<!-- ═══ TAB FIX — ensures panels hide/show via inline style (override any CSS cascade issue) ═══ -->
+<script>
+(function() {
+  var panels = document.querySelectorAll('#sec-add .etp');
+  panels.forEach(function(p, i) { p.style.display = i === 0 ? 'block' : 'none'; });
+  var origShowEt = window.showEt;
+  window.showEt = function(name) {
+    panels.forEach(function(p) { p.style.display = 'none'; });
+    var target = document.getElementById('etp-' + name);
+    if (target) target.style.display = 'block';
+    // Also update tab button classes
+    document.querySelectorAll('#sec-add .et').forEach(function(t) {
+      t.classList.toggle('on', t.getAttribute('data-et') === name);
+    });
+    if (name === 'extras') document.dispatchEvent(new CustomEvent('extras-tab-shown'));
+  };
+})();
+</script>
+
 <!-- ═══ PREVIEW SYNC — runs AFTER admin-app.js so it wraps the real autoSave ═══ -->
 <script>
 function syncToPreview(varName, value) {

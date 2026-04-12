@@ -1,5 +1,26 @@
 # Catalog Project Memory
 
+## 2026-04-13 (sesión 3) — Image history + glow investigation (WIP)
+
+### Cambios
+- `prevImg()` ahora llama `_addImgToHistory()` para que URLs pegadas/escritas también se guardan en historial (antes solo subidas por file picker)
+- Archivo: `src/admin/beats.js` — 1 línea
+
+### Issues investigándose (no resueltos aún)
+- **Glow no visible en iframe preview** — admin `.bcpv` preview funciona, pero el store iframe no muestra glow tras live edit. Falta verificar si `liveEdits` Firebase listener recibe datos en el iframe
+- **CSS filters aparecen en Media tab** — estructura HTML es correcta, puede ser browser cache o rendering issue. Se tomó screenshot para debug
+- **Media tab animaciones** — controles de animación aparecen donde no deberían. Bug intermitente, no reproducible consistentemente
+
+### Pendientes (estado actual)
+- [ ] Verificar glow en iframe preview (live edit → store)
+- [ ] Investigar CSS filters en Media tab (browser cache?)
+- [ ] Shimmer/Shadow/Hover en la tienda — CSS specificity issue
+- [ ] CDN CORS — `cdn.dacewav.store` sin `Access-Control-Allow-Origin`
+- [ ] Firebase Analytics — `PERMISSION_DENIED` en `/analytics/*`
+- [ ] core.js modularizar (1405 líneas)
+
+---
+
 ## 2026-04-13 (sesión 2) — Glow system fix, Live edit sync, Papelera audio
 
 ### Problemas resueltos
