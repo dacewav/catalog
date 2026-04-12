@@ -74,6 +74,7 @@
     <div class="si" data-s="settings" onclick="showSection('settings')"><i class="fas fa-cog"></i><span>Ajustes</span></div>
     <div class="si" data-s="team" onclick="showSection('team')"><i class="fas fa-users"></i><span>Equipo</span></div>
     <div class="si" data-s="stats" onclick="showSection('stats')"><i class="fas fa-chart-bar"></i><span>Stats</span></div>
+    <div class="si" data-s="trash" onclick="showSection('trash')"><i class="fas fa-trash-alt"></i><span>Trash</span></div>
   </div>
 
   <!-- ═══ CONTROLS ═══ -->
@@ -585,7 +586,7 @@ definen géneros.</textarea></div>
             <div style="display:flex;justify-content:center;gap:6px;margin-bottom:8px">
               <label for="pv-img-upload" style="background:var(--as2);border:1px solid var(--b);border-radius:var(--rad);color:var(--tx);cursor:pointer;font-size:10px;padding:5px 12px;font-family:var(--fm);display:inline-flex;align-items:center;gap:4px;margin:0;transition:all .15s" onmouseenter="this.style.borderColor='var(--acc)';this.style.color='var(--acc)'" onmouseleave="this.style.borderColor='var(--b)';this.style.color='var(--tx)'">📸 Subir</label>
               <input type="file" id="pv-img-upload" accept="image/*" style="display:none">
-              <button onclick="var f=document.getElementById('f-img');if(f){f.value='';if(typeof prevImg==='function')prevImg();if(typeof _sendLiveUpdate==='function')_sendLiveUpdate();}document.getElementById('pv-img-preview').style.display='none'" style="background:var(--as2);border:1px solid var(--b);border-radius:var(--rad);color:var(--tx);cursor:pointer;font-size:10px;padding:5px 10px;font-family:var(--fm);transition:all .15s" onmouseenter="this.style.borderColor='var(--acc)';this.style.color='var(--acc)'" onmouseleave="this.style.borderColor='var(--b)';this.style.color='var(--tx)'">🗑 Quitar img</button>
+              <button onclick="var f=document.getElementById('f-img');if(f&&f.value){if(typeof trashItem==='function'){var bid=document.getElementById('f-id');trashItem(bid?bid.value:'','beat','image',f.value,'cover');}f.value='';if(typeof prevImg==='function')prevImg();if(typeof _sendLiveUpdate==='function')_sendLiveUpdate();document.getElementById('pv-img-preview').style.display='none'}" style="background:var(--as2);border:1px solid var(--b);border-radius:var(--rad);color:var(--tx);cursor:pointer;font-size:10px;padding:5px 10px;font-family:var(--fm);transition:all .15s" onmouseenter="this.style.borderColor='var(--acc)';this.style.color='var(--acc)'" onmouseleave="this.style.borderColor='var(--b)';this.style.color='var(--tx)'">🗑 Papelera</button>
             </div>
             <!-- Mini image history -->
             <div id="pv-img-history"></div>
@@ -1388,6 +1389,24 @@ definen géneros.</textarea></div>
       <div class="card"><div class="card-title"><span>👁️ Top 10 — Vistas</span></div><div class="card-body"><div id="top-views-chart" style="display:flex;flex-direction:column;gap:6px"><div class="empty-msg">Sin datos aún</div></div></div></div>
       <div class="card"><div class="card-title"><span>📱 Top 10 — WhatsApp</span></div><div class="card-body"><div id="top-wa-chart" style="display:flex;flex-direction:column;gap:6px"><div class="empty-msg">Sin datos aún</div></div></div></div>
       <div class="card"><div class="card-title"><span>📊 Todos los Beats</span></div><div class="card-body"><div id="counts-table"><div class="empty-msg">Sin datos aún</div></div></div></div>
+    </div>
+
+    <!-- ═══ TRASH ═══ -->
+    <div class="section" id="sec-trash">
+      <div class="section-title"><i class="fas fa-trash-alt"></i> Papelera</div>
+      <p style="font-size:10px;color:var(--mu);margin-bottom:12px">Archivos eliminados de beats. Restaura o elimina definitivamente.</p>
+      <div style="display:flex;gap:6px;margin-bottom:12px">
+        <button class="btn btn-del" onclick="emptyTrash()" style="font-size:10px"><i class="fas fa-broom"></i> Vaciar papelera</button>
+        <span id="trash-count" style="font-size:10px;color:var(--mu);display:flex;align-items:center"></span>
+      </div>
+      <!-- Filter tabs -->
+      <div style="display:flex;gap:4px;margin-bottom:10px">
+        <button class="btn btn-g trash-filter active" data-filter="all" onclick="filterTrash('all',this)" style="font-size:9px;padding:3px 10px">Todos</button>
+        <button class="btn btn-g trash-filter" data-filter="image" onclick="filterTrash('image',this)" style="font-size:9px;padding:3px 10px">🖼 Imágenes</button>
+        <button class="btn btn-g trash-filter" data-filter="audio" onclick="filterTrash('audio',this)" style="font-size:9px;padding:3px 10px">🎵 Audio</button>
+        <button class="btn btn-g trash-filter" data-filter="preview" onclick="filterTrash('preview',this)" style="font-size:9px;padding:3px 10px">🎧 Preview</button>
+      </div>
+      <div id="trash-list"></div>
     </div>
 
   </div><!-- end controls -->

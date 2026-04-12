@@ -20,6 +20,7 @@ import './admin/beats.js';
 import './admin/card-global.js';
 import './admin/r2.js';
 import './admin/features.js';
+import './admin/trash.js';
 
 // Import auth & firebase init (bootstraps everything)
 import './admin/firebase-init.js';
