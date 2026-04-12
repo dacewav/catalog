@@ -717,8 +717,8 @@ body > * { position: relative; z-index: 1; }
 }
 .et:hover { color: var(--hi); }
 .et.on { color: var(--tx); border-bottom-color: var(--acc); }
-.etp { display: none; }
-.etp.on { display: block; }
+.etp { display: none !important; }
+.etp.on { display: block !important; }
 
 /* ═══ LICENCE EDITOR ═══ */
 .lic-ed, .lic-row {
