@@ -315,8 +315,52 @@ function startPvResize(card, handle, pos, e) {
   window.addEventListener('pointerup', onUp);
 }
 
-// ═══ Preview image upload handler — direct from preview area ═══
-// Hooks into the existing R2 upload system (beats.js) for the preview 📸 button
+// ═══ Image history for this editing session ═══
+var _imgHistory = [];
+
+window._showImgPreview = function(url) {
+  var wrap = document.getElementById('pv-img-preview');
+  var img = document.getElementById('pv-img-preview-img');
+  if (!wrap || !img) return;
+  if (url) {
+    img.src = url;
+    wrap.style.display = 'block';
+  } else {
+    wrap.style.display = 'none';
+  }
+};
+
+window._addImgToHistory = function(url) {
+  if (!url) return;
+  // Avoid duplicates
+  if (_imgHistory.indexOf(url) > -1) return;
+  _imgHistory.unshift(url);
+  if (_imgHistory.length > 6) _imgHistory.pop();
+  _renderImgHistory();
+};
+
+window._renderImgHistory = function() {
+  var el = document.getElementById('pv-img-history');
+  if (!el) return;
+  el.innerHTML = _imgHistory.map(function(url, i) {
+    return '<img src="' + url + '" onclick="window._selectHistoryImg(' + i + ')" title="Usar esta imagen" style="width:36px;height:36px;border-radius:4px;object-fit:cover;border:1px solid var(--b);cursor:pointer;opacity:' + (i === 0 ? '1' : '0.6') + ';transition:opacity .2s" onmouseenter="this.style.opacity=1" onmouseleave="this.style.opacity=' + (i === 0 ? '1' : '0.6') + '">';
+  }).join('');
+};
+
+window._selectHistoryImg = function(idx) {
+  var url = _imgHistory[idx];
+  if (!url) return;
+  var imgField = document.getElementById('f-img');
+  if (imgField) {
+    imgField.value = url;
+    if (typeof window.prevImg === 'function') window.prevImg();
+    if (typeof window.updateCardPreview === 'function') window.updateCardPreview();
+    if (typeof window._sendLiveUpdate === 'function') window._sendLiveUpdate();
+  }
+  window._showImgPreview(url);
+};
+
+// ═══ Preview image upload handler ═══
 window._initPvImgUpload = function() {
   var input = document.getElementById('pv-img-upload');
   if (!input || input._bound) return;
@@ -324,26 +368,32 @@ window._initPvImgUpload = function() {
   input.addEventListener('change', function(e) {
     var file = e.target.files[0];
     if (!file) return;
-    // Check if R2 is actually configured — uploadBeatImg will fail silently otherwise
-    var r2Enabled = false;
-    try { r2Enabled = (typeof require !== 'undefined') ? false : !!document.querySelector('#r2-status-dot.ok'); } catch(ex) {}
-    // Also check the R2_ENABLED export from r2.js if available
-    if (typeof window._r2IsEnabled === 'function') r2Enabled = window._r2IsEnabled();
+    var r2Enabled = typeof window._r2IsEnabled === 'function' && window._r2IsEnabled();
     if (r2Enabled && typeof window.uploadBeatImg === 'function') {
-      // R2 configured — delegate to the existing beat image upload
-      window.uploadBeatImg(input);
-    } else {
-      // Fallback: local FileReader preview (no R2 needed)
+      // R2 configured — upload then show preview
+      var origThen = null;
+      // Monkey-patch to capture the URL after upload
       var reader = new FileReader();
       reader.onload = function(ev) {
+        window._showImgPreview(ev.target.result);
+        window._addImgToHistory(ev.target.result);
+      };
+      reader.readAsDataURL(file);
+      window.uploadBeatImg(input);
+    } else {
+      // Fallback: local FileReader
+      var reader = new FileReader();
+      reader.onload = function(ev) {
+        var url = ev.target.result;
         var imgField = document.getElementById('f-img');
         if (imgField) {
-          imgField.value = ev.target.result;
+          imgField.value = url;
           if (typeof window.prevImg === 'function') window.prevImg();
           if (typeof window.updateCardPreview === 'function') window.updateCardPreview();
-          if (typeof window._triggerLiveUpdate === 'function') window._triggerLiveUpdate();
           if (typeof window._sendLiveUpdate === 'function') window._sendLiveUpdate();
         }
+        window._showImgPreview(url);
+        window._addImgToHistory(url);
       };
       reader.readAsDataURL(file);
     }

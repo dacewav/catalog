@@ -282,7 +282,7 @@ function collectLics() { const lics = []; g('le-editor').querySelectorAll('.lic-
 export function loadDefaultLics() { renderLicEditor(JSON.parse(JSON.stringify(defLics))); showToast('Licencias base cargadas'); }
 
 // Upload helpers
-function prevImg() { const url = val('f-img'); g('img-prev').innerHTML = url ? '<img src="' + url + '" style="max-width:160px;max-height:100px;border-radius:6px;border:1px solid var(--b)">' : ''; if (typeof window.renderFullPvInCard === 'function') window.renderFullPvInCard(); if (typeof window._sendLiveUpdate === 'function') { clearTimeout(window._prevImgLiveTimer); window._prevImgLiveTimer = setTimeout(function() { window._sendLiveUpdate(); }, 300); } }
+function prevImg() { const url = val('f-img'); g('img-prev').innerHTML = url ? '<img src="' + url + '" style="max-width:160px;max-height:100px;border-radius:6px;border:1px solid var(--b)">' : ''; if (typeof window.renderFullPvInCard === 'function') window.renderFullPvInCard(); if (url && typeof window._showImgPreview === 'function') window._showImgPreview(url); if (typeof window._sendLiveUpdate === 'function') { clearTimeout(window._prevImgLiveTimer); window._prevImgLiveTimer = setTimeout(function() { window._sendLiveUpdate(); }, 300); } }
 export function uploadBeatImg(input) {
   const file = input.files[0]; if (!file) return;
   if (!R2_ENABLED) { showToast('R2 Worker no configurado.', true); input.value = ''; return; }

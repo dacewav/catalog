@@ -574,11 +574,17 @@ definen géneros.</textarea></div>
           <div class="card-body" style="text-align:center;padding:16px">
             <div style="font-size:20px;margin-bottom:6px">👁️</div>
             <div style="font-size:11px;color:var(--tx);font-weight:600;margin-bottom:4px">Vista previa en tiempo real</div>
-            <div style="font-size:9px;color:var(--mu);line-height:1.5">Los cambios se reflejan automáticamente en el panel de la derecha →<br>Sube imagen con el botón 📸 aquí abajo</div>
+            <div style="font-size:9px;color:var(--mu);line-height:1.5">Los cambios se reflejan automáticamente en el panel de la derecha →</div>
             <div style="margin-top:10px;display:flex;justify-content:center;gap:6px">
               <label for="pv-img-upload" style="background:var(--as2);border:1px solid var(--b);border-radius:var(--rad);color:var(--tx);cursor:pointer;font-size:10px;padding:6px 14px;font-family:var(--fm);display:inline-flex;align-items:center;gap:4px;margin:0;transition:all .2s" onmouseenter="this.style.borderColor='var(--acc)';this.style.color='var(--acc)'" onmouseleave="this.style.borderColor='var(--b)';this.style.color='var(--tx)'">📸 Subir imagen</label>
               <input type="file" id="pv-img-upload" accept="image/*" style="display:none">
             </div>
+            <!-- Image preview after upload -->
+            <div id="pv-img-preview" style="margin-top:10px;display:none">
+              <img id="pv-img-preview-img" style="max-width:180px;max-height:120px;border-radius:6px;border:1px solid var(--b);object-fit:cover">
+            </div>
+            <!-- Mini image history -->
+            <div id="pv-img-history" style="margin-top:8px;display:flex;gap:4px;justify-content:center;flex-wrap:wrap"></div>
           </div>
         </div>
 
