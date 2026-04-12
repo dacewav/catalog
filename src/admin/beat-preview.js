@@ -326,6 +326,38 @@ function startPvResize(card, handle, pos, e) {
   window.addEventListener('pointerup', onUp);
 }
 
+// ═══ Preview image upload handler — direct from preview area ═══
+// Hooks into the existing R2 upload system (beats.js) for the preview 📸 button
+window._initPvImgUpload = function() {
+  var input = document.getElementById('pv-img-upload');
+  if (!input || input._bound) return;
+  input._bound = true;
+  input.addEventListener('change', function(e) {
+    var file = e.target.files[0];
+    if (!file) return;
+    // Use the same upload system as beats.js
+    if (typeof window.uploadBeatImg === 'function') {
+      // Delegate to the existing beat image upload (sets f-img and triggers R2 upload)
+      window.uploadBeatImg(input);
+    } else {
+      // Fallback: local file preview (no R2)
+      var reader = new FileReader();
+      reader.onload = function(ev) {
+        var imgField = document.getElementById('f-img');
+        if (imgField) {
+          imgField.value = ev.target.result;
+          if (typeof window.prevImg === 'function') window.prevImg();
+          if (typeof window.updateCardPreview === 'function') window.updateCardPreview();
+          if (typeof window.renderFullPvInCard === 'function') window.renderFullPvInCard();
+          if (typeof window._sendLiveUpdate === 'function') window._sendLiveUpdate();
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+    input.value = '';
+  });
+};
+
 // ═══ Window assignments ═══
 Object.assign(window, {
   makePvDraggable

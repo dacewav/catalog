@@ -1559,7 +1559,7 @@ body.light .batch-img-drop input[type="file"] { opacity: 0; }
 #pv-store-card .beat-card { max-width: 320px; width: 100%; }
 #pv-full-card-container .beat-card,
 #pv-store-card .beat-card { position: relative; border-radius: var(--r-lg); overflow: hidden; cursor: default; transition: transform .35s cubic-bezier(.4,0,.2,1), box-shadow .35s; }
-#pv-full-card-container .beat-card { max-width: 260px; }
+#pv-full-card-container .beat-card { max-width: 320px; width: 100%; }
 #pv-full-card-container .beat-card-inner,
 #pv-store-card .beat-card-inner { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-lg); height: 100%; box-shadow: var(--card-shadow); display: flex; flex-direction: column; }
 #pv-full-card-container .beat-card:hover .beat-card-inner,

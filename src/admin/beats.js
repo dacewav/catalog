@@ -289,7 +289,7 @@ export function uploadBeatImg(input) {
   const beatId = editId || ('beat_' + Date.now());
   const btn = input.parentElement.querySelector('button'); btn.disabled = true; btn.textContent = '⏳'; showSaving(true);
   uploadToR2(file, 'beats/' + beatId + '/cover-' + file.name.replace(/[^a-zA-Z0-9._-]/g, '_'))
-    .then(r => { setVal('f-img', r.url); prevImg(); showSaving(false); btn.disabled = false; btn.textContent = '📤'; showToast('Imagen subida ✓'); })
+    .then(r => { setVal('f-img', r.url); prevImg(); _triggerLiveUpdate(); showSaving(false); btn.disabled = false; btn.textContent = '📤'; showToast('Imagen subida ✓'); })
     .catch(err => { showSaving(false); btn.disabled = false; btn.textContent = '📤'; showToast('Error: ' + err.message, true); });
   input.value = '';
 }
@@ -506,6 +506,8 @@ if (typeof document !== 'undefined' && document.getElementById) {
     editor.addEventListener('change', function(e) {
       if (e.target.matches('input, select, textarea')) _debouncedPv();
     });
+    // Init preview image upload handler
+    if (typeof window._initPvImgUpload === 'function') window._initPvImgUpload();
     console.log('[LiveEdit] delegation listeners attached');
   }
 
