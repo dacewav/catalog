@@ -34,10 +34,10 @@ git pull
 ---
 
 ## Estado actual (última actualización: 2026-04-13)
-- ✅ core.js (admin): 1405 → 463 líneas (-942, -67%)
-- 13 módulos extraídos del admin
-- ⏳ Admin: quedan auto-save, broadcast, collectTheme, loadThemeUI (~463 líneas)
-- ⏳ Store: SIN optimizar aún (src/main.js 474, cards.js 525, effects.js 346, etc — 2952 líneas total)
+- ✅ core.js (admin): 1405 → 386 líneas (-1019, -73%)
+- 14 módulos extraídos del admin
+- ⏳ Admin core.js restante (386): collectTheme, loadThemeUI, auto-save, broadcast, collectSiteSettings
+- ⏳ Store: SIN optimizar (2952 líneas, 15 archivos)
 - Branch: `fix-panel-overlap`
 - Build: `npm install && node build.js`
 
