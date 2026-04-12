@@ -51,6 +51,20 @@ La vista previa de tarjeta en el tab Extras (`#pv-full-card-container`) no apare
 - Corregí un typo de quote en `beat-preview.js:70` (extra `'` al final de un `s.push()`)
 - El bundle creció de 221KB → 233.9KB (el módulo ahora sí está incluido)
 
+## 2026-04-13 — Vista previa con CSS real de la tienda (iframe)
+
+### Bug
+La vista previa de tarjeta en Extras usaba `_buildCardHTML()` renderizado directo en el DOM del admin. El CSS de la tienda (`store-styles.css`) nunca se aplicaba, así que la tarjeta no se veía igual que en la store.
+
+### Fix
+`renderFullPvInCard()` ahora crea un iframe con `srcdoc` que incluye:
+- El CSS completo de `store-styles.css` (fetch una vez, cacheado)
+- Google Fonts (Syne, DM Mono)
+- El HTML de la tarjeta generado por `_buildCardHTML()`
+- Auto-resize del iframe al contenido
+
+El resultado: la tarjeta en el preview se ve EXACTAMENTE igual que en la tienda porque usa el mismo CSS.
+
 ### Lesson
 Los módulos que se asignan a `window.*` necesitan ser importados explícitamente en el entry point (`admin-main.js`) — aunque otros módulos los usen vía `window.functionName`, el import del módulo que DEFINE la función es independiente.
 
