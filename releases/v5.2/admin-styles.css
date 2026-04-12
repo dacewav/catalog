@@ -282,14 +282,9 @@ body > * { position: relative; z-index: 1; }
 }
 .si.on i { opacity: 1; color: var(--acc); }
 
-/* ═══ CONTENT AREA ═══ */
-:root {
-  --pw: calc((100vw - var(--sbw)) * 0.5);
-}
 .controls {
   overflow-y: auto; overflow-x: hidden;
   padding: 28px 32px 48px;
-  padding-right: calc(32px + var(--pw));
   scroll-behavior: smooth;
   min-width: 0;
 }
