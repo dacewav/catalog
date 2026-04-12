@@ -1,0 +1,10 @@
+name = "catalog"
+main = "worker/upload.js"
+compatibility_date = "2024-09-01"
+
+[[r2_buckets]]
+binding = "R2_BUCKET"
+bucket_name = "dace-beats"
+
+[vars]
+CDN_URL = "https://cdn.dacewav.store"

@@ -1,0 +1,474 @@
+// ═══ DACEWAV.STORE — Main Entry Point ═══
+import { FC, DACE_VER, ANIMS } from './config.js';
+import { state } from './state.js';
+import { logError, fbCatch } from './error-handler.js';
+import { safeJSON } from './utils.js';
+import { initThemeSync, applyLightMode, applyTheme } from './theme.js';
+import { initAllEffects, observeStagger } from './effects.js';
+import { AP } from './player.js';
+import { updateWishBadge } from './wishlist.js';
+import { renderAll, closeModal, openModal, openPlayerModal, playModalBeat, selLic, showToast } from './cards.js';
+import {
+  buildFilterOptions, buildFilters, buildTagCloud, applyFilters,
+  setGenre, clearSearch, resetAllFilters, toggleTagFilter,
+  removeActiveTag, toggleTagCloudExpand,
+} from './filters.js';
+import { applySettings, renderCustomLinks, renderFloating } from './settings.js';
+import { initAnalytics, trackEvent } from './analytics.js';
+
+// ─── Expose globals for inline onclick handlers ───
+// The HTML uses onclick="" so we need these on window.
+// IMPORTANT: hash-router.js patches window.openModal/window.closeModal,
+// so we expose them FIRST, then import hash-router which patches on top.
+
+// 1) Expose base functions from modules
+window.openModal = openModal;
+window.openPlayerModal = openPlayerModal;
+window.closeModal = closeModal;
+window.playModalBeat = playModalBeat;
+window.selLic = selLic;
+window.showToast = showToast;
+window.AP = AP;
+window.renderAll = renderAll;
+
+// Filters
+window.buildFilterOptions = buildFilterOptions;
+window.buildFilters = buildFilters;
+window.buildTagCloud = buildTagCloud;
+window.applyFilters = applyFilters;
+window.setGenre = setGenre;
+window.clearSearch = clearSearch;
+window.resetAllFilters = resetAllFilters;
+window.toggleTagFilter = toggleTagFilter;
+window.removeActiveTag = removeActiveTag;
+window.toggleTagCloudExpand = toggleTagCloudExpand;
+
+// Wishlist (lazy-loaded to avoid circular deps)
+window.toggleWish = (id, e) => {
+  import('./wishlist.js').then((m) => m.toggleWish(id, e));
+};
+window.toggleWishlist = () => {
+  import('./wishlist.js').then((m) => m.toggleWishlist());
+};
+window.sendWishlistWhatsApp = () => {
+  import('./wishlist.js').then((m) => m.sendWishlistWhatsApp());
+};
+
+// Theme
+window.toggleTheme = () => {
+  import('./theme.js').then((m) => m.toggleTheme());
+};
+
+// Cards
+window.handleCardClick = (id, idx) => {
+  import('./cards.js').then((m) => m.handleCardClick(id, idx));
+};
+
+// Analytics
+window.trackEvent = trackEvent;
+
+// 2) NOW import hash-router — it will patch window.openModal on top of our base
+import './hash-router.js';
+
+// ─── Keyboard shortcuts ───
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    const si = document.getElementById('search-input');
+    if (si && document.activeElement === si) {
+      si.blur();
+      si.value = '';
+      applyFilters();
+      return;
+    }
+    closeModal();
+  }
+  if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+    e.preventDefault();
+    const si = document.getElementById('search-input');
+    if (si) si.focus();
+  }
+  if (e.key === ' ' && !e.target.matches('input,textarea,button')) {
+    e.preventDefault();
+    AP.toggle();
+  }
+});
+
+// ─── Cross-tab sync ───
+window.addEventListener('storage', (e) => {
+  if (e.key === 'dace-theme' && e.newValue) {
+    state.T = JSON.parse(e.newValue);
+    applyTheme(state.T);
+    applySettings();
+  }
+  if (e.key === 'dace-theme-broadcast' && e.newValue) {
+    try {
+      const d = JSON.parse(e.newValue);
+      if (d.theme) { state.T = d.theme; applyTheme(state.T); applySettings(); }
+    } catch {}
+  }
+  if (e.key === 'dace-custom-emojis' && e.newValue) {
+    state.customEmojis = JSON.parse(e.newValue);
+    applySettings();
+  }
+  if (e.key === 'dace-floating' && e.newValue) {
+    state.floatingEls = JSON.parse(e.newValue);
+    renderFloating(state.floatingEls);
+  }
+});
+
+// ─── PostMessage bridge (admin iframe) ───
+// Single shared debounce for ALL message types.
+// Tracks which data changed to skip unnecessary re-renders.
+let _lastThemeJSON = '';
+let _lastSettingsJSON = '';
+let _lastEmojisJSON = '';
+let _lastFloatingJSON = '';
+
+window.addEventListener('message', (e) => {
+  // Accept from same origin, known domains, parent frame, or null (file://)
+  const own = window.location?.origin || '*';
+  if (e.origin !== own && e.origin !== 'https://dacewav.store' && e.origin !== 'null') {
+    // Also accept if sender is the parent window (iframe context)
+    if (e.source !== window.parent) return;
+  }
+  const d = e.data;
+  if (!d || !d.type) return;
+  console.log('[Store:msg]', d.type, d.beatId || '');
+
+  // ── Batch update from admin (single postMessage with all data) ──
+  if (d.type === 'admin-batch-update') {
+    let changed = false;
+    if (d.theme) {
+      const json = JSON.stringify(d.theme);
+      if (json !== _lastThemeJSON) { _lastThemeJSON = json; state.T = d.theme; applyTheme(state.T); changed = true; }
+    }
+    if (d.settings) {
+      const json = JSON.stringify(d.settings);
+      if (json !== _lastSettingsJSON) { _lastSettingsJSON = json; state.siteSettings = d.settings; applySettings(); changed = true; }
+    }
+    if (d.emojis) {
+      const json = JSON.stringify(d.emojis);
+      if (json !== _lastEmojisJSON) { _lastEmojisJSON = json; state.customEmojis = d.emojis; changed = true; }
+    }
+    if (d.elements) {
+      const json = JSON.stringify(d.elements);
+      if (json !== _lastFloatingJSON) { _lastFloatingJSON = json; state.floatingEls = d.elements; renderFloating(state.floatingEls); changed = true; }
+    }
+    if (changed) renderAll();
+    return;
+  }
+
+  // ── Individual message types (backwards compat + live edit) ──
+  if (d.type === 'theme-update' && d.theme) {
+    const json = JSON.stringify(d.theme);
+    if (json === _lastThemeJSON) return;
+    _lastThemeJSON = json;
+    state.T = d.theme;
+    applyTheme(state.T);
+    renderAll();
+  } else if (d.type === 'settings-update' && d.settings) {
+    const json = JSON.stringify(d.settings);
+    if (json === _lastSettingsJSON) return;
+    _lastSettingsJSON = json;
+    state.siteSettings = d.settings;
+    applySettings();
+    renderAll();
+  } else if (d.type === 'emojis-update' && d.emojis) {
+    const json = JSON.stringify(d.emojis);
+    if (json === _lastEmojisJSON) return;
+    _lastEmojisJSON = json;
+    state.customEmojis = d.emojis;
+  } else if (d.type === 'floating-update' && d.elements) {
+    const json = JSON.stringify(d.elements);
+    if (json === _lastFloatingJSON) return;
+    _lastFloatingJSON = json;
+    state.floatingEls = d.elements;
+    renderFloating(state.floatingEls);
+  } else if (d.type === 'beat-update' && d.beatId && d.data) {
+    // Live edit: update beat in memory without Firebase write
+    const bi = state.allBeats.findIndex(x => x.id === d.beatId);
+    console.log('[LiveEdit] beat-update received:', d.beatId, 'index:', bi, 'glow:', JSON.stringify(d.data?.cardStyle?.glow), 'anim:', JSON.stringify(d.data?.cardStyle?.anim?.type), 'holoDir:', d.data?.cardStyle?.anim?.holoDir);
+    if (bi > -1) {
+      // Clear legacy props so beatCard() reads from cardStyle, not old glowConfig/cardAnim
+      if (d.data.cardStyle) {
+        state.allBeats[bi].glowConfig = d.data.cardStyle.glow || { enabled: false };
+        state.allBeats[bi].cardAnim = d.data.cardStyle.anim || null;
+        state.allBeats[bi].accentColor = d.data.cardStyle.style?.accentColor || '';
+        state.allBeats[bi].cardBorder = d.data.cardStyle.border || { enabled: false };
+        state.allBeats[bi].shimmer = d.data.cardStyle.style?.shimmer || false;
+      }
+      Object.assign(state.allBeats[bi], d.data);
+      renderAll();
+      // Debug: log rendered card classes and inline styles
+      requestAnimationFrame(() => {
+        const card = document.getElementById('card-' + d.beatId);
+        if (card) {
+          console.log('[LiveEdit:render] card classes:', card.className);
+          console.log('[LiveEdit:render] card style:', card.getAttribute('style')?.substring(0, 300));
+        } else {
+          console.warn('[LiveEdit:render] card element not found:', 'card-' + d.beatId);
+        }
+      });
+    }
+    return;
+  } else if (d.type === 'beat-revert' && d.beatId && d.original) {
+    // Cancel edit: restore original beat data
+    const bi = state.allBeats.findIndex(x => x.id === d.beatId);
+    if (bi > -1) {
+      Object.assign(state.allBeats[bi], d.original);
+      renderAll();
+    }
+    return;
+  }
+});
+
+// ═══ LIVE EDIT via localStorage ═══
+window.addEventListener('storage', (e) => {
+  if (e.key === 'dace-live-edit' && e.newValue) {
+    try {
+      const d = JSON.parse(e.newValue);
+      if (!d.beatId || !d.data) return;
+      const bi = state.allBeats.findIndex(x => x.id === d.beatId);
+      console.log('[LiveEdit] storage beat-update:', d.beatId, 'index:', bi);
+      if (bi > -1) {
+        Object.assign(state.allBeats[bi], d.data);
+        renderAll();
+      }
+    } catch(err) {}
+  } else if (e.key === 'dace-live-edit-revert' && e.newValue) {
+    try {
+      const d = JSON.parse(e.newValue);
+      if (!d.beatId || !d.original) return;
+      const bi = state.allBeats.findIndex(x => x.id === d.beatId);
+      console.log('[LiveEdit] storage beat-revert:', d.beatId, 'index:', bi);
+      if (bi > -1) {
+        Object.assign(state.allBeats[bi], d.original);
+        renderAll();
+      }
+    } catch(err) {}
+  }
+});
+
+// ─── Audio error recovery ───
+(function initAudioErrorRecovery() {
+  const RETRY_DELAY = 2000;
+  const TIMEOUT = 10000;
+  const retryMap = {};
+
+  function flashErr() {
+    const c = document.querySelector('.beat-card.is-playing,.beat-card:hover');
+    if (!c) return;
+    c.style.transition = 'box-shadow .15s';
+    c.style.boxShadow = '0 0 0 3px rgba(255,50,50,.8)';
+    setTimeout(() => { c.style.boxShadow = ''; }, 1500);
+  }
+
+  function scheduleRetry(audio) {
+    const src = audio.src;
+    const count = retryMap[src] || 0;
+    if (count >= 1) {
+      delete retryMap[src];
+      showToast('No se pudo reproducir este beat');
+      flashErr();
+      return;
+    }
+    retryMap[src] = count + 1;
+    setTimeout(() => {
+      try { audio.load(); audio.play().catch(() => {}); }
+      catch { showToast('No se pudo reproducir este beat'); flashErr(); }
+    }, RETRY_DELAY);
+  }
+
+  // Patch AP.play to add error handling
+  const origPlay = AP.playIdx.bind(AP);
+  AP.playIdx = function (idx) {
+    retryMap.clear?.();
+    try { origPlay(idx); } catch (e) { showToast('Error al reproducir'); return; }
+    requestAnimationFrame(() => {
+      const audio = AP.audio;
+      if (!audio || audio._ep) return;
+      audio._ep = true;
+      audio.addEventListener('error', () => scheduleRetry(audio));
+      audio.addEventListener('canplay', () => { retryMap[audio.src] = 0; });
+      const to = setTimeout(() => { if (audio.readyState < 2) scheduleRetry(audio); }, TIMEOUT);
+      audio.addEventListener('canplay', () => clearTimeout(to), { once: true });
+    });
+  };
+})();
+
+// ─── Inspector ───
+function setupInspector() {
+  document.addEventListener('click', (e) => {
+    if (!state.inspectorMode) return;
+    e.preventDefault();
+    e.stopPropagation();
+    const el = e.target;
+    let selector = '';
+    if (el.id) selector = '#' + el.id;
+    else if (el.className && typeof el.className === 'string') selector = el.tagName.toLowerCase() + '.' + el.className.split(' ')[0];
+    else selector = el.tagName.toLowerCase();
+
+    const hl = document.getElementById('inspector-hl');
+    if (hl) {
+      const r = el.getBoundingClientRect();
+      hl.style.display = 'block';
+      hl.style.left = r.left + 'px';
+      hl.style.top = r.top + 'px';
+      hl.style.width = r.width + 'px';
+      hl.style.height = r.height + 'px';
+    }
+    const label = document.getElementById('inspector-label');
+    if (label) label.textContent = selector;
+
+    if (window.parent !== window) {
+      window.parent.postMessage({ type: 'element-clicked', info: { tag: el.tagName, id: el.id, classes: el.className, text: (el.textContent || '').substring(0, 50) }, selector }, window.location?.origin || '*');
+    }
+  }, true);
+}
+
+// ─── Boot ───
+window.addEventListener('load', () => {
+  setupInspector();
+  if (window.parent !== window) {
+    window.parent.postMessage({ type: 'index-ready', ver: DACE_VER }, window.location?.origin || '*');
+  }
+
+  initAllEffects();
+  initThemeSync();
+
+  const loaderTimeout = setTimeout(() => {
+    state.ldTheme = state.ldSettings = state.ldBeats = true;
+    _hideLoader();
+  }, 1000);
+
+  let _loaderHidden = false;
+  function _hideLoader() {
+    if (_loaderHidden) return;
+    _loaderHidden = true;
+    const l = document.getElementById('loader');
+    if (l) {
+      l.style.opacity = '0';
+      setTimeout(() => { l.style.display = 'none'; }, 500);
+    }
+  }
+  function _checkReady() {
+    if (state.ldTheme) _hideLoader();
+  }
+
+  try {
+    firebase.initializeApp(FC);
+    state.db = firebase.database();
+
+    // Load cached theme + settings + beats immediately so page shows without waiting for Firebase
+    const lt = localStorage.getItem('dace-theme');
+    if (lt) {
+      state.T = JSON.parse(lt);
+      state.ldTheme = true;
+    }
+    const lset = localStorage.getItem('dace-settings');
+    if (lset) {
+      state.siteSettings = JSON.parse(lset);
+      state.ldSettings = true;
+    }
+    const lbeats = localStorage.getItem('dace-beats');
+    if (lbeats) {
+      state.allBeats = JSON.parse(lbeats);
+      state.ldBeats = true;
+    }
+    if (state.T) applyTheme(state.T);
+    applySettings();
+    if (state.allBeats.length) renderAll();
+    _checkReady();
+
+    // Firebase listeners (overwrite cache with live data)
+    state.db.ref('theme').on('value', (snap) => {
+      const t = snap.val() || {};
+      state.T = t;
+      applyTheme(t);
+      applySettings();
+      localStorage.setItem('dace-theme', JSON.stringify(t));
+      state.ldTheme = true;
+      _checkReady();
+    });
+
+    const ce = localStorage.getItem('dace-custom-emojis');
+    if (ce) state.customEmojis = JSON.parse(ce);
+    const fl = localStorage.getItem('dace-floating');
+    if (fl) state.floatingEls = JSON.parse(fl);
+    renderFloating(state.floatingEls);
+
+    state.db.ref('settings').on('value', (snap) => {
+      state.siteSettings = snap.val() || {};
+      applySettings();
+      localStorage.setItem('dace-settings', JSON.stringify(state.siteSettings));
+      state.ldSettings = true;
+      _checkReady();
+    });
+
+    state.db.ref('beats').on('value', (snap) => {
+      const raw = snap.val() || {};
+      state.allBeats = Object.keys(raw)
+        .map((k) => { raw[k].id = raw[k].id || k; return raw[k]; })
+        .filter((b) => b.active !== false && b.id && b.id !== 'undefined')
+        .sort((a, b) => (a.order || 0) - (b.order || 0));
+      // Apply any active live edit overlays before rendering
+      state.db.ref('liveEdits').once('value').then(editSnap => {
+        const edits = editSnap.val() || {};
+        Object.keys(edits).forEach(beatId => {
+          const bi = state.allBeats.findIndex(x => x.id === beatId);
+          if (bi > -1) Object.assign(state.allBeats[bi], edits[beatId]);
+        });
+        renderAll();
+      }).catch(() => renderAll());
+      localStorage.setItem('dace-beats', JSON.stringify(state.allBeats));
+      state.ldBeats = true;
+      _checkReady();
+      clearTimeout(loaderTimeout);
+    });
+
+    state.db.ref('floatingElements').on('value', (snap) => renderFloating(snap.val() || {}));
+    state.db.ref('customLinks').on('value', (snap) => renderCustomLinks(snap.val() || {}));
+
+    // Live edits from admin — overlay preview data on beats
+    state.db.ref('liveEdits').on('value', (snap) => {
+      const edits = snap.val() || {};
+      const editCount = Object.keys(edits).length;
+      console.log('[LiveEdit:store] liveEdits changed, count:', editCount, editCount ? Object.keys(edits) : '');
+      Object.keys(edits).forEach(beatId => {
+        const bi = state.allBeats.findIndex(x => x.id === beatId);
+        console.log('[LiveEdit:store] overlay', beatId, 'index:', bi, 'beats loaded:', state.allBeats.length);
+        if (bi > -1) {
+          // Clear legacy props so beatCard() reads from cardStyle
+          const edit = edits[beatId];
+          if (edit.cardStyle) {
+            state.allBeats[bi].glowConfig = edit.cardStyle.glow || { enabled: false };
+            state.allBeats[bi].cardAnim = edit.cardStyle.anim || null;
+            state.allBeats[bi].accentColor = edit.cardStyle.style?.accentColor || '';
+            state.allBeats[bi].cardBorder = edit.cardStyle.border || { enabled: false };
+            state.allBeats[bi].shimmer = edit.cardStyle.style?.shimmer || false;
+          }
+          Object.assign(state.allBeats[bi], edit);
+        }
+      });
+      if (editCount) renderAll();
+    }, (err) => {
+      console.error('[LiveEdit:store] Firebase read error:', err.code, err.message);
+    });
+
+    initAnalytics();
+  } catch (e) {
+    logError('Firebase/init', e, {}, true);
+    clearTimeout(loaderTimeout);
+    state.ldTheme = state.ldSettings = state.ldBeats = true;
+    _checkReady();
+    const lt2 = localStorage.getItem('dace-theme');
+    if (lt2) { state.T = JSON.parse(lt2); applyTheme(state.T); }
+    const ls = localStorage.getItem('dace-settings');
+    if (ls) { state.siteSettings = JSON.parse(ls); applySettings(); }
+    const lb2 = localStorage.getItem('dace-beats');
+    if (lb2) { state.allBeats = JSON.parse(lb2); renderAll(); }
+  }
+
+  observeStagger();
+  updateWishBadge();
+});

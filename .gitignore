@@ -1,0 +1,25 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/*.map
+
+# Environment
+.env
+.env.*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Temp / Archives
+*.tar.gz
+*.zip
+catalog-push/
+preset-screenshot.png
