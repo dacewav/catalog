@@ -7,8 +7,7 @@ import {
   db, T, setT, siteSettings, customEmojis, floatingEls,
   _undoStack,
   _iframeReady, setIframeReady, _ldTheme, _ldSettings, _ldBeats,
-  setLdTheme, setLdSettings, setLdBeats,
-  ppCtx, ppParts, ppAnim, setPpCtx, setPpParts, setPpAnim
+  setLdTheme, setLdSettings, setLdBeats
 } from './state.js';
 import { pushUndo, pushUndoInitial, undo, redo, setUndoDeps } from './undo.js';
 import {
@@ -38,10 +37,12 @@ import {
   updateGlowDesc, updateGlowAnimDesc, computeGlowCSS, applyGlowTo,
   applyGlowPreset, updatePreview, setGlowDeps
 } from './glow.js';
+import { togglePFields, initParticlesPreview, animPP } from './particles.js';
 
 // Re-export for modules that import from core.js
 export { updatePreview } from './glow.js';
 export { updateHeroPv, updateBannerPv, updateDividerPv } from './hero-preview.js';
+export { initParticlesPreview } from './particles.js';
 import {
   g, val, setVal, checked, setChecked, hexRgba, hexFromRgba, rgbaFromHex,
   loadFont, showToast, showSaving, fmt, sv, resetSlider, toggleCard, setAutoSaveRef,
@@ -516,37 +517,7 @@ export async function resetTheme() {
 }
 
 // ═══ PARTICLES ═══
-export function togglePFields() {
-  const t = val('p-type') || 'circle'; const tw = g('p-text-wrap'), iw = g('p-img-wrap');
-  if (tw) tw.style.display = t === 'text' ? 'block' : 'none';
-  if (iw) iw.style.display = t === 'image' ? 'block' : 'none';
-}
-export function initParticlesPreview() {
-  const c = g('particles-pv'); if (!c) return; c.innerHTML = '';
-  const canvas = document.createElement('canvas'); canvas.width = c.offsetWidth || 300; canvas.height = 100;
-  canvas.style.cssText = 'width:100%;height:100%'; c.appendChild(canvas);
-  setPpCtx(canvas.getContext('2d'));
-  const parts = []; const count = parseInt(val('p-count')) || 40;
-  for (let i = 0; i < count; i++) parts.push({ x: Math.random() * canvas.width, y: Math.random() * canvas.height, r: (parseInt(val('p-min')) || 2) + Math.random() * ((parseInt(val('p-max')) || 6) - (parseInt(val('p-min')) || 2)), vx: (Math.random() - .5) * (parseFloat(val('p-speed')) || 1), vy: (Math.random() - .5) * (parseFloat(val('p-speed')) || 1), o: .1 + Math.random() * .4, rot: Math.random() * Math.PI * 2, rv: (Math.random() - .5) * .02 });
-  setPpParts(parts);
-  if (ppAnim) cancelAnimationFrame(ppAnim);
-  animPP(canvas);
-}
-export function animPP(canvas) {
-  if (!ppCtx) return; ppCtx.clearRect(0, 0, canvas.width, canvas.height);
-  const col = val('p-color') || '#dc2626', type = val('p-type') || 'circle', text = val('p-text') || '♪', baseOp = parseFloat(val('p-opacity')) || 0.5;
-  ppParts.forEach(p => {
-    p.x += p.vx; p.y += p.vy; if (p.rot != null) p.rot += p.rv || 0;
-    if (p.x < -p.r * 2) p.x = canvas.width + p.r; if (p.x > canvas.width + p.r) p.x = -p.r;
-    if (p.y < -p.r * 2) p.y = canvas.height + p.r; if (p.y > canvas.height + p.r) p.y = -p.r;
-    ppCtx.save(); ppCtx.globalAlpha = (p.o || 0.3) * baseOp; ppCtx.fillStyle = col;
-    if (type === 'square') { ppCtx.translate(p.x, p.y); ppCtx.rotate(p.rot || 0); ppCtx.fillRect(-p.r, -p.r, p.r * 2, p.r * 2); }
-    else if (type === 'text') { ppCtx.font = Math.max(8, p.r * 3) + 'px sans-serif'; ppCtx.textAlign = 'center'; ppCtx.textBaseline = 'middle'; ppCtx.fillText(text, p.x, p.y); }
-    else { ppCtx.beginPath(); ppCtx.arc(p.x, p.y, p.r, 0, Math.PI * 2); ppCtx.fill(); }
-    ppCtx.restore();
-  });
-  setPpAnim(requestAnimationFrame(() => animPP(canvas)));
-}
+// Particles → src/admin/particles.js
 
 // Emoji system → src/admin/emojis.js
 
@@ -696,7 +667,6 @@ Object.assign(window, {
   renderPresets, applyPreset,
   renderSaveSlots, slotAction,
   saveCustomTheme, renderCustomThemes, loadCustomTheme, deleteCustomTheme, resetTheme,
-  togglePFields, initParticlesPreview, animPP,
   renderEmojiGrid, insertEmoji, renderCustomEmojis, addCustomEmoji, uploadEmojiFile, removeCE,
   exportAll, importAll, exportCSS,
   logChange, renderChangeLog, logFieldChange,
