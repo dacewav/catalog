@@ -87,6 +87,13 @@ export function openEditor(id) {
     setVal('f-cs-fh', csF.hueRotate || 0);
     setVal('f-cs-fbl', csF.blur || 0);
     setVal('f-cs-fi', csF.invert || 0);
+    setVal('f-cs-fo', csF.opacity != null ? csF.opacity : 1);
+    setVal('f-cs-ds-x', csF.dropShadowX || 0);
+    setVal('f-cs-ds-y', csF.dropShadowY || 0);
+    setVal('f-cs-ds-bl', csF.dropShadowBlur || 0);
+    setVal('f-cs-ds-op', csF.dropShadowOpacity || 0);
+    setVal('f-cs-ds-clr', csF.dropShadowColor || '#000000');
+    setVal('f-cs-ds-clr-h', csF.dropShadowColor || '#000000');
 
     // Glow
     setChecked('f-glow-on', csG.enabled || false);
@@ -230,6 +237,7 @@ export function openEditor(id) {
     setChecked('f-shadow-on', false); setVal('f-shadow-color', '#000000'); setChecked('f-shadow-inset', false);
     // Filter reset
     setVal('f-cs-fb', 1); setVal('f-cs-fc', 1); setVal('f-cs-fs', 1); setVal('f-cs-fg', 0); setVal('f-cs-fse', 0); setVal('f-cs-fh', 0); setVal('f-cs-fbl', 0); setVal('f-cs-fi', 0);
+    setVal('f-cs-fo', 1); setVal('f-cs-ds-x', 0); setVal('f-cs-ds-y', 0); setVal('f-cs-ds-bl', 0); setVal('f-cs-ds-op', 0); setVal('f-cs-ds-clr', '#000000'); setVal('f-cs-ds-clr-h', '#000000');
     setVal('f-cs-radius', 0); setVal('f-cs-opacity', 1);
     // Hover reset
     setVal('f-hov-scale', 1); setVal('f-hov-bright', 1); setVal('f-hov-sat', 1);

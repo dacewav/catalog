@@ -6,7 +6,7 @@ import { g } from './helpers.js';
 
 // Default cardStyle shape
 export const DEFAULT_CARD_STYLE = {
-  filter: { brightness: 1, contrast: 1, saturate: 1, grayscale: 0, sepia: 0, hueRotate: 0, blur: 0, invert: 0 },
+  filter: { brightness: 1, contrast: 1, saturate: 1, grayscale: 0, sepia: 0, hueRotate: 0, blur: 0, invert: 0, opacity: 1, dropShadowX: 0, dropShadowY: 0, dropShadowBlur: 0, dropShadowColor: '#000000', dropShadowOpacity: 0 },
   glow: { enabled: false, type: 'active', color: '#dc2626', speed: 3, intensity: 1, blur: 20, spread: 0, opacity: 1, hoverOnly: false },
   anim: null,
   style: { accentColor: '#dc2626', shimmer: false, borderRadius: 0, opacity: 1 },
@@ -33,18 +33,43 @@ export function isCardStyleEmpty(cs) {
 export function renderFiltersHTML(prefix) {
   const p = prefix;
   return `
+    <div style="margin-bottom:8px">
+      <div style="font-size:10px;font-weight:600;color:var(--hi);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">Ajustes básicos</div>
+    </div>
     <div class="field"><label>🔆 Brillo</label><div class="slider-wrap"><input type="range" id="${p}cs-fb" min="0" max="5" step="0.05" value="1" oninput="sv(this)"><span class="slider-val">1.00</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,1)">↺</button></div></div>
     <div class="field"><label>◑ Contraste</label><div class="slider-wrap"><input type="range" id="${p}cs-fc" min="0" max="5" step="0.05" value="1" oninput="sv(this)"><span class="slider-val">1.00</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,1)">↺</button></div></div>
     <div class="field"><label>🎨 Saturación</label><div class="slider-wrap"><input type="range" id="${p}cs-fs" min="0" max="10" step="0.05" value="1" oninput="sv(this)"><span class="slider-val">1.00</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,1)">↺</button></div></div>
-    <div class="fg2">
-      <div class="field"><label>⬜ Grayscale</label><div class="slider-wrap"><input type="range" id="${p}cs-fg" min="0" max="1" step="0.05" value="0" oninput="sv(this)"><span class="slider-val">0.00</span></div></div>
-      <div class="field"><label>🟤 Sepia</label><div class="slider-wrap"><input type="range" id="${p}cs-fse" min="0" max="1" step="0.05" value="0" oninput="sv(this)"><span class="slider-val">0.00</span></div></div>
+    <div class="field"><label>👁 Opacidad</label><div class="slider-wrap"><input type="range" id="${p}cs-fo" min="0" max="1" step="0.01" value="1" oninput="sv(this)"><span class="slider-val">1.00</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,1)">↺</button></div></div>
+
+    <div style="margin:10px 0 8px">
+      <div style="font-size:10px;font-weight:600;color:var(--hi);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">Efectos de color</div>
     </div>
     <div class="fg2">
-      <div class="field"><label>🔄 Hue rotate</label><div class="slider-wrap"><input type="range" id="${p}cs-fh" min="0" max="360" step="1" value="0" oninput="this.nextElementSibling.textContent=this.value+'°'"><span class="slider-val">0°</span></div></div>
-      <div class="field"><label>💥 Blur</label><div class="slider-wrap"><input type="range" id="${p}cs-fbl" min="0" max="60" step="0.5" value="0" oninput="this.nextElementSibling.textContent=parseFloat(this.value).toFixed(1)+'px'"><span class="slider-val">0.0px</span></div></div>
+      <div class="field"><label>⬜ Grayscale</label><div class="slider-wrap"><input type="range" id="${p}cs-fg" min="0" max="1" step="0.05" value="0" oninput="sv(this)"><span class="slider-val">0.00</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,0)">↺</button></div></div>
+      <div class="field"><label>🟤 Sepia</label><div class="slider-wrap"><input type="range" id="${p}cs-fse" min="0" max="1" step="0.05" value="0" oninput="sv(this)"><span class="slider-val">0.00</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,0)">↺</button></div></div>
     </div>
-    <div class="field"><label>🔀 Invertir</label><div class="slider-wrap"><input type="range" id="${p}cs-fi" min="0" max="1" step="0.05" value="0" oninput="sv(this)"><span class="slider-val">0.00</span></div></div>`;
+    <div class="fg2">
+      <div class="field"><label>🔄 Hue rotate</label><div class="slider-wrap"><input type="range" id="${p}cs-fh" min="0" max="360" step="1" value="0" oninput="this.nextElementSibling.textContent=this.value+'°'"><span class="slider-val">0°</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,0)">↺</button></div></div>
+      <div class="field"><label>🔀 Invertir</label><div class="slider-wrap"><input type="range" id="${p}cs-fi" min="0" max="1" step="0.05" value="0" oninput="sv(this)"><span class="slider-val">0.00</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,0)">↺</button></div></div>
+    </div>
+
+    <div style="margin:10px 0 8px">
+      <div style="font-size:10px;font-weight:600;color:var(--hi);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">Blur</div>
+    </div>
+    <div class="field"><label>💥 Blur</label><div class="slider-wrap"><input type="range" id="${p}cs-fbl" min="0" max="100" step="0.5" value="0" oninput="this.nextElementSibling.textContent=parseFloat(this.value).toFixed(1)+'px'"><span class="slider-val">0.0px</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,0)">↺</button></div></div>
+
+    <div style="margin:10px 0 8px">
+      <div style="font-size:10px;font-weight:600;color:var(--hi);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">Drop Shadow</div>
+    </div>
+    <div class="fg2">
+      <div class="field"><label>↔ Offset X</label><div class="slider-wrap"><input type="range" id="${p}cs-ds-x" min="-80" max="80" step="1" value="0" oninput="this.nextElementSibling.textContent=this.value+'px'"><span class="slider-val">0px</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,0)">↺</button></div></div>
+      <div class="field"><label>↕ Offset Y</label><div class="slider-wrap"><input type="range" id="${p}cs-ds-y" min="-80" max="80" step="1" value="0" oninput="this.nextElementSibling.textContent=this.value+'px'"><span class="slider-val">0px</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,0)">↺</button></div></div>
+    </div>
+    <div class="fg2">
+      <div class="field"><label>💫 Blur</label><div class="slider-wrap"><input type="range" id="${p}cs-ds-bl" min="0" max="100" step="1" value="0" oninput="this.nextElementSibling.textContent=this.value+'px'"><span class="slider-val">0px</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,0)">↺</button></div></div>
+      <div class="field"><label>👁 Opacidad</label><div class="slider-wrap"><input type="range" id="${p}cs-ds-op" min="0" max="1" step="0.05" value="0" oninput="sv(this)"><span class="slider-val">0.00</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,0)">↺</button></div></div>
+    </div>
+    <div class="color-wrap"><label>Color shadow</label><div class="color-swatch"><input type="color" id="${p}cs-ds-clr" value="#000000"></div><input type="text" class="color-hex" id="${p}cs-ds-clr-h" value="#000000"></div>`;
 }
 
 export function renderGlowHTML(prefix) {
@@ -200,7 +225,10 @@ export function buildCardStyleFromPrefix(prefix) {
     filter: {
       brightness: n(p + 'cs-fb') || 1, contrast: n(p + 'cs-fc') || 1, saturate: n(p + 'cs-fs') || 1,
       grayscale: n(p + 'cs-fg'), sepia: n(p + 'cs-fse'), hueRotate: parseInt(v(p + 'cs-fh')) || 0,
-      blur: n(p + 'cs-fbl'), invert: n(p + 'cs-fi')
+      blur: n(p + 'cs-fbl'), invert: n(p + 'cs-fi'), opacity: n(p + 'cs-fo') || 1,
+      dropShadowX: parseInt(v(p + 'cs-ds-x')) || 0, dropShadowY: parseInt(v(p + 'cs-ds-y')) || 0,
+      dropShadowBlur: parseInt(v(p + 'cs-ds-bl')) || 0, dropShadowColor: v(p + 'cs-ds-clr') || '#000000',
+      dropShadowOpacity: n(p + 'cs-ds-op') || 0
     },
     glow: {
       enabled: c(p + 'glow-on'), type: v(p + 'glow-type') || 'active', color: v(p + 'glow-color') || '#dc2626',
@@ -252,8 +280,13 @@ export function populateFromCardStyle(cs, prefix) {
   s(p + 'cs-fb', f.brightness != null ? f.brightness : 1);
   s(p + 'cs-fc', f.contrast != null ? f.contrast : 1);
   s(p + 'cs-fs', f.saturate != null ? f.saturate : 1);
+  s(p + 'cs-fo', f.opacity != null ? f.opacity : 1);
   s(p + 'cs-fg', f.grayscale || 0); s(p + 'cs-fse', f.sepia || 0);
   s(p + 'cs-fh', f.hueRotate || 0); s(p + 'cs-fbl', f.blur || 0); s(p + 'cs-fi', f.invert || 0);
+  s(p + 'cs-ds-x', f.dropShadowX || 0); s(p + 'cs-ds-y', f.dropShadowY || 0);
+  s(p + 'cs-ds-bl', f.dropShadowBlur || 0);
+  s(p + 'cs-ds-clr', f.dropShadowColor || '#000000'); s(p + 'cs-ds-clr-h', f.dropShadowColor || '#000000');
+  s(p + 'cs-ds-op', f.dropShadowOpacity || 0);
 
   const gc = cs.glow || {};
   ck(p + 'glow-on', gc.enabled);
@@ -308,7 +341,8 @@ export function resetCardStyleInputs(prefix) {
 // Sync slider displays for a prefix
 export function syncSliderDisplays(prefix) {
   const ids = [
-    'cs-fb','cs-fc','cs-fs','cs-fg','cs-fse','cs-fi','cs-radius','cs-opacity',
+    'cs-fb','cs-fc','cs-fs','cs-fg','cs-fse','cs-fi','cs-fo','cs-radius','cs-opacity',
+    'cs-ds-x','cs-ds-y','cs-ds-bl','cs-ds-op',
     'glow-speed','glow-int','glow-blur','glow-spread','glow-op',
     'anim-dur','anim-del','anim-int',
     'border-width','shadow-op','shadow-x','shadow-y','shadow-blur','shadow-spread',

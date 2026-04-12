@@ -15,7 +15,8 @@ export const ALL_SLIDER_IDS = [
   'f-anim-parpadeo-max','f-anim-parpadeo-min','f-anim-rotate-angle','f-anim-rotate-scale',
   'f-anim-scale-max','f-anim-scale-min','f-anim-scale-opacity',
   'f-anim-shake-x','f-anim-shake-y','f-anim-translate-rot','f-anim-translate-x','f-anim-translate-y',
-  'f-border-width','f-cs-fb','f-cs-fbl','f-cs-fc','f-cs-fg','f-cs-fh','f-cs-fi','f-cs-fs','f-cs-fse',
+  'f-border-width','f-cs-fb','f-cs-fbl','f-cs-fc','f-cs-fg','f-cs-fh','f-cs-fi','f-cs-fs','f-cs-fse','f-cs-fo',
+  'f-cs-ds-x','f-cs-ds-y','f-cs-ds-bl','f-cs-ds-op',
   'f-cs-opacity','f-cs-radius','f-glow-blur','f-glow-int','f-glow-op','f-glow-speed','f-glow-spread',
   'f-hov-anim-dur','f-hov-blur','f-hov-bright','f-hov-hue','f-hov-opacity','f-hov-sat','f-hov-scale',
   'f-hov-shadow','f-hov-sib-blur','f-hov-trans',
@@ -165,6 +166,8 @@ export function resetCardStyle() {
   setVal('f-cs-fb', 1); setVal('f-cs-fc', 1); setVal('f-cs-fs', 1);
   setVal('f-cs-fg', 0); setVal('f-cs-fse', 0); setVal('f-cs-fh', 0);
   setVal('f-cs-fbl', 0); setVal('f-cs-fi', 0);
+  setVal('f-cs-fo', 1);
+  setVal('f-cs-ds-x', 0); setVal('f-cs-ds-y', 0); setVal('f-cs-ds-bl', 0); setVal('f-cs-ds-op', 0); setVal('f-cs-ds-clr', '#000000'); setVal('f-cs-ds-clr-h', '#000000');
   setChecked('f-glow-on', false);
   const glowTypeEl = g('f-glow-type'); if (glowTypeEl) glowTypeEl.value = 'active';
   setVal('f-glow-color', '#dc2626'); setVal('f-glow-color-h', '#dc2626');
@@ -232,6 +235,10 @@ export function resetBeatToGlobal() {
   setVal('f-cs-fs', f.saturate != null ? f.saturate : 1); setVal('f-cs-fg', f.grayscale || 0);
   setVal('f-cs-fse', f.sepia || 0); setVal('f-cs-fh', f.hueRotate || 0);
   setVal('f-cs-fbl', f.blur || 0); setVal('f-cs-fi', f.invert || 0);
+  setVal('f-cs-fo', f.opacity != null ? f.opacity : 1);
+  setVal('f-cs-ds-x', f.dropShadowX || 0); setVal('f-cs-ds-y', f.dropShadowY || 0);
+  setVal('f-cs-ds-bl', f.dropShadowBlur || 0); setVal('f-cs-ds-op', f.dropShadowOpacity || 0);
+  setVal('f-cs-ds-clr', f.dropShadowColor || '#000000'); setVal('f-cs-ds-clr-h', f.dropShadowColor || '#000000');
   var gc = cs.glow || {};
   setChecked('f-glow-on', gc.enabled || false);
   var glowTypeEl = g('f-glow-type'); if (glowTypeEl) glowTypeEl.value = gc.type || 'active';
@@ -323,6 +330,8 @@ export function applyPreset(id) {
   setVal('f-cs-fb', 1); setVal('f-cs-fc', 1); setVal('f-cs-fs', 1);
   setVal('f-cs-fg', 0); setVal('f-cs-fse', 0); setVal('f-cs-fh', 0);
   setVal('f-cs-fbl', 0); setVal('f-cs-fi', 0);
+  setVal('f-cs-fo', 1);
+  setVal('f-cs-ds-x', 0); setVal('f-cs-ds-y', 0); setVal('f-cs-ds-bl', 0); setVal('f-cs-ds-op', 0); setVal('f-cs-ds-clr', '#000000'); setVal('f-cs-ds-clr-h', '#000000');
   setChecked('f-glow-on', false); setChecked('f-glow-hover', false);
   (function(){ var e = g('f-glow-type'); if (e) e.value = 'active'; })();
   setVal('f-glow-color', '#dc2626'); setVal('f-glow-color-h', '#dc2626');
@@ -374,6 +383,10 @@ export function applyPreset(id) {
   setVal('f-cs-fb', f.brightness || 1); setVal('f-cs-fc', f.contrast || 1); setVal('f-cs-fs', f.saturate || 1);
   setVal('f-cs-fg', f.grayscale || 0); setVal('f-cs-fse', f.sepia || 0); setVal('f-cs-fh', f.hueRotate || 0);
   setVal('f-cs-fbl', f.blur || 0); setVal('f-cs-fi', f.invert || 0);
+  setVal('f-cs-fo', f.opacity != null ? f.opacity : 1);
+  setVal('f-cs-ds-x', f.dropShadowX || 0); setVal('f-cs-ds-y', f.dropShadowY || 0);
+  setVal('f-cs-ds-bl', f.dropShadowBlur || 0); setVal('f-cs-ds-op', f.dropShadowOpacity || 0);
+  setVal('f-cs-ds-clr', f.dropShadowColor || '#000000'); setVal('f-cs-ds-clr-h', f.dropShadowColor || '#000000');
 
   const gc = cs.glow || {};
   setChecked('f-glow-on', gc.enabled || false);

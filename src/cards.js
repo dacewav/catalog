@@ -239,6 +239,16 @@ export function beatCard(b, globalIdx) {
   if (csF.hueRotate) filters.push(`hue-rotate(${csF.hueRotate}deg)`);
   if (csF.blur) filters.push(`blur(${csF.blur}px)`);
   if (csF.invert) filters.push(`invert(${csF.invert})`);
+  if (csF.opacity != null && csF.opacity < 1) filters.push(`opacity(${csF.opacity})`);
+  if (csF.dropShadowOpacity) {
+    const dsClr = csF.dropShadowColor || '#000000';
+    const hex = dsClr.replace('#', '');
+    const r = parseInt(hex.substring(0, 2), 16) || 0;
+    const gv = parseInt(hex.substring(2, 4), 16) || 0;
+    const b = parseInt(hex.substring(4, 6), 16) || 0;
+    const a = csF.dropShadowOpacity;
+    filters.push(`drop-shadow(${csF.dropShadowX || 0}px ${csF.dropShadowY || 0}px ${csF.dropShadowBlur || 0}px rgba(${r},${gv},${b},${a}))`);
+  }
   if (filters.length) styleParts.push(`filter:${filters.join(' ')}`);
 
   // Opacity

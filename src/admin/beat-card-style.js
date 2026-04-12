@@ -21,6 +21,8 @@ export const SD_FMT = {
   'f-hov-hue': v => v+'°',
   'f-tf-rotate': v => v.toFixed(1)+'°', 'f-tf-skewX': v => v.toFixed(1)+'°', 'f-tf-skewY': v => v.toFixed(1)+'°',
   'f-cs-fbl': v => v.toFixed(1)+'px',
+  'f-cs-ds-x': v => v+'px', 'f-cs-ds-y': v => v+'px',
+  'f-cs-ds-bl': v => v+'px',
   'f-glow-blur': v => v+'px', 'f-glow-spread': v => v+'px',
   'f-cs-radius': v => v+'px',
   'f-shadow-x': v => v+'px', 'f-shadow-y': v => v+'px',
@@ -40,6 +42,7 @@ export const SD_FMT = {
   'f-shimmer-op': v => v.toFixed(2),
   'f-cs-opacity': v => v.toFixed(2), 'f-shadow-op': v => v.toFixed(2),
   'f-glow-op': v => v.toFixed(2), 'f-hov-opacity': v => v.toFixed(2),
+  'f-cs-fo': v => v.toFixed(2), 'f-cs-ds-op': v => v.toFixed(2),
   'f-anim-brillo-min': v => v.toFixed(2), 'f-anim-brillo-max': v => v.toFixed(2),
   'f-anim-neon-min': v => v.toFixed(2), 'f-anim-neon-max': v => v.toFixed(2), 'f-anim-neon-bright': v => v.toFixed(2),
   'f-anim-parpadeo-min': v => v.toFixed(2), 'f-anim-parpadeo-max': v => v.toFixed(2),
@@ -160,7 +163,13 @@ export function _buildCardStyleFromInputs() {
       sepia: parseFloat(val('f-cs-fse')) || 0,
       hueRotate: parseInt(val('f-cs-fh')) || 0,
       blur: parseFloat(val('f-cs-fbl')) || 0,
-      invert: parseFloat(val('f-cs-fi')) || 0
+      invert: parseFloat(val('f-cs-fi')) || 0,
+      opacity: parseFloat(val('f-cs-fo')) || 1,
+      dropShadowX: parseInt(val('f-cs-ds-x')) || 0,
+      dropShadowY: parseInt(val('f-cs-ds-y')) || 0,
+      dropShadowBlur: parseInt(val('f-cs-ds-bl')) || 0,
+      dropShadowColor: val('f-cs-ds-clr') || '#000000',
+      dropShadowOpacity: parseFloat(val('f-cs-ds-op')) || 0
     },
     glow: {
       enabled: checked('f-glow-on'),
