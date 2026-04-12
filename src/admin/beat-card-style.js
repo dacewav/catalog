@@ -524,6 +524,12 @@ export function updateCardPreview() {
   _toggleAnimSubsettings(animTypeVal);
 
   if (typeof window.renderFullPvInCard === 'function') window.renderFullPvInCard();
+
+  // Always trigger live update (debounced) — don't rely solely on event delegation
+  if (typeof window._sendLiveUpdate === 'function') {
+    clearTimeout(window._updateCardPvLiveTimer);
+    window._updateCardPvLiveTimer = setTimeout(function() { window._sendLiveUpdate(); }, 300);
+  }
 }
 
 // ═══ Window assignments ═══
