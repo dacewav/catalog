@@ -24,6 +24,10 @@ export function showEt(name) {
   const btn = document.querySelector('#sec-add .et[data-et="' + name + '"]');
   if (btn) btn.classList.add('on');
   const p = g('etp-' + name); if (p) p.classList.add('on');
+  // Notify other modules about tab change
+  if (name === 'extras') {
+    document.dispatchEvent(new CustomEvent('extras-tab-shown'));
+  }
 }
 
 Object.assign(window, { showSection, showEt });

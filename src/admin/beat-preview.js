@@ -32,6 +32,11 @@ function _getStoreCSS(cb) {
 // Start fetching immediately on load
 _getStoreCSS(function(){});
 
+// Resize iframe when Extras tab becomes visible
+document.addEventListener('extras-tab-shown', function() {
+  setTimeout(function() { _resizePvIframe(); }, 50);
+});
+
 // ═══ Shared card HTML builder (DRY) ═══
 window._buildCardHTML = function(cs, opts) {
   const { name, bpm, key, genre, imgUrl, tags, isExcl } = opts;
@@ -216,6 +221,66 @@ window._renderFullPvCard = function() {
 };
 
 // ═══ Render full card in embedded container (Extras tab) — uses iframe with store CSS ═══
+var _pvIframe = null;
+var _pvIframeReady = false;
+var _pvPendingUpdate = null;
+
+// Init: create iframe once, load store CSS + fonts
+function _initPvIframe(container) {
+  if (_pvIframe) return _pvIframe;
+  _pvIframeReady = false;
+
+  _getStoreCSS(function(storeCSS) {
+    var iframe = document.createElement('iframe');
+    iframe.style.cssText = 'width:100%;border:none;display:block;background:transparent;min-height:280px';
+    iframe.setAttribute('scrolling', 'no');
+
+    // Use blob URL for same-origin iframe (allows future DOM access)
+    var html = '<!DOCTYPE html><html><head><meta charset="UTF-8">'
+      + '<link rel="preconnect" href="https://fonts.googleapis.com">'
+      + '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>'
+      + '<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">'
+      + '<style>'
+      + 'body{margin:0;padding:16px;display:flex;justify-content:center;align-items:flex-start;background:#0a0808;min-height:100vh;box-sizing:border-box}'
+      + storeCSS
+      + '</style></head><body>'
+      + '<div id="pv-card-slot"></div>'
+      + '</body></html>';
+
+    var blob = new Blob([html], { type: 'text/html' });
+    iframe.src = URL.createObjectURL(blob);
+
+    iframe.onload = function() {
+      _pvIframeReady = true;
+      // Apply pending update if any
+      if (_pvPendingUpdate) {
+        var fn = _pvPendingUpdate;
+        _pvPendingUpdate = null;
+        fn();
+      }
+      // Auto-resize
+      _resizePvIframe(iframe);
+    };
+
+    container.innerHTML = '';
+    container.appendChild(iframe);
+    _pvIframe = iframe;
+  });
+
+  return null;
+}
+
+function _resizePvIframe(iframe) {
+  if (!iframe) iframe = _pvIframe;
+  if (!iframe) return;
+  try {
+    var body = iframe.contentDocument.body;
+    var html = iframe.contentDocument.documentElement;
+    var h = Math.max(body.scrollHeight, html.scrollHeight, body.offsetHeight);
+    iframe.style.height = (h + 16) + 'px';
+  } catch(e) {}
+}
+
 window.renderFullPvInCard = function() {
   var container = document.getElementById('pv-full-card-container');
   if (!container) return;
@@ -230,41 +295,33 @@ window.renderFullPvInCard = function() {
     isExcl: checked('f-excl')
   });
 
-  _getStoreCSS(function(storeCSS) {
-    var html = '<!DOCTYPE html><html><head><meta charset="UTF-8">'
-      + '<link rel="preconnect" href="https://fonts.googleapis.com">'
-      + '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>'
-      + '<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">'
-      + '<style>'
-      + 'body{margin:0;padding:20px;display:flex;justify-content:center;align-items:flex-start;background:#0a0808;min-height:100vh;box-sizing:border-box}'
-      + storeCSS
-      + '</style></head><body>'
-      + cardHTML
-      + '</body></html>';
-
-    // Reuse existing iframe or create new
-    var iframe = container.querySelector('iframe');
-    if (!iframe) {
-      iframe = document.createElement('iframe');
-      iframe.style.cssText = 'width:100%;border:none;display:block;background:transparent;min-height:300px';
-      iframe.setAttribute('scrolling', 'no');
-      container.innerHTML = '';
-      container.appendChild(iframe);
+  function doUpdate() {
+    if (!_pvIframe || !_pvIframeReady) return;
+    try {
+      var doc = _pvIframe.contentDocument;
+      var slot = doc.getElementById('pv-card-slot');
+      if (slot) {
+        slot.innerHTML = cardHTML;
+        // Resize after content update
+        requestAnimationFrame(function() { _resizePvIframe(); });
+      }
+    } catch(e) {
+      // Cross-origin fallback: rebuild iframe
+      console.warn('[Preview] iframe access failed, rebuilding:', e);
+      _pvIframe = null;
+      _pvIframeReady = false;
+      _initPvIframe(container);
     }
+  }
 
-    // Use srcdoc for same-origin access
-    iframe.srcdoc = html;
-
-    // Auto-resize iframe to content height
-    iframe.onload = function() {
-      try {
-        var body = iframe.contentDocument.body;
-        var html = iframe.contentDocument.documentElement;
-        var h = Math.max(body.scrollHeight, html.scrollHeight);
-        iframe.style.height = (h + 20) + 'px';
-      } catch(e) {}
-    };
-  });
+  if (!_pvIframe) {
+    _initPvIframe(container);
+    _pvPendingUpdate = doUpdate;
+  } else if (_pvIframeReady) {
+    doUpdate();
+  } else {
+    _pvPendingUpdate = doUpdate;
+  }
 };
 
 // ═══ Detach/attach preview ═══
