@@ -1,30 +1,41 @@
 // ═══ DACEWAV Admin — Beat Preview ═══
-// Card HTML builder, full preview renderer (iframe via document.write), draggable preview, resize handles.
+// Card HTML builder, full preview renderer, draggable preview, resize handles.
 
 import { g, val, checked } from './helpers.js';
 import { _buildCardStyleFromInputs, SD_FMT } from './beat-card-style.js';
 
-// ═══ Store CSS cache ═══
-var _storeCSSCache = null;
-var _storeCSSCallbacks = [];
-function _getStoreCSS(cb) {
-  if (_storeCSSCache) { cb(_storeCSSCache); return; }
-  _storeCSSCallbacks.push(cb);
-  if (_storeCSSCallbacks.length > 1) return; // fetch in progress
+// ═══ Load store CSS scoped to preview container (once) ═══
+(function _injectStoreCSS() {
   fetch('store-styles.css')
     .then(function(r) { return r.text(); })
     .then(function(css) {
-      _storeCSSCache = css;
-      _storeCSSCallbacks.forEach(function(c) { c(css); });
-      _storeCSSCallbacks = [];
+      // Scope all rules to #pv-full-card-container to avoid conflicts with admin CSS
+      // Skip global selectors: *, html, body, :root
+      var scoped = css
+        // Remove @charset, @import
+        .replace(/@charset[^;]+;/g, '')
+        .replace(/@import[^;]+;/g, '')
+        // Scope @keyframes (they're global but don't conflict)
+        // Scope all other selectors
+        .replace(/([^{}@]+)\{/g, function(match, selector) {
+          var sel = selector.trim();
+          // Skip @-rules selectors
+          if (sel.startsWith('@')) return match;
+          // Skip * (too broad)
+          if (sel === '*' || sel === '*,*' || sel.match(/^\*\s*,\s*\*/)) return match;
+          // Prefix with container
+          return '#pv-full-card-container ' + selector + '{';
+        });
+
+      var style = document.createElement('style');
+      style.id = 'store-card-pv-styles';
+      style.textContent = scoped;
+      document.head.appendChild(style);
     })
-    .catch(function() {
-      _storeCSSCache = '/* failed to load */';
-      _storeCSSCallbacks.forEach(function(c) { c(_storeCSSCache); });
-      _storeCSSCallbacks = [];
+    .catch(function(err) {
+      console.warn('[Preview] Could not load store-styles.css:', err);
     });
-}
-_getStoreCSS(function(){}); // prefetch
+})();
 
 // ═══ Shared card HTML builder (DRY) ═══
 window._buildCardHTML = function(cs, opts) {
@@ -210,12 +221,10 @@ window._renderFullPvCard = function() {
 };
 
 // ═══ Render full card in embedded container (Extras tab) ═══
-// Uses iframe + document.write for same-origin rendering with store CSS
 window.renderFullPvInCard = function() {
   var container = document.getElementById('pv-full-card-container');
   if (!container) return;
-
-  var cardHTML = window._buildCardHTML(_buildCardStyleFromInputs(), {
+  container.innerHTML = window._buildCardHTML(_buildCardStyleFromInputs(), {
     name: val('f-name') || 'Nombre del Beat',
     bpm: val('f-bpm') || '140',
     key: val('f-key') || 'Am',
@@ -223,50 +232,6 @@ window.renderFullPvInCard = function() {
     imgUrl: val('f-img'),
     tags: (val('f-tags') || '').split(',').map(function(t) { return t.trim(); }).filter(Boolean),
     isExcl: checked('f-excl')
-  });
-
-  _getStoreCSS(function(storeCSS) {
-    // Reuse or create iframe
-    var iframe = container.querySelector('iframe');
-    if (!iframe) {
-      iframe = document.createElement('iframe');
-      iframe.style.cssText = 'width:100%;border:none;display:block;background:transparent';
-      iframe.setAttribute('scrolling', 'no');
-      iframe.setAttribute('sandbox', 'allow-same-origin');
-      container.innerHTML = '';
-      container.appendChild(iframe);
-    }
-
-    // document.write gives the iframe same origin — no CSP issues
-    var doc = iframe.contentDocument || iframe.contentWindow.document;
-    doc.open();
-    doc.write(
-      '<!DOCTYPE html><html><head><meta charset="UTF-8">' +
-      '<link rel="preconnect" href="https://fonts.googleapis.com">' +
-      '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>' +
-      '<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">' +
-      '<style>' +
-      'body{margin:0;padding:16px 8px;display:flex;justify-content:center;background:#0a0808}' +
-      storeCSS +
-      '</style>' +
-      '</head><body>' + cardHTML + '</body></html>'
-    );
-    doc.close();
-
-    // Auto-resize after render
-    iframe.onload = function() {
-      try {
-        var h = Math.max(doc.body.scrollHeight, doc.documentElement.scrollHeight);
-        iframe.style.height = (h + 16) + 'px';
-      } catch(e) {}
-    };
-    // Also resize shortly after write (onload might not fire for document.write)
-    setTimeout(function() {
-      try {
-        var h = Math.max(doc.body.scrollHeight, doc.documentElement.scrollHeight);
-        if (h > 10) iframe.style.height = (h + 16) + 'px';
-      } catch(e) {}
-    }, 100);
   });
 };
 
