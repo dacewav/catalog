@@ -249,6 +249,8 @@ export function openEditor(id) {
     renderLicEditor(defLics.length ? JSON.parse(JSON.stringify(defLics)) : []);
   }
   prevImg();
+  // Clear preset card active state — preset detection happens on apply, not on load
+  document.querySelectorAll('.preset-card').forEach(c => c.classList.remove('active'));
   updateCardPreview();
   // Render full card preview in container
   if (typeof window.renderFullPvInCard === 'function') window.renderFullPvInCard();

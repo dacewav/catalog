@@ -426,6 +426,7 @@ export function applyPreset(id) {
   setVal('f-anim-cs-hue-start', ca ? (ca.csHueStart || 0) : 0);
   setVal('f-anim-cs-hue-end', ca ? (ca.csHueEnd || 360) : 360);
   setVal('f-anim-cs-sat', ca ? (ca.csSat || 1) : 1);
+  // Show/hide anim sub-settings panel based on preset's animation type
   _toggleAnimSubsettings(ca ? ca.type : '');
 
   const st = cs.style || {};
