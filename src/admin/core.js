@@ -35,9 +35,16 @@ import {
   tczMarkPreset, tczWordClick, tczClearColors, tczSplitAtCursor
 } from './text-colorizer.js';
 import {
+  updateGlowDesc, updateGlowAnimDesc, computeGlowCSS, applyGlowTo,
+  applyGlowPreset, updatePreview, setGlowDeps
+} from './glow.js';
+
+// Re-export for modules that import from core.js
+export { updatePreview } from './glow.js';
+import {
   g, val, setVal, checked, setChecked, hexRgba, hexFromRgba, rgbaFromHex,
   loadFont, showToast, showSaving, fmt, sv, resetSlider, toggleCard, setAutoSaveRef,
-  confirmInline, promptInline
+  confirmInline, promptInline, escapeHtml
 } from './helpers.js';
 import { loadColorValues } from './colors.js';
 
@@ -123,6 +130,9 @@ setSnapshotDeps({ collectTheme, loadThemeUI, autoSave });
 
 // Wire up emoji dependencies
 setEmojiDeps({ updateBannerPv, autoSave });
+
+// Wire up glow dependencies
+setGlowDeps({ autoSave, updateHeroPv });
 
 // ═══ IFRAME COMMUNICATION ═══
 const PM_ORIGIN = (() => {
@@ -369,11 +379,6 @@ export function updateHeroPv() {
 }
 
 // Safe HTML escape for user input
-function escapeHtml(s) {
-  if (!s) return '';
-  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-}
-
 // ═══ BANNER PREVIEW ═══
 export function updateBannerPv() {
   let text = val('b-text') || 'Preview del banner...';
@@ -420,98 +425,10 @@ export function updateDividerPv() {
 }
 
 // ═══ GLOW EFFECTS ═══
-const _glowDescs = {
-  'text-shadow': 'Resplandor suave alrededor del texto. El más común y ligero.',
-  'box-shadow': 'Sombra rectangular detrás del elemento. Ideal para tarjetas y contenedores.',
-  'drop-shadow': 'Sombra que sigue la forma del texto/imagen. Bueno para logos con transparencia.',
-  'neon-blur': 'Efecto neón difuminado. Intenso, como un letrero de neón visto de lejos.',
-  'neon-sign': 'Neón nítido con borde definido. Parece un letrero de neón real.',
-  'outer-glow': 'Resplandor externo uniforme. Suave y elegante, buen fondo oscuro.',
-  'inner-glow': 'Brillo desde dentro del elemento. Da sensación de iluminación interna.'
-};
-const _glowAnimDescs = {
-  'none': 'Sin animación', 'pulse': 'Palpita: se intensifica y atenúa rítmicamente',
-  'breathe': 'Respira: crece y decrece suavemente como respiración',
-  'flicker': 'Parpadeo: imita neón con fallas eléctricas aleatorias',
-  'rainbow': 'Arcoíris: rota colores continuamente', 'wave': 'Onda: varía la intensidad como una onda sinusoidal',
-  'neon-flicker': 'Neón clásico: parpadeo rápido como tubo de neón real',
-  'holograma': 'Holograma: rota brillo y tono como una tarjeta holográfica'
-};
-export function updateGlowDesc() { const el = g('glow-desc'); if (el) el.textContent = _glowDescs[val('t-glow-type')] || ''; }
-export function updateGlowAnimDesc() { const el = g('glow-anim-desc'); if (el) el.textContent = _glowAnimDescs[val('t-glow-anim')] || ''; }
-export function computeGlowCSS(type, blur, spread, int, color) {
-  const c = hexRgba(color, int);
-  switch (type) {
-    case 'text-shadow': return { textShadow: '0 0 ' + blur + 'px ' + c, boxShadow: 'none', filter: 'none' };
-    case 'box-shadow': return { textShadow: 'none', boxShadow: '0 0 ' + blur + 'px ' + spread + 'px ' + c, filter: 'none' };
-    case 'drop-shadow': return { textShadow: 'none', boxShadow: 'none', filter: 'drop-shadow(0 0 ' + blur + 'px ' + c + ')' };
-    case 'neon-blur': return { textShadow: '0 0 ' + (blur * .3) + 'px ' + c + ',0 0 ' + blur + 'px ' + hexRgba(color, int * .6), boxShadow: 'none', filter: 'none' };
-    case 'neon-sign': return { textShadow: '0 0 ' + (blur * .2) + 'px ' + hexRgba(color, .9) + ',0 0 ' + (blur * .5) + 'px ' + hexRgba(color, .7) + ',0 0 ' + blur + 'px ' + hexRgba(color, .4), boxShadow: '0 0 ' + (blur * .3) + 'px ' + spread + 'px ' + hexRgba(color, .3), filter: 'none' };
-    case 'outer-glow': return { textShadow: 'none', boxShadow: '0 0 ' + (blur * .5) + 'px ' + spread + 'px ' + hexRgba(color, .4) + ',0 0 ' + blur + 'px ' + (spread * 2) + 'px ' + hexRgba(color, .2), filter: 'none' };
-    case 'inner-glow': return { textShadow: 'none', boxShadow: 'inset 0 0 ' + (blur * .5) + 'px ' + spread + 'px ' + hexRgba(color, .5), filter: 'none' };
-    default: return { textShadow: '0 0 ' + blur + 'px ' + c, boxShadow: 'none', filter: 'none' };
-  }
-}
-export function applyGlowTo(el, type, blur, spread, int, color, active) {
-  if (!el) return;
-  if (!active) { el.style.textShadow = 'none'; el.style.boxShadow = 'none'; el.style.filter = 'none'; return; }
-  const css = computeGlowCSS(type, blur, spread, int, color);
-  el.style.textShadow = css.textShadow; el.style.boxShadow = css.boxShadow; el.style.filter = css.filter;
-}
-
-// ═══ GLOW PRESETS ═══
-const GLOW_PRESETS = {
-  soft:    { type: 'text-shadow', blur: 30, int: 0.6, op: 0.8, anim: 'breathe', speed: 3 },
-  neon:    { type: 'neon-sign', blur: 25, int: 1.5, op: 1, anim: 'neon-flicker', speed: 4 },
-  fire:    { type: 'neon-blur', blur: 20, int: 1.2, op: 0.9, anim: 'pulse', speed: 1.5 },
-  ice:     { type: 'outer-glow', blur: 35, int: 0.8, op: 0.7, anim: 'breathe', speed: 4 },
-  toxic:   { type: 'neon-sign', blur: 22, int: 1.3, op: 1, anim: 'flicker', speed: 2 },
-  sunset:  { type: 'text-shadow', blur: 28, int: 1, op: 0.85, anim: 'wave', speed: 3 },
-  royal:   { type: 'neon-blur', blur: 18, int: 1.1, op: 0.95, anim: 'pulse', speed: 2.5 },
-  disco:   { type: 'neon-sign', blur: 30, int: 1.8, op: 1, anim: 'rainbow', speed: 2 },
-};
-export function applyGlowPreset(name) {
-  const p = GLOW_PRESETS[name]; if (!p) return;
-  setVal('t-glow-type', p.type);
-  setVal('t-glow-blur', p.blur);
-  setVal('t-glow-int', p.int);
-  setVal('t-glow-op', p.op);
-  setVal('t-glow-anim', p.anim);
-  setVal('t-glow-speed', p.speed);
-  setChecked('t-glow', true);
-  // Update slider displays
-  document.querySelectorAll('#t-glow-blur, #t-glow-int, #t-glow-op, #t-glow-speed').forEach(el => sv(el));
-  updatePreview();
-  updateGlowDesc();
-  updateGlowAnimDesc();
-  autoSave();
-  showToast('Glow preset: ' + name);
-}
+// Glow system → src/admin/glow.js
 
 // ═══ PREVIEW UPDATE ═══
-export function updatePreview() {
-  const accent = val('tc-glow') || val('tt-glow') || '#dc2626';
-  const gType = val('t-glow-type') || 'text-shadow';
-  const blur = parseInt(val('t-glow-blur')) || 20;
-  const spread = parseInt(val('t-glow-spread')) || 0;
-  const int = parseFloat(val('t-glow-int')) || 1;
-  const gOp = parseFloat(val('t-glow-op')) || 1;
-  const active = checked('t-glow');
-  ['gp-box', 'gp-text', 'gp-btn'].forEach(id => {
-    const el = g(id); if (!el) return;
-    applyGlowTo(el, gType, blur, spread, int * gOp, accent, active);
-    if (el.id === 'gp-box') { el.style.color = accent; }
-  });
-  const anim = val('t-glow-anim') || 'none';
-  const speed = parseFloat(val('t-glow-speed')) || 2;
-  ['gp-box', 'gp-text', 'gp-btn'].forEach(id => {
-    const el = g(id); if (!el) return;
-    el.classList.remove('gap-anim-pulse', 'gap-anim-breathe', 'gap-anim-flicker', 'gap-anim-rainbow', 'gap-anim-wave', 'gap-anim-neon-flicker', 'gap-anim-holograma');
-    if (anim !== 'none') { el.classList.add('gap-anim-' + anim); el.style.setProperty('--ga-s', speed + 's'); }
-  });
-  updateHeroPv();
-  // Note: broadcast handled by autoSave() caller — don't duplicate here
-}
+// Preview update → src/admin/glow.js
 
 // ═══ COLLECT THEME ═══
 export function collectTheme() {
