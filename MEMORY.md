@@ -78,3 +78,19 @@ Los módulos que se asignan a `window.*` necesitan ser importados explícitament
 - `#pv-full-card-container` exists in admin.html line 586 (Extras tab)
 - `renderFullPvInCard()` in beat-preview.js targets `document.getElementById('pv-full-card-container')`
 - Build succeeds: `dist/admin-app.js` 221.3KB
+
+## 2026-04-13 — Mini preview removed
+
+### Decision
+El mini preview en Extras (`#pv-full-card-container`) fue eliminado. `_buildCardHTML()` era una copia simplificada de `beatCard()` del store y nunca iba a ser idéntica. La vista real de la tienda (iframe `preview-frame` a la derecha) es la única fuente de verdad.
+
+### Cambios
+- `admin.html`: reemplazado el card de preview por un indicador simple con botón de upload de imagen
+- `beat-preview.js`: `renderFullPvInCard()` ahora es no-op, eliminado CSS scoping
+- La imagen upload (📸) sigue funcionando — actualiza el campo `f-img` y el live update sincroniza al iframe
+
+### Arquitectura de preview
+La única preview real es el iframe `#preview-frame` que carga `index.html` (la tienda). Los cambios del admin se envían via:
+1. `postMessage` → iframe de la tienda (preview-panel a la derecha)
+2. Firebase `liveEdits/{beatId}` → tienda externa (dacewav.store)
+
