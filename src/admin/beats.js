@@ -8,7 +8,7 @@ import { showSection } from './nav.js';
 import { autoSave, postToFrame } from './core.js';
 import { siteSettings } from './state.js';
 import { R2_ENABLED, uploadToR2 } from './r2.js';
-import { updateCardPreview, syncSliderDisplay, _buildCardStyleFromInputs, _isCardStyleDefault } from './beat-card-style.js';
+import { updateCardPreview, syncSliderDisplay, _buildCardStyleFromInputs, _isCardStyleDefault, _setHoloColors, _toggleAnimSubsettings } from './beat-card-style.js';
 import { ALL_SLIDER_IDS, renderPresets, renderHoverPresets, applyPreset, applyHoverPreset, resetCardStyle, resetBeatToGlobal } from './beat-presets.js';
 
 function _triggerLiveUpdate() {
@@ -251,7 +251,7 @@ export function openEditor(id) {
   prevImg();
   updateCardPreview();
   // Render full card preview in container
-  renderFullPvInCard();
+  if (typeof window.renderFullPvInCard === 'function') window.renderFullPvInCard();
   document.querySelectorAll('#sec-add .et').forEach((t, i) => t.classList.toggle('on', i === 0));
   document.querySelectorAll('#sec-add .etp').forEach((p, i) => p.classList.toggle('on', i === 0));
 }
@@ -478,7 +478,7 @@ renderHoverPresets();
     _liveListenersAttached = true;
     // Event delegation: catch ALL input/change events in the editor section
     // This covers every field (name, CSS filters, glow, anim, shadow, hover, transform…)
-    var editor = document.getElementById('sec-add');
+    var editor = typeof document !== 'undefined' && document.getElementById ? document.getElementById('sec-add') : null;
     if (!editor) { console.warn('[LiveEdit] #sec-add not found'); return; }
     editor.addEventListener('input', function(e) {
       if (e.target.matches('input, select, textarea')) _debouncedPv();
@@ -493,7 +493,7 @@ renderHoverPresets();
   window._attachLiveListeners = _attachLiveListeners;
 
   // ═══ LIVE EDIT: localStorage → store iframe ═══
-  var PM_ORIGIN = window.location.origin || '*';
+  var PM_ORIGIN = (typeof window !== 'undefined' && window.location && window.location.origin) || '*';
   window._liveEditId = null;
   window._liveEditOriginal = null;
 

@@ -45,6 +45,25 @@ vi.mock('../src/admin/r2.js', () => ({
   uploadToR2: vi.fn(),
 }));
 
+vi.mock('../src/admin/beat-card-style.js', () => ({
+  updateCardPreview: vi.fn(),
+  syncSliderDisplay: vi.fn(),
+  _buildCardStyleFromInputs: vi.fn(() => ({})),
+  _isCardStyleDefault: vi.fn(() => true),
+  _setHoloColors: vi.fn(),
+  _toggleAnimSubsettings: vi.fn(),
+}));
+
+vi.mock('../src/admin/beat-presets.js', () => ({
+  ALL_SLIDER_IDS: [],
+  renderPresets: vi.fn(),
+  renderHoverPresets: vi.fn(),
+  applyPreset: vi.fn(),
+  applyHoverPreset: vi.fn(),
+  resetCardStyle: vi.fn(),
+  resetBeatToGlobal: vi.fn(),
+}));
+
 import { renderBeatList, filterBeatList, openEditor } from '../src/admin/beats.js';
 import * as state from '../src/admin/state.js';
 

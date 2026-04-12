@@ -210,6 +210,17 @@ export function beatCard(b, globalIdx) {
   if (animStyle) styleParts.push(animStyle);
   if (borderStyle) styleParts.push(borderStyle);
 
+  // Shimmer variables (speed + opacity)
+  if (shimmer) {
+    const shimSpeed = parseFloat(csS.shimmerSpeed) || parseFloat(b.shimmerSpeed) || 3;
+    const shimOp = parseFloat(csS.shimmerOp) || parseFloat(b.shimmerOp) || 0.04;
+    styleParts.push(`--shim-speed:${shimSpeed}s`);
+    styleParts.push(`--shim-op:${shimOp}`);
+  }
+
+  // Card radius (per-beat override)
+  if (csS.borderRadius) styleParts.push(`--card-radius:${csS.borderRadius}px`);
+
   // Build inner card styles (shadow goes here, not on .beat-card, because .beat-card-inner owns the default box-shadow)
   const innerStyleParts = [];
   if (csSh.enabled) {
