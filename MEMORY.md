@@ -1,96 +1,60 @@
 # Catalog Project Memory
 
-## 2026-04-13 — Beat Editor Extras Tab Fixes
+## 2026-04-13 — Sesión completa: Preview, Sync, Imágenes, Trash
 
-### Session context
-Fixed real-time preview sync and image upload live update in the beat editor's Extras tab.
+### Resumen de cambios
+Sesión larga con múltiples iteraciones sobre el preview de tarjetas y sistema de imágenes.
 
-### What was fixed
+### Problemas resueltos
 
-**1. `beat-card-style.js` — `updateCardPreview()` now triggers live updates**
-- Added a debounced `_sendLiveUpdate()` call at the end of `updateCardPreview()`
-- Previously, live updates relied solely on event delegation catching bubbled `input`/`change` events
-- This was fragile: programmatic value changes (like `setVal('f-img', url)`) don't dispatch `input` events
-- Now EVERY call to `updateCardPreview()` (from all sliders, selects, checkboxes, toggles) also triggers a live store update (300ms debounce)
+**1. beat-preview.js nunca importado**
+- `admin-main.js` no importaba `beat-preview.js` → `renderFullPvInCard` nunca existía
+- Fix: `import './admin/beat-preview.js'` en admin-main.js
 
-**2. `beats.js` — `prevImg()` now triggers live updates**
-- Added debounced `_sendLiveUpdate()` call so image URL changes (typed, pasted, or uploaded) sync to the store
-- The upload handler `uploadBeatImg()` already called `_triggerLiveUpdate()` after upload, but manual URL entry didn't
+**2. Live update no se disparaba desde sliders generados**
+- `card-style-ui.js` genera sliders con `oninput="sv(this)"` que NO llamaban `updateCardPreview()`
+- Fix: listener global en `card-style-ui.js` que captura input/change en controles `f-` y `g-`
 
-### Architecture: Live Update Flow
+**3. Mini preview eliminado**
+- `_buildCardHTML()` era copia simplificada de `beatCard()` del store — nunca iba a ser idéntica
+- Decisión: eliminar mini preview, usar solo el iframe de la derecha (`preview-frame`)
+- El tab Extras ahora muestra indicador + botón de upload de imagen
 
+**4. Sistema de imágenes**
+- Preview inmediato al subir imagen (FileReader)
+- Historial mini con thumbnails (hasta 8, con X para quitar)
+- Botón "Papelera" mueve imagen a trash en vez de borrar directo
+- `_sendLiveUpdate()` se llama automáticamente desde `updateCardPreview()` y `prevImg()`
+
+**5. Papelera (Trash)**
+- Nueva sección `#sec-trash` en sidebar
+- `src/admin/trash.js` — localStorage, restore, delete perm, filters
+- Badge en sidebar muestra cantidad de elementos
+
+### Pendientes
+- [ ] Animaciones en Media tab — el usuario reporta controles de animación apareciendo en el tab Media. No se pudo reproducir/aislar el bug. Investigar en siguiente sesión.
+- [ ] Conectar trash a audios y previews (solo imágenes por ahora)
+- [ ] El sync a Firebase de imágenes grandes (base64) puede ser lento
+
+### Arquitectura de live update (final)
 ```
-User interacts with control
-  → input/change event bubbles to #sec-add
-  → event delegation catches it
-  → _debouncedPv() fires
-  → updateCardPreview() [renders local preview]
-  → renderFullPvInCard() [renders #pv-full-card-container]
-  → _sendLiveUpdate() [syncs to store iframe + Firebase]
-
-BUT ALSO (NEW):
-  → updateCardPreview() itself now calls _sendLiveUpdate() (debounced)
-  → prevImg() itself now calls _sendLiveUpdate() (debounced)
+Slider/control cambia
+  → oninput="sv(this)" (display update)
+  → document 'input' listener (card-style-ui.js)
+  → updateCardPreview()
+    → _buildCardStyleFromInputs() [lee valores]
+    → _sendLiveUpdate() debounced (300ms)
+      → postMessage → preview-frame iframe
+      → Firebase liveEdits/{beatId}
+    → renderFullPvInCard() [no-op, preview eliminado]
 ```
 
-This dual-path ensures updates reach the store even when:
-- Values are set programmatically (no event fires)
-- Event delegation isn't attached yet
-- The source doesn't directly call `_sendLiveUpdate()`
-
-## 2026-04-13 — beat-preview.js never imported (vista previa rota)
-
-### Bug
-La vista previa de tarjeta en el tab Extras (`#pv-full-card-container`) no aparecía nunca.
-
-### Root cause
-`beat-preview.js` (que define `renderFullPvInCard` y `_buildCardHTML`) **nunca fue importado** por ningún módulo. Solo se mencionaba en un comentario en `beats.js`. Todas las llamadas a `window.renderFullPvInCard()` fallaban silenciosamente porque `typeof window.renderFullPvInCard === 'undefined'`.
-
-### Fix
-- Agregué `import './admin/beat-preview.js';` en `admin-main.js` (antes de `beats.js`)
-- Corregí un typo de quote en `beat-preview.js:70` (extra `'` al final de un `s.push()`)
-- El bundle creció de 221KB → 233.9KB (el módulo ahora sí está incluido)
-
-## 2026-04-13 — Vista previa con CSS real de la tienda (iframe)
-
-### Bug
-La vista previa de tarjeta en Extras usaba `_buildCardHTML()` renderizado directo en el DOM del admin. El CSS de la tienda (`store-styles.css`) nunca se aplicaba, así que la tarjeta no se veía igual que en la store.
-
-### Fix
-`renderFullPvInCard()` ahora crea un iframe con `srcdoc` que incluye:
-- El CSS completo de `store-styles.css` (fetch una vez, cacheado)
-- Google Fonts (Syne, DM Mono)
-- El HTML de la tarjeta generado por `_buildCardHTML()`
-- Auto-resize del iframe al contenido
-
-El resultado: la tarjeta en el preview se ve EXACTAMENTE igual que en la tienda porque usa el mismo CSS.
-
-### Lesson
-Los módulos que se asignan a `window.*` necesitan ser importados explícitamente en el entry point (`admin-main.js`) — aunque otros módulos los usen vía `window.functionName`, el import del módulo que DEFINE la función es independiente.
-
-### Files modified (this session)
-- `/catalog/src/admin/beat-card-style.js` — added debounced `_sendLiveUpdate()` at end of `updateCardPreview()`
-- `/catalog/src/admin/beats.js` — added debounced `_sendLiveUpdate()` in `prevImg()`
-- `/catalog/src/admin-main.js` — added `import './admin/beat-preview.js'`
-- `/catalog/src/admin/beat-preview.js` — fixed syntax error (extra quote on line 70)
-
-### Verification
-- `#pv-full-card-container` exists in admin.html line 586 (Extras tab)
-- `renderFullPvInCard()` in beat-preview.js targets `document.getElementById('pv-full-card-container')`
-- Build succeeds: `dist/admin-app.js` 221.3KB
-
-## 2026-04-13 — Mini preview removed
-
-### Decision
-El mini preview en Extras (`#pv-full-card-container`) fue eliminado. `_buildCardHTML()` era una copia simplificada de `beatCard()` del store y nunca iba a ser idéntica. La vista real de la tienda (iframe `preview-frame` a la derecha) es la única fuente de verdad.
-
-### Cambios
-- `admin.html`: reemplazado el card de preview por un indicador simple con botón de upload de imagen
-- `beat-preview.js`: `renderFullPvInCard()` ahora es no-op, eliminado CSS scoping
-- La imagen upload (📸) sigue funcionando — actualiza el campo `f-img` y el live update sincroniza al iframe
-
-### Arquitectura de preview
-La única preview real es el iframe `#preview-frame` que carga `index.html` (la tienda). Los cambios del admin se envían via:
-1. `postMessage` → iframe de la tienda (preview-panel a la derecha)
-2. Firebase `liveEdits/{beatId}` → tienda externa (dacewav.store)
-
+### Archivos clave
+- `src/admin/beats.js` — CRUD beats, editor, uploads, prevImg, live edit
+- `src/admin/beat-card-style.js` — updateCardPreview, _buildCardStyleFromInputs
+- `src/admin/beat-preview.js` — _buildCardHTML, renderFullPvInCard (no-op), image upload handler
+- `src/admin/card-style-ui.js` — effect gallery, generated controls, universal slider listener
+- `src/admin/trash.js` — papelera
+- `src/admin/nav.js` — showSection, showEt
+- `src/cards.js` — store's beatCard() (the REAL renderer)
+- `src/main.js` — store's live edit receiver
