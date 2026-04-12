@@ -5,14 +5,14 @@
 import { ANIMS, EMOJIS } from './config.js';
 import {
   db, T, setT, siteSettings, customEmojis, floatingEls,
-  _undoStack, _redoStack, _lastSavedTheme, _undoDebounce,
-  setLastSavedTheme, setUndoDebounce,
+  _undoStack,
   _iframeReady, setIframeReady, _ldTheme, _ldSettings, _ldBeats,
   setLdTheme, setLdSettings, setLdBeats,
   _changeLog, _lastChangeValues,
   ppCtx, ppParts, ppAnim, setPpCtx, setPpParts, setPpAnim,
   _gradStops, setGradStops, _gradRerenderTimer, setGradRerenderTimer
 } from './state.js';
+import { pushUndo, pushUndoInitial, undo, redo, setUndoDeps } from './undo.js';
 import {
   g, val, setVal, checked, setChecked, hexRgba, hexFromRgba, rgbaFromHex,
   loadFont, showToast, showSaving, fmt, sv, resetSlider, toggleCard, setAutoSaveRef,
@@ -24,39 +24,7 @@ let _autoSaveTimer = null;
 let _broadcastTimer = null;
 let _lastBroadcastJSON = '';
 
-// ═══ UNDO/REDO ═══
-export function pushUndo() {
-  clearTimeout(_undoDebounce);
-  setUndoDebounce(setTimeout(() => {
-    const snap = JSON.stringify(collectTheme());
-    if (_lastSavedTheme === snap) return;
-    _undoStack.push(snap);
-    setLastSavedTheme(snap);
-    if (_undoStack.length > 50) _undoStack.shift();
-    _redoStack.length = 0;
-  }, 300));
-}
-export function undo() {
-  if (_undoStack.length < 2) return;
-  _redoStack.push(_undoStack.pop());
-  const prev = _undoStack[_undoStack.length - 1];
-  if (prev) { setT(JSON.parse(prev)); loadThemeUI(); broadcastThemeNow(); showToast('Deshacer ↩'); }
-}
-export function redo() {
-  if (!_redoStack.length) return;
-  const next = _redoStack.pop();
-  _undoStack.push(next);
-  setT(JSON.parse(next)); loadThemeUI(); broadcastThemeNow(); showToast('Rehacer ↪');
-}
-
-// Save initial state for undo
-export function pushUndoInitial() {
-  const snap = JSON.stringify(collectTheme());
-  _undoStack.length = 0;
-  _undoStack.push(snap);
-  setLastSavedTheme(snap);
-  _redoStack.length = 0;
-}
+// Undo/redo → src/admin/undo.js
 
 // ═══ AUTO-SAVE ═══
 export function autoSave() {
@@ -125,6 +93,9 @@ export function _collectSiteSettings() {
 
 // Wire up helpers autoSave reference
 setAutoSaveRef(autoSave);
+
+// Wire up undo/redo dependencies (breaks circular import with undo.js)
+setUndoDeps({ collectTheme, loadThemeUI, broadcastThemeNow });
 
 // ═══ IFRAME COMMUNICATION ═══
 const PM_ORIGIN = (() => {
