@@ -183,6 +183,14 @@ window.addEventListener('message', (e) => {
     const bi = state.allBeats.findIndex(x => x.id === d.beatId);
     console.log('[LiveEdit] beat-update received:', d.beatId, 'index:', bi, 'glow:', JSON.stringify(d.data?.cardStyle?.glow), 'anim:', JSON.stringify(d.data?.cardStyle?.anim?.type), 'holoDir:', d.data?.cardStyle?.anim?.holoDir);
     if (bi > -1) {
+      // Clear legacy props so beatCard() reads from cardStyle, not old glowConfig/cardAnim
+      if (d.data.cardStyle) {
+        state.allBeats[bi].glowConfig = d.data.cardStyle.glow || { enabled: false };
+        state.allBeats[bi].cardAnim = d.data.cardStyle.anim || null;
+        state.allBeats[bi].accentColor = d.data.cardStyle.style?.accentColor || '';
+        state.allBeats[bi].cardBorder = d.data.cardStyle.border || { enabled: false };
+        state.allBeats[bi].shimmer = d.data.cardStyle.style?.shimmer || false;
+      }
       Object.assign(state.allBeats[bi], d.data);
       renderAll();
       // Debug: log rendered card classes and inline styles
@@ -424,7 +432,16 @@ window.addEventListener('load', () => {
         const bi = state.allBeats.findIndex(x => x.id === beatId);
         console.log('[LiveEdit:store] overlay', beatId, 'index:', bi, 'beats loaded:', state.allBeats.length);
         if (bi > -1) {
-          Object.assign(state.allBeats[bi], edits[beatId]);
+          // Clear legacy props so beatCard() reads from cardStyle
+          const edit = edits[beatId];
+          if (edit.cardStyle) {
+            state.allBeats[bi].glowConfig = edit.cardStyle.glow || { enabled: false };
+            state.allBeats[bi].cardAnim = edit.cardStyle.anim || null;
+            state.allBeats[bi].accentColor = edit.cardStyle.style?.accentColor || '';
+            state.allBeats[bi].cardBorder = edit.cardStyle.border || { enabled: false };
+            state.allBeats[bi].shimmer = edit.cardStyle.style?.shimmer || false;
+          }
+          Object.assign(state.allBeats[bi], edit);
         }
       });
       if (editCount) renderAll();
