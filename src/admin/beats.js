@@ -157,6 +157,8 @@ export function openEditor(id) {
     const accentClr = csS.accentColor || b.accentColor || '#dc2626';
     setVal('f-accent-color', accentClr); setVal('f-accent-color-h', accentClr);
     setChecked('f-shimmer', csS.shimmer != null ? csS.shimmer : (b.shimmer || false));
+    setVal('f-shimmer-speed', csS.shimmerSpeed || b.shimmerSpeed || 3);
+    setVal('f-shimmer-op', csS.shimmerOp || b.shimmerOp || 0.04);
     setVal('f-cs-radius', csS.borderRadius || 0);
     setVal('f-cs-opacity', csS.opacity != null ? csS.opacity : 1);
 
@@ -254,6 +256,7 @@ export function openEditor(id) {
     ALL_SLIDER_IDS.forEach(syncSliderDisplay);
     setVal('f-accent-color', '#dc2626'); setVal('f-accent-color-h', '#dc2626');
     setChecked('f-shimmer', false);
+    setVal('f-shimmer-speed', 3); setVal('f-shimmer-op', 0.04);
     setChecked('f-border-on', false); setVal('f-border-color', '#dc2626');
     setVal('f-hov-border', '#dc2626');
     renderLicEditor(defLics.length ? JSON.parse(JSON.stringify(defLics)) : []);

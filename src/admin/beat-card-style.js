@@ -230,6 +230,8 @@ export function _buildCardStyleFromInputs() {
     style: {
       accentColor: val('f-accent-color') || '',
       shimmer: checked('f-shimmer'),
+      shimmerSpeed: parseFloat(val('f-shimmer-speed')) || 3,
+      shimmerOp: parseFloat(val('f-shimmer-op')) || 0.04,
       borderRadius: parseInt(val('f-cs-radius')) || 0,
       opacity: parseFloat(val('f-cs-opacity')) || 1
     },

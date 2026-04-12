@@ -87,7 +87,7 @@ export const EFFECT_PRESETS = [
     apply: () => ({
       filter: { brightness: 1.08, contrast: 1.05, saturate: 0.85, grayscale: 0, sepia: 0, hueRotate: -5, blur: 0, blurType: '', invert: 0, opacity: 1, dropShadowX: 0, dropShadowY: 0, dropShadowBlur: 22, dropShadowColor: '#0e7490', dropShadowOpacity: 0.25 },
       glow: { enabled: true, type: 'breathe', color: '#0e7490', speed: 5, intensity: 0.8, blur: 28, spread: 0, opacity: 0.4, hoverOnly: true },
-      anim: null, style: { accentColor: '#22d3ee', shimmer: true, borderRadius: 10, opacity: 1 },
+      anim: null, style: { accentColor: '#22d3ee', shimmer: true, shimmerSpeed: 3, shimmerOp: 0.04, borderRadius: 10, opacity: 1 },
       border: { enabled: true, color: '#155e75', width: 1, style: 'solid' },
       shadow: { enabled: true, color: '#083344', opacity: 0.45, x: 0, y: 6, blur: 18, spread: 0, inset: false },
       hover: { scale: 1.03, brightness: 1.15, saturate: 1, shadowBlur: 0, transition: 0.4, borderColor: '#67e8f9', glowIntensify: false, blur: 0, siblingsBlur: 3, hueRotate: 0, opacity: 1, enableAnim: false, animType: '', animDur: 1 },
@@ -101,7 +101,7 @@ export const EFFECT_PRESETS = [
     apply: () => ({
       filter: { brightness: 1.1, contrast: 1.05, saturate: 1.1, grayscale: 0, sepia: 0, hueRotate: 0, blur: 0, blurType: '', invert: 0, opacity: 0.92, dropShadowX: 0, dropShadowY: 8, dropShadowBlur: 30, dropShadowColor: '#312e81', dropShadowOpacity: 0.3 },
       glow: { enabled: true, type: 'breathe', color: '#6366f1', speed: 4, intensity: 0.7, blur: 30, spread: 0, opacity: 0.35, hoverOnly: true },
-      anim: null, style: { accentColor: '#818cf8', shimmer: true, borderRadius: 14, opacity: 0.92 },
+      anim: null, style: { accentColor: '#818cf8', shimmer: true, shimmerSpeed: 3, shimmerOp: 0.04, borderRadius: 14, opacity: 0.92 },
       border: { enabled: true, color: 'rgba(255,255,255,0.08)', width: 1, style: 'solid' },
       shadow: { enabled: true, color: '#1e1b4b', opacity: 0.4, x: 0, y: 10, blur: 30, spread: 0, inset: false },
       hover: { scale: 1.04, brightness: 1.2, saturate: 1.15, shadowBlur: 0, transition: 0.35, borderColor: 'rgba(255,255,255,0.2)', glowIntensify: true, blur: 0, siblingsBlur: 5, hueRotate: 0, opacity: 1, enableAnim: false, animType: '', animDur: 1 },
@@ -116,7 +116,7 @@ export const EFFECT_PRESETS = [
       filter: { brightness: 1.05, contrast: 1.08, saturate: 1.2, grayscale: 0, sepia: 0, hueRotate: 0, blur: 0, blurType: '', invert: 0, opacity: 1, dropShadowX: 0, dropShadowY: 0, dropShadowBlur: 0, dropShadowColor: '#000000', dropShadowOpacity: 0 },
       glow: { enabled: true, type: 'rgb', color: '#7c2d12', speed: 6, intensity: 0.8, blur: 22, spread: 0, opacity: 0.45, hoverOnly: false },
       anim: { type: 'holograma', dur: 5, del: 0, easing: 'ease-in-out', direction: 'normal', iterations: 'infinite', intensity: 80, hueStart: 0, hueEnd: 360, holoBrightMin: 0.9, holoBrightMax: 1.25, holoSatMin: 0.9, holoSatMax: 1.6, holoGlow: 0, holoBlur: 0 },
-      style: { accentColor: '#d97706', shimmer: true, borderRadius: 10, opacity: 1 },
+      style: { accentColor: '#d97706', shimmer: true, shimmerSpeed: 3, shimmerOp: 0.04, borderRadius: 10, opacity: 1 },
       border: { enabled: false, color: '#dc2626', width: 1, style: 'solid' },
       shadow: { enabled: true, color: '#1c1917', opacity: 0.35, x: 0, y: 6, blur: 20, spread: 0, inset: false },
       hover: { scale: 1.04, brightness: 1.2, saturate: 1.3, shadowBlur: 0, transition: 0.3, borderColor: '#fbbf24', glowIntensify: true, blur: 0, siblingsBlur: 4, hueRotate: 15, opacity: 1, enableAnim: false, animType: '', animDur: 1 },
@@ -472,6 +472,8 @@ export function buildCardStyleFromPrefix(prefix) {
     } : null,
     style: {
       accentColor: v(p + 'accent-color') || '#dc2626', shimmer: c(p + 'shimmer'),
+      shimmerSpeed: parseFloat(v(p + 'shimmer-speed')) || 3,
+      shimmerOp: parseFloat(v(p + 'shimmer-op')) || 0.04,
       borderRadius: parseInt(v(p + 'cs-radius')) || 0, opacity: n(p + 'cs-opacity') || 1
     },
     border: {
@@ -536,6 +538,8 @@ export function populateFromCardStyle(cs, prefix) {
   s(p + 'accent-color', st.accentColor || '#dc2626'); s(p + 'accent-color-h', st.accentColor || '#dc2626');
   ck(p + 'shimmer', st.shimmer); s(p + 'cs-radius', st.borderRadius || 0);
   s(p + 'cs-opacity', st.opacity != null ? st.opacity : 1);
+  s(p + 'shimmer-speed', st.shimmerSpeed || 3);
+  s(p + 'shimmer-op', st.shimmerOp || 0.04);
 
   const bd = cs.border || {};
   ck(p + 'border-on', bd.enabled); s(p + 'border-color', bd.color || '#dc2626');

@@ -752,35 +752,6 @@ definen géneros.</textarea></div>
                 <option value="temblor">🫨 Temblor</option>
               </select>
             </div>
-            <div class="field"><label>Animación 2 (combo)</label>
-              <select id="f-anim-type2" onchange="updateCardPreview()" class="inline-select">
-                <option value="">Ninguna</option>
-                <option value="flotar">🫧 Flotar</option>
-                <option value="pulsar">💓 Pulsar</option>
-                <option value="respirar">🫁 Respirar</option>
-                <option value="latido">❤️ Latido</option>
-                <option value="rebotar">🏀 Rebotar</option>
-                <option value="balanceo">⚖️ Balanceo</option>
-                <option value="brillo">✨ Brillo</option>
-                <option value="cambio-color">🎨 Cambio de color</option>
-                <option value="holograma">🌈 Holograma</option>
-                <option value="neon-flicker">💡 Neón parpadeo</option>
-                <option value="glitch">📺 Glitch</option>
-                <option value="drift">🌊 Drift</option>
-                <option value="zoom-in">🔍 Zoom in</option>
-                <option value="zoom-out">🔍 Zoom out</option>
-                <option value="rotar">🔄 Rotar</option>
-                <option value="spin-lento">🌀 Spin lento</option>
-                <option value="deslizar-arriba">⬆️ Arr</option>
-                <option value="deslizar-abajo">⬇️ Abj</option>
-                <option value="deslizar-izq">⬅️ Izq</option>
-                <option value="deslizar-der">➡️ Der</option>
-                <option value="sacudida">💪 Sacudida</option>
-                <option value="parpadeo">👁️ Parpadeo</option>
-                <option value="pop">💥 Pop</option>
-                <option value="spin-lento">🌀 Spin lento</option>
-                <option value="temblor">🫨 Temblor</option>
-              </select>
             </div>
             <div class="field"><label>⚡ Velocidad</label><div class="slider-wrap"><input type="range" id="f-anim-int" min="10" max="300" step="5" value="100" oninput="this.nextElementSibling.textContent=this.value+'%';updateCardPreview()"><span class="slider-val">100%</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,100)">↺</button></div></div>
             <div class="fg2">
@@ -929,6 +900,43 @@ definen géneros.</textarea></div>
           </div>
         </div>
         <div class="card" class="mt-sm">
+        <!-- ═══ Animación 2 (Combo) ═══ -->
+        <div class="card" class="mt-sm">
+          <div class="card-title" onclick="toggleCard(this)"><span>🔄 Animación 2 (Combo)</span><i class="fas fa-chevron-down"></i></div>
+          <div class="card-body">
+            <p style="font-size:9px;color:var(--hi);margin-bottom:8px">Segunda capa de animación. Se superpone a la animación principal.</p>
+            <div class="field"><label>Tipo</label>
+              <select id="f-anim-type2" onchange="updateCardPreview()" class="inline-select">
+                <option value="">Ninguna</option>
+                <option value="flotar">🫧 Flotar</option>
+                <option value="pulsar">💓 Pulsar</option>
+                <option value="respirar">🫁 Respirar</option>
+                <option value="latido">❤️ Latido</option>
+                <option value="rebotar">🏀 Rebotar</option>
+                <option value="balanceo">⚖️ Balanceo</option>
+                <option value="brillo">✨ Brillo</option>
+                <option value="cambio-color">🎨 Cambio de color</option>
+                <option value="holograma">🌈 Holograma</option>
+                <option value="neon-flicker">💡 Neón parpadeo</option>
+                <option value="glitch">📺 Glitch</option>
+                <option value="drift">🌊 Drift</option>
+                <option value="zoom-in">🔍 Zoom in</option>
+                <option value="zoom-out">🔍 Zoom out</option>
+                <option value="rotar">🔄 Rotar</option>
+                <option value="spin-lento">🌀 Spin lento</option>
+                <option value="deslizar-arriba">⬆️ Arr</option>
+                <option value="deslizar-abajo">⬇️ Abj</option>
+                <option value="deslizar-izq">⬅️ Izq</option>
+                <option value="deslizar-der">➡️ Der</option>
+                <option value="sacudida">💪 Sacudida</option>
+                <option value="parpadeo">👁️ Parpadeo</option>
+                <option value="pop">💥 Pop</option>
+                <option value="temblor">🫨 Temblor</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
           <div class="card-title" onclick="toggleCard(this)"><span>🎨 Estilo de tarjeta</span><i class="fas fa-chevron-down"></i></div>
           <div class="card-body">
             <div class="color-wrap"><label>Color acento</label><div class="color-swatch"><input type="color" id="f-accent-color" value="#dc2626" oninput="syncAccentColor('picker');updateCardPreview()"></div><input type="text" class="color-hex" id="f-accent-color-h" value="#dc2626" oninput="syncAccentColor('hex');updateCardPreview()"></div>

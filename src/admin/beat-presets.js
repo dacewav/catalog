@@ -198,7 +198,7 @@ export function resetCardStyle() {
   setVal('f-anim-cs-hue-start', 0); setVal('f-anim-cs-hue-end', 360); setVal('f-anim-cs-sat', 1);
   _toggleAnimSubsettings('');
   setVal('f-accent-color', '#dc2626'); setVal('f-accent-color-h', '#dc2626');
-  setChecked('f-shimmer', false);
+  setChecked('f-shimmer', false); setVal('f-shimmer-speed', 3); setVal('f-shimmer-op', 0.04);
   setVal('f-cs-radius', 0); setVal('f-cs-opacity', 1);
   setChecked('f-border-on', false);
   setVal('f-border-color', '#dc2626'); setVal('f-border-width', 1);
@@ -291,7 +291,7 @@ export function resetBeatToGlobal() {
   _toggleAnimSubsettings(ca ? ca.type : '');
   var st = cs.style || {};
   setVal('f-accent-color', st.accentColor || '#dc2626'); setVal('f-accent-color-h', st.accentColor || '#dc2626');
-  setChecked('f-shimmer', st.shimmer || false); setVal('f-cs-radius', st.borderRadius || 0);
+  setChecked('f-shimmer', st.shimmer || false); setVal('f-shimmer-speed', st.shimmerSpeed || 3); setVal('f-shimmer-op', st.shimmerOp || 0.04); setVal('f-cs-radius', st.borderRadius || 0);
   setVal('f-cs-opacity', st.opacity != null ? st.opacity : 1);
   var bd = cs.border || {};
   setChecked('f-border-on', bd.enabled || false); setVal('f-border-color', bd.color || '#dc2626');
@@ -360,7 +360,7 @@ export function applyPreset(id) {
   setVal('f-anim-shake-x', 4); setVal('f-anim-shake-y', 4);
   setVal('f-anim-cs-hue-start', 0); setVal('f-anim-cs-hue-end', 360); setVal('f-anim-cs-sat', 1);
   setVal('f-accent-color', '#dc2626'); setVal('f-accent-color-h', '#dc2626');
-  setChecked('f-shimmer', false); setVal('f-cs-radius', 0); setVal('f-cs-opacity', 1);
+  setChecked('f-shimmer', false); setVal('f-shimmer-speed', 3); setVal('f-shimmer-op', 0.04); setVal('f-cs-radius', 0); setVal('f-cs-opacity', 1);
   setChecked('f-border-on', false); setVal('f-border-color', '#dc2626'); setVal('f-border-width', 1);
   (function(){ var e = g('f-border-style'); if (e) e.value = 'solid'; })();
   setChecked('f-shadow-on', false); setChecked('f-shadow-inset', false);
@@ -444,7 +444,7 @@ export function applyPreset(id) {
 
   const st = cs.style || {};
   setVal('f-accent-color', st.accentColor || '#dc2626'); setVal('f-accent-color-h', st.accentColor || '#dc2626');
-  setChecked('f-shimmer', st.shimmer || false);
+  setChecked('f-shimmer', st.shimmer || false); setVal('f-shimmer-speed', st.shimmerSpeed || 3); setVal('f-shimmer-op', st.shimmerOp || 0.04);
   setVal('f-cs-radius', st.borderRadius || 0); setVal('f-cs-opacity', st.opacity != null ? st.opacity : 1);
 
   const bd = cs.border || {};
