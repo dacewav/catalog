@@ -137,22 +137,24 @@ window.addEventListener('message', (e) => {
 
   // ── Batch update from admin (single postMessage with all data) ──
   if (d.type === 'admin-batch-update') {
+    let changed = false;
     if (d.theme) {
       const json = JSON.stringify(d.theme);
-      if (json !== _lastThemeJSON) { _lastThemeJSON = json; state.T = d.theme; }
+      if (json !== _lastThemeJSON) { _lastThemeJSON = json; state.T = d.theme; applyTheme(state.T); changed = true; }
     }
     if (d.settings) {
       const json = JSON.stringify(d.settings);
-      if (json !== _lastSettingsJSON) { _lastSettingsJSON = json; state.siteSettings = d.settings; }
+      if (json !== _lastSettingsJSON) { _lastSettingsJSON = json; state.siteSettings = d.settings; applySettings(); changed = true; }
     }
     if (d.emojis) {
       const json = JSON.stringify(d.emojis);
-      if (json !== _lastEmojisJSON) { _lastEmojisJSON = json; state.customEmojis = d.emojis; }
+      if (json !== _lastEmojisJSON) { _lastEmojisJSON = json; state.customEmojis = d.emojis; changed = true; }
     }
     if (d.elements) {
       const json = JSON.stringify(d.elements);
-      if (json !== _lastFloatingJSON) { _lastFloatingJSON = json; state.floatingEls = d.elements; renderFloating(state.floatingEls); }
+      if (json !== _lastFloatingJSON) { _lastFloatingJSON = json; state.floatingEls = d.elements; renderFloating(state.floatingEls); changed = true; }
     }
+    if (changed) renderAll();
     return;
   }
 
@@ -162,11 +164,15 @@ window.addEventListener('message', (e) => {
     if (json === _lastThemeJSON) return;
     _lastThemeJSON = json;
     state.T = d.theme;
+    applyTheme(state.T);
+    renderAll();
   } else if (d.type === 'settings-update' && d.settings) {
     const json = JSON.stringify(d.settings);
     if (json === _lastSettingsJSON) return;
     _lastSettingsJSON = json;
     state.siteSettings = d.settings;
+    applySettings();
+    renderAll();
   } else if (d.type === 'emojis-update' && d.emojis) {
     const json = JSON.stringify(d.emojis);
     if (json === _lastEmojisJSON) return;

@@ -318,54 +318,60 @@ nav.nav-scrolled{background:rgba(6,4,4,0.95);border-bottom-color:rgba(185,28,28,
 .beat-card.featured::after{content:'TOP';position:absolute;top:10px;left:10px;font-size:9px;letter-spacing:.14em;padding:3px 8px;border-radius:999px;background:rgba(185,28,28,0.9);color:var(--text);z-index:3}
 
 /* ═══ PER-BEAT GLOW ANIMATION ═══ */
+.beat-card {
+  --glow-blur: 20px;
+  --glow-spread: 0px;
+  --glow-int: 1;
+  --glow-op: 1;
+}
 .beat-card.glow-active {
   --glow-clr: var(--accent);
   --glow-speed: 3s;
 }
 .beat-card.glow-active .beat-card-inner {
   animation: beat-glow var(--glow-speed, 3s) ease-in-out infinite;
-  box-shadow: 0 0 20px var(--glow-clr, var(--accent));
+  box-shadow: 0 0 var(--glow-blur, 20px) var(--glow-spread, 0px) var(--glow-clr, var(--accent));
 }
 @keyframes beat-glow {
-  0%, 100% { box-shadow: 0 0 15px rgba(var(--glow-r, 220), var(--glow-g, 38), var(--glow-b, 38), 0.3); }
-  50% { box-shadow: 0 0 35px rgba(var(--glow-r, 220), var(--glow-g, 38), var(--glow-b, 38), 0.6); }
+  0%, 100% { box-shadow: 0 0 var(--glow-blur, 20px) var(--glow-spread, 0px) rgba(var(--glow-r, 220), var(--glow-g, 38), var(--glow-b, 38), calc(0.3 * var(--glow-int, 1) * var(--glow-op, 1))); }
+  50% { box-shadow: 0 0 calc(var(--glow-blur, 20px) * 1.75) var(--glow-spread, 0px) rgba(var(--glow-r, 220), var(--glow-g, 38), var(--glow-b, 38), calc(0.6 * var(--glow-int, 1) * var(--glow-op, 1))); }
 }
 .beat-card.glow-rgb .beat-card-inner {
   animation: beat-glow-rgb var(--glow-speed, 4s) linear infinite;
 }
 @keyframes beat-glow-rgb {
-  0%   { box-shadow: 0 0 25px rgba(255, 0, 0, 0.5); }
-  16%  { box-shadow: 0 0 25px rgba(255, 165, 0, 0.5); }
-  33%  { box-shadow: 0 0 25px rgba(255, 255, 0, 0.5); }
-  50%  { box-shadow: 0 0 25px rgba(0, 255, 0, 0.5); }
-  66%  { box-shadow: 0 0 25px rgba(0, 0, 255, 0.5); }
-  83%  { box-shadow: 0 0 25px rgba(128, 0, 128, 0.5); }
-  100% { box-shadow: 0 0 25px rgba(255, 0, 0, 0.5); }
+  0%   { box-shadow: 0 0 var(--glow-blur, 20px) var(--glow-spread, 0px) rgba(255, 0, 0, calc(0.5 * var(--glow-int, 1) * var(--glow-op, 1))); }
+  16%  { box-shadow: 0 0 var(--glow-blur, 20px) var(--glow-spread, 0px) rgba(255, 165, 0, calc(0.5 * var(--glow-int, 1) * var(--glow-op, 1))); }
+  33%  { box-shadow: 0 0 var(--glow-blur, 20px) var(--glow-spread, 0px) rgba(255, 255, 0, calc(0.5 * var(--glow-int, 1) * var(--glow-op, 1))); }
+  50%  { box-shadow: 0 0 var(--glow-blur, 20px) var(--glow-spread, 0px) rgba(0, 255, 0, calc(0.5 * var(--glow-int, 1) * var(--glow-op, 1))); }
+  66%  { box-shadow: 0 0 var(--glow-blur, 20px) var(--glow-spread, 0px) rgba(0, 0, 255, calc(0.5 * var(--glow-int, 1) * var(--glow-op, 1))); }
+  83%  { box-shadow: 0 0 var(--glow-blur, 20px) var(--glow-spread, 0px) rgba(128, 0, 128, calc(0.5 * var(--glow-int, 1) * var(--glow-op, 1))); }
+  100% { box-shadow: 0 0 var(--glow-blur, 20px) var(--glow-spread, 0px) rgba(255, 0, 0, calc(0.5 * var(--glow-int, 1) * var(--glow-op, 1))); }
 }
 .beat-card.glow-pulse .beat-card-inner {
   animation: beat-glow-pulse var(--glow-speed, 2s) ease-in-out infinite;
 }
 @keyframes beat-glow-pulse {
-  0%, 100% { box-shadow: 0 0 10px rgba(var(--glow-r, 220), var(--glow-g, 38), var(--glow-b, 38), 0.2); transform: scale(1); }
-  50% { box-shadow: 0 0 40px rgba(var(--glow-r, 220), var(--glow-g, 38), var(--glow-b, 38), 0.5); transform: scale(1.005); }
+  0%, 100% { box-shadow: 0 0 calc(var(--glow-blur, 20px) * 0.5) var(--glow-spread, 0px) rgba(var(--glow-r, 220), var(--glow-g, 38), var(--glow-b, 38), calc(0.2 * var(--glow-int, 1) * var(--glow-op, 1))); transform: scale(1); }
+  50% { box-shadow: 0 0 calc(var(--glow-blur, 20px) * 2) var(--glow-spread, 0px) rgba(var(--glow-r, 220), var(--glow-g, 38), var(--glow-b, 38), calc(0.5 * var(--glow-int, 1) * var(--glow-op, 1))); transform: scale(1.005); }
 }
 .beat-card.glow-breathe .beat-card-inner {
   animation: beat-glow-breathe var(--glow-speed, 4s) ease-in-out infinite;
 }
 @keyframes beat-glow-breathe {
-  0%, 100% { box-shadow: 0 0 12px rgba(var(--glow-r, 220), var(--glow-g, 38), var(--glow-b, 38), 0.15); }
-  50% { box-shadow: 0 0 30px rgba(var(--glow-r, 220), var(--glow-g, 38), var(--glow-b, 38), 0.45); }
+  0%, 100% { box-shadow: 0 0 calc(var(--glow-blur, 20px) * 0.6) var(--glow-spread, 0px) rgba(var(--glow-r, 220), var(--glow-g, 38), var(--glow-b, 38), calc(0.15 * var(--glow-int, 1) * var(--glow-op, 1))); }
+  50% { box-shadow: 0 0 calc(var(--glow-blur, 20px) * 1.5) var(--glow-spread, 0px) rgba(var(--glow-r, 220), var(--glow-g, 38), var(--glow-b, 38), calc(0.45 * var(--glow-int, 1) * var(--glow-op, 1))); }
 }
 .beat-card.glow-neon .beat-card-inner {
   animation: beat-glow-neon var(--glow-speed, 3s) linear infinite;
 }
 @keyframes beat-glow-neon {
-  0%, 100% { box-shadow: 0 0 20px rgba(var(--glow-r, 220), var(--glow-g, 38), var(--glow-b, 38), 0.5), 0 0 40px rgba(var(--glow-r, 220), var(--glow-g, 38), var(--glow-b, 38), 0.2); }
-  7% { box-shadow: 0 0 15px rgba(var(--glow-r, 220), var(--glow-g, 38), var(--glow-b, 38), 0.3); }
-  10% { box-shadow: 0 0 20px rgba(var(--glow-r, 220), var(--glow-g, 38), var(--glow-b, 38), 0.5), 0 0 40px rgba(var(--glow-r, 220), var(--glow-g, 38), var(--glow-b, 38), 0.2); }
-  50% { box-shadow: 0 0 25px rgba(var(--glow-r, 220), var(--glow-g, 38), var(--glow-b, 38), 0.6), 0 0 50px rgba(var(--glow-r, 220), var(--glow-g, 38), var(--glow-b, 38), 0.3); }
-  55% { box-shadow: 0 0 12px rgba(var(--glow-r, 220), var(--glow-g, 38), var(--glow-b, 38), 0.3); }
-  57% { box-shadow: 0 0 20px rgba(var(--glow-r, 220), var(--glow-g, 38), var(--glow-b, 38), 0.5), 0 0 40px rgba(var(--glow-r, 220), var(--glow-g, 38), var(--glow-b, 38), 0.2); }
+  0%, 100% { box-shadow: 0 0 var(--glow-blur, 20px) var(--glow-spread, 0px) rgba(var(--glow-r, 220), var(--glow-g, 38), var(--glow-b, 38), calc(0.5 * var(--glow-int, 1) * var(--glow-op, 1))), 0 0 calc(var(--glow-blur, 20px) * 2) var(--glow-spread, 0px) rgba(var(--glow-r, 220), var(--glow-g, 38), var(--glow-b, 38), calc(0.2 * var(--glow-int, 1) * var(--glow-op, 1))); }
+  7% { box-shadow: 0 0 calc(var(--glow-blur, 20px) * 0.75) var(--glow-spread, 0px) rgba(var(--glow-r, 220), var(--glow-g, 38), var(--glow-b, 38), calc(0.3 * var(--glow-int, 1) * var(--glow-op, 1))); }
+  10% { box-shadow: 0 0 var(--glow-blur, 20px) var(--glow-spread, 0px) rgba(var(--glow-r, 220), var(--glow-g, 38), var(--glow-b, 38), calc(0.5 * var(--glow-int, 1) * var(--glow-op, 1))), 0 0 calc(var(--glow-blur, 20px) * 2) var(--glow-spread, 0px) rgba(var(--glow-r, 220), var(--glow-g, 38), var(--glow-b, 38), calc(0.2 * var(--glow-int, 1) * var(--glow-op, 1))); }
+  50% { box-shadow: 0 0 calc(var(--glow-blur, 20px) * 1.25) var(--glow-spread, 0px) rgba(var(--glow-r, 220), var(--glow-g, 38), var(--glow-b, 38), calc(0.6 * var(--glow-int, 1) * var(--glow-op, 1))), 0 0 calc(var(--glow-blur, 20px) * 2.5) var(--glow-spread, 0px) rgba(var(--glow-r, 220), var(--glow-g, 38), var(--glow-b, 38), calc(0.3 * var(--glow-int, 1) * var(--glow-op, 1))); }
+  55% { box-shadow: 0 0 calc(var(--glow-blur, 20px) * 0.6) var(--glow-spread, 0px) rgba(var(--glow-r, 220), var(--glow-g, 38), var(--glow-b, 38), calc(0.3 * var(--glow-int, 1) * var(--glow-op, 1))); }
+  57% { box-shadow: 0 0 var(--glow-blur, 20px) var(--glow-spread, 0px) rgba(var(--glow-r, 220), var(--glow-g, 38), var(--glow-b, 38), calc(0.5 * var(--glow-int, 1) * var(--glow-op, 1))), 0 0 calc(var(--glow-blur, 20px) * 2) var(--glow-spread, 0px) rgba(var(--glow-r, 220), var(--glow-g, 38), var(--glow-b, 38), calc(0.2 * var(--glow-int, 1) * var(--glow-op, 1))); }
 }
 
 /* ═══ BLUR FX TYPES ═══ */
@@ -715,11 +721,11 @@ body.light-mode .pi-meta{color:#666}
 .glow-hover-only.glow-pulse .beat-card-inner,
 .glow-hover-only.glow-breathe .beat-card-inner,
 .glow-hover-only.glow-neon .beat-card-inner{box-shadow:none!important;animation:none!important}
-.glow-hover-only:hover.glow-active .beat-card-inner{animation:bcpv-glow-pulse var(--glow-speed,3s) ease-in-out infinite!important}
-.glow-hover-only:hover.glow-rgb .beat-card-inner{animation:bcpv-glow-rgb var(--glow-speed,3s) linear infinite!important}
-.glow-hover-only:hover.glow-pulse .beat-card-inner{animation:bcpv-glow-beat var(--glow-speed,1.5s) ease-in-out infinite!important}
-.glow-hover-only:hover.glow-breathe .beat-card-inner{animation:bcpv-glow-breathe var(--glow-speed,3s) ease-in-out infinite!important}
-.glow-hover-only:hover.glow-neon .beat-card-inner{animation:bcpv-glow-neon var(--glow-speed,3s) linear infinite!important}
+.glow-hover-only:hover.glow-active .beat-card-inner{animation:beat-glow var(--glow-speed,3s) ease-in-out infinite!important}
+.glow-hover-only:hover.glow-rgb .beat-card-inner{animation:beat-glow-rgb var(--glow-speed,3s) linear infinite!important}
+.glow-hover-only:hover.glow-pulse .beat-card-inner{animation:beat-glow-pulse var(--glow-speed,1.5s) ease-in-out infinite!important}
+.glow-hover-only:hover.glow-breathe .beat-card-inner{animation:beat-glow-breathe var(--glow-speed,3s) ease-in-out infinite!important}
+.glow-hover-only:hover.glow-neon .beat-card-inner{animation:beat-glow-neon var(--glow-speed,3s) linear infinite!important}
 
 /* Border radius per-card */
 .beat-card{border-radius:var(--card-radius,10px);overflow:hidden}

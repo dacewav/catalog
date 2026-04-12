@@ -70,7 +70,7 @@ export function beatCard(b, globalIdx) {
       const bl = parseInt(hex.substring(4, 6), 16) || 38;
       glowStyle = `--glow-clr:${gc.color};--glow-r:${r};--glow-g:${gv};--glow-b:${bl};--glow-speed:${gc.speed || 3}s`;
       if (gc.intensity != null && gc.intensity !== 1) glowStyle += `;--glow-int:${gc.intensity}`;
-      if (gc.blur != null && gc.blur !== 20) glowStyle += `;--glow-blur:${gc.blur}px`;
+      if (gc.blur != null) glowStyle += `;--glow-blur:${gc.blur}px`;
       if (gc.spread) glowStyle += `;--glow-spread:${gc.spread}px`;
       if (gc.opacity != null && gc.opacity !== 1) glowStyle += `;--glow-op:${gc.opacity}`;
     }

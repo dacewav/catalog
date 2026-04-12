@@ -1348,6 +1348,7 @@ body.light .batch-img-drop input[type="file"] { opacity: 0; }
   width: 260px; border-radius: var(--rlg); overflow: hidden;
   position: relative; cursor: default;
   --ad: 2s; --adl: 0s;
+  --glow-blur: 20px; --glow-spread: 0px; --glow-int: 1; --glow-op: 1;
 }
 .bcpv::before { display: none; }
 .bcpv-inner {
@@ -1382,16 +1383,16 @@ body.light .batch-img-drop input[type="file"] { opacity: 0; }
 @keyframes bcpv-shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
 .bcpv.shimmer-on .bcpv-shimmer { opacity: 1; }
 /* Glow effects on preview */
-.bcpv.glow-active .bcpv-inner { box-shadow: 0 0 20px rgba(var(--glow-r,220),var(--glow-g,38),var(--glow-b,38),0.4); animation: bcpv-glow-pulse var(--glow-speed,3s) ease-in-out infinite; }
+.bcpv.glow-active .bcpv-inner { box-shadow: 0 0 var(--glow-blur, 20px) var(--glow-spread, 0px) rgba(var(--glow-r,220),var(--glow-g,38),var(--glow-b,38),calc(0.4 * var(--glow-int,1) * var(--glow-op,1))); animation: bcpv-glow-pulse var(--glow-speed,3s) ease-in-out infinite; }
 .bcpv.glow-rgb .bcpv-inner { animation: bcpv-glow-rgb var(--glow-speed,3s) linear infinite; }
 .bcpv.glow-pulse .bcpv-inner { animation: bcpv-glow-beat var(--glow-speed,1.5s) ease-in-out infinite; }
 .bcpv.glow-breathe .bcpv-inner { animation: bcpv-glow-breathe var(--glow-speed,3s) ease-in-out infinite; }
 .bcpv.glow-neon .bcpv-inner { animation: bcpv-glow-neon var(--glow-speed,3s) linear infinite; }
-@keyframes bcpv-glow-pulse { 0%,100%{box-shadow:0 0 15px rgba(var(--glow-r,220),var(--glow-g,38),var(--glow-b,38),.3)} 50%{box-shadow:0 0 35px rgba(var(--glow-r,220),var(--glow-g,38),var(--glow-b,38),.7)} }
-@keyframes bcpv-glow-rgb { 0%{box-shadow:0 0 20px rgba(255,0,0,.5)} 33%{box-shadow:0 0 20px rgba(0,255,0,.5)} 66%{box-shadow:0 0 20px rgba(0,0,255,.5)} 100%{box-shadow:0 0 20px rgba(255,0,0,.5)} }
-@keyframes bcpv-glow-beat { 0%,100%{transform:scale(1);box-shadow:0 0 10px rgba(var(--glow-r,220),var(--glow-g,38),var(--glow-b,38),.3)} 50%{transform:scale(1.03);box-shadow:0 0 30px rgba(var(--glow-r,220),var(--glow-g,38),var(--glow-b,38),.6)} }
-@keyframes bcpv-glow-breathe { 0%,100%{box-shadow:0 0 10px rgba(var(--glow-r,220),var(--glow-g,38),var(--glow-b,38),.2)} 50%{box-shadow:0 0 28px rgba(var(--glow-r,220),var(--glow-g,38),var(--glow-b,38),.55)} }
-@keyframes bcpv-glow-neon { 0%,19%,21%,23%,25%,54%,56%,100%{box-shadow:0 0 15px rgba(var(--glow-r,220),var(--glow-g,38),var(--glow-b,38),.6)} 20%,24%,55%{box-shadow:none} }
+@keyframes bcpv-glow-pulse { 0%,100%{box-shadow:0 0 var(--glow-blur,20px) var(--glow-spread,0px) rgba(var(--glow-r,220),var(--glow-g,38),var(--glow-b,38),calc(.3*var(--glow-int,1)*var(--glow-op,1)))} 50%{box-shadow:0 0 calc(var(--glow-blur,20px)*1.75) var(--glow-spread,0px) rgba(var(--glow-r,220),var(--glow-g,38),var(--glow-b,38),calc(.7*var(--glow-int,1)*var(--glow-op,1)))} }
+@keyframes bcpv-glow-rgb { 0%{box-shadow:0 0 var(--glow-blur,20px) var(--glow-spread,0px) rgba(255,0,0,calc(.5*var(--glow-int,1)*var(--glow-op,1)))} 33%{box-shadow:0 0 var(--glow-blur,20px) var(--glow-spread,0px) rgba(0,255,0,calc(.5*var(--glow-int,1)*var(--glow-op,1)))} 66%{box-shadow:0 0 var(--glow-blur,20px) var(--glow-spread,0px) rgba(0,0,255,calc(.5*var(--glow-int,1)*var(--glow-op,1)))} 100%{box-shadow:0 0 var(--glow-blur,20px) var(--glow-spread,0px) rgba(255,0,0,calc(.5*var(--glow-int,1)*var(--glow-op,1)))} }
+@keyframes bcpv-glow-beat { 0%,100%{transform:scale(1);box-shadow:0 0 calc(var(--glow-blur,20px)*.5) var(--glow-spread,0px) rgba(var(--glow-r,220),var(--glow-g,38),var(--glow-b,38),calc(.3*var(--glow-int,1)*var(--glow-op,1)))} 50%{transform:scale(1.03);box-shadow:0 0 calc(var(--glow-blur,20px)*1.5) var(--glow-spread,0px) rgba(var(--glow-r,220),var(--glow-g,38),var(--glow-b,38),calc(.6*var(--glow-int,1)*var(--glow-op,1)))} }
+@keyframes bcpv-glow-breathe { 0%,100%{box-shadow:0 0 calc(var(--glow-blur,20px)*.5) var(--glow-spread,0px) rgba(var(--glow-r,220),var(--glow-g,38),var(--glow-b,38),calc(.2*var(--glow-int,1)*var(--glow-op,1)))} 50%{box-shadow:0 0 var(--glow-blur,20px) var(--glow-spread,0px) rgba(var(--glow-r,220),var(--glow-g,38),var(--glow-b,38),calc(.55*var(--glow-int,1)*var(--glow-op,1)))} }
+@keyframes bcpv-glow-neon { 0%,19%,21%,23%,25%,54%,56%,100%{box-shadow:0 0 var(--glow-blur,20px) var(--glow-spread,0px) rgba(var(--glow-r,220),var(--glow-g,38),var(--glow-b,38),calc(.6*var(--glow-int,1)*var(--glow-op,1)))} 20%,24%,55%{box-shadow:none} }
 /* Card animation keyframes */
 @keyframes bcpv-flotar{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
 @keyframes bcpv-pulsar{0%,100%{transform:scale(1)}50%{transform:scale(1.04)}}
