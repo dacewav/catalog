@@ -52,6 +52,8 @@ export function dragEnd(e) { e.currentTarget.classList.remove('dragging'); setDr
 // Editor
 export function openEditor(id) {
   setEditId(id); showSection('add');
+  // Reset image history for this editing session
+  if (typeof window._resetImgHistory === 'function') window._resetImgHistory();
   // Attach live listeners on first open
   if (typeof window._attachLiveListeners === 'function') window._attachLiveListeners();
   g('editor-title').innerHTML = '<i class="fas fa-edit"></i> ' + (id ? 'Editar' : 'Nuevo') + ' beat';
@@ -270,8 +272,12 @@ export function openEditor(id) {
   updateCardPreview();
   // Render full card preview in container
   if (typeof window.renderFullPvInCard === 'function') window.renderFullPvInCard();
+  // Reset tabs to first — use inline styles for reliability
   document.querySelectorAll('#sec-add .et').forEach((t, i) => t.classList.toggle('on', i === 0));
-  document.querySelectorAll('#sec-add .etp').forEach((p, i) => p.classList.toggle('on', i === 0));
+  document.querySelectorAll('#sec-add .etp').forEach((p, i) => {
+    p.classList.toggle('on', i === 0);
+    p.style.display = i === 0 ? 'block' : 'none';
+  });
 }
 
 // License Editor

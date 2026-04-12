@@ -318,6 +318,14 @@ function startPvResize(card, handle, pos, e) {
 // ═══ Image history for this editing session ═══
 var _imgHistory = [];
 
+window._resetImgHistory = function() {
+  _imgHistory = [];
+  var el = document.getElementById('pv-img-history');
+  if (el) el.innerHTML = '';
+  var wrap = document.getElementById('pv-img-preview');
+  if (wrap) wrap.style.display = 'none';
+};
+
 window._showImgPreview = function(url) {
   var wrap = document.getElementById('pv-img-preview');
   var img = document.getElementById('pv-img-preview-img');

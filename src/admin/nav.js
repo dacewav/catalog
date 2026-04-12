@@ -19,18 +19,23 @@ export function showSection(name) {
   if (name === 'card-global' && typeof window.initGlobalCardStyle === 'function') window.initGlobalCardStyle();
 }
 export function showEt(name) {
-  // Remove 'on' from ALL tabs and panels first — no overlap possible
-  document.querySelectorAll('#sec-add .et').forEach(t => t.classList.remove('on'));
-  document.querySelectorAll('#sec-add .etp').forEach(p => p.classList.remove('on'));
+  // Nuclear: set display directly on every panel, then show the target
+  // This bypasses any CSS cascade/class specificity issues
+  var panels = document.querySelectorAll('#sec-add .etp');
+  for (var i = 0; i < panels.length; i++) {
+    panels[i].style.display = 'none';
+    panels[i].classList.remove('on');
+  }
 
   // Activate target tab button
-  const btn = document.querySelector('#sec-add .et[data-et="' + name + '"]');
+  document.querySelectorAll('#sec-add .et').forEach(function(t) { t.classList.remove('on'); });
+  var btn = document.querySelector('#sec-add .et[data-et="' + name + '"]');
   if (btn) btn.classList.add('on');
 
-  // Activate target panel — force reflow to ensure browser applies display:none before display:block
-  const p = g('etp-' + name);
+  // Show target panel via inline style (wins over any CSS)
+  var p = g('etp-' + name);
   if (p) {
-    void p.offsetHeight; // force reflow
+    p.style.display = 'block';
     p.classList.add('on');
   }
 
@@ -40,8 +45,7 @@ export function showEt(name) {
   }
 
   // Defensive: force-hide #anim-subsettings when NOT on extras tab
-  // Prevents inline style.display from _toggleAnimSubsettings leaking between tabs
-  const animContainer = document.getElementById('anim-subsettings');
+  var animContainer = document.getElementById('anim-subsettings');
   if (animContainer && name !== 'extras') {
     animContainer.style.display = 'none';
   }
