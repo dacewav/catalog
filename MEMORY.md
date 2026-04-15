@@ -1,72 +1,76 @@
 # Catalog Project Memory
 
-## 🧠 Instrucciones para futuras sesiones
-- **Guardar memorias importantes** en `memory/YYYY-MM-DD.md` al final de cada sesión
-- **Actualizar pendientes**: cuando un bug se resuelva, moverlo a "Resueltos" con el commit
-- **Actualizar este MEMORY.md** con lecciones aprendidas y estado actual
-- No acumular bugs pendientes sin resolver — si no se puede reproducir, documentar condiciones
-- Borrar de pendientes lo que ya se resolvió
-
----
-
 ## Estado actual
 
-### Arquitectura de deploy
-- **Hosting**: Cloudflare Pages (lee de GitHub, sirve estáticos)
-- **Headers**: `_headers` (formato Cloudflare Pages) — CSP, security
-- **Build**: Local (`npm run build`), dist/ commiteado a git
-- **CDN**: Cloudflare (frente al site)
-- **Vercel**: desconectado del repo
+### Proyecto
+- **Repo**: `github.com/dacewav/catalog`
+- **Branch**: `main` (antes `fix-panel-overlap`, ya mergeado)
+- **Deploy**: Cloudflare Pages (lee de GitHub, sirve estáticos desde dist/)
+- **Build**: Local `node build.js` → dist/ commiteado a git
+- **CDN**: Cloudflare frente al site
+- **Vercel**: desconectado
 
-### Pendientes
+### Admin refactor (completado)
+- core.js: 1405 → 130 líneas (-91%)
+- 15 módulos extraídos, todos con dependency injection
+- Bloques 1-12 completados en sesiones anteriores
+- Ver `REFACTOR-PLAN.md` para detalle de cada bloque
+
+### Pendientes reales
+- [ ] Bloque 13: Admin final cleanup (CSS !important, onclick → addEventListener, tests básicos)
+- [ ] Store optimization: SIN optimizar (2952 líneas, 15 archivos) — ver REFACTOR-PLAN.md bloques Store-1 a Store-6
 - [ ] Glow no visible en iframe preview (live edit → store)
-- [ ] CSS filters aparecen en Media tab (posible browser cache)
-- [ ] Shimmer/Shadow/Hover en la tienda — CSS specificity
 - [ ] CDN CORS — `cdn.dacewav.store` sin Access-Control-Allow-Origin
 - [ ] Firebase Analytics — PERMISSION_DENIED en `/analytics/*`
-- [ ] Migrar onclick inline → addEventListener (beats.js primero)
-- [ ] Tests básicos admin (showEt, openEditor, saveBeat, prevImg)
 
 ---
 
-## ⚠️ Lecciones críticas
+## Decisiones clave
 
-### Nunca tocar HTML sin verificar nesting (sesión 4)
-Mover divs en admin.html sin verificar el árbol DOM después causó que paneles huérfanos aparecieran en todas las pestañas. 4 intentos fallidos porque no verifiqué la estructura.
-**Regla**: después de cualquier cambio al HTML, verificar nesting de `.etp` y `.section`.
-
-### Nunca clonar un repo dentro de sí mismo (sesión 5)
-Clonar el repo en `catalog/catalog` creó un submodule huérfano que rompió Cloudflare Pages. `fatal: No url found for submodule path 'catalog' in .gitmodules`
-
-### Verificar CI logs antes de asumir deploy correcto (sesión 5)
-El CDN servía HTML cacheado por horas. El hash en el HTML (`7b96efbe`) no coincidía con el commit (`f3598870`). Solo se resolvió revisando el build log de Cloudflare Pages.
-
-### Depurar el bundle, no el botón (sesión 5)
-El error `doGoogleLogin is not defined` parecía un problema de auth, pero la causa real era que el bundle JS crasheaba al cargar por un `ReferenceError` en `theme-presets.js`. Verificar la consola del browser PRIMERO.
+- **Cloudflare Pages > Vercel**: Vercel desconectado por cache agresivo y tokens limitados
+- **dist/ commiteado**: Cloudflare Pages lee de git, no tiene build step propio
+- **Dependency injection**: Para romper circular deps entre módulos admin
+- **No tocar HTML sin verificar nesting**: Lección de sesión 4 (paneles huérfanos)
 
 ---
 
-## Bugs resueltos (historial)
+## Errores recurrentes (no repetir)
+
+| Error | Causa | Fix |
+|-------|-------|-----|
+| Clonar repo dentro de sí mismo | Submodule huérfano rompe Cloudflare | `git rm --cached` |
+| Cambiar HTML sin verificar DOM | Paneles huérfanos en todas las tabs | Verificar nesting `.etp` después de cambios |
+| Asumir deploy correcto sin ver logs | CDN servía HTML cacheado | Revisar Cloudflare build log |
+| Depurar botón en vez de bundle | Error silencioso en import | Revisar console del browser PRIMERO |
+
+---
+
+## Instrucciones para sesiones
+
+1. Leer `CONTEXT.md` al inicio (checklist de arranque)
+2. Actualizar `memory/YYYY-MM-DD.md` al final de cada sesión
+3. Cuando un bug se resuelva → mover a "Bugs resueltos" con commit hash
+4. No acumular bugs sin reproducir — documentar condiciones
+5. Build + commit + push después de cada bloque de trabajo
+
+---
+
+## Bugs resueltos (historial completo)
 
 ### Sesión 5 — Login fix + Deploy (2026-04-13)
-- `theme-presets.js` tenía `Object.assign(window)` huérfano → bundle crasheaba → doGoogleLogin undefined → fix: eliminar bloque huérfano
-- Deploy: submodule huérfano `catalog/` rompía Cloudflare Pages → fix: `git rm --cached`
-- Deploy: Vercel sin vercel.json, deployments fallaban → desconectado Vercel
+- `theme-presets.js` Object.assign(window) huérfano → bundle crasheaba → doGoogleLogin undefined
+- Submodule huérfano `catalog/` rompía Cloudflare Pages
 - Commits: `f6bab3c`, `2432c06`, `abf979f`, `84a1264`, `dab839c`
 
 ### Sesión 4 — Panel Overlap (2026-04-13)
-- Paneles de editor en todas las tabs → fix: mover orphaned panels dentro de `#etp-extras`
+- Paneles huérfanos fuera de `#etp-extras` → fix: mover dentro
 - Commit: `34c50b2`
 
-### Sesión 2 — Glow + Live edit + Papelera (2026-04-13)
-- admin-batch-update no aplicaba tema/settings → fix: agregar applyTheme/applySettings en handlers
-- Glow CSS vars ignoradas en keyframes → fix: reescribir keyframes con var() reales
-- glow-hover-only referenciaba keyframes inexistentes → fix: usar beat-glow-* correctos
-- beatCard() glow blur condicional → fix: siempre setear si existe
+### Sesión 2 — Glow + Live edit (2026-04-13)
+- admin-batch-update no aplicaba tema/settings
+- Glow CSS vars ignoradas en keyframes
 - Commit: `5c47f5d`
 
-### Sesión 1 — Preview + Sync + Imágenes + Trash (2026-04-13)
-- beat-preview.js nunca importado → fix: import en admin-main.js
-- Live update no se disparaba desde sliders → fix: listener global en card-style-ui.js
-- Mini preview eliminado (no podía ser idéntico al store real)
-- Sistema de imágenes con historial + papelera implementado
+### Sesión 1 — Preview + Sync + Imágenes (2026-04-13)
+- beat-preview.js nunca importado
+- Live update no se disparaba desde sliders

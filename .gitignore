@@ -18,6 +18,9 @@ Thumbs.db
 *.swp
 *.swo
 
+# OpenClaw metadata
+.openclaw/
+
 # Temp / Archives
 *.tar.gz
 *.zip
