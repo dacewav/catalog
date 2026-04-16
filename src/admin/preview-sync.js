@@ -1,7 +1,7 @@
 // ═══ DACEWAV Admin — Preview Sync ═══
 // iframe communication, broadcast, viewport control
 
-import { siteSettings, customEmojis, floatingEls, _iframeReady, setIframeReady } from './state.js';
+import { siteSettings, customEmojis, floatingEls, _iframeReady, setIframeReady, allBeats } from './state.js';
 import { g, showToast } from './helpers.js';
 import { showSection } from './nav.js';
 
@@ -11,6 +11,7 @@ export function setPreviewSyncDeps({ collectTheme }) { _collectThemeFn = collect
 
 let _broadcastTimer = null;
 let _lastBroadcastJSON = '';
+let _lastBeatsJSON = '';
 
 const PM_ORIGIN = (() => {
   try { return window.location.origin || '*'; } catch { return '*'; }
@@ -31,21 +32,29 @@ export function broadcastTheme() {
 
 function _doBroadcast() {
   const theme = _collectThemeFn();
-  const json = JSON.stringify(theme);
-  if (json === _lastBroadcastJSON) return;
-  _lastBroadcastJSON = json;
+  const themeJson = JSON.stringify(theme);
+  const beatsJson = JSON.stringify(allBeats);
+  
+  // Check if anything changed
+  if (themeJson === _lastBroadcastJSON && beatsJson === _lastBeatsJSON) return;
+  
+  _lastBroadcastJSON = themeJson;
+  _lastBeatsJSON = beatsJson;
+  
   postToFrame({
     type: 'admin-batch-update',
     theme,
     settings: siteSettings,
     emojis: customEmojis,
-    elements: floatingEls
+    elements: floatingEls,
+    beats: allBeats  // Include full beats array with cardStyle customizations
   });
 }
 
 export function broadcastThemeNow() {
   clearTimeout(_broadcastTimer);
   _lastBroadcastJSON = '';
+  _lastBeatsJSON = '';
   _doBroadcast();
 }
 
