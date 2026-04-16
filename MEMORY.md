@@ -19,7 +19,6 @@
 ### Pendientes reales
 - [ ] ~123 onclick restantes en admin.html (closures complejas + llamadas simples — bajo riesgo)
 - [ ] CDN CORS — `cdn.dacewav.store` sin Access-Control-Allow-Origin (requiere Cloudflare dashboard)
-- [ ] Firebase Analytics — PERMISSION_DENIED en `/analytics/*` (requiere publicar rules en Firebase Console)
 
 ---
 
