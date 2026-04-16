@@ -18,7 +18,12 @@
 
 ### Pendientes reales
 - [x] ~131 onclick restantes en admin.html → **0** (Bloque 15, ec978d7)
-- [x] CDN CORS — `cdn.dacewav.store` custom domain del worker, worker ya manda `Access-Control-Allow-Origin: *` ✅
+- [x] CDN CORS — ✅ worker custom domain
+- [ ] Rediseño de la store (feature request principal)
+- [ ] Glow no visible en iframe preview (live edit → store)
+- [ ] CSS filters aparecen en Media tab
+- [ ] Shimmer/Shadow/Hover CSS specificity
+- [ ] Firebase Analytics — PERMISSION_DENIED en /analytics/*
 
 ---
 
