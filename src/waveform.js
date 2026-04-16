@@ -102,8 +102,10 @@ export function applyWaveformToCard(beatId) {
   if (!b || !b.previewUrl) return;
   const card = document.getElementById('card-' + beatId);
   if (!card) return;
-  const waveRow = card.querySelector('.beat-wave-row');
-  if (!waveRow) return;
+  const imgWrap = card.querySelector('.beat-img');
+  if (!imgWrap) return;
+  // Avoid duplicate SVG
+  if (card.querySelector('.waveform-svg')) return;
 
   generateWaveform(b.previewUrl, beatId, (wave) => {
     if (!wave) return;
@@ -112,8 +114,10 @@ export function applyWaveformToCard(beatId) {
       <g class="wf-bg">${waveformToSVG(wave, 200, 52)}</g>
       <g class="wf-progress" clip-path="url(#wcp-${beatId})">${waveformToSVG(wave, 200, 52)}</g>
     </svg>`;
-    waveRow.insertAdjacentHTML('afterend', svg);
-    waveRow.style.display = 'none';
+    imgWrap.insertAdjacentHTML('beforeend', svg);
+    // Hide CSS fallback bars if they exist (shouldn't with previewUrl, but safe)
+    const waveRow = card.querySelector('.beat-wave-row');
+    if (waveRow) waveRow.style.display = 'none';
   });
 }
 

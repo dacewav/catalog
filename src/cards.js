@@ -13,7 +13,10 @@ export function beatCard(b, globalIdx) {
   const isPlay = isCurrent && AP.playing;
   const T = state.T;
 
-  const bars = Array.from({ length: 20 }, (_, i) => {
+  // CSS waveform bars: only render as fallback when no audio preview is available
+  // If previewUrl exists, applyWaveformToCard() will generate the real SVG waveform
+  const hasPreview = !!b.previewUrl;
+  const bars = hasPreview ? '' : Array.from({ length: 20 }, (_, i) => {
     const _wh = T.wbarHeight || 12;
     const h = Math.max(4, _wh * 0.4 + Math.sin(i * 0.9 + parseInt(b.id || 0) * 2) * _wh + Math.cos(i * 1.4) * (_wh * 0.6));
     const dur = (0.3 + Math.random() * 0.5).toFixed(2);
