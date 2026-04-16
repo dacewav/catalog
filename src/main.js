@@ -306,23 +306,34 @@ window.addEventListener('load', () => {
       const edits = snap.val() || {};
       const editCount = Object.keys(edits).length;
       console.log('[LiveEdit:store] liveEdits changed, count:', editCount, editCount ? Object.keys(edits) : '');
+      
+      if (!state.allBeats || state.allBeats.length === 0) {
+        console.warn('[LiveEdit:store] Beats not loaded yet, skipping overlay');
+        return;
+      }
+      
       Object.keys(edits).forEach(beatId => {
         const bi = state.allBeats.findIndex(x => x.id === beatId);
-        console.log('[LiveEdit:store] overlay', beatId, 'index:', bi, 'beats loaded:', state.allBeats.length);
-        if (bi > -1) {
-          // Clear legacy props so beatCard() reads from cardStyle
-          const edit = edits[beatId];
-          if (edit.cardStyle) {
-            state.allBeats[bi].glowConfig = edit.cardStyle.glow || { enabled: false };
-            state.allBeats[bi].cardAnim = edit.cardStyle.anim || null;
-            state.allBeats[bi].accentColor = edit.cardStyle.style?.accentColor || '';
-            state.allBeats[bi].cardBorder = edit.cardStyle.border || { enabled: false };
-            state.allBeats[bi].shimmer = edit.cardStyle.style?.shimmer || false;
-          }
-          Object.assign(state.allBeats[bi], edit);
+        if (bi === -1) {
+          console.warn('[LiveEdit:store] Beat not found:', beatId);
+          return;
         }
+        console.log('[LiveEdit:store] overlay', beatId, 'index:', bi);
+        
+        const edit = edits[beatId];
+        if (edit.cardStyle) {
+          state.allBeats[bi].glowConfig = edit.cardStyle.glow || { enabled: false };
+          state.allBeats[bi].cardAnim = edit.cardStyle.anim || null;
+          state.allBeats[bi].accentColor = edit.cardStyle.style?.accentColor || '';
+          state.allBeats[bi].cardBorder = edit.cardStyle.border || { enabled: false };
+          state.allBeats[bi].shimmer = edit.cardStyle.style?.shimmer || false;
+        }
+        Object.assign(state.allBeats[bi], edit);
       });
-      if (editCount) renderAll();
+      if (editCount) {
+        console.log('[LiveEdit:store] Rendering with', editCount, 'live edits');
+        renderAll();
+      }
     }, (err) => {
       console.error('[LiveEdit:store] Firebase read error:', err.code, err.message);
     });

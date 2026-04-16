@@ -70,10 +70,18 @@ window._sendLiveUpdate = function () {
   }
 
   // Firebase — reaches the live store at dacewav.store
-  const _db = window._db || (typeof db !== 'undefined' ? db : null);
-  if (_db) {
-    _db.ref('liveEdits/' + window._liveEditId).set(data).catch(() => {});
-  }
+  // Debounce rapid updates to avoid rate limiting
+  clearTimeout(window._liveEditFirebaseTimer);
+  window._liveEditFirebaseTimer = setTimeout(() => {
+    const _db = window._db || (typeof db !== 'undefined' ? db : null);
+    if (_db) {
+      _db.ref('liveEdits/' + window._liveEditId).set(data)
+        .then(() => console.log('[LiveEdit] Firebase write OK'))
+        .catch(err => console.error('[LiveEdit] Firebase write error:', err.code, err.message));
+    } else {
+      console.warn('[LiveEdit] Firebase DB not ready, update queued in localStorage only');
+    }
+  }, 150);
 };
 
 window._sendBeatRevert = function () {

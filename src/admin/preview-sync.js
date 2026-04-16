@@ -19,7 +19,10 @@ const PM_ORIGIN = (() => {
 // Post to iframe with fallback: try specific origin first, then '*'
 export function postToFrame(msg) {
   const frame = g('preview-frame');
-  if (!frame || !frame.contentWindow) return;
+  if (!frame || !frame.contentWindow) {
+    console.warn('[PreviewSync] No frame found, message dropped:', msg.type);
+    return;
+  }
   try { frame.contentWindow.postMessage(msg, PM_ORIGIN); } catch {}
   if (PM_ORIGIN !== '*') { try { frame.contentWindow.postMessage(msg, '*'); } catch {} }
 }
