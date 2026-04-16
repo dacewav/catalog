@@ -277,7 +277,7 @@
         "$date": {
           "$eventId": {
             ".write": true,
-            ".validate": "newData.hasChildren(['ts', 'cat', 'act']) && newData.val().ts <= (now + 60000)",
+            ".validate": "newData.hasChildren(['ts', 'cat', 'act']) && newData.child('ts').val() <= (now + 60000)",
             "ts": { ".validate": "newData.isNumber()" },
             "cat": { ".validate": "newData.isString() && newData.val().length <= 50" },
             "act": { ".validate": "newData.isString() && newData.val().length <= 100" },
