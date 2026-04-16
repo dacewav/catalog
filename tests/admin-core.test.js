@@ -54,7 +54,69 @@ vi.mock('../src/admin/colors.js', () => ({
   loadColorValues: vi.fn(),
 }));
 
-import { computeGlowCSS, collectTheme, segmentsToHTML, tczGetSegments } from '../src/admin/core.js';
+vi.mock('../src/admin/particles.js', () => ({
+  togglePFields: vi.fn(),
+  initParticlesPreview: vi.fn(),
+}));
+
+vi.mock('../src/admin/text-colorizer.js', () => ({
+  tczGetSegments: vi.fn(() => []),
+  segmentsToHTML: vi.fn((segs) => {
+    if (!segs || !segs.length) return '';
+    return segs.map(s => {
+      const text = String(s.text).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
+      return s.c ? '<span style="color:' + s.c + '">' + text + '</span>' : text;
+    }).join('');
+  }),
+  initTextColorizers: vi.fn(),
+  renderTextColorizer: vi.fn(),
+  tczSetColor: vi.fn(),
+}));
+
+vi.mock('../src/admin/glow.js', () => ({
+  computeGlowCSS: vi.fn((type, blur, spread, int, color) => {
+    const hexRgba = (c, a) => {
+      const r = parseInt(c.slice(1,3), 16), g2 = parseInt(c.slice(3,5), 16), b = parseInt(c.slice(5,7), 16);
+      return 'rgba(' + r + ',' + g2 + ',' + b + ',' + a + ')';
+    };
+    const rgba = hexRgba(color, int);
+    switch (type) {
+      case 'text-shadow': return { textShadow: '0 0 ' + blur + 'px ' + rgba, boxShadow: 'none', filter: 'none' };
+      case 'box-shadow': return { textShadow: 'none', boxShadow: '0 0 ' + blur + 'px ' + spread + 'px ' + rgba, filter: 'none' };
+      case 'drop-shadow': return { textShadow: 'none', boxShadow: 'none', filter: 'drop-shadow(0 0 ' + blur + 'px ' + rgba + ')' };
+      case 'neon-blur': return { textShadow: '0 0 ' + Math.round(blur * 0.3) + 'px ' + rgba + ', 0 0 ' + blur + 'px ' + rgba, boxShadow: 'none', filter: 'none' };
+      case 'neon-sign': return { textShadow: '0 0 ' + blur + 'px ' + rgba + ', 0 0 ' + (blur * 2) + 'px ' + rgba, boxShadow: '0 0 ' + spread + 'px ' + rgba, filter: 'none' };
+      case 'outer-glow': return { textShadow: 'none', boxShadow: '0 0 ' + blur + 'px ' + (spread * 2) + 'px ' + rgba, filter: 'none' };
+      case 'inner-glow': return { textShadow: 'none', boxShadow: 'inset 0 0 ' + blur + 'px ' + spread + 'px ' + rgba, filter: 'none' };
+      default: return { textShadow: '0 0 ' + blur + 'px ' + rgba, boxShadow: 'none', filter: 'none' };
+    }
+  }),
+  updatePreview: vi.fn(),
+  applyGlowTo: vi.fn(),
+  applyGlowPreset: vi.fn(),
+  updateGlowDesc: vi.fn(),
+  updateGlowAnimDesc: vi.fn(),
+}));
+
+vi.mock('../src/admin/hero-preview.js', () => ({
+  updateHeroPv: vi.fn(),
+  updateBannerPv: vi.fn(),
+  updateDividerPv: vi.fn(),
+}));
+
+vi.mock('../src/admin/theme-presets.js', () => ({
+  renderSaveSlots: vi.fn(),
+  buildAnimControls: vi.fn(),
+  collectAnim: vi.fn(() => ({})),
+}));
+
+vi.mock('../src/admin/undo.js', () => ({
+  pushUndoInitial: vi.fn(),
+}));
+
+import { collectTheme } from '../src/admin/theme-io.js';
+import { computeGlowCSS } from '../src/admin/glow.js';
+import { segmentsToHTML, tczGetSegments } from '../src/admin/text-colorizer.js';
 
 describe('computeGlowCSS', () => {
   it('text-shadow type returns textShadow property', () => {

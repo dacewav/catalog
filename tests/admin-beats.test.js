@@ -15,6 +15,12 @@ vi.mock('../src/admin/helpers.js', () => ({
   setChecked: vi.fn((id, v) => { if (mockElements[id]) mockElements[id].checked = v; }),
   showToast: vi.fn(),
   showSaving: vi.fn(),
+  confirmInline: vi.fn(() => true),
+  promptInline: vi.fn(() => ''),
+  fmt: vi.fn(v => v),
+  hexRgba: vi.fn(),
+  loadFont: vi.fn(),
+  sv: vi.fn(),
 }));
 
 vi.mock('../src/admin/state.js', () => ({
@@ -34,10 +40,12 @@ vi.mock('../src/admin/state.js', () => ({
 
 vi.mock('../src/admin/nav.js', () => ({
   showSection: vi.fn(),
+  showEt: vi.fn(),
 }));
 
 vi.mock('../src/admin/core.js', () => ({
   autoSave: vi.fn(),
+  postToFrame: vi.fn(),
 }));
 
 vi.mock('../src/admin/r2.js', () => ({
@@ -62,6 +70,11 @@ vi.mock('../src/admin/beat-presets.js', () => ({
   applyHoverPreset: vi.fn(),
   resetCardStyle: vi.fn(),
   resetBeatToGlobal: vi.fn(),
+}));
+
+vi.mock('../src/admin/card-style-ui.js', () => ({
+  renderEffectGalleryHTML: vi.fn(() => ''),
+  renderCardStyleControls: vi.fn(),
 }));
 
 import { renderBeatList, filterBeatList, openEditor } from '../src/admin/beats.js';
