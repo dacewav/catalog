@@ -17,7 +17,7 @@
 - Ver `REFACTOR-PLAN.md` para detalle de cada bloque
 
 ### Pendientes reales
-- [ ] ~123 onclick restantes en admin.html (closures complejas + llamadas simples — bajo riesgo)
+- [x] ~131 onclick restantes en admin.html → **0** (Bloque 15, ec978d7)
 - [ ] CDN CORS — `cdn.dacewav.store` sin Access-Control-Allow-Origin (requiere Cloudflare dashboard)
 
 ---

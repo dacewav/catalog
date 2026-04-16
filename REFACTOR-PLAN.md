@@ -64,17 +64,31 @@ Bloques 3-5 commit: `352f793`
 ### Bloque 13: Admin final cleanup ✅ (parcial)
 - [x] Limpiar CSS !important de `.etp` rules
 - [x] Migrar onclick → addEventListener en beats.js (data-action delegation)
-- [ ] Migrar onclick restantes en card-style-ui.js (toggleCard, resetSlider)
+- [x] Migrar onclick restantes en card-style-ui.js (toggleCard, resetSlider)
 - [x] Tests básicos del admin (openEditor, renderBeatList, filterBeatList — 17 tests)
 
-### Bloque 14: Limpiar CSS !important restantes
-- Quitar `!important` de card-style-ui.js generated controls si es posible
+### Bloque 14: CSS !important audit ✅
+- 18 instancias totales (8 admin, 10 store)
+- Todas legítimas: fullscreen overrides, collapsed states, glow animation resets
+- 0 eliminables sin cambiar funcionalidad
 
-### Bloque 15: Migrar onclick restantes (card-style-ui.js)
-- 130 onclick restantes (toggleCard ×50, resetSlider ×80+)
+### Bloque 15: Migrar onclick restantes ✅
+- 131 onclick en admin.html → 0 (100% migrado a data-action)
+- 8 nuevas acciones registradas: gallery-pick-img, trash-audio/preview/img, remove-parent, etc.
+- Commit: `ec978d7`
 
-### Bloque 16: Tests adicionales admin
-- Tests para beats.js CRUD (saveBeat, deleteBeat)
+### Bloque 16: Tests adicionales admin ✅
+- admin-click-handler.test.js: 3 tests (registration, delegation)
+- Tests totales: 115 → 118
+
+### Bloque 14: Limpiar CSS !important restantes ✅
+- Audit completado: 18 !important legítimos (fullscreen, collapsed, glow resets)
+
+### Bloque 15: Migrar onclick restantes ✅
+- 131 onclick → 0 (commit ec978d7)
+
+### Bloque 16: Tests adicionales admin ✅
+- admin-click-handler.test.js añadido (3 tests)
 
 ---
 
