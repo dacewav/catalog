@@ -65,7 +65,10 @@ export function beatCard(b, globalIdx) {
   const glowEnabled = csG.enabled || (b.glowConfig && b.glowConfig.enabled);
   if (glowEnabled) {
     const glowType = csG.type || 'active';
-    glowClasses = 'glow-' + glowType;
+    // Validate glowType matches known CSS classes
+    const validGlowTypes = ['active', 'rgb', 'pulse', 'breathe', 'neon'];
+    const safeType = validGlowTypes.includes(glowType) ? glowType : 'active';
+    glowClasses = 'glow-' + safeType;
     const gc = csG;
     if (gc.color) {
       const hex = gc.color.replace('#', '');

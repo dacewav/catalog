@@ -22,11 +22,20 @@ function applyLiveUpdate(beatId, data) {
     return;
   }
   if (data.cardStyle) {
-    state.allBeats[bi].glowConfig = data.cardStyle.glow || { enabled: false };
-    state.allBeats[bi].cardAnim = data.cardStyle.anim || null;
-    state.allBeats[bi].accentColor = data.cardStyle.style?.accentColor || '';
-    state.allBeats[bi].cardBorder = data.cardStyle.border || { enabled: false };
-    state.allBeats[bi].shimmer = data.cardStyle.style?.shimmer || false;
+    const cs = data.cardStyle;
+    state.allBeats[bi].glowConfig = cs.glow || { enabled: false };
+    state.allBeats[bi].cardAnim = cs.anim || null;
+    state.allBeats[bi].accentColor = cs.style?.accentColor || '';
+    state.allBeats[bi].cardBorder = cs.border || { enabled: false };
+    state.allBeats[bi].shimmer = cs.style?.shimmer || false;
+    console.log('[LiveEdit] cardStyle applied:', {
+      glow: cs.glow?.enabled ? cs.glow.type : 'off',
+      anim: cs.anim?.type || 'none',
+      shimmer: !!cs.style?.shimmer,
+      shadow: cs.shadow?.enabled ? 'on' : 'off',
+      border: cs.border?.enabled ? 'on' : 'off',
+      hover: Object.keys(cs.hover || {}).filter(k => cs.hover[k] && cs.hover[k] !== 1 && cs.hover[k] !== 0).length ? 'custom' : 'default'
+    });
   }
   Object.assign(state.allBeats[bi], data);
   renderAll();
