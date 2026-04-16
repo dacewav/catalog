@@ -17,10 +17,9 @@
 - Ver `REFACTOR-PLAN.md` para detalle de cada bloque
 
 ### Pendientes reales
-- [ ] Bloque 14-16: Admin CSS !important cleanup (card-style-ui), onclick migration restante, admin tests básicos
-- [ ] Glow no visible en iframe preview (live edit → store)
-- [ ] CDN CORS — `cdn.dacewav.store` sin Access-Control-Allow-Origin
-- [ ] Firebase Analytics — PERMISSION_DENIED en `/analytics/*`
+- [ ] ~123 onclick restantes en admin.html (closures complejas + llamadas simples — bajo riesgo)
+- [ ] CDN CORS — `cdn.dacewav.store` sin Access-Control-Allow-Origin (requiere Cloudflare dashboard)
+- [ ] Firebase Analytics — PERMISSION_DENIED en `/analytics/*` (requiere publicar rules en Firebase Console)
 
 ---
 
