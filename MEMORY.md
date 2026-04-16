@@ -52,6 +52,13 @@
 3. Cuando un bug se resuelva → mover a "Bugs resueltos" con commit hash
 4. No acumular bugs sin reproducir — documentar condiciones
 5. Build + commit + push después de cada bloque de trabajo
+6. **Auto-save a los ~50 min** — ver SOUL.md para protocolo completo
+
+## Recovery system
+- Cron `catalog-recovery` corre cada 30 min
+- Si una sesión muere sin guardar → el cron hace commit automático
+- Si hay commits sin push → el cron intenta push o documenta que necesita token
+- En el siguiente chat, memory/ tendrá lo que el cron guardó
 
 ---
 

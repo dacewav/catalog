@@ -57,6 +57,13 @@ git push origin main
 
 **NUNCA salir sin hacer este protocolo.** Si la hora se acaba abruptamente, priorizar paso 1 y 3.
 
+### Si no guardaste y la sesión murió
+No te preocupes. El cron `catalog-recovery` (cada 30 min) detecta:
+- Cambios sin commitear → hace commit automático
+- Commits sin push → intenta push o documenta que necesita token
+- Build roto → documenta el error
+- Al siguiente chat, leer `memory/[ayer].md` → ahí estará lo que el cron guardó
+
 ---
 
 ## Después de cada bloque de trabajo:
