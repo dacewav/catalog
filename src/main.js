@@ -15,6 +15,7 @@ import {
 } from './filters.js';
 import { applySettings, renderCustomLinks, renderFloating } from './settings.js';
 import { initAnalytics, trackEvent } from './analytics.js';
+import { initLiveEditBridge } from './live-edit.js';
 
 // ─── Expose globals for inline onclick handlers ───
 // The HTML uses onclick="" so we need these on window.
@@ -116,138 +117,8 @@ window.addEventListener('storage', (e) => {
   }
 });
 
-// ─── PostMessage bridge (admin iframe) ───
-// Single shared debounce for ALL message types.
-// Tracks which data changed to skip unnecessary re-renders.
-let _lastThemeJSON = '';
-let _lastSettingsJSON = '';
-let _lastEmojisJSON = '';
-let _lastFloatingJSON = '';
-
-window.addEventListener('message', (e) => {
-  // Accept from same origin, known domains, parent frame, or null (file://)
-  const own = window.location?.origin || '*';
-  if (e.origin !== own && e.origin !== 'https://dacewav.store' && e.origin !== 'null') {
-    // Also accept if sender is the parent window (iframe context)
-    if (e.source !== window.parent) return;
-  }
-  const d = e.data;
-  if (!d || !d.type) return;
-  console.log('[Store:msg]', d.type, d.beatId || '');
-
-  // ── Batch update from admin (single postMessage with all data) ──
-  if (d.type === 'admin-batch-update') {
-    let changed = false;
-    if (d.theme) {
-      const json = JSON.stringify(d.theme);
-      if (json !== _lastThemeJSON) { _lastThemeJSON = json; state.T = d.theme; applyTheme(state.T); changed = true; }
-    }
-    if (d.settings) {
-      const json = JSON.stringify(d.settings);
-      if (json !== _lastSettingsJSON) { _lastSettingsJSON = json; state.siteSettings = d.settings; applySettings(); changed = true; }
-    }
-    if (d.emojis) {
-      const json = JSON.stringify(d.emojis);
-      if (json !== _lastEmojisJSON) { _lastEmojisJSON = json; state.customEmojis = d.emojis; changed = true; }
-    }
-    if (d.elements) {
-      const json = JSON.stringify(d.elements);
-      if (json !== _lastFloatingJSON) { _lastFloatingJSON = json; state.floatingEls = d.elements; renderFloating(state.floatingEls); changed = true; }
-    }
-    if (changed) renderAll();
-    return;
-  }
-
-  // ── Individual message types (backwards compat + live edit) ──
-  if (d.type === 'theme-update' && d.theme) {
-    const json = JSON.stringify(d.theme);
-    if (json === _lastThemeJSON) return;
-    _lastThemeJSON = json;
-    state.T = d.theme;
-    applyTheme(state.T);
-    renderAll();
-  } else if (d.type === 'settings-update' && d.settings) {
-    const json = JSON.stringify(d.settings);
-    if (json === _lastSettingsJSON) return;
-    _lastSettingsJSON = json;
-    state.siteSettings = d.settings;
-    applySettings();
-    renderAll();
-  } else if (d.type === 'emojis-update' && d.emojis) {
-    const json = JSON.stringify(d.emojis);
-    if (json === _lastEmojisJSON) return;
-    _lastEmojisJSON = json;
-    state.customEmojis = d.emojis;
-  } else if (d.type === 'floating-update' && d.elements) {
-    const json = JSON.stringify(d.elements);
-    if (json === _lastFloatingJSON) return;
-    _lastFloatingJSON = json;
-    state.floatingEls = d.elements;
-    renderFloating(state.floatingEls);
-  } else if (d.type === 'beat-update' && d.beatId && d.data) {
-    // Live edit: update beat in memory without Firebase write
-    const bi = state.allBeats.findIndex(x => x.id === d.beatId);
-    console.log('[LiveEdit] beat-update received:', d.beatId, 'index:', bi, 'glow:', JSON.stringify(d.data?.cardStyle?.glow), 'anim:', JSON.stringify(d.data?.cardStyle?.anim?.type), 'holoDir:', d.data?.cardStyle?.anim?.holoDir);
-    if (bi > -1) {
-      // Clear legacy props so beatCard() reads from cardStyle, not old glowConfig/cardAnim
-      if (d.data.cardStyle) {
-        state.allBeats[bi].glowConfig = d.data.cardStyle.glow || { enabled: false };
-        state.allBeats[bi].cardAnim = d.data.cardStyle.anim || null;
-        state.allBeats[bi].accentColor = d.data.cardStyle.style?.accentColor || '';
-        state.allBeats[bi].cardBorder = d.data.cardStyle.border || { enabled: false };
-        state.allBeats[bi].shimmer = d.data.cardStyle.style?.shimmer || false;
-      }
-      Object.assign(state.allBeats[bi], d.data);
-      renderAll();
-      // Debug: log rendered card classes and inline styles
-      requestAnimationFrame(() => {
-        const card = document.getElementById('card-' + d.beatId);
-        if (card) {
-          console.log('[LiveEdit:render] card classes:', card.className);
-          console.log('[LiveEdit:render] card style:', card.getAttribute('style')?.substring(0, 300));
-        } else {
-          console.warn('[LiveEdit:render] card element not found:', 'card-' + d.beatId);
-        }
-      });
-    }
-    return;
-  } else if (d.type === 'beat-revert' && d.beatId && d.original) {
-    // Cancel edit: restore original beat data
-    const bi = state.allBeats.findIndex(x => x.id === d.beatId);
-    if (bi > -1) {
-      Object.assign(state.allBeats[bi], d.original);
-      renderAll();
-    }
-    return;
-  }
-});
-
-// ═══ LIVE EDIT via localStorage ═══
-window.addEventListener('storage', (e) => {
-  if (e.key === 'dace-live-edit' && e.newValue) {
-    try {
-      const d = JSON.parse(e.newValue);
-      if (!d.beatId || !d.data) return;
-      const bi = state.allBeats.findIndex(x => x.id === d.beatId);
-      console.log('[LiveEdit] storage beat-update:', d.beatId, 'index:', bi);
-      if (bi > -1) {
-        Object.assign(state.allBeats[bi], d.data);
-        renderAll();
-      }
-    } catch(err) {}
-  } else if (e.key === 'dace-live-edit-revert' && e.newValue) {
-    try {
-      const d = JSON.parse(e.newValue);
-      if (!d.beatId || !d.original) return;
-      const bi = state.allBeats.findIndex(x => x.id === d.beatId);
-      console.log('[LiveEdit] storage beat-revert:', d.beatId, 'index:', bi);
-      if (bi > -1) {
-        Object.assign(state.allBeats[bi], d.original);
-        renderAll();
-      }
-    } catch(err) {}
-  }
-});
+// Live edit bridge (postMessage + localStorage)
+initLiveEditBridge();
 
 // ─── Audio error recovery ───
 (function initAudioErrorRecovery() {
