@@ -1,5 +1,7 @@
 // ═══ DACEWAV.STORE — Live Edit Bridge ═══
-// Handles postMessage (admin iframe) and localStorage (cross-tab) live edit.
+// Handles postMessage (admin iframe) with ACK confirmation
+// Single source of truth: Firebase + real-time sync
+
 import { state } from './state.js';
 import { applyTheme } from './theme.js';
 import { applySettings, renderFloating } from './settings.js';
@@ -13,14 +15,22 @@ let _lastFloatingJSON = '';
 // Buffer for beat updates that arrive before beats are loaded from Firebase
 const _pendingBeatUpdates = {};
 
-function applyLiveUpdate(beatId, data) {
+function applyLiveUpdate(beatId, data, version) {
   const bi = state.allBeats.findIndex(x => x.id === beatId);
   if (bi === -1) {
     // Beat not loaded yet — buffer for later
-    _pendingBeatUpdates[beatId] = data;
+    _pendingBeatUpdates[beatId] = { data, version };
     console.log('[LiveEdit] buffered update for', beatId, '(beats not loaded yet)');
-    return;
+    return false;
   }
+  
+  // Version check to prevent stale updates
+  const currentVersion = state.allBeats[bi]._version || 0;
+  if (version && version <= currentVersion) {
+    console.log('[LiveEdit] skipping stale update for', beatId, '| version:', version, '≤', currentVersion);
+    return false;
+  }
+  
   if (data.cardStyle) {
     const cs = data.cardStyle;
     state.allBeats[bi].glowConfig = cs.glow || { enabled: false };
@@ -37,8 +47,13 @@ function applyLiveUpdate(beatId, data) {
       hover: Object.keys(cs.hover || {}).filter(k => cs.hover[k] && cs.hover[k] !== 1 && cs.hover[k] !== 0).length ? 'custom' : 'default'
     });
   }
+  
+  // Update beat data with version tracking
   Object.assign(state.allBeats[bi], data);
+  state.allBeats[bi]._version = version || Date.now();
+  
   renderAll();
+  return true;
 }
 
 // Call this after Firebase beats load to apply any buffered updates
@@ -47,7 +62,12 @@ export function flushPendingUpdates() {
   if (!ids.length) return;
   console.log('[LiveEdit] flushing', ids.length, 'buffered updates');
   ids.forEach(beatId => {
-    applyLiveUpdate(beatId, _pendingBeatUpdates[beatId]);
+    const { data, version } = _pendingBeatUpdates[beatId];
+    const success = applyLiveUpdate(beatId, data, version);
+    if (success) {
+      // Send ACK for flushed updates
+      sendAck(beatId, state.allBeats.find(b => b.id === beatId)?._version);
+    }
     delete _pendingBeatUpdates[beatId];
   });
 }
@@ -56,7 +76,26 @@ function applyLiveRevert(beatId, original) {
   const bi = state.allBeats.findIndex(x => x.id === beatId);
   if (bi === -1) return;
   Object.assign(state.allBeats[bi], original);
+  state.allBeats[bi]._version = Date.now();
   renderAll();
+  sendAck(beatId, state.allBeats[bi]._version);
+}
+
+// Send ACK back to admin to confirm update received
+function sendAck(beatId, version) {
+  if (window.parent && window.parent !== window) {
+    try {
+      window.parent.postMessage({ 
+        type: 'beat-update-ack', 
+        beatId, 
+        version,
+        ts: Date.now() 
+      }, '*');
+      console.log('[LiveEdit] ACK sent for', beatId, '| version:', version);
+    } catch (e) {
+      console.warn('[LiveEdit] failed to send ACK:', e.message);
+    }
+  }
 }
 
 export function initLiveEditBridge() {
@@ -92,18 +131,14 @@ export function initLiveEditBridge() {
       const j = JSON.stringify(d.elements); if (j === _lastFloatingJSON) return; _lastFloatingJSON = j;
       state.floatingEls = d.elements; renderFloating(state.floatingEls);
     } else if (d.type === 'beat-update' && d.beatId && d.data) {
-      applyLiveUpdate(d.beatId, d.data);
+      const success = applyLiveUpdate(d.beatId, d.data, d.version);
+      if (success) {
+        sendAck(d.beatId, state.allBeats.find(b => b.id === d.beatId)?._version);
+      }
     } else if (d.type === 'beat-revert' && d.beatId && d.original) {
       applyLiveRevert(d.beatId, d.original);
     }
   });
 
-  // localStorage bridge (cross-tab)
-  window.addEventListener('storage', (e) => {
-    if (e.key === 'dace-live-edit' && e.newValue) {
-      try { const d = JSON.parse(e.newValue); if (d.beatId && d.data) applyLiveUpdate(d.beatId, d.data); } catch {}
-    } else if (e.key === 'dace-live-edit-revert' && e.newValue) {
-      try { const d = JSON.parse(e.newValue); if (d.beatId && d.original) applyLiveRevert(d.beatId, d.original); } catch {}
-    }
-  });
+  // localStorage bridge removed - using only postMessage + Firebase as single source of truth
 }

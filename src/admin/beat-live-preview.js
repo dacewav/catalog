@@ -1,6 +1,6 @@
 // ═══ DACEWAV Admin — Beat Live Preview ═══
-// Real-time card preview updates, live edit sync (localStorage, postMessage, Firebase)
-// Extracted from beats.js IIFE
+// Real-time card preview updates with ACK sync
+// Single source of truth: Firebase + postMessage confirmation
 
 import { val, checked } from './helpers.js';
 import { postToFrame } from './preview-sync.js';
@@ -31,9 +31,28 @@ function _attachLiveListeners() {
 
 window._attachLiveListeners = _attachLiveListeners;
 
-// ═══ LIVE EDIT: localStorage → store iframe ═══
+// ═══ LIVE EDIT: Single Source of Truth (Firebase) ═══
 window._liveEditId = null;
 window._liveEditOriginal = null;
+window._liveEditPending = new Map(); // Track pending updates for ACK
+
+// Listen for ACK from store
+window.addEventListener('message', (e) => {
+  const d = e.data;
+  if (!d || d.type !== 'beat-update-ack') return;
+  const pending = window._liveEditPending.get(d.beatId);
+  if (pending) {
+    console.log('[LiveEdit] ACK received for', d.beatId, '| Store version:', d.version);
+    window._liveEditPending.delete(d.beatId);
+    // Update UI to show sync complete
+    const statusEl = document.getElementById('live-edit-status');
+    if (statusEl) {
+      statusEl.textContent = 'Sincronizado ✓';
+      statusEl.style.color = '#22c55e';
+      setTimeout(() => { statusEl.textContent = ''; }, 2000);
+    }
+  }
+});
 
 window._sendLiveUpdate = function () {
   if (!window._liveEditId) return;
@@ -52,34 +71,59 @@ window._sendLiveUpdate = function () {
     exclusive: checked('f-excl'),
     active: checked('f-active'),
     available: checked('f-avail'),
-    cardStyle: window._buildCardStyleFromInputs?.() || {}
+    cardStyle: window._buildCardStyleFromInputs?.() || {},
+    _version: Date.now() // Version timestamp for conflict resolution
   };
   const payload = { beatId: window._liveEditId, data, ts: Date.now() };
 
-  // localStorage fallback (cross-tab)
-  localStorage.setItem('dace-live-edit', JSON.stringify(payload));
+  // Mark as pending (waiting for ACK)
+  window._liveEditPending.set(window._liveEditId, { ts: Date.now(), data });
+  
+  // Show syncing state
+  const statusEl = document.getElementById('live-edit-status');
+  if (statusEl) {
+    statusEl.textContent = 'Sincronizando...';
+    statusEl.style.color = '#f59e0b';
+  }
 
-  // postMessage to iframe (same-tab admin preview)
+  // postMessage to iframe (primary channel with ACK)
   const frame = document.getElementById('preview-frame');
   if (frame?.contentWindow) {
     try {
-      frame.contentWindow.postMessage({ type: 'beat-update', beatId: payload.beatId, data: payload.data }, '*');
+      frame.contentWindow.postMessage({ 
+        type: 'beat-update', 
+        beatId: payload.beatId, 
+        data: payload.data,
+        version: data._version 
+      }, '*');
     } catch (e) { /* iframe may be cross-origin */ }
   } else {
-    postToFrame({ type: 'beat-update', beatId: payload.beatId, data: payload.data });
+    postToFrame({ 
+      type: 'beat-update', 
+      beatId: payload.beatId, 
+      data: payload.data,
+      version: data._version 
+    });
   }
 
-  // Firebase — reaches the live store at dacewav.store
-  // Debounce rapid updates to avoid rate limiting
+  // Firebase — persistent storage (fallback + multi-admin sync)
   clearTimeout(window._liveEditFirebaseTimer);
   window._liveEditFirebaseTimer = setTimeout(() => {
     const _db = window._db || (typeof db !== 'undefined' ? db : null);
     if (_db) {
       _db.ref('liveEdits/' + window._liveEditId).set(data)
         .then(() => console.log('[LiveEdit] Firebase write OK'))
-        .catch(err => console.error('[LiveEdit] Firebase write error:', err.code, err.message));
+        .catch(err => {
+          console.error('[LiveEdit] Firebase write error:', err.code, err.message);
+          // If Firebase fails, rely on postMessage only
+          window._liveEditPending.delete(window._liveEditId);
+          if (statusEl) {
+            statusEl.textContent = 'Error Firebase - usando solo preview';
+            statusEl.style.color = '#ef4444';
+          }
+        });
     } else {
-      console.warn('[LiveEdit] Firebase DB not ready, update queued in localStorage only');
+      console.warn('[LiveEdit] Firebase DB not ready, using postMessage only');
     }
   }, 150);
 };

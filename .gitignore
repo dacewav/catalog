@@ -1,28 +1,51 @@
+```
+# Build artifacts
+dist/
+*.js.map
+
 # Dependencies
 node_modules/
 
-# Build output
-dist/*.map
+# Logs and temp files
+*.log
+*.tmp
 
 # Environment
 .env
-.env.*
+.env.local
+*.env.*
 
-# OS
-.DS_Store
-Thumbs.db
-
-# IDE
+# Editors
 .vscode/
 .idea/
-*.swp
-*.swo
 
-# OpenClaw metadata
-.openclaw/
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
 
-# Temp / Archives
-*.tar.gz
+# Compression
 *.zip
-catalog-push/
-preset-screenshot.png
+*.gz
+*.tar
+*.tgz
+*.bz2
+*.xz
+*.7z
+*.rar
+*.zst
+*.lz4
+*.lzh
+*.cab
+*.arj
+*.rpm
+*.deb
+*.Z
+*.lz
+*.lzo
+*.tar.gz
+*.tar.bz2
+*.tar.xz
+*.tar.zst
+```
