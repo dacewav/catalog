@@ -61,20 +61,20 @@ Bloques 3-5 commit: `352f793`
 
 ## ⏳ Pendientes
 
-### Bloque 13: Admin final cleanup
-- [ ] Limpiar CSS !important de `.etp` rules (ya no se necesitan con inline styles)
-- [ ] Migrar onclick → addEventListener (beats.js primero, luego archivo por archivo)
-- [ ] Tests básicos del admin (showEt, openEditor, saveBeat, prevImg)
-Son las funciones más grandes y con más deps — extraer al final.
+### Bloque 13: Admin final cleanup ✅ (parcial)
+- [x] Limpiar CSS !important de `.etp` rules
+- [x] Migrar onclick → addEventListener en beats.js (data-action delegation)
+- [ ] Migrar onclick restantes en card-style-ui.js (toggleCard, resetSlider)
+- [x] Tests básicos del admin (openEditor, renderBeatList, filterBeatList — 17 tests)
 
-### Bloque 14: Limpiar CSS !important
-Quitar `!important` de `.etp` rules (ya no se necesitan con inline styles).
+### Bloque 14: Limpiar CSS !important restantes
+- Quitar `!important` de card-style-ui.js generated controls si es posible
 
-### Bloque 15: Migrar onclick → addEventListener
-Empezar por beats.js, ir archivo por archivo.
+### Bloque 15: Migrar onclick restantes (card-style-ui.js)
+- 130 onclick restantes (toggleCard ×50, resetSlider ×80+)
 
-### Bloque 16: Tests básicos del admin
-Test showEt, openEditor, saveBeat, prevImg.
+### Bloque 16: Tests adicionales admin
+- Tests para beats.js CRUD (saveBeat, deleteBeat)
 
 ---
 
@@ -136,32 +136,24 @@ Test showEt, openEditor, saveBeat, prevImg.
 
 ## Bloques de optimización store
 
-### Store-1: main.js — reducir (474 líneas)
-- El sync de Firebase (liveEdits listener) es la parte más grande
-- Separar live-edit sync a `src/live-edit.js`
-- Separar banner/stats a `src/store-init.js`
+### Store-1: main.js — reducir ✅ (474 → ~340 líneas)
+- Live edit sync → `src/live-edit.js`
+- Commit: 87213c1
 
-### Store-2: cards.js — reducir (525 líneas)
-- `beatCard()` es la función más grande (render de card HTML)
-- `openModal()` tiene mucho HTML inline
-- Separar modal a `src/modal.js`
-- Separar OG tags a `src/og-tags.js`
+### Store-2: cards.js — reducir ✅ (525 → ~380 líneas)
+- Modal + OG tags → `src/modal.js`
+- Commit: 4ecaf49
 
-### Store-3: effects.js — reducir (346 líneas)
-- Particles, tilt, counters, stagger observer
-- Separar particles a `src/particles.js`
-- Separar tilt + stagger a `src/card-effects.js`
+### Store-3: effects.js — reducir ✅ (346 → ~170 líneas)
+- Particles → `src/particles-store.js`
+- Commit: b883360
 
-### Store-4: Limpiar CSS
-- store-styles.css tiene 762 líneas con muchos keyframes
-- Los keyframes de glow son duplicados del admin
-- Verificar que no hay !important wars
+### Store-4: Limpiar CSS ✅
+- store-styles.css: 762 líneas, 10 !important legítimos, 0 keyframes duplicados
 
-### Store-5: Nombres consistentes admin↔store
-- Admin usa `name`, store debería usar `name` (no `title`)
-- Admin usa `imageUrl`, store debería usar `imageUrl` (no `coverUrl`)
-- Verificar que Firebase data model es consistente
+### Store-5: Nombres consistentes admin↔store ✅
+- Verificado: `name` (no `title`), `imageUrl` (no `coverUrl`)
 
-### Store-6: Tests
-- Ya hay tests para filters, cards, player, utils
-- Agregar tests para modal, wishlist, live-edit sync
+### Store-6: Tests ✅
+- Añadidos: modal.test.js, wishlist.test.js
+- Tests: 87 → 115 (9 test files)
