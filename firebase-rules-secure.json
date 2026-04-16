@@ -18,15 +18,8 @@
       }
     },
 
-    "settings": {
-      ".read": true,
-      ".write": "auth != null && root.child('adminWhitelist/approved').child(auth.uid).exists()"
-    },
-
-    "theme": {
-      ".read": true,
-      ".write": "auth != null && root.child('adminWhitelist/approved').child(auth.uid).exists()"
-    },
+    "settings": { ".read": true, ".write": "auth != null && root.child('adminWhitelist/approved').child(auth.uid).exists()" },
+    "theme": { ".read": true, ".write": "auth != null && root.child('adminWhitelist/approved').child(auth.uid).exists()" },
 
     "beats": {
       ".read": true,
@@ -92,8 +85,8 @@
         "shimmer": { ".validate": "!newData.exists() || newData.isBoolean()" },
         "cardBorder": {
           "enabled": { ".validate": "newData.isBoolean()" },
-          "color": { ".validate": "newData.isString() && newData.val().length <= 20" },
-          "width": { ".validate": "newData.isNumber() && newData.val() >= 0.5 && newData.val() <= 10" },
+          "color": { ".validate": "!newData.exists() || (newData.isString() && newData.val().length <= 20)" },
+          "width": { ".validate": "!newData.exists() || (newData.isNumber() && newData.val() >= 0.5 && newData.val() <= 10)" },
           "style": { ".validate": "!newData.exists() || (newData.isString() && newData.val().length <= 15)" }
         },
 
@@ -224,15 +217,8 @@
       }
     },
 
-    "floatingElements": {
-      ".read": true,
-      ".write": "auth != null && root.child('adminWhitelist/approved').child(auth.uid).exists()"
-    },
-
-    "liveEdits": {
-      ".read": true,
-      ".write": "auth != null && root.child('adminWhitelist/approved').child(auth.uid).exists()"
-    },
+    "floatingElements": { ".read": true, ".write": "auth != null && root.child('adminWhitelist/approved').child(auth.uid).exists()" },
+    "liveEdits": { ".read": true, ".write": "auth != null && root.child('adminWhitelist/approved').child(auth.uid).exists()" },
 
     "imageGallery": {
       ".read": "auth != null && root.child('adminWhitelist/approved').child(auth.uid).exists()",
@@ -251,25 +237,10 @@
       }
     },
 
-    "customLinks": {
-      ".read": true,
-      ".write": "auth != null && root.child('adminWhitelist/approved').child(auth.uid).exists()"
-    },
-
-    "customEmojis": {
-      ".read": true,
-      ".write": "auth != null && root.child('adminWhitelist/approved').child(auth.uid).exists()"
-    },
-
-    "team": {
-      ".read": "auth != null && root.child('adminWhitelist/approved').child(auth.uid).exists()",
-      ".write": "auth != null && root.child('adminWhitelist/approved').child(auth.uid).exists()"
-    },
-
-    "defaultLicenses": {
-      ".read": true,
-      ".write": "auth != null && root.child('adminWhitelist/approved').child(auth.uid).exists()"
-    },
+    "customLinks": { ".read": true, ".write": "auth != null && root.child('adminWhitelist/approved').child(auth.uid).exists()" },
+    "customEmojis": { ".read": true, ".write": "auth != null && root.child('adminWhitelist/approved').child(auth.uid).exists()" },
+    "team": { ".read": "auth != null && root.child('adminWhitelist/approved').child(auth.uid).exists()", ".write": "auth != null && root.child('adminWhitelist/approved').child(auth.uid).exists()" },
+    "defaultLicenses": { ".read": true, ".write": "auth != null && root.child('adminWhitelist/approved').child(auth.uid).exists()" },
 
     "analytics": {
       ".read": "auth != null && root.child('adminWhitelist/approved').child(auth.uid).exists()",
@@ -335,14 +306,7 @@
       }
     },
 
-    "notifications": {
-      ".read": "auth != null && root.child('adminWhitelist/approved').child(auth.uid).exists()",
-      ".write": "auth != null && root.child('adminWhitelist/approved').child(auth.uid).exists()"
-    },
-
-    "backups": {
-      ".read": "auth != null && root.child('adminWhitelist/approved').child(auth.uid).exists()",
-      ".write": "auth != null && root.child('adminWhitelist/approved').child(auth.uid).exists()"
-    }
+    "notifications": { ".read": "auth != null && root.child('adminWhitelist/approved').child(auth.uid).exists()", ".write": "auth != null && root.child('adminWhitelist/approved').child(auth.uid).exists()" },
+    "backups": { ".read": "auth != null && root.child('adminWhitelist/approved').child(auth.uid).exists()", ".write": "auth != null && root.child('adminWhitelist/approved').child(auth.uid).exists()" }
   }
 }

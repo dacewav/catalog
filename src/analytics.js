@@ -37,9 +37,9 @@ export function trackEvent(category, action, label, value) {
   if (!state.db) return;
   _eventQueue.push({
     ts: (typeof firebase !== 'undefined' && firebase.database?.ServerValue?.TIMESTAMP) || Date.now(),
-    cat: category,
-    act: action,
-    lbl: label || '',
+    cat: String(category || '').slice(0, 50),
+    act: String(action || '').slice(0, 100),
+    lbl: String(label || '').slice(0, 200),
     val: value || 0,
   });
   // Debounce: batch events, flush after 2s of inactivity
