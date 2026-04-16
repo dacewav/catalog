@@ -15,10 +15,49 @@ git log --oneline -5
 node build.js 2>&1 | tail -5
 ```
 
+## Token GitHub
+- El usuario pasa el token por chat cada sesión
+- Configurar: `git config credential.helper 'store'` + escribir en `~/.git-credentials`
+- NO guardarlo en archivos del repo
+
 ## NO hacer:
 - No preguntar "¿en qué puedo ayudar?"
 - No repetir contexto que ya está en MEMORY.md
 - Ir directo al último pendiente o lo que el usuario pida
+
+---
+
+## 🛑 Protocolo de cierre de sesión (OBLIGATORIO)
+
+**Cuando queden ~5 minutos o el usuario diga "nos vemos" / "guarda":**
+
+### 1. Actualizar memoria
+```bash
+# En memory/YYYY-MM-DD.md agregar:
+## [hora] Qué se hizo
+## Qué quedó pendiente
+## Siguiente paso
+```
+
+### 2. Actualizar MEMORY.md si hubo cambios importantes
+- Bugs resueltos → mover a "Bugs resueltos" con commit
+- Nuevas decisiones → agregar a "Decisiones"
+- Pendientes cambiaron → actualizar "Pendientes"
+
+### 3. Build + commit + push (si hay cambios)
+```bash
+node build.js
+git add -A
+git commit -m "checkpoint: fin de sesión [fecha]"
+git push origin main
+```
+
+### 4. Confirmar al usuario
+- "Guardado. Último commit: [hash]. Pendientes: [lista corta]"
+
+**NUNCA salir sin hacer este protocolo.** Si la hora se acaba abruptamente, priorizar paso 1 y 3.
+
+---
 
 ## Después de cada bloque de trabajo:
 - [ ] `node build.js` → sin errores
