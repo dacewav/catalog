@@ -1,6 +1,6 @@
 // ═══ DACEWAV Admin — Beats CRUD ═══
-// Beat list, editor, licenses, uploads, drag-drop, batch operations.
-// Card style, presets, and preview moved to beat-card-style.js, beat-presets.js, beat-preview.js
+// Beat list, editor, uploads, drag-drop, batch operations.
+// Licenses → beat-licenses.js, Inline edit → beat-inline-edit.js, Live preview → beat-live-preview.js
 
 import { db, allBeats, setAllBeats, editId, setEditId, defLics, _edLics, setEdLics, _dragBeatId, setDragBeatId, _batchImgQueue, setBatchImgQueue } from './state.js';
 import { g, val, setVal, checked, setChecked, showToast, showSaving, confirmInline, promptInline, fmt } from './helpers.js';
@@ -12,6 +12,11 @@ import { updateCardPreview, syncSliderDisplay, _buildCardStyleFromInputs, _isCar
 import { renderEffectGalleryHTML } from './card-style-ui.js';
 import { ALL_SLIDER_IDS, renderPresets, renderHoverPresets, applyPreset, applyHoverPreset, resetCardStyle, resetBeatToGlobal } from './beat-presets.js';
 import { registerActions, initClickHandler } from './click-handler.js';
+import { renderLicEditor, upLic, addLicRow, rmLic, loadDefaultLics } from './beat-licenses.js';
+import { inlineEditName, inlineEditBpm, inlineEditKey } from './beat-inline-edit.js';
+
+// Live preview module (attaches window._sendLiveUpdate, etc.)
+import './beat-live-preview.js';
 
 function _triggerLiveUpdate() {
   updateCardPreview();
@@ -277,16 +282,6 @@ export function openEditor(id) {
   showEt('info');
 }
 
-// License Editor
-function renderLicEditor(lics) {
-  g('le-editor').innerHTML = lics.map((l, i) => '<div class="lic-ed-row" data-idx="' + i + '"><div class="lic-ed-grid"><input type="text" placeholder="Nombre" value="' + (l.name || '') + '" data-action="up-lic" data-idx="' + i + '" data-field="name"><input type="number" placeholder="MXN" value="' + (l.priceMXN || '') + '" data-action="up-lic" data-idx="' + i + '" data-field="mxn"><input type="number" placeholder="USD" value="' + (l.priceUSD || '') + '" data-action="up-lic" data-idx="' + i + '" data-field="usd"></div><input type="text" placeholder="Descripción" value="' + (l.description || '') + '" style="font-size:10px" data-action="up-lic" data-idx="' + i + '" data-field="desc"><button class="btn btn-del" style="margin-top:4px;font-size:9px" data-action="rm-lic" data-idx="' + i + '">✕</button></div>').join('');
-}
-export function upLic(idx, field, value) { collectLics(); autoSave(); }
-export function addLicRow() { collectLics(); _edLics.push({ name: '', priceMXN: 0, priceUSD: 0, description: '' }); renderLicEditor(_edLics); }
-export function rmLic(idx) { collectLics(); _edLics.splice(idx, 1); renderLicEditor(_edLics); }
-function collectLics() { const lics = []; g('le-editor').querySelectorAll('.lic-ed-row').forEach(row => { const inp = row.querySelectorAll('input'); lics.push({ name: inp[0].value, priceMXN: parseFloat(inp[1].value) || 0, priceUSD: parseFloat(inp[2].value) || 0, description: inp[3].value }); }); setEdLics(lics); }
-export function loadDefaultLics() { renderLicEditor(JSON.parse(JSON.stringify(defLics))); showToast('Licencias base cargadas'); }
-
 // Upload helpers
 // Image gallery: track all images for current beat
 let _imgGallery = [];
@@ -415,29 +410,6 @@ export async function quickDel(id) {
   if (!await confirmInline('¿Eliminar este beat?')) return;
   showSaving(true); db.ref('beats/' + id).remove().then(() => { showSaving(false); showToast('Eliminado ✓'); }).catch(err => { showSaving(false); showToast('Error: ' + (err.message || err.code), true); });
 }
-
-// Inline Edit
-function _inlineEdit(el, id, field, parse) {
-  if (el.querySelector('input')) return;
-  const beat = allBeats.find(b => b.id === id); if (!beat) return;
-  const orig = field === 'bpm' ? String(beat.bpm) : field === 'key' ? beat.key : beat.name;
-  const inp = document.createElement('input'); inp.className = 'beat-inline-edit'; inp.value = orig;
-  inp.style.maxWidth = field === 'name' ? '200px' : '80px';
-  el.innerHTML = ''; el.appendChild(inp); inp.focus(); inp.select();
-  function save() {
-    const val2 = parse ? parse(inp.value) : inp.value.trim();
-    if (val2 !== null && val2 !== orig) {
-      beat[field] = val2;
-      showSaving(true); db.ref('beats/' + id + '/' + field).set(val2).then(() => { showSaving(false); showToast('Actualizado ✓'); }).catch(err => { showSaving(false); showToast('Error', true); });
-    }
-    renderBeatList();
-  }
-  inp.addEventListener('blur', save);
-  inp.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); save(); } if (e.key === 'Escape') { renderBeatList(); } });
-}
-export function inlineEditName(el, id) { _inlineEdit(el, id, 'name', v => { const s = v.trim(); return s ? s : null; }); }
-export function inlineEditBpm(el, id) { _inlineEdit(el, id, 'bpm', v => { const n = parseInt(v); return (n > 0 && n < 400) ? n : null; }); }
-export function inlineEditKey(el, id) { _inlineEdit(el, id, 'key', v => { const s = v.trim().toUpperCase(); return s ? s : null; }); }
 
 // Batch
 export function openBatchImg() { g('batch-img-overlay').classList.add('open'); setupBatchDrop(); }
@@ -600,126 +572,3 @@ if (typeof document !== 'undefined' && document.getElementById) {
   var _fxGallery = document.getElementById('beat-fx-gallery');
   if (_fxGallery && !_fxGallery.children.length) _fxGallery.innerHTML = renderEffectGalleryHTML('f-');
 }
-// ═══ REAL-TIME CARD PREVIEW ═══
-// Debounced re-render of store card preview when beat fields change
-(function() {
-  var _pvTimer = null;
-  var _liveListenersAttached = false;
-
-  function _debouncedPv() {
-    clearTimeout(_pvTimer);
-    _pvTimer = setTimeout(function() {
-      updateCardPreview();
-      if (typeof window.renderFullPvInCard === 'function') window.renderFullPvInCard();
-      _sendLiveUpdate();
-    }, 250);
-  }
-
-  function _attachLiveListeners() {
-    if (_liveListenersAttached) return;
-    _liveListenersAttached = true;
-    // Event delegation: catch ALL input/change events in the editor section
-    // This covers every field (name, CSS filters, glow, anim, shadow, hover, transform…)
-    var editor = typeof document !== 'undefined' && document.getElementById ? document.getElementById('sec-add') : null;
-    if (!editor) { console.warn('[LiveEdit] #sec-add not found'); return; }
-    editor.addEventListener('input', function(e) {
-      if (e.target.matches('input, select, textarea')) _debouncedPv();
-    });
-    editor.addEventListener('change', function(e) {
-      if (e.target.matches('input, select, textarea')) _debouncedPv();
-    });
-    // Init preview image upload handler
-    if (typeof window._initPvImgUpload === 'function') window._initPvImgUpload();
-    console.log('[LiveEdit] delegation listeners attached');
-  }
-
-  // Attach when editor opens (section might not exist at page load)
-  window._attachLiveListeners = _attachLiveListeners;
-
-  // ═══ LIVE EDIT: localStorage → store iframe ═══
-  var PM_ORIGIN = (typeof window !== 'undefined' && window.location && window.location.origin) || '*';
-  window._liveEditId = null;
-  window._liveEditOriginal = null;
-
-  window._sendLiveUpdate = function _sendLiveUpdate() {
-    if (!window._liveEditId) return;
-    var data = {
-      name: val('f-name') || '',
-      genre: val('f-genre') || 'Trap',
-      genreCustom: val('f-genre-c') || '',
-      bpm: parseInt(val('f-bpm')) || 0,
-      key: val('f-key') || '',
-      description: val('f-desc') || '',
-      tags: (val('f-tags') || '').split(',').map(function(t) { return t.trim(); }).filter(Boolean),
-      imageUrl: val('f-img') || '',
-      audioUrl: val('f-audio') || '',
-      previewUrl: val('f-prev') || '',
-      featured: checked('f-feat'),
-      exclusive: checked('f-excl'),
-      active: checked('f-active'),
-      available: checked('f-avail'),
-      cardStyle: _buildCardStyleFromInputs()
-    };
-    var payload = { beatId: window._liveEditId, data: data, ts: Date.now() };
-    // localStorage fallback (cross-tab)
-    localStorage.setItem('dace-live-edit', JSON.stringify(payload));
-    // postMessage to iframe (same-tab admin preview)
-    var frame = document.getElementById('preview-frame');
-    if (frame && frame.contentWindow) {
-      try {
-        frame.contentWindow.postMessage({ type: 'beat-update', beatId: payload.beatId, data: payload.data }, '*');
-        console.log('[LiveEdit] postMessage sent to iframe, beat:', payload.beatId, 'cardStyle keys:', Object.keys(payload.data.cardStyle || {}));
-      console.log('[LiveEdit] cardStyle glow:', JSON.stringify(payload.data.cardStyle?.glow));
-      } catch(e) { console.error('[LiveEdit] postMessage FAIL:', e); }
-    } else {
-      console.warn('[LiveEdit] preview-frame not found or no contentWindow');
-      postToFrame({ type: 'beat-update', beatId: payload.beatId, data: payload.data });
-    }
-    // Firebase — reaches the live store at dacewav.store (separate window)
-    var _db = window._db || (typeof db !== 'undefined' ? db : null);
-    console.log('[LiveEdit] _db:', !!_db, 'id:', window._liveEditId);
-    if (_db) {
-      _db.ref('liveEdits/' + window._liveEditId).set(data)
-        .then(function() { console.log('[LiveEdit] Firebase write OK'); })
-        .catch(function(err) { console.error('[LiveEdit] Firebase write FAIL:', err); });
-    } else {
-      console.warn('[LiveEdit] No DB reference available');
-    }
-    console.log('[LiveEdit] sent:', window._liveEditId);
-  }
-
-  window._sendBeatRevert = function() {
-    if (!window._liveEditId || !window._liveEditOriginal) return;
-    var revertData = { beatId: window._liveEditId, original: window._liveEditOriginal, ts: Date.now() };
-    // localStorage fallback (cross-tab)
-    localStorage.setItem('dace-live-edit-revert', JSON.stringify(revertData));
-    localStorage.removeItem('dace-live-edit');
-    // postMessage to iframe (same-tab admin preview)
-    postToFrame({ type: 'beat-revert', beatId: revertData.beatId, original: revertData.original });
-    // Firebase cleanup
-    var _db = window._db || (typeof db !== 'undefined' ? db : null);
-    if (_db) {
-      _db.ref('liveEdits/' + window._liveEditId).remove().catch(function(){});
-    }
-    console.log('[LiveEdit] revert sent:', window._liveEditId);
-    window._liveEditId = null;
-    window._liveEditOriginal = null;
-  };
-
-  window._startLiveEdit = function(beat) {
-    window._liveEditId = beat.id;
-    window._liveEditOriginal = JSON.parse(JSON.stringify(beat));
-  };
-
-  window._clearLiveEdit = function() {
-    localStorage.removeItem('dace-live-edit');
-    localStorage.removeItem('dace-live-edit-revert');
-    // Firebase cleanup
-    if (window._liveEditId) {
-      var _db = window._db || (typeof db !== 'undefined' ? db : null);
-      if (_db) _db.ref('liveEdits/' + window._liveEditId).remove().catch(function(){});
-    }
-    window._liveEditId = null;
-    window._liveEditOriginal = null;
-  };
-})();
