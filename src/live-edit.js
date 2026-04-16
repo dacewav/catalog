@@ -10,9 +10,17 @@ let _lastSettingsJSON = '';
 let _lastEmojisJSON = '';
 let _lastFloatingJSON = '';
 
+// Buffer for beat updates that arrive before beats are loaded from Firebase
+const _pendingBeatUpdates = {};
+
 function applyLiveUpdate(beatId, data) {
   const bi = state.allBeats.findIndex(x => x.id === beatId);
-  if (bi === -1) return;
+  if (bi === -1) {
+    // Beat not loaded yet — buffer for later
+    _pendingBeatUpdates[beatId] = data;
+    console.log('[LiveEdit] buffered update for', beatId, '(beats not loaded yet)');
+    return;
+  }
   if (data.cardStyle) {
     state.allBeats[bi].glowConfig = data.cardStyle.glow || { enabled: false };
     state.allBeats[bi].cardAnim = data.cardStyle.anim || null;
@@ -22,6 +30,17 @@ function applyLiveUpdate(beatId, data) {
   }
   Object.assign(state.allBeats[bi], data);
   renderAll();
+}
+
+// Call this after Firebase beats load to apply any buffered updates
+export function flushPendingUpdates() {
+  const ids = Object.keys(_pendingBeatUpdates);
+  if (!ids.length) return;
+  console.log('[LiveEdit] flushing', ids.length, 'buffered updates');
+  ids.forEach(beatId => {
+    applyLiveUpdate(beatId, _pendingBeatUpdates[beatId]);
+    delete _pendingBeatUpdates[beatId];
+  });
 }
 
 function applyLiveRevert(beatId, original) {

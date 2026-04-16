@@ -15,7 +15,7 @@ import {
 } from './filters.js';
 import { applySettings, renderCustomLinks, renderFloating } from './settings.js';
 import { initAnalytics, trackEvent } from './analytics.js';
-import { initLiveEditBridge } from './live-edit.js';
+import { initLiveEditBridge, flushPendingUpdates } from './live-edit.js';
 
 // ─── Expose globals for inline onclick handlers ───
 // The HTML uses onclick="" so we need these on window.
@@ -290,7 +290,8 @@ window.addEventListener('load', () => {
           if (bi > -1) Object.assign(state.allBeats[bi], edits[beatId]);
         });
         renderAll();
-      }).catch(() => renderAll());
+        flushPendingUpdates(); // Apply any buffered iframe postMessage updates
+      }).catch(() => { renderAll(); flushPendingUpdates(); });
       localStorage.setItem('dace-beats', JSON.stringify(state.allBeats));
       state.ldBeats = true;
       _checkReady();
