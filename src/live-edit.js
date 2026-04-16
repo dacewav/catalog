@@ -38,6 +38,8 @@ function applyLiveUpdate(beatId, data, version) {
     state.allBeats[bi].accentColor = cs.style?.accentColor || '';
     state.allBeats[bi].cardBorder = cs.border || { enabled: false };
     state.allBeats[bi].shimmer = cs.style?.shimmer || false;
+    state.allBeats[bi].shimmerSpeed = cs.style?.shimmerSpeed || 3;
+    state.allBeats[bi].shimmerOp = cs.style?.shimmerOp || 0.04;
     console.log('[LiveEdit] cardStyle applied:', {
       glow: cs.glow?.enabled ? cs.glow.type : 'off',
       anim: cs.anim?.type || 'none',
@@ -47,6 +49,15 @@ function applyLiveUpdate(beatId, data, version) {
       hover: Object.keys(cs.hover || {}).filter(k => cs.hover[k] && cs.hover[k] !== 1 && cs.hover[k] !== 0).length ? 'custom' : 'default'
     });
   }
+  
+  // Migrate legacy properties if they exist (for backward compatibility)
+  if (data.glowConfig && !data.cardStyle?.glow) state.allBeats[bi].glowConfig = data.glowConfig;
+  if (data.cardAnim && !data.cardStyle?.anim) state.allBeats[bi].cardAnim = data.cardAnim;
+  if (data.accentColor && !data.cardStyle?.style?.accentColor) state.allBeats[bi].accentColor = data.accentColor;
+  if (data.shimmer != null && data.cardStyle?.style?.shimmer == null) state.allBeats[bi].shimmer = data.shimmer;
+  if (data.shimmerSpeed && !data.cardStyle?.style?.shimmerSpeed) state.allBeats[bi].shimmerSpeed = data.shimmerSpeed;
+  if (data.shimmerOp && !data.cardStyle?.style?.shimmerOp) state.allBeats[bi].shimmerOp = data.shimmerOp;
+  if (data.cardBorder && !data.cardStyle?.border) state.allBeats[bi].cardBorder = data.cardBorder;
   
   // Update beat data with version tracking
   Object.assign(state.allBeats[bi], data);
