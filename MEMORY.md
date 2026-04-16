@@ -18,7 +18,7 @@
 
 ### Pendientes reales
 - [x] ~131 onclick restantes en admin.html → **0** (Bloque 15, ec978d7)
-- [ ] CDN CORS — `cdn.dacewav.store` sin Access-Control-Allow-Origin (requiere Cloudflare dashboard)
+- [x] CDN CORS — `cdn.dacewav.store` custom domain del worker, worker ya manda `Access-Control-Allow-Origin: *` ✅
 
 ---
 
