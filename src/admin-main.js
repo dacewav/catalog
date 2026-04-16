@@ -78,4 +78,9 @@ window.renderPickerGrid = function() {
 // Import auth & firebase init (bootstraps everything)
 import './admin/firebase-init.js';
 
+// Preview modules (extracted from inline scripts)
+import './admin/preview-live.js';
+import './admin/preview-resize.js';
+import './admin/gallery-picker.js';
+
 console.log('[DACE Admin] v5.2 bundle loaded');

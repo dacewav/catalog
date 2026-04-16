@@ -17,13 +17,9 @@
 - Ver `REFACTOR-PLAN.md` para detalle de cada bloque
 
 ### Pendientes reales
-- [x] ~131 onclick restantes en admin.html → **0** (Bloque 15, ec978d7)
-- [x] CDN CORS — ✅ worker custom domain
-- [x] Shimmer/Shadow/Hover CSS specificity — fix parcial (f6435ed)
-- [x] Firebase Analytics PERMISSION_DENIED — ServerValue fix (7c012cb)
-- [x] Duplicate class attrs — 31 fixeados (f6435ed)
-- [ ] **Shimmer/glow no visible en store** — CSS fixes aplicados, pendiente confirmar post-deploy
-- [ ] **Admin editing roto** — usuario reporta en sesión 2026-04-16, posible timing de deploy
+- [ ] **Deploy firebase-rules-secure.json en Firebase Console** (usuario debe hacerlo manualmente)
+- [ ] Confirmar shimmer/glow effects post-deploy (fix aplicado, pendiente verificar en browser)
+- [ ] Confirmar admin editing post-deploy (fix aplicado con rules alignment)
 - [ ] Rediseño de la store (feature request principal)
 - [ ] Glow no visible en iframe preview (live edit → store)
 
@@ -70,6 +66,16 @@
 ---
 
 ## Bugs resueltos (historial completo)
+
+### Sesión 7 — Firebase Rules + Glow + Analytics (2026-04-17)
+- Firebase rules desalineadas: 12+ campos con límites más restrictivos en producción
+- UID adminWhitelist: prod tenía E6N2 (25 chars) vs repo E6N22 (26 chars)
+- glowConfig/spread max 10 en prod → admin saves rechazados
+- Nodos faltantes en prod: imageGallery, customLinks, customEmojis, defaultLicenses
+- will-change:transform en cards glow → GPU clippeaba box-shadow animado (mismo bug que shimmer)
+- Analytics: search_query (13 chars) excedía act max 10 en prod
+- Commits: `583da2e`
+- **⚠️ Usuario debe pegar firebase-rules-secure.json en Firebase Console y publicar**
 
 ### Sesión 6 — Shimmer/Glow/Analytics (2026-04-16)
 - Shimmer hover specificity: mostraba shimmer en hover para TODAS las cards → solo shimmer-on
