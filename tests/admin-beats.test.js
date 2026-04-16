@@ -77,6 +77,11 @@ vi.mock('../src/admin/card-style-ui.js', () => ({
   renderCardStyleControls: vi.fn(),
 }));
 
+vi.mock('../src/admin/click-handler.js', () => ({
+  registerActions: vi.fn(),
+  initClickHandler: vi.fn(),
+}));
+
 import { renderBeatList, filterBeatList, openEditor } from '../src/admin/beats.js';
 import * as state from '../src/admin/state.js';
 

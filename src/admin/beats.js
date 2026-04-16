@@ -11,6 +11,7 @@ import { R2_ENABLED, uploadToR2 } from './r2.js';
 import { updateCardPreview, syncSliderDisplay, _buildCardStyleFromInputs, _isCardStyleDefault, _setHoloColors, _toggleAnimSubsettings } from './beat-card-style.js';
 import { renderEffectGalleryHTML } from './card-style-ui.js';
 import { ALL_SLIDER_IDS, renderPresets, renderHoverPresets, applyPreset, applyHoverPreset, resetCardStyle, resetBeatToGlobal } from './beat-presets.js';
+import { registerActions, initClickHandler } from './click-handler.js';
 
 function _triggerLiveUpdate() {
   updateCardPreview();
@@ -30,7 +31,7 @@ export function renderBeatList() {
   list.innerHTML = beats.map((b, i) => {
     const badges = []; if (b.featured) badges.push('TOP'); if (b.exclusive) badges.push('EXCL'); if (b.active === false) badges.push('OFF');
     const img = b.imageUrl ? '<img src="' + b.imageUrl + '">' : '♪';
-    return '<div class="beat-row" draggable="true" data-id="' + b.id + '" ondragstart="dragStart(event)" ondragover="dragOver(event)" ondrop="dropBeat(event)" ondragend="dragEnd(event)" onclick="openEditor(\'' + b.id + '\')"><span class="drag-handle" onclick="event.stopPropagation()">⠿</span><div class="beat-row-thumb">' + img + '</div><div><div class="beat-row-name" data-editable ondblclick="event.stopPropagation();inlineEditName(this,\'' + b.id + '\')">' + b.name + (badges.length ? ' <span style="font-size:8px;color:var(--acc)">' + badges.join(' ') + '</span>' : '') + '</div><div class="beat-row-meta"><span data-editable ondblclick="event.stopPropagation();inlineEditBpm(this,\'' + b.id + '\')">' + b.bpm + ' BPM</span> · <span data-editable ondblclick="event.stopPropagation();inlineEditKey(this,\'' + b.id + '\')">' + b.key + '</span> · ' + b.genre + '</div></div><div class="beat-row-acts"><button class="btn" onclick="event.stopPropagation();openEditor(\'' + b.id + '\')" style="font-size:9px;padding:3px 8px">✎</button><button class="btn btn-del" onclick="event.stopPropagation();quickDel(\'' + b.id + '\')" style="font-size:9px;padding:3px 8px">✕</button></div></div>';
+    return '<div class="beat-row" draggable="true" data-id="' + b.id + '" ondragstart="dragStart(event)" ondragover="dragOver(event)" ondrop="dropBeat(event)" ondragend="dragEnd(event)" data-action="open-editor"><span class="drag-handle" data-action="noop" data-stop-propagation="true">⠿</span><div class="beat-row-thumb">' + img + '</div><div><div class="beat-row-name" data-editable data-dblaction="inline-edit-name" data-id="' + b.id + '">' + b.name + (badges.length ? ' <span style="font-size:8px;color:var(--acc)">' + badges.join(' ') + '</span>' : '') + '</div><div class="beat-row-meta"><span data-editable data-dblaction="inline-edit-bpm" data-id="' + b.id + '">' + b.bpm + ' BPM</span> · <span data-editable data-dblaction="inline-edit-key" data-id="' + b.id + '">' + b.key + '</span> · ' + b.genre + '</div></div><div class="beat-row-acts"><button class="btn" data-action="open-editor" data-id="' + b.id + '" data-stop-propagation="true" style="font-size:9px;padding:3px 8px">✎</button><button class="btn btn-del" data-action="quick-del" data-id="' + b.id + '" data-stop-propagation="true" style="font-size:9px;padding:3px 8px">✕</button></div></div>';
   }).join('');
 }
 
@@ -278,7 +279,7 @@ export function openEditor(id) {
 
 // License Editor
 function renderLicEditor(lics) {
-  g('le-editor').innerHTML = lics.map((l, i) => '<div class="lic-ed-row" data-idx="' + i + '"><div class="lic-ed-grid"><input type="text" placeholder="Nombre" value="' + (l.name || '') + '" onchange="upLic(' + i + ',\'name\',this.value)"><input type="number" placeholder="MXN" value="' + (l.priceMXN || '') + '" onchange="upLic(' + i + ',\'mxn\',this.value)"><input type="number" placeholder="USD" value="' + (l.priceUSD || '') + '" onchange="upLic(' + i + ',\'usd\',this.value)"></div><input type="text" placeholder="Descripción" value="' + (l.description || '') + '" style="font-size:10px" onchange="upLic(' + i + ',\'desc\',this.value)"><button class="btn btn-del" style="margin-top:4px;font-size:9px" onclick="rmLic(' + i + ')">✕</button></div>').join('');
+  g('le-editor').innerHTML = lics.map((l, i) => '<div class="lic-ed-row" data-idx="' + i + '"><div class="lic-ed-grid"><input type="text" placeholder="Nombre" value="' + (l.name || '') + '" data-action="up-lic" data-idx="' + i + '" data-field="name"><input type="number" placeholder="MXN" value="' + (l.priceMXN || '') + '" data-action="up-lic" data-idx="' + i + '" data-field="mxn"><input type="number" placeholder="USD" value="' + (l.priceUSD || '') + '" data-action="up-lic" data-idx="' + i + '" data-field="usd"></div><input type="text" placeholder="Descripción" value="' + (l.description || '') + '" style="font-size:10px" data-action="up-lic" data-idx="' + i + '" data-field="desc"><button class="btn btn-del" style="margin-top:4px;font-size:9px" data-action="rm-lic" data-idx="' + i + '">✕</button></div>').join('');
 }
 export function upLic(idx, field, value) { collectLics(); autoSave(); }
 export function addLicRow() { collectLics(); _edLics.push({ name: '', priceMXN: 0, priceUSD: 0, description: '' }); renderLicEditor(_edLics); }
@@ -320,31 +321,15 @@ function renderImgGallery() {
     + _imgGallery.map(function(url, i) {
       var isMain = (url === val('f-img'));
       return '<div style="position:relative;display:inline-block">'
-        + '<img src="' + url + '" style="width:64px;height:64px;border-radius:6px;object-fit:cover;border:2px solid ' + (isMain ? 'var(--acc)' : 'var(--b)') + ';cursor:pointer" onclick="window._selectGalleryImg(' + i + ')" title="' + (isMain ? '★ Principal' : 'Hacer principal') + '">'
-        + '<div onclick="event.stopPropagation();window._removeGalleryImg(' + i + ')" title="Quitar" style="position:absolute;top:-4px;right:-4px;width:16px;height:16px;border-radius:50%;background:var(--acc);color:#fff;font-size:9px;display:flex;align-items:center;justify-content:center;cursor:pointer;line-height:1">✕</div>'
+        + '<img src="' + url + '" style="width:64px;height:64px;border-radius:6px;object-fit:cover;border:2px solid ' + (isMain ? 'var(--acc)' : 'var(--b)') + ';cursor:pointer" data-action="select-gallery-img" data-idx="' + i + '" title="' + (isMain ? '★ Principal' : 'Hacer principal') + '">'
+        + '<div data-action="remove-gallery-img" data-idx="' + i + '" data-stop-propagation="true" title="Quitar" style="position:absolute;top:-4px;right:-4px;width:16px;height:16px;border-radius:50%;background:var(--acc);color:#fff;font-size:9px;display:flex;align-items:center;justify-content:center;cursor:pointer;line-height:1">✕</div>'
         + (isMain ? '<div style="position:absolute;bottom:0;left:0;right:0;text-align:center;font-size:7px;color:var(--acc);background:rgba(0,0,0,.7);border-radius:0 0 4px 4px">★</div>' : '')
         + '</div>';
     }).join('')
     + '</div>';
 }
 
-window._selectGalleryImg = function(idx) {
-  if (_imgGallery[idx]) {
-    setVal('f-img', _imgGallery[idx]);
-    renderImgGallery();
-    _triggerLiveUpdate();
-  }
-};
-
-window._removeGalleryImg = function(idx) {
-  var removed = _imgGallery.splice(idx, 1)[0];
-  // If we removed the current main image, set to first remaining
-  if (removed === val('f-img')) {
-    setVal('f-img', _imgGallery[0] || '');
-  }
-  renderImgGallery();
-  _triggerLiveUpdate();
-};
+// Registered as click-handler actions below
 export function uploadBeatImg(input) {
   const file = input.files[0]; if (!file) return;
   if (!R2_ENABLED) { showToast('R2 Worker no configurado.', true); input.value = ''; return; }
@@ -483,7 +468,7 @@ function renderBatchImgList() {
   el.innerHTML = _batchImgQueue.map((item, i) => {
     const img = item.preview ? '<img src="' + item.preview + '">' : '';
     const options = allBeats.map(b => '<option value="' + b.id + '"' + (item.beatId === b.id ? ' selected' : '') + '>' + b.name + '</option>').join('');
-    return '<div class="batch-img-item">' + img + '<span class="batch-img-item-name">' + item.name + '</span><select onchange="_batchImgQueue[' + i + '].beatId=this.value"><option value="">— Asignar beat —</option>' + options + '</select><button class="remove-img" onclick="_batchImgQueue.splice(' + i + ',1);renderBatchImgList()">✕</button></div>';
+    return '<div class="batch-img-item">' + img + '<span class="batch-img-item-name">' + item.name + '</span><select onchange="_batchImgQueue[' + i + '].beatId=this.value"><option value="">— Asignar beat —</option>' + options + '</select><button class="remove-img" data-action="batch-img-remove" data-idx="' + i + '">✕</button></div>';
   }).join('');
 }
 export function clearBatchImgQueue() { setBatchImgQueue([]); renderBatchImgList(); g('batch-img-input').value = ''; }
@@ -533,6 +518,23 @@ export function toggleMP() {
 }
 export function seekMP(e) { if (!mpAudio2 || !mpAudio2.duration) return; const r = e.currentTarget.getBoundingClientRect(); mpAudio2.currentTime = ((e.clientX - r.left) / r.width) * mpAudio2.duration; }
 
+
+// ═══ Register click-handler actions ═══
+registerActions({
+  'open-editor': (el) => openEditor(el.dataset.id || el.closest('[data-id]')?.dataset.id),
+  'quick-del': (el) => quickDel(el.dataset.id),
+  'inline-edit-name': (el) => inlineEditName(el, el.dataset.id),
+  'inline-edit-bpm': (el) => inlineEditBpm(el, el.dataset.id),
+  'inline-edit-key': (el) => inlineEditKey(el, el.dataset.id),
+  'up-lic': (el) => { const idx = parseInt(el.dataset.idx); const field = el.dataset.field; upLic(idx, field, el.value); },
+  'rm-lic': (el) => rmLic(parseInt(el.dataset.idx)),
+  'select-gallery-img': (el) => { const idx = parseInt(el.dataset.idx); if (_imgGallery[idx]) { setVal('f-img', _imgGallery[idx]); renderImgGallery(); _triggerLiveUpdate(); } },
+  'remove-gallery-img': (el) => { const idx = parseInt(el.dataset.idx); const removed = _imgGallery.splice(idx, 1)[0]; if (removed === val('f-img')) setVal('f-img', _imgGallery[0] || ''); renderImgGallery(); _triggerLiveUpdate(); },
+  'batch-img-remove': (el) => { _batchImgQueue.splice(parseInt(el.dataset.idx), 1); renderBatchImgList(); },
+  'noop': () => {},
+});
+
+if (typeof document !== 'undefined' && document.addEventListener) initClickHandler();
 
 Object.assign(window, {
   filterBeatList, renderBeatList, dragStart, dragOver, dropBeat, dragEnd,
