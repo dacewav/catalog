@@ -22,6 +22,9 @@ export function beatCard(b, globalIdx) {
     const dur = (0.3 + Math.random() * 0.5).toFixed(2);
     return `<div class="wbar${isPlay ? ' anim' : ''}" style="height:${h}px;--wd:${dur}s;animation-delay:${(i * 0.05).toFixed(2)}s"></div>`;
   }).join('');
+  
+  // Only render beat-wave-row container if we have fallback bars (no preview)
+  const waveRowHtml = bars ? `<div class="beat-wave-row">${bars}</div>` : '';
 
   const lics = b.licenses || [];
   const minL = lics[0];
@@ -309,7 +312,7 @@ export function beatCard(b, globalIdx) {
     <button class="wish-btn${isWished ? ' active' : ''}" data-id="${b.id}" onclick="toggleWish('${b.id}',event)">${isWished ? '♥' : '♡'}</button>
     <div class="beat-card-inner"${innerStyleParts.length ? ' style="' + innerStyleParts.join(';') + '"' : ''}>
       <div class="beat-img">${imgH}
-        <div class="beat-wave-row">${bars}</div>
+        ${waveRowHtml}
         <div class="play-hint"><div class="play-circle"><svg width="16" height="16" viewBox="0 0 16 16" fill="white"><path d="${isPlay ? 'M4 2h2v12H4zM10 2h2v12h-2z' : 'M5 3l10 5-10 5V3z'}"/></svg></div></div>
       </div>
       <div class="beat-body">
