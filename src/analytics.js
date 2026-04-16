@@ -36,7 +36,7 @@ function _flushQueue() {
 export function trackEvent(category, action, label, value) {
   if (!state.db) return;
   _eventQueue.push({
-    ts: state.db.ServerValue?.TIMESTAMP || Date.now(),
+    ts: (typeof firebase !== 'undefined' && firebase.database?.ServerValue?.TIMESTAMP) || Date.now(),
     cat: category,
     act: action,
     lbl: label || '',
