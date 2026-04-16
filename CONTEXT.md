@@ -10,6 +10,8 @@
 ## Verificar estado del repo:
 
 ```bash
+date '+%H:%M' && echo "= SESSION_START (guardar este valor)"
+cd /root/.openclaw/workspace/catalog-repo
 git status
 git log --oneline -5
 node build.js 2>&1 | tail -5
