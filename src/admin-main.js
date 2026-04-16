@@ -22,16 +22,16 @@ import './admin/card-global.js';
 
 // Register global UI actions (toggleCard, resetSlider) via event delegation
 import { registerActions } from './admin/click-handler.js';
-import { toggleCard, resetSlider, sv } from './admin/helpers.js';
+import { toggleCard, resetSlider } from './admin/helpers.js';
 registerActions({
   'toggle-card': (el) => toggleCard(el),
   'reset-slider': (el) => {
     const val = parseFloat(el.dataset.resetVal) || 0;
-    // Find the range input: it's the first <input type="range"> in the same slider-wrap
     const wrap = el.closest('.slider-wrap');
     const input = wrap?.querySelector('input[type="range"]');
     if (input) resetSlider(input, val);
   },
+  'pickGalleryItem': (el) => { const url = el.dataset.url; if (url && window.__pickGalleryImg) window.__pickGalleryImg(url); },
 });
 import './admin/r2.js';
 import './admin/features.js';
@@ -67,7 +67,7 @@ window.renderPickerGrid = function() {
       return;
     }
     grid.innerHTML = items.map(img => {
-      return `<div class="picker-item" onclick="window.__pickGalleryImg && window.__pickGalleryImg('${img.url.replace(/'/g, "\\'")}')">
+      return `<div class="picker-item" data-action="pickGalleryItem" data-url="${img.url.replace(/"/g, '&quot;')}">
         <img src="${img.url}" alt="${img.name || ''}" loading="lazy">
         <div class="picker-item-name">${img.name || ''}</div>
       </div>`;
@@ -82,5 +82,3 @@ import './admin/firebase-init.js';
 import './admin/preview-live.js';
 import './admin/preview-resize.js';
 import './admin/gallery-picker.js';
-
-console.log('[DACE Admin] v5.2 bundle loaded');

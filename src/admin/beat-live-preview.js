@@ -23,11 +23,10 @@ function _attachLiveListeners() {
   _liveListenersAttached = true;
   if (typeof document === 'undefined' || !document.getElementById) return;
   const editor = document.getElementById('sec-add');
-  if (!editor) { console.warn('[LiveEdit] #sec-add not found'); return; }
+  if (!editor) return;
   editor.addEventListener('input', e => { if (e.target.matches('input, select, textarea')) _debouncedPv(); });
   editor.addEventListener('change', e => { if (e.target.matches('input, select, textarea')) _debouncedPv(); });
   window._initPvImgUpload?.();
-  console.log('[LiveEdit] delegation listeners attached');
 }
 
 window._attachLiveListeners = _attachLiveListeners;
@@ -65,7 +64,7 @@ window._sendLiveUpdate = function () {
   if (frame?.contentWindow) {
     try {
       frame.contentWindow.postMessage({ type: 'beat-update', beatId: payload.beatId, data: payload.data }, '*');
-    } catch (e) { console.error('[LiveEdit] postMessage FAIL:', e); }
+    } catch (e) { /* iframe may be cross-origin */ }
   } else {
     postToFrame({ type: 'beat-update', beatId: payload.beatId, data: payload.data });
   }
@@ -73,9 +72,7 @@ window._sendLiveUpdate = function () {
   // Firebase — reaches the live store at dacewav.store
   const _db = window._db || (typeof db !== 'undefined' ? db : null);
   if (_db) {
-    _db.ref('liveEdits/' + window._liveEditId).set(data)
-      .then(() => console.log('[LiveEdit] Firebase write OK'))
-      .catch(err => console.error('[LiveEdit] Firebase write FAIL:', err));
+    _db.ref('liveEdits/' + window._liveEditId).set(data).catch(() => {});
   }
 };
 

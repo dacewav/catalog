@@ -215,7 +215,7 @@ function renderPickerGrid() {
   }
   
   grid.innerHTML = items.map(img => {
-    return `<div class="picker-item" onclick="window.__pickGalleryImg && window.__pickGalleryImg('${img.url.replace(/'/g, "\\'")}')">
+    return `<div class="picker-item" data-action="pickGalleryItem" data-url="${img.url.replace(/"/g, '&quot;')}">
       <img src="${img.url}" alt="${img.name || ''}" loading="lazy">
       <div class="picker-item-name">${img.name || ''}</div>
     </div>`;
