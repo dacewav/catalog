@@ -532,6 +532,52 @@ registerActions({
   'remove-gallery-img': (el) => { const idx = parseInt(el.dataset.idx); const removed = _imgGallery.splice(idx, 1)[0]; if (removed === val('f-img')) setVal('f-img', _imgGallery[0] || ''); renderImgGallery(); _triggerLiveUpdate(); },
   'batch-img-remove': (el) => { _batchImgQueue.splice(parseInt(el.dataset.idx), 1); renderBatchImgList(); },
   'noop': () => {},
+  // Gallery picker for beat image — sets f-img and triggers preview updates
+  'gallery-pick-img': () => {
+    window.openGalleryPicker(function(url) {
+      var f = document.getElementById('f-img');
+      if (f) {
+        f.value = url;
+        if (typeof window.prevImg === 'function') window.prevImg();
+        if (typeof window.updateCardPreview === 'function') window.updateCardPreview();
+        if (typeof window._sendLiveUpdate === 'function') window._sendLiveUpdate();
+      }
+    });
+  },
+  // Trash actions for beat editor fields
+  'trash-audio': () => {
+    var f = document.getElementById('f-audio');
+    if (f && f.value) {
+      var bid = document.getElementById('f-id'), bn = document.getElementById('f-name');
+      window.trashItem(bid ? bid.value : '', bn ? bn.value : '', 'audio', f.value, 'audio-wav');
+      f.value = '';
+      if (typeof window._sendLiveUpdate === 'function') window._sendLiveUpdate();
+    }
+  },
+  'trash-preview': () => {
+    var f = document.getElementById('f-prev');
+    if (f && f.value) {
+      var bid = document.getElementById('f-id'), bn = document.getElementById('f-name');
+      window.trashItem(bid ? bid.value : '', bn ? bn.value : '', 'preview', f.value, 'preview-mp3');
+      f.value = '';
+      window.updateMP();
+      if (typeof window._sendLiveUpdate === 'function') window._sendLiveUpdate();
+    }
+  },
+  'trash-img': () => {
+    var f = document.getElementById('f-img');
+    if (f && f.value) {
+      var bid = document.getElementById('f-id');
+      window.trashItem(bid ? bid.value : '', 'beat', 'image', f.value, 'cover');
+      f.value = '';
+      if (typeof window.prevImg === 'function') window.prevImg();
+      if (typeof window._sendLiveUpdate === 'function') window._sendLiveUpdate();
+      var pv = document.getElementById('pv-img-preview');
+      if (pv) pv.style.display = 'none';
+    }
+  },
+  // Remove parent element and update card preview (used by holo color swatches)
+  'remove-parent': (el) => { el.parentElement.remove(); updateCardPreview(); },
 });
 
 if (typeof document !== 'undefined' && document.addEventListener) initClickHandler();

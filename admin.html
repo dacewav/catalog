@@ -22,7 +22,7 @@
   <div class="login-box">
     <div class="login-brand">DACE<em>·</em> Admin</div>
     <div class="login-sub">Acceso restringido</div>
-    <button class="login-btn" id="login-google-btn" onclick="doGoogleLogin()" style="display:flex;align-items:center;justify-content:center;gap:10px;font-size:12px">
+    <button class="login-btn" id="login-google-btn" data-action="doGoogleLogin" style="display:flex;align-items:center;justify-content:center;gap:10px;font-size:12px">
       <svg width="18" height="18" viewBox="0 0 18 18"><path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844a4.14 4.14 0 01-1.796 2.716v2.259h2.908c1.702-1.567 2.684-3.875 2.684-6.615z"/><path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 009 18z"/><path fill="#FBBC05" d="M3.964 10.71A5.41 5.41 0 013.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 000 9c0 1.452.348 2.827.957 4.042l3.007-2.332z"/><path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 00.957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58z"/></svg>
       Iniciar sesión con Google
     </button>
@@ -39,18 +39,18 @@
     <span id="sdot-text">Guardado</span>
   </div>
   <div class="topbar-center">
-    <button class="tb" onclick="openCmdPalette()"><i class="fas fa-search"></i><span class="tb-label">Ctrl+K</span></button>
-    <button class="tb" onclick="undo()"><i class="fas fa-undo"></i><span class="tb-label">Deshacer</span></button>
-    <button class="tb" onclick="redo()"><i class="fas fa-redo"></i><span class="tb-label">Rehacer</span></button>
+    <button class="tb" data-action="openCmdPalette"><i class="fas fa-search"></i><span class="tb-label">Ctrl+K</span></button>
+    <button class="tb" data-action="undo"><i class="fas fa-undo"></i><span class="tb-label">Deshacer</span></button>
+    <button class="tb" data-action="redo"><i class="fas fa-redo"></i><span class="tb-label">Rehacer</span></button>
   </div>
   <div class="topbar-right">
-    <button class="tb gn" onclick="saveAll()"><i class="fas fa-save"></i><span class="tb-label">Guardar</span></button>
-    <button class="tb" onclick="exportAll()"><i class="fas fa-download"></i><span class="tb-label">Exportar</span></button>
-    <button class="tb" onclick="document.getElementById('imp-f').click()"><i class="fas fa-upload"></i><span class="tb-label">Importar</span></button>
+    <button class="tb gn" data-action="saveAll"><i class="fas fa-save"></i><span class="tb-label">Guardar</span></button>
+    <button class="tb" data-action="exportAll"><i class="fas fa-download"></i><span class="tb-label">Exportar</span></button>
+    <button class="tb" data-action="triggerImport"><i class="fas fa-upload"></i><span class="tb-label">Importar</span></button>
     <input type="file" id="imp-f" accept=".json" style="display:none" onchange="importAll(event)">
-    <button class="tb" id="theme-toggle" onclick="toggleAdminTheme()"><i class="fas fa-moon"></i><span class="tb-label">Tema</span></button>
-    <button class="tb" id="inspector-btn" onclick="toggleInspector()"><i class="fas fa-crosshairs"></i><span class="tb-label">Inspector</span></button>
-    <button class="tb" onclick="doLogout()"><i class="fas fa-sign-out-alt"></i><span class="tb-label">Salir</span></button>
+    <button class="tb" id="theme-toggle" data-action="toggleAdminTheme"><i class="fas fa-moon"></i><span class="tb-label">Tema</span></button>
+    <button class="tb" id="inspector-btn" data-action="toggleInspector"><i class="fas fa-crosshairs"></i><span class="tb-label">Inspector</span></button>
+    <button class="tb" data-action="doLogout"><i class="fas fa-sign-out-alt"></i><span class="tb-label">Salir</span></button>
   </div>
 </div>
 
@@ -59,24 +59,24 @@
   <!-- Sidebar -->
   <div class="sidebar">
     <div class="sidebar-group-label">Contenido</div>
-    <div class="si" data-s="beats" onclick="showSection('beats')"><i class="fas fa-music"></i><span>Beats</span></div>
-    <div class="si" data-s="hero" onclick="showSection('hero')"><i class="fas fa-star"></i><span>Hero</span></div>
-    <div class="si" data-s="elements" onclick="showSection('elements')"><i class="fas fa-shopping-bag"></i><span>Elems</span></div>
+    <div class="si" data-s="beats" data-action="showSection" data-section="beats"><i class="fas fa-music"></i><span>Beats</span></div>
+    <div class="si" data-s="hero" data-action="showSection" data-section="hero"><i class="fas fa-star"></i><span>Hero</span></div>
+    <div class="si" data-s="elements" data-action="showSection" data-section="elements"><i class="fas fa-shopping-bag"></i><span>Elems</span></div>
     <div class="sidebar-sep"></div>
     <div class="sidebar-group-label">Diseño</div>
-    <div class="si on" data-s="global" onclick="showSection('global')"><i class="fas fa-palette"></i><span>Global</span></div>
-    <div class="si" data-s="card-global" onclick="showSection('card-global')"><i class="fas fa-id-card"></i><span>Tarjetas</span></div>
-    <div class="si" data-s="layout" onclick="showSection('layout')"><i class="fas fa-th-large"></i><span>Layout</span></div>
-    <div class="si" data-s="animations" onclick="showSection('animations')"><i class="fas fa-magic"></i><span>Anims</span></div>
-    <div class="si" data-s="floating" onclick="showSection('floating')"><i class="fas fa-arrows-alt"></i><span>Float</span></div>
-    <div class="si" data-s="themes" onclick="showSection('themes')"><i class="fas fa-swatchbook"></i><span>Temas</span></div>
+    <div class="si on" data-s="global" data-action="showSection" data-section="global"><i class="fas fa-palette"></i><span>Global</span></div>
+    <div class="si" data-s="card-global" data-action="showSection" data-section="card-global"><i class="fas fa-id-card"></i><span>Tarjetas</span></div>
+    <div class="si" data-s="layout" data-action="showSection" data-section="layout"><i class="fas fa-th-large"></i><span>Layout</span></div>
+    <div class="si" data-s="animations" data-action="showSection" data-section="animations"><i class="fas fa-magic"></i><span>Anims</span></div>
+    <div class="si" data-s="floating" data-action="showSection" data-section="floating"><i class="fas fa-arrows-alt"></i><span>Float</span></div>
+    <div class="si" data-s="themes" data-action="showSection" data-section="themes"><i class="fas fa-swatchbook"></i><span>Temas</span></div>
     <div class="sidebar-sep"></div>
     <div class="sidebar-group-label">Sistema</div>
-    <div class="si" data-s="settings" onclick="showSection('settings')"><i class="fas fa-cog"></i><span>Ajustes</span></div>
-    <div class="si" data-s="team" onclick="showSection('team')"><i class="fas fa-users"></i><span>Equipo</span></div>
-    <div class="si" data-s="stats" onclick="showSection('stats')"><i class="fas fa-chart-bar"></i><span>Stats</span></div>
-    <div class="si" data-s="trash" onclick="showSection('trash')"><i class="fas fa-trash-alt"></i><span>Trash</span></div>
-    <div class="si" data-s="gallery" onclick="showSection('gallery')"><i class="fas fa-images"></i><span>Galería</span></div>
+    <div class="si" data-s="settings" data-action="showSection" data-section="settings"><i class="fas fa-cog"></i><span>Ajustes</span></div>
+    <div class="si" data-s="team" data-action="showSection" data-section="team"><i class="fas fa-users"></i><span>Equipo</span></div>
+    <div class="si" data-s="stats" data-action="showSection" data-section="stats"><i class="fas fa-chart-bar"></i><span>Stats</span></div>
+    <div class="si" data-s="trash" data-action="showSection" data-section="trash"><i class="fas fa-trash-alt"></i><span>Trash</span></div>
+    <div class="si" data-s="gallery" data-action="showSection" data-section="gallery"><i class="fas fa-images"></i><span>Galería</span></div>
   </div>
 
   <!-- ═══ CONTROLS ═══ -->
@@ -97,25 +97,25 @@
         <div class="card-title" data-action="toggle-card"><span>Tipografía</span><i class="fas fa-chevron-down"></i></div>
         <div class="card-body">
           <div class="btn-row" style="flex-wrap:wrap">
-            <button class="btn btn-g" onclick="applyTypo('industrial')" class="fs-xs">Industrial</button>
-            <button class="btn btn-g" onclick="applyTypo('brutalista')" class="fs-xs">Brutalista</button>
-            <button class="btn btn-g" onclick="applyTypo('minimal')" class="fs-xs">Minimal</button>
-            <button class="btn btn-g" onclick="applyTypo('scifi')" class="fs-xs">Sci-fi</button>
-            <button class="btn btn-g" onclick="applyTypo('elegant')" class="fs-xs">Elegant</button>
-            <button class="btn btn-g" onclick="applyTypo('modern')" class="fs-xs">Modern</button>
+            <button class="btn btn-g" data-action="applyTypo" data-typo="industrial" class="fs-xs">Industrial</button>
+            <button class="btn btn-g" data-action="applyTypo" data-typo="brutalista" class="fs-xs">Brutalista</button>
+            <button class="btn btn-g" data-action="applyTypo" data-typo="minimal" class="fs-xs">Minimal</button>
+            <button class="btn btn-g" data-action="applyTypo" data-typo="scifi" class="fs-xs">Sci-fi</button>
+            <button class="btn btn-g" data-action="applyTypo" data-typo="elegant" class="fs-xs">Elegant</button>
+            <button class="btn btn-g" data-action="applyTypo" data-typo="modern" class="fs-xs">Modern</button>
           </div>
           <div class="field">
             <label>Fuente display <span class="tip" title="Para títulos y nombres">?</span></label>
             <div class="font-picker" id="fp-display-wrap">
-              <button class="font-picker-btn" id="fp-display-btn" onclick="toggleFontPicker('display')">Syne</button>
+              <button class="font-picker-btn" id="fp-display-btn" data-action="toggleFontPicker" data-target="display">Syne</button>
               <div class="font-picker-dd" id="fp-display-dd">
                 <input type="text" class="font-picker-search" id="fp-display-search" placeholder="Buscar fuente..." oninput="filterFontPicker('display',this.value)">
                 <div class="font-picker-tabs" id="fp-display-tabs"></div>
                 <div class="font-picker-list" id="fp-display-list"></div>
-                <div class="fp-more-row"><button class="fp-more-btn" id="fp-display-more" onclick="loadMoreFonts('display')">🔍 Buscar más fuentes en Google Fonts</button></div>
+                <div class="fp-more-row"><button class="fp-more-btn" id="fp-display-more" data-action="loadMoreFonts" data-target="display">🔍 Buscar más fuentes en Google Fonts</button></div>
                 <div class="fp-custom-row">
                   <input type="text" class="fp-custom-input" id="fp-display-custom" placeholder="Nombre exacto de fuente..." onkeydown="if(event.key==='Enter')applyCustomFont('display')">
-                  <button class="fp-custom-btn" onclick="applyCustomFont('display')">Usar</button>
+                  <button class="fp-custom-btn" data-action="applyCustomFont" data-target="display">Usar</button>
                 </div>
               </div>
             </div>
@@ -124,15 +124,15 @@
           <div class="field">
             <label>Fuente cuerpo</label>
             <div class="font-picker" id="fp-body-wrap">
-              <button class="font-picker-btn" id="fp-body-btn" onclick="toggleFontPicker('body')">DM Mono</button>
+              <button class="font-picker-btn" id="fp-body-btn" data-action="toggleFontPicker" data-target="body">DM Mono</button>
               <div class="font-picker-dd" id="fp-body-dd">
                 <input type="text" class="font-picker-search" id="fp-body-search" placeholder="Buscar fuente..." oninput="filterFontPicker('body',this.value)">
                 <div class="font-picker-tabs" id="fp-body-tabs"></div>
                 <div class="font-picker-list" id="fp-body-list"></div>
-                <div class="fp-more-row"><button class="fp-more-btn" id="fp-body-more" onclick="loadMoreFonts('body')">🔍 Buscar más fuentes en Google Fonts</button></div>
+                <div class="fp-more-row"><button class="fp-more-btn" id="fp-body-more" data-action="loadMoreFonts" data-target="body">🔍 Buscar más fuentes en Google Fonts</button></div>
                 <div class="fp-custom-row">
                   <input type="text" class="fp-custom-input" id="fp-body-custom" placeholder="Nombre exacto de fuente..." onkeydown="if(event.key==='Enter')applyCustomFont('body')">
-                  <button class="fp-custom-btn" onclick="applyCustomFont('body')">Usar</button>
+                  <button class="fp-custom-btn" data-action="applyCustomFont" data-target="body">Usar</button>
                 </div>
               </div>
             </div>
@@ -191,9 +191,9 @@
       <div class="section-title"><i class="fas fa-id-card"></i> Estilo Global de Tarjetas</div>
       <p style="font-size:10px;color:var(--hi);margin-bottom:12px">Estos estilos se aplican a <strong>todas las tarjetas</strong> que no tengan estilo personalizado. Los beats con estilo custom mantienen el suyo.</p>
       <div style="display:flex;gap:6px;margin-bottom:12px">
-        <button class="btn btn-p" onclick="saveGlobalCardStyle()" style="font-size:10px">💾 Guardar estilo global</button>
-        <button class="btn btn-g" onclick="resetGlobalCardStyle()" style="font-size:10px">↺ Resetear todo</button>
-        <button class="btn btn-g" onclick="applyGlobalToAllBeats()" style="font-size:10px;border-color:var(--acc);color:var(--acc)">⚡ Aplicar a TODOS los beats</button>
+        <button class="btn btn-p" data-action="saveGlobalCardStyle" style="font-size:10px">💾 Guardar estilo global</button>
+        <button class="btn btn-g" data-action="resetGlobalCardStyle" style="font-size:10px">↺ Resetear todo</button>
+        <button class="btn btn-g" data-action="applyGlobalToAllBeats" style="font-size:10px;border-color:var(--acc);color:var(--acc)">⚡ Aplicar a TODOS los beats</button>
       </div>
       <div id="global-cs-status" style="font-size:9px;color:var(--mu);margin-bottom:10px"></div>
 
@@ -294,14 +294,14 @@
           <div class="mb-md">
             <label style="font-size:10px;color:var(--mu);font-weight:700;display:block;margin-bottom:6px">Presets rápidos</label>
             <div style="display:flex;flex-wrap:wrap;gap:4px">
-              <button class="btn btn-g" onclick="applyGlowPreset('soft')" class="btn-xs">☁️ Soft</button>
-              <button class="btn btn-g" onclick="applyGlowPreset('neon')" class="btn-xs">💡 Neon</button>
-              <button class="btn btn-g" onclick="applyGlowPreset('fire')" class="btn-xs">🔥 Fire</button>
-              <button class="btn btn-g" onclick="applyGlowPreset('ice')" class="btn-xs">🧊 Ice</button>
-              <button class="btn btn-g" onclick="applyGlowPreset('toxic')" class="btn-xs">☢️ Toxic</button>
-              <button class="btn btn-g" onclick="applyGlowPreset('sunset')" class="btn-xs">🌅 Sunset</button>
-              <button class="btn btn-g" onclick="applyGlowPreset('royal')" class="btn-xs">👑 Royal</button>
-              <button class="btn btn-g" onclick="applyGlowPreset('disco')" class="btn-xs">🪩 Disco</button>
+              <button class="btn btn-g" data-action="applyGlowPreset" data-preset="soft" class="btn-xs">☁️ Soft</button>
+              <button class="btn btn-g" data-action="applyGlowPreset" data-preset="neon" class="btn-xs">💡 Neon</button>
+              <button class="btn btn-g" data-action="applyGlowPreset" data-preset="fire" class="btn-xs">🔥 Fire</button>
+              <button class="btn btn-g" data-action="applyGlowPreset" data-preset="ice" class="btn-xs">🧊 Ice</button>
+              <button class="btn btn-g" data-action="applyGlowPreset" data-preset="toxic" class="btn-xs">☢️ Toxic</button>
+              <button class="btn btn-g" data-action="applyGlowPreset" data-preset="sunset" class="btn-xs">🌅 Sunset</button>
+              <button class="btn btn-g" data-action="applyGlowPreset" data-preset="royal" class="btn-xs">👑 Royal</button>
+              <button class="btn btn-g" data-action="applyGlowPreset" data-preset="disco" class="btn-xs">🪩 Disco</button>
             </div>
           </div>
 
@@ -384,7 +384,7 @@ definen géneros.</textarea></div>
         <div class="card-body collapsed">
           <p class="fs-section-label">Click en la barra para añadir stops. Arrastra para mover.</p>
           <div id="grad-stops"></div>
-          <button class="btn btn-g" onclick="_gradStops=[{pos:0,color:'#dc2626',opacity:0.14},{pos:100,color:'#dc2626',opacity:0}];renderGradEditor();applyGradToHero()" style="font-size:9px;margin-top:4px">Resetear</button>
+          <button class="btn btn-g" data-action="resetGradStops" style="font-size:9px;margin-top:4px">Resetear</button>
         </div>
       </div>
 
@@ -464,7 +464,7 @@ definen géneros.</textarea></div>
           <div class="fs-section-label">Personalizados</div>
           <div class="custom-emoji-list" id="ce-list"></div>
           <div style="display:flex;gap:6px;margin-bottom:8px">
-            <button class="btn btn-ok" onclick="document.getElementById('ce-file-input').click()" style="flex:1;font-size:10px"><i class="fas fa-upload"></i> Subir imagen</button>
+            <button class="btn btn-ok" data-action="triggerEmojiImport" style="flex:1;font-size:10px"><i class="fas fa-upload"></i> Subir imagen</button>
             <input type="file" id="ce-file-input" accept="image/*,.gif,.webp" style="display:none" onchange="uploadEmojiFile(this)">
           </div>
           <div style="font-size:9px;color:var(--hi);margin-bottom:8px;text-align:center">— o pega una URL manualmente —</div>
@@ -477,7 +477,7 @@ definen géneros.</textarea></div>
             <div class="field"><label>Alto</label><input type="number" id="ce-h" value="24"></div>
             <div class="field"><label>Anim</label><select id="ce-anim"><option value="none">Ninguna</option><option value="flotar">Flotar</option><option value="pulsar">Pulsar</option><option value="rotar">Rotar</option><option value="rebotar">Rebotar</option></select></div>
           </div>
-          <button class="btn btn-ok" onclick="addCustomEmoji()" class="mt-xs"><i class="fas fa-plus"></i> Añadir</button>
+          <button class="btn btn-ok" data-action="addCustomEmoji" class="mt-xs"><i class="fas fa-plus"></i> Añadir</button>
         </div>
       </div>
     </div>
@@ -498,7 +498,7 @@ definen géneros.</textarea></div>
         <div class="card-body">
           <p class="fs-section-label">Arrastra los bloques verticalmente para reorganizar</p>
           <div id="layout-canvas" class="mb-sm"></div>
-          <button class="btn btn-g" onclick="initLayoutCanvas()" class="fs-xs"><i class="fas fa-sync-alt"></i> Reiniciar</button>
+          <button class="btn btn-g" data-action="initLayoutCanvas" class="fs-xs"><i class="fas fa-sync-alt"></i> Reiniciar</button>
         </div>
       </div>
       <div class="card">
@@ -522,10 +522,10 @@ definen géneros.</textarea></div>
     <div class="section" id="sec-beats">
       <div class="section-title"><i class="fas fa-music"></i> Catálogo de Beats</div>
       <div class="btn-row">
-        <button class="btn btn-ok" onclick="openEditor(null)"><i class="fas fa-plus"></i> Nuevo beat</button>
-        <button class="btn btn-g" onclick="batchAddBeats()"><i class="fas fa-layer-group"></i> Batch</button>
-        <button class="btn btn-g" onclick="openBatchImg()"><i class="fas fa-images"></i> Imágenes</button>
-        <button class="btn btn-g" onclick="openKbdPanel()" title="Atajos (Ctrl+/)"><i class="fas fa-keyboard"></i></button>
+        <button class="btn btn-ok" data-action="openEditor"><i class="fas fa-plus"></i> Nuevo beat</button>
+        <button class="btn btn-g" data-action="batchAddBeats"><i class="fas fa-layer-group"></i> Batch</button>
+        <button class="btn btn-g" data-action="openBatchImg"><i class="fas fa-images"></i> Imágenes</button>
+        <button class="btn btn-g" data-action="openKbdPanel" title="Atajos (Ctrl+/)"><i class="fas fa-keyboard"></i></button>
       </div>
       <div class="beat-search"><span class="bs-icon"><i class="fas fa-search"></i></span><input type="text" id="beat-search-input" placeholder="Buscar beats..." oninput="filterBeatList(this.value)"><div class="beat-search-count" id="beat-search-count"></div></div>
       <div class="beat-list" id="beat-list"><div style="color:var(--hi);padding:12px 0">Cargando...</div></div>
@@ -535,11 +535,11 @@ definen géneros.</textarea></div>
     <div class="section" id="sec-add">
       <div class="section-title" id="editor-title"><i class="fas fa-edit"></i> Nuevo beat</div>
       <div class="etabs">
-        <div class="et on" data-et="info" onclick="showEt('info')">Info</div>
-        <div class="et" data-et="lics" onclick="showEt('lics')">Licencias</div>
-        <div class="et" data-et="media" onclick="showEt('media')">Media</div>
-        <div class="et" data-et="plat" onclick="showEt('plat')">Plataformas</div>
-        <div class="et" data-et="extras" onclick="showEt('extras')">Extras</div>
+        <div class="et on" data-et="info" data-action="showEt" data-tab="info">Info</div>
+        <div class="et" data-et="lics" data-action="showEt" data-tab="lics">Licencias</div>
+        <div class="et" data-et="media" data-action="showEt" data-tab="media">Media</div>
+        <div class="et" data-et="plat" data-action="showEt" data-tab="plat">Plataformas</div>
+        <div class="et" data-et="extras" data-action="showEt" data-tab="extras">Extras</div>
       </div>
       <div class="etp on" id="etp-info">
         <div class="fg2">
@@ -554,16 +554,16 @@ definen géneros.</textarea></div>
         </div>
       </div>
       <div class="etp" id="etp-lics">
-        <p class="fs-section-label">Licencias <button class="btn btn-g" onclick="loadDefaultLics()" class="fs-xs">↓ Cargar base</button></p>
+        <p class="fs-section-label">Licencias <button class="btn btn-g" data-action="loadDefaultLics" class="fs-xs">↓ Cargar base</button></p>
         <div class="lic-ed" id="le-editor"></div>
-        <button class="btn btn-g" onclick="addLicRow()"><i class="fas fa-plus"></i></button>
+        <button class="btn btn-g" data-action="addLicRow"><i class="fas fa-plus"></i></button>
       </div>
       <div class="etp" id="etp-media">
-        <div class="field"><label>Imagen URL</label><div class="flex-row"><input type="url" id="f-img" placeholder="https://..." oninput="prevImg()" class="flex-1"><input type="file" id="f-img-file" accept="image/*" style="display:none" onchange="uploadBeatImg(this)"><button class="btn btn-g" onclick="document.getElementById('f-img-file').click()" class="fs-xs" title="Subir a R2">📤</button><button class="btn btn-g" onclick="openGalleryPicker(function(url){var f=document.getElementById('f-img');if(f){f.value=url;if(typeof prevImg==='function')prevImg();if(typeof updateCardPreview==='function')updateCardPreview();if(typeof _sendLiveUpdate==='function')_sendLiveUpdate();}})" class="fs-xs" title="Seleccionar de galería">🖼️</button></div></div>
+        <div class="field"><label>Imagen URL</label><div class="flex-row"><input type="url" id="f-img" placeholder="https://..." oninput="prevImg()" class="flex-1"><input type="file" id="f-img-file" accept="image/*" style="display:none" onchange="uploadBeatImg(this)"><button class="btn btn-g" data-action="triggerImgFile" class="fs-xs" title="Subir a R2">📤</button><button class="btn btn-g" data-action="gallery-pick-img" class="fs-xs" title="Seleccionar de galería">🖼️</button></div></div>
         <div id="img-prev" class="mb-sm"></div>
-        <div class="field"><label>Audio WAV URL</label><div class="flex-row"><input type="url" id="f-audio" placeholder="https://..." class="flex-1"><input type="file" id="f-audio-file" accept=".wav,.mp3,.flac" style="display:none" onchange="uploadBeatAudio(this)"><button class="btn btn-g" onclick="document.getElementById('f-audio-file').click()" class="fs-xs" title="Subir WAV a R2">📤</button><button class="btn btn-del fs-xs" onclick="var f=document.getElementById('f-audio');if(f&&f.value){if(typeof trashItem==='function'){var bid=document.getElementById('f-id'),bn=document.getElementById('f-name');trashItem(bid?bid.value:'',bn?bn.value:'','audio',f.value,'audio-wav');}f.value='';if(typeof _sendLiveUpdate==='function')_sendLiveUpdate();}" title="Mover a papelera" style="font-size:9px">🗑</button></div></div>
-        <div class="field"><label>Preview MP3 URL</label><div class="flex-row"><input type="url" id="f-prev" placeholder="https://..." oninput="updateMP()" class="flex-1"><input type="file" id="f-prev-file" accept=".mp3,.wav,.ogg,.m4a" style="display:none" onchange="uploadBeatPreview(this)"><button class="btn btn-g" onclick="document.getElementById('f-prev-file').click()" class="fs-xs" title="Subir Preview a R2">📤</button><button class="btn btn-del fs-xs" onclick="var f=document.getElementById('f-prev');if(f&&f.value){if(typeof trashItem==='function'){var bid=document.getElementById('f-id'),bn=document.getElementById('f-name');trashItem(bid?bid.value:'',bn?bn.value:'','preview',f.value,'preview-mp3');}f.value='';updateMP();if(typeof _sendLiveUpdate==='function')_sendLiveUpdate();}" title="Mover a papelera" style="font-size:9px">🗑</button></div></div>
-        <div class="mp"><button class="mp-btn" onclick="toggleMP()"><svg id="mp-ic" width="10" height="10" viewBox="0 0 16 16" fill="currentColor"><path d="M5 3l10 5-10 5V3z"/></svg></button><div class="mp-prog" onclick="seekMP(event)"><div class="mp-fill" id="mp-fill"></div></div><span class="mp-t" id="mp-t">0:00 / 0:00</span></div>
+        <div class="field"><label>Audio WAV URL</label><div class="flex-row"><input type="url" id="f-audio" placeholder="https://..." class="flex-1"><input type="file" id="f-audio-file" accept=".wav,.mp3,.flac" style="display:none" onchange="uploadBeatAudio(this)"><button class="btn btn-g" data-action="triggerAudioFile" class="fs-xs" title="Subir WAV a R2">📤</button><button class="btn btn-del fs-xs" data-action="trash-audio" title="Mover a papelera" style="font-size:9px">🗑</button></div></div>
+        <div class="field"><label>Preview MP3 URL</label><div class="flex-row"><input type="url" id="f-prev" placeholder="https://..." oninput="updateMP()" class="flex-1"><input type="file" id="f-prev-file" accept=".mp3,.wav,.ogg,.m4a" style="display:none" onchange="uploadBeatPreview(this)"><button class="btn btn-g" data-action="triggerPrevFile" class="fs-xs" title="Subir Preview a R2">📤</button><button class="btn btn-del fs-xs" data-action="trash-preview" title="Mover a papelera" style="font-size:9px">🗑</button></div></div>
+        <div class="mp"><button class="mp-btn" data-action="toggleMP"><svg id="mp-ic" width="10" height="10" viewBox="0 0 16 16" fill="currentColor"><path d="M5 3l10 5-10 5V3z"/></svg></button><div class="mp-prog" data-action="seekMP"><div class="mp-fill" id="mp-fill"></div></div><span class="mp-t" id="mp-t">0:00 / 0:00</span></div>
       </div>
       <div class="etp" id="etp-plat">
         <div class="field"><label style="color:#1db954">🎵 Spotify</label><input type="url" id="f-spotify" placeholder="https://open.spotify.com/..."></div>
@@ -588,8 +588,8 @@ definen géneros.</textarea></div>
             <div style="display:flex;justify-content:center;gap:6px;margin-bottom:8px">
               <label for="pv-img-upload" style="background:var(--as2);border:1px solid var(--b);border-radius:var(--rad);color:var(--tx);cursor:pointer;font-size:10px;padding:5px 12px;font-family:var(--fm);display:inline-flex;align-items:center;gap:4px;margin:0;transition:all .15s" onmouseenter="this.style.borderColor='var(--acc)';this.style.color='var(--acc)'" onmouseleave="this.style.borderColor='var(--b)';this.style.color='var(--tx)'">📸 Subir</label>
               <input type="file" id="pv-img-upload" accept="image/*" style="display:none">
-              <button onclick="openGalleryPicker(function(url){var f=document.getElementById('f-img');if(f){f.value=url;if(typeof prevImg==='function')prevImg();if(typeof updateCardPreview==='function')updateCardPreview();if(typeof _sendLiveUpdate==='function')_sendLiveUpdate();}})" style="background:var(--as2);border:1px solid var(--b);border-radius:var(--rad);color:var(--tx);cursor:pointer;font-size:10px;padding:5px 12px;font-family:var(--fm);display:inline-flex;align-items:center;gap:4px;margin:0;transition:all .15s" onmouseenter="this.style.borderColor='var(--acc)';this.style.color='var(--acc)'" onmouseleave="this.style.borderColor='var(--b)';this.style.color='var(--tx)'">🖼️ Galería</button>
-              <button onclick="var f=document.getElementById('f-img');if(f&&f.value){if(typeof trashItem==='function'){var bid=document.getElementById('f-id');trashItem(bid?bid.value:'','beat','image',f.value,'cover');}f.value='';if(typeof prevImg==='function')prevImg();if(typeof _sendLiveUpdate==='function')_sendLiveUpdate();document.getElementById('pv-img-preview').style.display='none'}" style="background:var(--as2);border:1px solid var(--b);border-radius:var(--rad);color:var(--tx);cursor:pointer;font-size:10px;padding:5px 10px;font-family:var(--fm);transition:all .15s" onmouseenter="this.style.borderColor='var(--acc)';this.style.color='var(--acc)'" onmouseleave="this.style.borderColor='var(--b)';this.style.color='var(--tx)'">🗑 Papelera</button>
+              <button data-action="gallery-pick-img" style="background:var(--as2);border:1px solid var(--b);border-radius:var(--rad);color:var(--tx);cursor:pointer;font-size:10px;padding:5px 12px;font-family:var(--fm);display:inline-flex;align-items:center;gap:4px;margin:0;transition:all .15s" onmouseenter="this.style.borderColor='var(--acc)';this.style.color='var(--acc)'" onmouseleave="this.style.borderColor='var(--b)';this.style.color='var(--tx)'">🖼️ Galería</button>
+              <button data-action="trash-img" style="background:var(--as2);border:1px solid var(--b);border-radius:var(--rad);color:var(--tx);cursor:pointer;font-size:10px;padding:5px 10px;font-family:var(--fm);transition:all .15s" onmouseenter="this.style.borderColor='var(--acc)';this.style.color='var(--acc)'" onmouseleave="this.style.borderColor='var(--b)';this.style.color='var(--tx)'">🗑 Papelera</button>
             </div>
             <!-- Mini image history -->
             <div id="pv-img-history"></div>
@@ -611,7 +611,7 @@ definen géneros.</textarea></div>
           <div class="card-title" data-action="toggle-card"><span>🎨 Presets de Estilo</span><i class="fas fa-chevron-down"></i></div>
           <div class="card-body">
             <div style="display:flex;gap:6px;margin-bottom:8px">
-              <button class="btn btn-g" onclick="resetBeatToGlobal()" class="fs-xs">🌐 Usar estilo global</button>
+              <button class="btn btn-g" data-action="resetBeatToGlobal" class="fs-xs">🌐 Usar estilo global</button>
             </div>
             <p class="fs-hint-sm">Aplica un preset completo de estilo a la tarjeta. Sobrescribe filtros, sombra, borde y hover.</p>
             <div class="preset-grid" id="style-presets-grid"></div>
@@ -796,11 +796,11 @@ definen géneros.</textarea></div>
               <div id="sub-holograma" class="anim-sub-panel" style="display:none">
                 <p style="font-size:9px;color:var(--hi);margin-bottom:6px">Colores del ciclo holográfico. Se rotan entre sí.</p>
                 <div id="holo-colors-list" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px">
-                  <div class="holo-cs" style="display:flex;align-items:center;gap:4px"><input type="color" value="#ff0080" oninput="updateCardPreview()" style="width:32px;height:24px;border:1px solid var(--b);border-radius:4px;background:none;cursor:pointer;padding:0"><button onclick="this.parentElement.remove();updateCardPreview()" style="background:none;border:none;color:var(--acc);cursor:pointer;font-size:12px">✕</button></div>
-                  <div class="holo-cs" style="display:flex;align-items:center;gap:4px"><input type="color" value="#00ff80" oninput="updateCardPreview()" style="width:32px;height:24px;border:1px solid var(--b);border-radius:4px;background:none;cursor:pointer;padding:0"><button onclick="this.parentElement.remove();updateCardPreview()" style="background:none;border:none;color:var(--acc);cursor:pointer;font-size:12px">✕</button></div>
-                  <div class="holo-cs" style="display:flex;align-items:center;gap:4px"><input type="color" value="#0080ff" oninput="updateCardPreview()" style="width:32px;height:24px;border:1px solid var(--b);border-radius:4px;background:none;cursor:pointer;padding:0"><button onclick="this.parentElement.remove();updateCardPreview()" style="background:none;border:none;color:var(--acc);cursor:pointer;font-size:12px">✕</button></div>
+                  <div class="holo-cs" style="display:flex;align-items:center;gap:4px"><input type="color" value="#ff0080" oninput="updateCardPreview()" style="width:32px;height:24px;border:1px solid var(--b);border-radius:4px;background:none;cursor:pointer;padding:0"><button data-action="remove-parent" style="background:none;border:none;color:var(--acc);cursor:pointer;font-size:12px">✕</button></div>
+                  <div class="holo-cs" style="display:flex;align-items:center;gap:4px"><input type="color" value="#00ff80" oninput="updateCardPreview()" style="width:32px;height:24px;border:1px solid var(--b);border-radius:4px;background:none;cursor:pointer;padding:0"><button data-action="remove-parent" style="background:none;border:none;color:var(--acc);cursor:pointer;font-size:12px">✕</button></div>
+                  <div class="holo-cs" style="display:flex;align-items:center;gap:4px"><input type="color" value="#0080ff" oninput="updateCardPreview()" style="width:32px;height:24px;border:1px solid var(--b);border-radius:4px;background:none;cursor:pointer;padding:0"><button data-action="remove-parent" style="background:none;border:none;color:var(--acc);cursor:pointer;font-size:12px">✕</button></div>
                 </div>
-                <button onclick="addHoloColor()" style="font-size:9px;padding:3px 8px;border:1px dashed var(--b);border-radius:var(--rad);background:none;color:var(--tx2);cursor:pointer;font-family:var(--fm)">+ Añadir color</button>
+                <button data-action="addHoloColor" style="font-size:9px;padding:3px 8px;border:1px dashed var(--b);border-radius:var(--rad);background:none;color:var(--tx2);cursor:pointer;font-family:var(--fm)">+ Añadir color</button>
                 <div class="mt-sm">
                   <div class="fg2">
                     <div class="field"><label>Brillo mín</label><div class="slider-wrap"><input type="range" id="f-anim-holo-bright-min" min="0.3" max="1.5" step="0.05" value="0.9" oninput="this.nextElementSibling.textContent=parseFloat(this.value).toFixed(2);updateCardPreview()"><span class="slider-val">0.90</span><button class="slider-reset" data-action="reset-slider" data-reset-val="0.9">↺</button></div></div>
@@ -1079,9 +1079,9 @@ definen géneros.</textarea></div>
       </div>
 
       <!-- Preview Card (inside editor, collapsible + detachable) -->
-        <button class="btn btn-ok" onclick="saveBeat()"><i class="fas fa-save"></i> Guardar</button>
-        <button class="btn btn-g" onclick="showSection('beats')">Cancelar</button>
-        <button class="btn btn-del" id="btn-del" style="display:none" onclick="deleteBeat()"><i class="fas fa-trash"></i></button>
+        <button class="btn btn-ok" data-action="saveBeat"><i class="fas fa-save"></i> Guardar</button>
+        <button class="btn btn-g" data-action="showSection" data-section="beats">Cancelar</button>
+        <button class="btn btn-del" id="btn-del" style="display:none" data-action="deleteBeat"><i class="fas fa-trash"></i></button>
       </div>
   </div>
 
@@ -1131,7 +1131,7 @@ definen géneros.</textarea></div>
         <div class="card-body">
           <p style="font-size:10px;color:var(--mu);margin-bottom:6px">Predeterminadas para nuevos beats</p>
           <div class="lic-ed" id="deflics-editor"></div>
-          <div class="btn-row"><button class="btn btn-g" onclick="addDefLicRow()"><i class="fas fa-plus"></i></button><button class="btn btn-ok" onclick="saveDefLics()">Guardar</button></div>
+          <div class="btn-row"><button class="btn btn-g" data-action="addDefLicRow"><i class="fas fa-plus"></i></button><button class="btn btn-ok" data-action="saveDefLics">Guardar</button></div>
         </div>
       </div>
 
@@ -1140,7 +1140,7 @@ definen géneros.</textarea></div>
         <div class="card-title" data-action="toggle-card"><span>Links personalizados</span><i class="fas fa-chevron-down"></i></div>
         <div class="card-body">
           <div id="links-editor"></div>
-          <div class="btn-row" class="mt-xs"><button class="btn btn-g" onclick="addLinkRow()"><i class="fas fa-plus"></i></button><button class="btn btn-ok" onclick="saveLinks()">Guardar</button></div>
+          <div class="btn-row" class="mt-xs"><button class="btn btn-g" data-action="addLinkRow"><i class="fas fa-plus"></i></button><button class="btn btn-ok" data-action="saveLinks">Guardar</button></div>
         </div>
       </div>
 
@@ -1150,7 +1150,7 @@ definen géneros.</textarea></div>
         <div class="card-body">
           <div class="tog-row"><input type="checkbox" class="tog" id="s-testi" onchange="autoSave()"><span class="tog-lbl">Mostrar sección</span></div>
           <div id="testi-editor"></div>
-          <div class="btn-row" class="mt-xs"><button class="btn btn-g" onclick="addTestiRow()"><i class="fas fa-plus"></i></button><button class="btn btn-ok" onclick="saveTestis()">Guardar</button></div>
+          <div class="btn-row" class="mt-xs"><button class="btn btn-g" data-action="addTestiRow"><i class="fas fa-plus"></i></button><button class="btn btn-ok" data-action="saveTestis">Guardar</button></div>
         </div>
       </div>
     </div>
@@ -1171,7 +1171,7 @@ definen géneros.</textarea></div>
           <p class="fs-section-label">Imágenes y texto flotantes sobre la tienda</p>
           <div id="floating-preview" style="width:100%;height:120px;border:1px solid var(--b);border-radius:var(--rlg);position:relative;overflow:hidden;background:var(--abg);margin-bottom:8px"></div>
           <div id="floating-editor"></div>
-          <button class="btn btn-ok" onclick="addFE()" class="mt-sm"><i class="fas fa-plus"></i> Añadir elemento</button>
+          <button class="btn btn-ok" data-action="addFE" class="mt-sm"><i class="fas fa-plus"></i> Añadir elemento</button>
         </div>
       </div>
     </div>
@@ -1191,7 +1191,7 @@ definen géneros.</textarea></div>
         <div class="card-title" data-action="toggle-card"><span>Mi tema personalizado</span><i class="fas fa-chevron-down"></i></div>
         <div class="card-body">
           <div class="field"><label>Nombre</label><input type="text" id="custom-theme-name" placeholder="Mi tema"></div>
-          <button class="btn btn-ok" onclick="saveCustomTheme()"><i class="fas fa-save"></i> Guardar como tema</button>
+          <button class="btn btn-ok" data-action="saveCustomTheme"><i class="fas fa-save"></i> Guardar como tema</button>
           <div id="custom-themes-list" class="mt-sm"></div>
         </div>
       </div>
@@ -1203,7 +1203,7 @@ definen géneros.</textarea></div>
           <p class="fs-section-label">Compara antes/después de cambios</p>
           <div class="fg2">
             <div class="field"><label>Nombre</label><input type="text" id="snap-name" placeholder="Antes del cambio"></div>
-            <div style="display:flex;align-items:flex-end"><button class="btn btn-ok" onclick="takeSnapshot()" class="fs-xs"><i class="fas fa-camera"></i> Capturar</button></div>
+            <div style="display:flex;align-items:flex-end"><button class="btn btn-ok" data-action="takeSnapshot" class="fs-xs"><i class="fas fa-camera"></i> Capturar</button></div>
           </div>
           <div id="snapshots-list" class="mt-sm"></div>
         </div>
@@ -1223,10 +1223,10 @@ definen géneros.</textarea></div>
       </div>
 
       <div class="btn-row" class="mt-sm">
-        <button class="btn btn-ok" onclick="saveAll()"><i class="fas fa-save"></i> Guardar tema</button>
-        <button class="btn" onclick="exportCSS()"><i class="fas fa-code"></i> Export CSS</button>
-        <button class="btn btn-g" onclick="promptImportURL()"><i class="fas fa-link"></i> Import URL</button>
-        <button class="btn btn-del" onclick="resetTheme()"><i class="fas fa-undo"></i> Reset a DACE DARK</button>
+        <button class="btn btn-ok" data-action="saveAll"><i class="fas fa-save"></i> Guardar tema</button>
+        <button class="btn" data-action="exportCSS"><i class="fas fa-code"></i> Export CSS</button>
+        <button class="btn btn-g" data-action="promptImportURL"><i class="fas fa-link"></i> Import URL</button>
+        <button class="btn btn-del" data-action="resetTheme"><i class="fas fa-undo"></i> Reset a DACE DARK</button>
       </div>
     </div>
 
@@ -1251,9 +1251,9 @@ definen géneros.</textarea></div>
             <input type="password" id="r2-upload-token" placeholder="Token del Worker" oninput="autoSave()">
           </div>
           <div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap">
-            <button class="btn btn-g" onclick="saveR2Config()" class="fs-xs"><i class="fas fa-save"></i> Guardar</button>
-            <button class="btn btn-g" onclick="testR2Connection()" class="fs-xs"><i class="fas fa-plug"></i> Probar</button>
-            <button class="btn btn-g" onclick="purgeCache()" class="fs-xs"><i class="fas fa-broom"></i> Purge Cache</button>
+            <button class="btn btn-g" data-action="saveR2Config" class="fs-xs"><i class="fas fa-save"></i> Guardar</button>
+            <button class="btn btn-g" data-action="testR2Connection" class="fs-xs"><i class="fas fa-plug"></i> Probar</button>
+            <button class="btn btn-g" data-action="purgeCache" class="fs-xs"><i class="fas fa-broom"></i> Purge Cache</button>
           </div>
           <p style="font-size:9px;color:var(--hi);line-height:1.6;margin-top:8px">
             Los uploads irán a <code style="background:var(--bg2);padding:2px 4px;border-radius:3px">cdn.dacewav.store</code>.
@@ -1268,23 +1268,23 @@ definen géneros.</textarea></div>
         <div class="card-body">
           <p style="font-size:9px;color:var(--hi);margin-bottom:10px">Acciones que se ejecutan en el servidor vía Worker. Requiere R2 configurado.</p>
           <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
-            <button class="btn btn-g" onclick="runBackup()" class="flex-1"><i class="fas fa-download"></i> Backup ahora</button>
+            <button class="btn btn-g" data-action="runBackup" class="flex-1"><i class="fas fa-download"></i> Backup ahora</button>
           </div>
           <div id="backup-status" class="fs-muted-sm"></div>
           <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
-            <button class="btn btn-g" onclick="runSitemap()" class="flex-1"><i class="fas fa-sitemap"></i> Generar Sitemap</button>
+            <button class="btn btn-g" data-action="runSitemap" class="flex-1"><i class="fas fa-sitemap"></i> Generar Sitemap</button>
           </div>
           <div id="sitemap-status" class="fs-muted-sm"></div>
           <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
             <input type="file" id="previews-input" accept=".mp3,.wav,.ogg,.m4a" multiple style="display:none" onchange="uploadPreviews(this)">
-            <button class="btn btn-g" onclick="document.getElementById('previews-input').click()" class="flex-1"><i class="fas fa-headphones"></i> Subir Previews MP3</button>
+            <button class="btn btn-g" data-action="triggerPreviewsInput" class="flex-1"><i class="fas fa-headphones"></i> Subir Previews MP3</button>
           </div>
           <div id="previews-status" class="fs-muted-sm"></div>
           <div style="border-top:1px solid var(--b);padding-top:10px;margin-top:4px">
             <p class="fs-hint-sm">⚠️ Restore requiere Firebase Admin SDK — solo funciona desde CLI</p>
             <div style="display:flex;gap:6px">
               <input type="text" id="cmd-restore" readonly value="node firebase-backup.js --restore" style="flex:1;font-size:10px;opacity:.7;cursor:text">
-              <button class="btn btn-g" onclick="copyCmd('cmd-restore')" style="font-size:9px;flex-shrink:0"><i class="fas fa-copy"></i></button>
+              <button class="btn btn-g" data-action="copyCmd" data-cmd="cmd-restore" style="font-size:9px;flex-shrink:0"><i class="fas fa-copy"></i></button>
             </div>
           </div>
         </div>
@@ -1352,9 +1352,9 @@ definen géneros.</textarea></div>
       <div class="card">
         <div class="card-title">Exportar / Importar</div>
         <div class="btn-row">
-          <button class="btn" onclick="exportAll()"><i class="fas fa-download"></i> Exportar JSON</button>
-          <button class="btn" onclick="exportCSS()"><i class="fas fa-code"></i> Export CSS</button>
-          <button class="btn btn-g" onclick="document.getElementById('imp-f').click()"><i class="fas fa-upload"></i> Importar JSON</button>
+          <button class="btn" data-action="exportAll"><i class="fas fa-download"></i> Exportar JSON</button>
+          <button class="btn" data-action="exportCSS"><i class="fas fa-code"></i> Export CSS</button>
+          <button class="btn btn-g" data-action="triggerImport"><i class="fas fa-upload"></i> Importar JSON</button>
         </div>
       </div>
     </div>
@@ -1369,7 +1369,7 @@ definen géneros.</textarea></div>
           <div id="whitelist-list"></div>
           <div style="display:flex;gap:6px;margin-top:10px">
             <input type="email" id="wl-new-email" placeholder="nuevo@email.com" style="flex:1;background:rgba(0,0,0,0.3);border:1px solid var(--b);border-radius:var(--rad);color:var(--tx);font-family:var(--fm);font-size:11px;padding:6px 10px;outline:none">
-            <button class="tb gn" onclick="addWhitelistEmail()" style="flex-shrink:0"><i class="fas fa-plus"></i> Agregar</button>
+            <button class="tb gn" data-action="addWhitelistEmail" style="flex-shrink:0"><i class="fas fa-plus"></i> Agregar</button>
           </div>
         </div>
       </div>
@@ -1379,8 +1379,8 @@ definen géneros.</textarea></div>
     <div class="section" id="sec-stats">
       <div class="section-title"><i class="fas fa-chart-bar"></i> Estadísticas</div>
       <div style="display:flex;gap:6px;margin-bottom:16px">
-        <button class="tb" onclick="loadStats()"><i class="fas fa-sync-alt"></i> Actualizar</button>
-        <button class="tb" onclick="runStats()" title="Cargar vía Worker (más seguro)"><i class="fas fa-server"></i> vía Worker</button>
+        <button class="tb" data-action="loadStats"><i class="fas fa-sync-alt"></i> Actualizar</button>
+        <button class="tb" data-action="runStats" title="Cargar vía Worker (más seguro)"><i class="fas fa-server"></i> vía Worker</button>
       </div>
       <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:20px">
         <div class="stat-card"><div class="stat-value" id="stat-total-visits">—</div><div class="stat-label">Visitas (7d)</div></div>
@@ -1399,15 +1399,15 @@ definen géneros.</textarea></div>
       <div class="section-title"><i class="fas fa-trash-alt"></i> Papelera</div>
       <p style="font-size:10px;color:var(--mu);margin-bottom:12px">Archivos eliminados de beats. Restaura o elimina definitivamente.</p>
       <div style="display:flex;gap:6px;margin-bottom:12px">
-        <button class="btn btn-del" onclick="emptyTrash()" style="font-size:10px"><i class="fas fa-broom"></i> Vaciar papelera</button>
+        <button class="btn btn-del" data-action="emptyTrash" style="font-size:10px"><i class="fas fa-broom"></i> Vaciar papelera</button>
         <span id="trash-count" style="font-size:10px;color:var(--mu);display:flex;align-items:center"></span>
       </div>
       <!-- Filter tabs -->
       <div style="display:flex;gap:4px;margin-bottom:10px">
-        <button class="btn btn-g trash-filter active" data-filter="all" onclick="filterTrash('all',this)" style="font-size:9px;padding:3px 10px">Todos</button>
-        <button class="btn btn-g trash-filter" data-filter="image" onclick="filterTrash('image',this)" style="font-size:9px;padding:3px 10px">🖼 Imágenes</button>
-        <button class="btn btn-g trash-filter" data-filter="audio" onclick="filterTrash('audio',this)" style="font-size:9px;padding:3px 10px">🎵 Audio</button>
-        <button class="btn btn-g trash-filter" data-filter="preview" onclick="filterTrash('preview',this)" style="font-size:9px;padding:3px 10px">🎧 Preview</button>
+        <button class="btn btn-g trash-filter active" data-filter="all" data-action="filterTrash" data-type="all" style="font-size:9px;padding:3px 10px">Todos</button>
+        <button class="btn btn-g trash-filter" data-filter="image" data-action="filterTrash" data-type="image" style="font-size:9px;padding:3px 10px">🖼 Imágenes</button>
+        <button class="btn btn-g trash-filter" data-filter="audio" data-action="filterTrash" data-type="audio" style="font-size:9px;padding:3px 10px">🎵 Audio</button>
+        <button class="btn btn-g trash-filter" data-filter="preview" data-action="filterTrash" data-type="preview" style="font-size:9px;padding:3px 10px">🎧 Preview</button>
       </div>
       <div id="trash-list"></div>
     </div>
@@ -1458,18 +1458,18 @@ definen géneros.</textarea></div>
   <div class="preview-panel" id="preview-panel">
     <div class="resize-strip resize-handle-h" id="resize-handle"></div>
     <div class="preview-bar">
-      <div class="preview-bar-left"><button class="vp-btn" onclick="togglePreviewCollapse()" id="preview-collapse-btn" title="Colapsar preview (P)"><i class="fas fa-chevron-right"></i></button><span class="preview-label"><i class="fas fa-eye"></i> Vista previa</span><div class="preview-sync-badge" id="preview-sync-badge"><span class="preview-sync-dot" id="preview-sync-dot"></span><span id="preview-sync-label">En vivo</span></div></div>
+      <div class="preview-bar-left"><button class="vp-btn" data-action="togglePreviewCollapse" id="preview-collapse-btn" title="Colapsar preview (P)"><i class="fas fa-chevron-right"></i></button><span class="preview-label"><i class="fas fa-eye"></i> Vista previa</span><div class="preview-sync-badge" id="preview-sync-badge"><span class="preview-sync-dot" id="preview-sync-dot"></span><span id="preview-sync-label">En vivo</span></div></div>
       <div class="preview-bar-center">
-        <button class="vp-btn" onclick="setViewport('mobile')" title="Móvil"><i class="fas fa-mobile-alt"></i></button>
-        <button class="vp-btn" onclick="setViewport('tablet')" title="Tablet"><i class="fas fa-tablet-alt"></i></button>
-        <button class="vp-btn on" onclick="setViewport('desktop')" title="Escritorio"><i class="fas fa-desktop"></i></button>
+        <button class="vp-btn" data-action="setViewport" data-vp="mobile" title="Móvil"><i class="fas fa-mobile-alt"></i></button>
+        <button class="vp-btn" data-action="setViewport" data-vp="tablet" title="Tablet"><i class="fas fa-tablet-alt"></i></button>
+        <button class="vp-btn on" data-action="setViewport" data-vp="desktop" title="Escritorio"><i class="fas fa-desktop"></i></button>
       </div>
       <div class="preview-bar-right">
         <input type="url" id="preview-url" value="https://dacewav.store/" placeholder="URL del preview..." style="width:180px;font-family:var(--fm);font-size:9px;background:rgba(0,0,0,0.3);border:1px solid var(--b);border-radius:var(--rad);color:var(--tx);padding:3px 8px;outline:none" onkeydown="if(event.key==='Enter')loadPreviewURL()">
-        <button class="vp-btn" onclick="loadPreviewURL()" title="Cargar URL"><i class="fas fa-arrow-right"></i></button>
-        <button class="vp-btn" onclick="refreshIframe()" title="Recargar"><i class="fas fa-sync-alt"></i></button>
-        <button class="vp-btn" onclick="toggleFullscreenPreview()" title="Fullscreen (F)"><i class="fas fa-expand"></i></button>
-        <button class="vp-btn" onclick="openQRPanel()" title="QR para móvil"><i class="fas fa-qrcode"></i></button>
+        <button class="vp-btn" data-action="loadPreviewURL" title="Cargar URL"><i class="fas fa-arrow-right"></i></button>
+        <button class="vp-btn" data-action="refreshIframe" title="Recargar"><i class="fas fa-sync-alt"></i></button>
+        <button class="vp-btn" data-action="toggleFullscreenPreview" title="Fullscreen (F)"><i class="fas fa-expand"></i></button>
+        <button class="vp-btn" data-action="openQRPanel" title="QR para móvil"><i class="fas fa-qrcode"></i></button>
       </div>
     </div>
     <div class="preview-iframe-wrap">
@@ -1479,7 +1479,7 @@ definen géneros.</textarea></div>
 </div>
 
 <!-- ═══ COMMAND PALETTE ═══ -->
-<div class="cmd-overlay" id="cmd-overlay" onclick="if(event.target===this)closeCmdPalette()">
+<div class="cmd-overlay" id="cmd-overlay" data-action="closeCmdPaletteBackdrop">
   <div class="cmd-box">
     <input type="text" class="cmd-input" id="cmd-input" placeholder="Buscar control... (glow, fuente, margen...)" oninput="filterCmds(this.value)">
     <div class="cmd-results" id="cmd-results"></div>
@@ -1487,9 +1487,9 @@ definen géneros.</textarea></div>
 </div>
 
 <!-- Keyboard Shortcuts Panel -->
-<div class="kbd-overlay" id="kbd-overlay" onclick="if(event.target===this)closeKbdPanel()">
+<div class="kbd-overlay" id="kbd-overlay" data-action="closeKbdPanelBackdrop">
   <div class="kbd-box">
-    <div class="kbd-title"><span>⌨️ Atajos de teclado</span><button onclick="closeKbdPanel()">✕</button></div>
+    <div class="kbd-title"><span>⌨️ Atajos de teclado</span><button data-action="closeKbdPanel">✕</button></div>
     <div class="kbd-group">
       <div class="kbd-group-title">General</div>
       <div class="kbd-row"><span>Buscar / Command Palette</span><div class="kbd-keys"><span class="kbd-key">Ctrl</span><span class="kbd-key">K</span></div></div>
@@ -1517,21 +1517,21 @@ definen géneros.</textarea></div>
 </div>
 
 <!-- QR Code Panel -->
-<div class="kbd-overlay" id="qr-overlay" onclick="if(event.target===this)closeQRPanel()">
+<div class="kbd-overlay" id="qr-overlay" data-action="closeQRPanelBackdrop">
   <div class="kbd-box">
-    <div class="kbd-title"><span>📱 Preview en móvil</span><button onclick="closeQRPanel()">✕</button></div>
+    <div class="kbd-title"><span>📱 Preview en móvil</span><button data-action="closeQRPanel">✕</button></div>
     <div class="qr-section">
       <canvas id="qr-canvas" class="qr-canvas" width="200" height="200"></canvas>
       <div class="qr-url" id="qr-url"></div>
-      <button class="btn qr-copy-btn" onclick="copyQRUrl()"><i class="fas fa-copy"></i> Copiar link</button>
+      <button class="btn qr-copy-btn" data-action="copyQRUrl"><i class="fas fa-copy"></i> Copiar link</button>
     </div>
   </div>
 </div>
 
 <!-- ═══ BATCH IMAGE UPLOAD ═══ -->
-<div class="batch-img-overlay" id="batch-img-overlay" onclick="if(event.target===this)closeBatchImg()">
+<div class="batch-img-overlay" id="batch-img-overlay" data-action="closeBatchImgBackdrop">
   <div class="batch-img-box">
-    <div class="batch-img-title"><span>🖼️ Batch Upload Imágenes</span><button onclick="closeBatchImg()">✕</button></div>
+    <div class="batch-img-title"><span>🖼️ Batch Upload Imágenes</span><button data-action="closeBatchImg">✕</button></div>
     <div class="batch-img-drop" id="batch-img-drop">
       <input type="file" id="batch-img-input" accept="image/*" multiple onchange="handleBatchImgFiles(this.files)">
       <div style="font-size:24px;margin-bottom:8px">📁</div>
@@ -1539,8 +1539,8 @@ definen géneros.</textarea></div>
     </div>
     <div class="batch-img-list" id="batch-img-list"></div>
     <div class="btn-row">
-      <button class="btn btn-ok" id="batch-img-save" onclick="saveBatchImages()" style="display:none"><i class="fas fa-upload"></i> Subir y asignar</button>
-      <button class="btn btn-g" onclick="clearBatchImgQueue()">Limpiar</button>
+      <button class="btn btn-ok" id="batch-img-save" data-action="saveBatchImages" style="display:none"><i class="fas fa-upload"></i> Subir y asignar</button>
+      <button class="btn btn-g" data-action="clearBatchImgQueue">Limpiar</button>
     </div>
     <div style="font-size:10px;color:var(--hi);margin-top:8px">💡 Nombra las imágenes igual que el beat (ej: "Mi Beat.jpg") para auto-asignar</div>
   </div>
@@ -1553,7 +1553,7 @@ definen géneros.</textarea></div>
      JAVASCRIPT
      ═══════════════════════════════════════════════════════════ -->
 
-<script src="dist/admin-app.js?v=ec87df3d"></script>
+<script src="dist/admin-app.js?v=e6edd8b8"></script>
 
 <!-- ═══ PREVIEW SYNC — runs AFTER admin-app.js so it wraps the real autoSave ═══ -->
 <script>
@@ -1723,11 +1723,11 @@ if (_pf) _pf.addEventListener('load', function() { setTimeout(pushAllThemeToFram
 </script>
 
 <!-- ═══ GALLERY PICKER MODAL ═══ -->
-<div class="gallery-picker-overlay" id="gallery-picker-overlay" onclick="if(event.target===this)closeGalleryPicker()">
+<div class="gallery-picker-overlay" id="gallery-picker-overlay" data-action="closeGalleryPickerBackdrop">
   <div class="gallery-picker-modal">
     <div class="gallery-picker-header">
       <span style="font-weight:700;font-size:13px">🖼️ Seleccionar imagen</span>
-      <button onclick="closeGalleryPicker()" style="background:none;border:none;color:var(--mu);cursor:pointer;font-size:16px;padding:4px">✕</button>
+      <button data-action="closeGalleryPicker" style="background:none;border:none;color:var(--mu);cursor:pointer;font-size:16px;padding:4px">✕</button>
     </div>
     <div style="padding:8px 12px">
       <div style="display:flex;gap:6px;margin-bottom:8px">
