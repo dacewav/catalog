@@ -1,28 +1,21 @@
+```
+# Build artifacts
+dist/
+*.js.map
+
 # Dependencies
 node_modules/
 
-# Build output
-dist/*.map
+# Logs and temp files
+*.log
+*.tmp
 
 # Environment
 .env
-.env.*
+.env.local
+*.env.*
 
-# OS
-.DS_Store
-Thumbs.db
-
-# IDE
+# Editors
 .vscode/
 .idea/
-*.swp
-*.swo
-
-# OpenClaw metadata
-.openclaw/
-
-# Temp / Archives
-*.tar.gz
-*.zip
-catalog-push/
-preset-screenshot.png
+```

@@ -75,6 +75,31 @@ export function initLiveEditBridge() {
       if (d.settings) { const j = JSON.stringify(d.settings); if (j !== _lastSettingsJSON) { _lastSettingsJSON = j; state.siteSettings = d.settings; applySettings(); changed = true; } }
       if (d.emojis) { const j = JSON.stringify(d.emojis); if (j !== _lastEmojisJSON) { _lastEmojisJSON = j; state.customEmojis = d.emojis; changed = true; } }
       if (d.elements) { const j = JSON.stringify(d.elements); if (j !== _lastFloatingJSON) { _lastFloatingJSON = j; state.floatingEls = d.elements; renderFloating(state.floatingEls); changed = true; } }
+      // Handle beats array with cardStyle customizations from admin
+      if (d.beats && Array.isArray(d.beats)) {
+        const beatsJson = JSON.stringify(d.beats);
+        if (beatsJson !== state._lastAdminBeatsJSON) {
+          state._lastAdminBeatsJSON = beatsJson;
+          // Merge admin beats with local state, preserving cardStyle customizations
+          d.beats.forEach(adminBeat => {
+            const bi = state.allBeats.findIndex(x => x.id === adminBeat.id);
+            if (bi > -1) {
+              // Merge cardStyle properties (glowConfig, cardAnim, accentColor, etc.)
+              if (adminBeat.cardStyle) {
+                const cs = adminBeat.cardStyle;
+                state.allBeats[bi].glowConfig = cs.glow || { enabled: false };
+                state.allBeats[bi].cardAnim = cs.anim || null;
+                state.allBeats[bi].accentColor = cs.style?.accentColor || '';
+                state.allBeats[bi].cardBorder = cs.border || { enabled: false };
+                state.allBeats[bi].shimmer = cs.style?.shimmer || false;
+              }
+              // Merge other beat properties
+              Object.assign(state.allBeats[bi], adminBeat);
+            }
+          });
+          changed = true;
+        }
+      }
       if (changed) renderAll();
       return;
     }
