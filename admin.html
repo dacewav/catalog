@@ -88,13 +88,13 @@
 
       <!-- Colors -->
       <div class="card">
-        <div class="card-title" onclick="toggleCard(this)"><span>Colores base</span><i class="fas fa-chevron-down"></i></div>
+        <div class="card-title" data-action="toggle-card"><span>Colores base</span><i class="fas fa-chevron-down"></i></div>
         <div class="card-body" id="color-editor"></div>
       </div>
 
       <!-- Fonts -->
       <div class="card">
-        <div class="card-title" onclick="toggleCard(this)"><span>Tipografía</span><i class="fas fa-chevron-down"></i></div>
+        <div class="card-title" data-action="toggle-card"><span>Tipografía</span><i class="fas fa-chevron-down"></i></div>
         <div class="card-body">
           <div class="btn-row" style="flex-wrap:wrap">
             <button class="btn btn-g" onclick="applyTypo('industrial')" class="fs-xs">Industrial</button>
@@ -144,11 +144,11 @@
           </div>
           <div class="field" class="mt-md">
             <label>Tamaño base</label>
-            <div class="slider-wrap"><input type="range" id="t-font-size" min="8" max="24" value="14" oninput="sv(this);autoSave()"><span class="slider-val">14px</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,14)">↺</button></div>
+            <div class="slider-wrap"><input type="range" id="t-font-size" min="8" max="24" value="14" oninput="sv(this);autoSave()"><span class="slider-val">14px</span><button class="slider-reset" data-action="reset-slider" data-reset-val="14">↺</button></div>
           </div>
           <div class="field">
             <label>Altura de línea</label>
-            <div class="slider-wrap"><input type="range" id="t-line-h" min="1" max="2.5" step="0.05" value="1.7" oninput="sv(this);autoSave()"><span class="slider-val">1.70</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,1.7)">↺</button></div>
+            <div class="slider-wrap"><input type="range" id="t-line-h" min="1" max="2.5" step="0.05" value="1.7" oninput="sv(this);autoSave()"><span class="slider-val">1.70</span><button class="slider-reset" data-action="reset-slider" data-reset-val="1.7">↺</button></div>
           </div>
           <div class="field">
             <label>Peso título</label>
@@ -159,18 +159,18 @@
 
       <!-- Effects -->
       <div class="card">
-        <div class="card-title" onclick="toggleCard(this)"><span>Efectos visuales</span><i class="fas fa-chevron-down"></i></div>
+        <div class="card-title" data-action="toggle-card"><span>Efectos visuales</span><i class="fas fa-chevron-down"></i></div>
         <div class="card-body">
           <p style="font-size:9px;color:var(--hi);margin-bottom:10px">Ajustes generales de apariencia.</p>
-          <div class="field"><label>Blur fondo</label><div class="slider-wrap"><input type="range" id="t-blur" min="0" max="80" value="24" oninput="sv(this);autoSave()"><span class="slider-val">24px</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,24)">↺</button></div></div>
-          <div class="field"><label>Opacidad tarjetas</label><div class="slider-wrap"><input type="range" id="t-card-op" min="0" max="1" step="0.05" value="1" oninput="sv(this);autoSave()"><span class="slider-val">1.00</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,1)">↺</button></div></div>
-          <div class="field"><label>Grano</label><div class="slider-wrap"><input type="range" id="t-grain" min="0" max="1" step="0.05" value="0.3" oninput="sv(this);autoSave()"><span class="slider-val">0.30</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,0.3)">↺</button></div></div>
-          <div class="field"><label>Border radius</label><div class="slider-wrap"><input type="range" id="t-radius" min="0" max="80" value="10" oninput="sv(this);autoSave()"><span class="slider-val">10px</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,10)">↺</button></div></div>
-          <div class="field"><label>Opacidad nav</label><div class="slider-wrap"><input type="range" id="t-nav-op" min="0" max="1" step="0.05" value="0.88" oninput="sv(this);autoSave()"><span class="slider-val">0.88</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,0.88)">↺</button></div></div>
-          <div class="field"><label>Opacidad beat img</label><div class="slider-wrap"><input type="range" id="t-beat-img-op" min="0" max="1" step="0.05" value="1" oninput="sv(this);autoSave()"><span class="slider-val">1.00</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,1)">↺</button></div></div>
-          <div class="field"><label>Opacidad texto</label><div class="slider-wrap"><input type="range" id="t-text-op" min="0" max="1" step="0.05" value="1" oninput="sv(this);autoSave()"><span class="slider-val">1.00</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,1)">↺</button></div></div>
-          <div class="field"><label>Opacidad hero bg</label><div class="slider-wrap"><input type="range" id="t-hero-bg-op" min="0" max="1" step="0.05" value="1" oninput="sv(this);autoSave()"><span class="slider-val">1.00</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,1)">↺</button></div></div>
-          <div class="field"><label>Opacidad secciones</label><div class="slider-wrap"><input type="range" id="t-section-op" min="0" max="1" step="0.05" value="1" oninput="sv(this);autoSave()"><span class="slider-val">1.00</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,1)">↺</button></div></div>
+          <div class="field"><label>Blur fondo</label><div class="slider-wrap"><input type="range" id="t-blur" min="0" max="80" value="24" oninput="sv(this);autoSave()"><span class="slider-val">24px</span><button class="slider-reset" data-action="reset-slider" data-reset-val="24">↺</button></div></div>
+          <div class="field"><label>Opacidad tarjetas</label><div class="slider-wrap"><input type="range" id="t-card-op" min="0" max="1" step="0.05" value="1" oninput="sv(this);autoSave()"><span class="slider-val">1.00</span><button class="slider-reset" data-action="reset-slider" data-reset-val="1">↺</button></div></div>
+          <div class="field"><label>Grano</label><div class="slider-wrap"><input type="range" id="t-grain" min="0" max="1" step="0.05" value="0.3" oninput="sv(this);autoSave()"><span class="slider-val">0.30</span><button class="slider-reset" data-action="reset-slider" data-reset-val="0.3">↺</button></div></div>
+          <div class="field"><label>Border radius</label><div class="slider-wrap"><input type="range" id="t-radius" min="0" max="80" value="10" oninput="sv(this);autoSave()"><span class="slider-val">10px</span><button class="slider-reset" data-action="reset-slider" data-reset-val="10">↺</button></div></div>
+          <div class="field"><label>Opacidad nav</label><div class="slider-wrap"><input type="range" id="t-nav-op" min="0" max="1" step="0.05" value="0.88" oninput="sv(this);autoSave()"><span class="slider-val">0.88</span><button class="slider-reset" data-action="reset-slider" data-reset-val="0.88">↺</button></div></div>
+          <div class="field"><label>Opacidad beat img</label><div class="slider-wrap"><input type="range" id="t-beat-img-op" min="0" max="1" step="0.05" value="1" oninput="sv(this);autoSave()"><span class="slider-val">1.00</span><button class="slider-reset" data-action="reset-slider" data-reset-val="1">↺</button></div></div>
+          <div class="field"><label>Opacidad texto</label><div class="slider-wrap"><input type="range" id="t-text-op" min="0" max="1" step="0.05" value="1" oninput="sv(this);autoSave()"><span class="slider-val">1.00</span><button class="slider-reset" data-action="reset-slider" data-reset-val="1">↺</button></div></div>
+          <div class="field"><label>Opacidad hero bg</label><div class="slider-wrap"><input type="range" id="t-hero-bg-op" min="0" max="1" step="0.05" value="1" oninput="sv(this);autoSave()"><span class="slider-val">1.00</span><button class="slider-reset" data-action="reset-slider" data-reset-val="1">↺</button></div></div>
+          <div class="field"><label>Opacidad secciones</label><div class="slider-wrap"><input type="range" id="t-section-op" min="0" max="1" step="0.05" value="1" oninput="sv(this);autoSave()"><span class="slider-val">1.00</span><button class="slider-reset" data-action="reset-slider" data-reset-val="1">↺</button></div></div>
           <div class="field"><label>Mix-blend orbs</label><div class="slider-wrap"><select id="t-orb-blend" onchange="autoSave()" class="inline-input-sm"><option value="normal">normal</option><option value="screen">screen</option><option value="overlay">overlay</option><option value="multiply">multiply</option><option value="soft-light">soft-light</option><option value="color-dodge">color-dodge</option><option value="hard-light">hard-light</option><option value="exclusion">exclusion</option></select></div></div>
           <div class="field"><label>Mix-blend grain</label><div class="slider-wrap"><select id="t-grain-blend" onchange="autoSave()" class="inline-input-sm"><option value="overlay">overlay</option><option value="soft-light">soft-light</option><option value="multiply">multiply</option><option value="normal">normal</option><option value="screen">screen</option><option value="color-dodge">color-dodge</option></select></div></div>
         </div>
@@ -178,10 +178,10 @@
 
       <!-- Spacing -->
       <div class="card">
-        <div class="card-title" onclick="toggleCard(this)"><span>Espaciado</span><i class="fas fa-chevron-down"></i></div>
+        <div class="card-title" data-action="toggle-card"><span>Espaciado</span><i class="fas fa-chevron-down"></i></div>
         <div class="card-body">
-          <div class="field"><label>Padding secciones</label><div class="slider-wrap"><input type="range" id="t-pad" min="0" max="20" step="0.5" value="4" oninput="sv(this);autoSave()"><span class="slider-val">4.0rem</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,4)">↺</button></div></div>
-          <div class="field"><label>Gap entre beats</label><div class="slider-wrap"><input type="range" id="t-gap" min="0" max="60" value="16" oninput="sv(this);autoSave()"><span class="slider-val">16px</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,16)">↺</button></div></div>
+          <div class="field"><label>Padding secciones</label><div class="slider-wrap"><input type="range" id="t-pad" min="0" max="20" step="0.5" value="4" oninput="sv(this);autoSave()"><span class="slider-val">4.0rem</span><button class="slider-reset" data-action="reset-slider" data-reset-val="4">↺</button></div></div>
+          <div class="field"><label>Gap entre beats</label><div class="slider-wrap"><input type="range" id="t-gap" min="0" max="60" value="16" oninput="sv(this);autoSave()"><span class="slider-val">16px</span><button class="slider-reset" data-action="reset-slider" data-reset-val="16">↺</button></div></div>
         </div>
       </div>
     </div>
@@ -216,55 +216,55 @@
 
       <!-- Galería de efectos -->
       <div class="card" class="mt-sm">
-        <div class="card-title" onclick="toggleCard(this)"><span>🎨 Galería de Efectos</span><i class="fas fa-chevron-down"></i></div>
+        <div class="card-title" data-action="toggle-card"><span>🎨 Galería de Efectos</span><i class="fas fa-chevron-down"></i></div>
         <div class="card-body" id="gcs-fx-gallery"></div>
       </div>
 
       <!-- Filtros CSS -->
       <div class="card" class="mt-sm">
-        <div class="card-title" onclick="toggleCard(this)"><span>🌈 Filtros CSS</span><i class="fas fa-chevron-down"></i></div>
+        <div class="card-title" data-action="toggle-card"><span>🌈 Filtros CSS</span><i class="fas fa-chevron-down"></i></div>
         <div class="card-body" id="gcs-filters"></div>
       </div>
 
       <!-- Glow animado -->
       <div class="card" class="mt-sm">
-        <div class="card-title" onclick="toggleCard(this)"><span>✨ Glow animado</span><i class="fas fa-chevron-down"></i></div>
+        <div class="card-title" data-action="toggle-card"><span>✨ Glow animado</span><i class="fas fa-chevron-down"></i></div>
         <div class="card-body" id="gcs-glow"></div>
       </div>
 
       <!-- Animación de tarjeta -->
       <div class="card" class="mt-sm">
-        <div class="card-title" onclick="toggleCard(this)"><span>🎬 Animación de tarjeta</span><i class="fas fa-chevron-down"></i></div>
+        <div class="card-title" data-action="toggle-card"><span>🎬 Animación de tarjeta</span><i class="fas fa-chevron-down"></i></div>
         <div class="card-body" id="gcs-anim"></div>
       </div>
 
       <!-- Estilo de tarjeta -->
       <div class="card" class="mt-sm">
-        <div class="card-title" onclick="toggleCard(this)"><span>🎨 Estilo de tarjeta</span><i class="fas fa-chevron-down"></i></div>
+        <div class="card-title" data-action="toggle-card"><span>🎨 Estilo de tarjeta</span><i class="fas fa-chevron-down"></i></div>
         <div class="card-body" id="gcs-style"></div>
       </div>
 
       <!-- Borde -->
       <div class="card" class="mt-sm">
-        <div class="card-title" onclick="toggleCard(this)"><span>🔲 Borde</span><i class="fas fa-chevron-down"></i></div>
+        <div class="card-title" data-action="toggle-card"><span>🔲 Borde</span><i class="fas fa-chevron-down"></i></div>
         <div class="card-body" id="gcs-border"></div>
       </div>
 
       <!-- Sombra -->
       <div class="card" class="mt-sm">
-        <div class="card-title" onclick="toggleCard(this)"><span>🌑 Sombra (box-shadow)</span><i class="fas fa-chevron-down"></i></div>
+        <div class="card-title" data-action="toggle-card"><span>🌑 Sombra (box-shadow)</span><i class="fas fa-chevron-down"></i></div>
         <div class="card-body" id="gcs-shadow"></div>
       </div>
 
       <!-- Hover -->
       <div class="card" class="mt-sm">
-        <div class="card-title" onclick="toggleCard(this)"><span>🎭 Efectos Hover</span><i class="fas fa-chevron-down"></i></div>
+        <div class="card-title" data-action="toggle-card"><span>🎭 Efectos Hover</span><i class="fas fa-chevron-down"></i></div>
         <div class="card-body" id="gcs-hover"></div>
       </div>
 
       <!-- Transform -->
       <div class="card" class="mt-sm">
-        <div class="card-title" onclick="toggleCard(this)"><span>🔄 Transform</span><i class="fas fa-chevron-down"></i></div>
+        <div class="card-title" data-action="toggle-card"><span>🔄 Transform</span><i class="fas fa-chevron-down"></i></div>
         <div class="card-body" id="gcs-transform"></div>
       </div>
     </div>
@@ -284,7 +284,7 @@
 
       <!-- ═══ GLOW UNIFICADO ═══ -->
       <div class="card">
-        <div class="card-title" onclick="toggleCard(this)"><span>Sistema Glow — Todo en uno</span><i class="fas fa-chevron-down"></i></div>
+        <div class="card-title" data-action="toggle-card"><span>Sistema Glow — Todo en uno</span><i class="fas fa-chevron-down"></i></div>
         <div class="card-body">
           <p style="font-size:9px;color:var(--hi);margin-bottom:10px">El color se usa en toda la tienda: botones, títulos, tarjetas, y el hero.</p>
           <div class="color-wrap"><label>Color principal</label><div class="color-swatch" id="gc-swatch"><input type="color" id="tc-glow" value="#dc2626" oninput="syncGlowColor(this.value)"></div><input type="text" class="color-hex" id="tt-glow" value="#dc2626" oninput="syncGlowColor(this.value)"></div>
@@ -346,7 +346,7 @@
 
       <!-- Hero Text -->
       <div class="card">
-        <div class="card-title" onclick="toggleCard(this)"><span>Texto principal</span><i class="fas fa-chevron-down"></i></div>
+        <div class="card-title" data-action="toggle-card"><span>Texto principal</span><i class="fas fa-chevron-down"></i></div>
         <div class="card-body">
           <div class="field"><label>Título <span class="fs-hint" style="font-size:8px">(la última línea recibe el efecto glow)</span></label><textarea id="h-title" oninput="updateHeroPv();autoSave()" style="min-height:44px">Beats que
 definen géneros.</textarea></div>
@@ -363,7 +363,7 @@ definen géneros.</textarea></div>
 
       <!-- Hero Background -->
       <div class="card">
-        <div class="card-title" onclick="toggleCard(this)"><span>Fondo del hero</span><i class="fas fa-chevron-down"></i></div>
+        <div class="card-title" data-action="toggle-card"><span>Fondo del hero</span><i class="fas fa-chevron-down"></i></div>
         <div class="card-body">
           <div class="tog-row"><input type="checkbox" class="tog" id="h-grad-on" checked onchange="updateHeroPv();autoSave()"><span class="tog-lbl">Degradado radial</span></div>
           <p class="fs-hint-sm">Mancha de color detrás del título.</p>
@@ -380,7 +380,7 @@ definen géneros.</textarea></div>
 
       <!-- Gradient Editor -->
       <div class="card">
-        <div class="card-title collapsed" onclick="toggleCard(this)"><span>Editor degradado avanzado</span><i class="fas fa-chevron-down"></i></div>
+        <div class="card-title collapsed" data-action="toggle-card"><span>Editor degradado avanzado</span><i class="fas fa-chevron-down"></i></div>
         <div class="card-body collapsed">
           <p class="fs-section-label">Click en la barra para añadir stops. Arrastra para mover.</p>
           <div id="grad-stops"></div>
@@ -390,18 +390,18 @@ definen géneros.</textarea></div>
 
       <!-- Hero Typography -->
       <div class="card">
-        <div class="card-title" onclick="toggleCard(this)"><span>Tamaño y espaciado</span><i class="fas fa-chevron-down"></i></div>
+        <div class="card-title" data-action="toggle-card"><span>Tamaño y espaciado</span><i class="fas fa-chevron-down"></i></div>
         <div class="card-body">
-          <div class="field"><label>Tamaño del título</label><div class="slider-wrap"><input type="range" id="h-title-size" min="1" max="8" step="0.1" value="2.8" oninput="sv(this);updateHeroPv();autoSave()"><span class="slider-val">2.8rem</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,2.8)">↺</button></div></div>
-          <div class="field"><label>Espacio entre letras <span class="fs-hint" style="font-size:8px">(negativo = más junto)</span></label><div class="slider-wrap"><input type="range" id="h-ls" min="-0.15" max="0.2" step="0.01" value="-0.04" oninput="sv(this);updateHeroPv();autoSave()"><span class="slider-val">-0.04</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,-0.04)">↺</button></div></div>
-          <div class="field"><label>Altura de línea</label><div class="slider-wrap"><input type="range" id="h-lh" min="0.5" max="2" step="0.05" value="1" oninput="sv(this);updateHeroPv();autoSave()"><span class="slider-val">1.00</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,1)">↺</button></div></div>
-          <div class="field"><label>Espacio arriba del hero</label><div class="slider-wrap"><input type="range" id="h-pad-top" min="0" max="20" step="0.5" value="7" oninput="sv(this);autoSave()"><span class="slider-val">7.0rem</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,7)">↺</button></div></div>
+          <div class="field"><label>Tamaño del título</label><div class="slider-wrap"><input type="range" id="h-title-size" min="1" max="8" step="0.1" value="2.8" oninput="sv(this);updateHeroPv();autoSave()"><span class="slider-val">2.8rem</span><button class="slider-reset" data-action="reset-slider" data-reset-val="2.8">↺</button></div></div>
+          <div class="field"><label>Espacio entre letras <span class="fs-hint" style="font-size:8px">(negativo = más junto)</span></label><div class="slider-wrap"><input type="range" id="h-ls" min="-0.15" max="0.2" step="0.01" value="-0.04" oninput="sv(this);updateHeroPv();autoSave()"><span class="slider-val">-0.04</span><button class="slider-reset" data-action="reset-slider" data-reset-val="-0.04">↺</button></div></div>
+          <div class="field"><label>Altura de línea</label><div class="slider-wrap"><input type="range" id="h-lh" min="0.5" max="2" step="0.05" value="1" oninput="sv(this);updateHeroPv();autoSave()"><span class="slider-val">1.00</span><button class="slider-reset" data-action="reset-slider" data-reset-val="1">↺</button></div></div>
+          <div class="field"><label>Espacio arriba del hero</label><div class="slider-wrap"><input type="range" id="h-pad-top" min="0" max="20" step="0.5" value="7" oninput="sv(this);autoSave()"><span class="slider-val">7.0rem</span><button class="slider-reset" data-action="reset-slider" data-reset-val="7">↺</button></div></div>
         </div>
       </div>
 
       <!-- Eyebrow settings -->
       <div class="card">
-        <div class="card-title" onclick="toggleCard(this)"><span>Tag (eyebrow)</span><i class="fas fa-chevron-down"></i></div>
+        <div class="card-title" data-action="toggle-card"><span>Tag (eyebrow)</span><i class="fas fa-chevron-down"></i></div>
         <div class="card-body">
           <p class="fs-hint-sm">El pill/badge arriba del título. Ej: "En vivo · Puebla, MX"</p>
           <div class="tog-row"><input type="checkbox" class="tog" id="h-eyebrow-on" checked onchange="updateHeroPv();autoSave()"><span class="tog-lbl">Mostrar tag</span></div>
@@ -414,19 +414,19 @@ definen géneros.</textarea></div>
 
       <!-- Particles -->
       <div class="card">
-        <div class="card-title" onclick="toggleCard(this)"><span>Partículas</span><i class="fas fa-chevron-down"></i></div>
+        <div class="card-title" data-action="toggle-card"><span>Partículas</span><i class="fas fa-chevron-down"></i></div>
         <div class="card-body">
           <div class="tog-row"><input type="checkbox" class="tog" id="p-on" checked onchange="autoSave()"><span class="tog-lbl">Activar</span></div>
           <div class="color-wrap"><label>Color</label><div class="color-swatch"><input type="color" id="p-color" value="#dc2626" oninput="autoSave()"></div></div>
           <div class="field"><label>Tipo</label><select id="p-type" onchange="togglePFields();autoSave()"><option value="circle">Círculos</option><option value="square">Cuadrados</option><option value="star">Estrellas</option><option value="text">Texto</option><option value="image">Imagen/GIF</option></select></div>
           <div class="field" id="p-text-wrap" style="display:none"><label>Texto</label><input type="text" id="p-text" placeholder="♪ ★" oninput="autoSave()"></div>
           <div class="field" id="p-img-wrap" style="display:none"><label>URL imagen</label><input type="url" id="p-img-url" placeholder="https://..." oninput="autoSave()"></div>
-          <div class="field"><label>Cantidad</label><div class="slider-wrap"><input type="range" id="p-count" min="1" max="200" value="40" oninput="sv(this);autoSave()"><span class="slider-val">40</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,40)">↺</button></div></div>
+          <div class="field"><label>Cantidad</label><div class="slider-wrap"><input type="range" id="p-count" min="1" max="200" value="40" oninput="sv(this);autoSave()"><span class="slider-val">40</span><button class="slider-reset" data-action="reset-slider" data-reset-val="40">↺</button></div></div>
           <div class="fg2">
             <div class="field"><label>Tamaño mín</label><div class="slider-wrap"><input type="range" id="p-min" min="1" max="30" value="2" oninput="sv(this);autoSave()"><span class="slider-val">2</span></div></div>
             <div class="field"><label>Tamaño máx</label><div class="slider-wrap"><input type="range" id="p-max" min="2" max="80" value="6" oninput="sv(this);autoSave()"><span class="slider-val">6</span></div></div>
           </div>
-          <div class="field"><label>Velocidad</label><div class="slider-wrap"><input type="range" id="p-speed" min="0.1" max="10" step="0.1" value="1" oninput="sv(this);autoSave()"><span class="slider-val">1.0</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,1)">↺</button></div></div>
+          <div class="field"><label>Velocidad</label><div class="slider-wrap"><input type="range" id="p-speed" min="0.1" max="10" step="0.1" value="1" oninput="sv(this);autoSave()"><span class="slider-val">1.0</span><button class="slider-reset" data-action="reset-slider" data-reset-val="1">↺</button></div></div>
           <div class="field"><label>Opacidad</label><div class="slider-wrap"><input type="range" id="p-opacity" min="0" max="1" step="0.05" value="0.5" oninput="sv(this);autoSave()"><span class="slider-val">0.50</span></div></div>
           <div class="particles-pv" id="particles-pv"></div>
         </div>
@@ -434,7 +434,7 @@ definen géneros.</textarea></div>
 
       <!-- Banner -->
       <div class="card">
-        <div class="card-title" onclick="toggleCard(this)"><span>Banner</span><i class="fas fa-chevron-down"></i></div>
+        <div class="card-title" data-action="toggle-card"><span>Banner</span><i class="fas fa-chevron-down"></i></div>
         <div class="card-body">
           <div class="tog-row"><input type="checkbox" class="tog" id="b-active" onchange="autoSave()"><span class="tog-lbl">Mostrar banner</span></div>
           <div class="field"><label>Texto (usa :nombre: para emojis custom)</label><textarea id="b-text" oninput="updateBannerPv();autoSave()"></textarea></div>
@@ -458,7 +458,7 @@ definen géneros.</textarea></div>
 
       <!-- Emojis -->
       <div class="card">
-        <div class="card-title" onclick="toggleCard(this)"><span>Emojis</span><i class="fas fa-chevron-down"></i></div>
+        <div class="card-title" data-action="toggle-card"><span>Emojis</span><i class="fas fa-chevron-down"></i></div>
         <div class="card-body">
           <div class="emoji-grid" id="emoji-grid"></div>
           <div class="fs-section-label">Personalizados</div>
@@ -486,15 +486,15 @@ definen géneros.</textarea></div>
     <div class="section" id="sec-layout">
       <div class="section-title"><i class="fas fa-th-large"></i> Layout</div>
       <div class="card">
-        <div class="card-title" onclick="toggleCard(this)"><span>Posiciones</span><i class="fas fa-chevron-down"></i></div>
+        <div class="card-title" data-action="toggle-card"><span>Posiciones</span><i class="fas fa-chevron-down"></i></div>
         <div class="card-body">
-          <div class="field"><label>Hero top</label><div class="slider-wrap"><input type="range" id="t-hero-top" min="0" max="20" step="0.5" value="7" oninput="sv(this);autoSave()"><span class="slider-val">7.0rem</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,7)">↺</button></div></div>
-          <div class="field"><label>Player bottom</label><div class="slider-wrap"><input type="range" id="t-player-bot" min="0" max="40" value="0" oninput="sv(this);autoSave()"><span class="slider-val">0px</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,0)">↺</button></div></div>
-          <div class="field"><label>Logo offset X</label><div class="slider-wrap"><input type="range" id="t-logo-ox" min="-300" max="300" value="0" oninput="sv(this);autoSave()"><span class="slider-val">0px</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,0)">↺</button></div></div>
+          <div class="field"><label>Hero top</label><div class="slider-wrap"><input type="range" id="t-hero-top" min="0" max="20" step="0.5" value="7" oninput="sv(this);autoSave()"><span class="slider-val">7.0rem</span><button class="slider-reset" data-action="reset-slider" data-reset-val="7">↺</button></div></div>
+          <div class="field"><label>Player bottom</label><div class="slider-wrap"><input type="range" id="t-player-bot" min="0" max="40" value="0" oninput="sv(this);autoSave()"><span class="slider-val">0px</span><button class="slider-reset" data-action="reset-slider" data-reset-val="0">↺</button></div></div>
+          <div class="field"><label>Logo offset X</label><div class="slider-wrap"><input type="range" id="t-logo-ox" min="-300" max="300" value="0" oninput="sv(this);autoSave()"><span class="slider-val">0px</span><button class="slider-reset" data-action="reset-slider" data-reset-val="0">↺</button></div></div>
         </div>
       </div>
       <div class="card">
-        <div class="card-title" onclick="toggleCard(this)"><span>Layout Canvas</span><i class="fas fa-chevron-down"></i></div>
+        <div class="card-title" data-action="toggle-card"><span>Layout Canvas</span><i class="fas fa-chevron-down"></i></div>
         <div class="card-body">
           <p class="fs-section-label">Arrastra los bloques verticalmente para reorganizar</p>
           <div id="layout-canvas" class="mb-sm"></div>
@@ -502,17 +502,17 @@ definen géneros.</textarea></div>
         </div>
       </div>
       <div class="card">
-        <div class="card-title" onclick="toggleCard(this)"><span>Logo</span><i class="fas fa-chevron-down"></i></div>
+        <div class="card-title" data-action="toggle-card"><span>Logo</span><i class="fas fa-chevron-down"></i></div>
         <div class="card-body">
           <div class="field"><label>URL logo</label><input type="url" id="t-logo-url" placeholder="https://..." oninput="autoSave()"></div>
           <div class="tog-row"><input type="checkbox" class="tog" id="t-logo-text" onchange="autoSave()"><span class="tog-lbl">Mostrar texto + logo</span></div>
           <div class="fg2">
-            <div class="field"><label>Ancho</label><div class="slider-wrap"><input type="range" id="t-logo-w" min="10" max="500" value="80" oninput="sv(this);autoSave()"><span class="slider-val">80px</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,80)">↺</button></div></div>
-            <div class="field"><label>Escala</label><div class="slider-wrap"><input type="range" id="t-logo-scale" min="0.1" max="5" step="0.01" value="1" oninput="sv(this);autoSave()"><span class="slider-val">1.00x</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,1)">↺</button></div></div>
+            <div class="field"><label>Ancho</label><div class="slider-wrap"><input type="range" id="t-logo-w" min="10" max="500" value="80" oninput="sv(this);autoSave()"><span class="slider-val">80px</span><button class="slider-reset" data-action="reset-slider" data-reset-val="80">↺</button></div></div>
+            <div class="field"><label>Escala</label><div class="slider-wrap"><input type="range" id="t-logo-scale" min="0.1" max="5" step="0.01" value="1" oninput="sv(this);autoSave()"><span class="slider-val">1.00x</span><button class="slider-reset" data-action="reset-slider" data-reset-val="1">↺</button></div></div>
           </div>
           <div class="fg2">
-            <div class="field"><label>Rotación</label><div class="slider-wrap"><input type="range" id="t-logo-rot" min="-180" max="180" value="0" oninput="sv(this);autoSave()"><span class="slider-val">0°</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,0)">↺</button></div></div>
-            <div class="field"><label>Gap logo↔texto</label><div class="slider-wrap"><input type="range" id="t-logo-gap" min="0" max="80" value="12" oninput="sv(this);autoSave()"><span class="slider-val">12px</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,12)">↺</button></div></div>
+            <div class="field"><label>Rotación</label><div class="slider-wrap"><input type="range" id="t-logo-rot" min="-180" max="180" value="0" oninput="sv(this);autoSave()"><span class="slider-val">0°</span><button class="slider-reset" data-action="reset-slider" data-reset-val="0">↺</button></div></div>
+            <div class="field"><label>Gap logo↔texto</label><div class="slider-wrap"><input type="range" id="t-logo-gap" min="0" max="80" value="12" oninput="sv(this);autoSave()"><span class="slider-val">12px</span><button class="slider-reset" data-action="reset-slider" data-reset-val="12">↺</button></div></div>
           </div>
         </div>
       </div>
@@ -608,7 +608,7 @@ definen géneros.</textarea></div>
 
         <!-- ═══ Presets de Estilo ═══ -->
         <div class="card" class="mt-md">
-          <div class="card-title" onclick="toggleCard(this)"><span>🎨 Presets de Estilo</span><i class="fas fa-chevron-down"></i></div>
+          <div class="card-title" data-action="toggle-card"><span>🎨 Presets de Estilo</span><i class="fas fa-chevron-down"></i></div>
           <div class="card-body">
             <div style="display:flex;gap:6px;margin-bottom:8px">
               <button class="btn btn-g" onclick="resetBeatToGlobal()" class="fs-xs">🌐 Usar estilo global</button>
@@ -620,32 +620,32 @@ definen géneros.</textarea></div>
 
         <!-- ═══ Galería de Efectos ═══ -->
         <div class="card" class="mt-md">
-          <div class="card-title" onclick="toggleCard(this)"><span>🎨 Galería de Efectos</span><i class="fas fa-chevron-down"></i></div>
+          <div class="card-title" data-action="toggle-card"><span>🎨 Galería de Efectos</span><i class="fas fa-chevron-down"></i></div>
           <div class="card-body" id="beat-fx-gallery"></div>
         </div>
 
         <!-- ═══ Filtros CSS (universal) ═══ -->
         <div class="card" class="mt-md">
-          <div class="card-title" onclick="toggleCard(this)"><span>🌈 Filtros CSS</span><i class="fas fa-chevron-down"></i></div>
+          <div class="card-title" data-action="toggle-card"><span>🌈 Filtros CSS</span><i class="fas fa-chevron-down"></i></div>
           <div class="card-body">
             <div style="margin-bottom:8px">
               <div style="font-size:10px;font-weight:600;color:var(--hi);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">Ajustes básicos</div>
             </div>
-            <div class="field"><label>🔆 Brillo</label><div class="slider-wrap"><input type="range" id="f-cs-fb" min="0" max="5" step="0.05" value="1" oninput="sv(this);updateCardPreview()"><span class="slider-val">1.00</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,1)">↺</button></div></div>
-            <div class="field"><label>◑ Contraste</label><div class="slider-wrap"><input type="range" id="f-cs-fc" min="0" max="5" step="0.05" value="1" oninput="sv(this);updateCardPreview()"><span class="slider-val">1.00</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,1)">↺</button></div></div>
-            <div class="field"><label>🎨 Saturación</label><div class="slider-wrap"><input type="range" id="f-cs-fs" min="0" max="10" step="0.05" value="1" oninput="sv(this);updateCardPreview()"><span class="slider-val">1.00</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,1)">↺</button></div></div>
-            <div class="field"><label>👁 Opacidad</label><div class="slider-wrap"><input type="range" id="f-cs-fo" min="0" max="1" step="0.01" value="1" oninput="sv(this);updateCardPreview()"><span class="slider-val">1.00</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,1)">↺</button></div></div>
+            <div class="field"><label>🔆 Brillo</label><div class="slider-wrap"><input type="range" id="f-cs-fb" min="0" max="5" step="0.05" value="1" oninput="sv(this);updateCardPreview()"><span class="slider-val">1.00</span><button class="slider-reset" data-action="reset-slider" data-reset-val="1">↺</button></div></div>
+            <div class="field"><label>◑ Contraste</label><div class="slider-wrap"><input type="range" id="f-cs-fc" min="0" max="5" step="0.05" value="1" oninput="sv(this);updateCardPreview()"><span class="slider-val">1.00</span><button class="slider-reset" data-action="reset-slider" data-reset-val="1">↺</button></div></div>
+            <div class="field"><label>🎨 Saturación</label><div class="slider-wrap"><input type="range" id="f-cs-fs" min="0" max="10" step="0.05" value="1" oninput="sv(this);updateCardPreview()"><span class="slider-val">1.00</span><button class="slider-reset" data-action="reset-slider" data-reset-val="1">↺</button></div></div>
+            <div class="field"><label>👁 Opacidad</label><div class="slider-wrap"><input type="range" id="f-cs-fo" min="0" max="1" step="0.01" value="1" oninput="sv(this);updateCardPreview()"><span class="slider-val">1.00</span><button class="slider-reset" data-action="reset-slider" data-reset-val="1">↺</button></div></div>
 
             <div style="margin:10px 0 8px">
               <div style="font-size:10px;font-weight:600;color:var(--hi);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">Efectos de color</div>
             </div>
             <div class="fg2">
-              <div class="field"><label>⬜ Grayscale</label><div class="slider-wrap"><input type="range" id="f-cs-fg" min="0" max="1" step="0.05" value="0" oninput="sv(this);updateCardPreview()"><span class="slider-val">0.00</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,0)">↺</button></div></div>
-              <div class="field"><label>🟤 Sepia</label><div class="slider-wrap"><input type="range" id="f-cs-fse" min="0" max="1" step="0.05" value="0" oninput="sv(this);updateCardPreview()"><span class="slider-val">0.00</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,0)">↺</button></div></div>
+              <div class="field"><label>⬜ Grayscale</label><div class="slider-wrap"><input type="range" id="f-cs-fg" min="0" max="1" step="0.05" value="0" oninput="sv(this);updateCardPreview()"><span class="slider-val">0.00</span><button class="slider-reset" data-action="reset-slider" data-reset-val="0">↺</button></div></div>
+              <div class="field"><label>🟤 Sepia</label><div class="slider-wrap"><input type="range" id="f-cs-fse" min="0" max="1" step="0.05" value="0" oninput="sv(this);updateCardPreview()"><span class="slider-val">0.00</span><button class="slider-reset" data-action="reset-slider" data-reset-val="0">↺</button></div></div>
             </div>
             <div class="fg2">
-              <div class="field"><label>🔄 Hue rotate</label><div class="slider-wrap"><input type="range" id="f-cs-fh" min="0" max="360" step="1" value="0" oninput="this.nextElementSibling.textContent=this.value+'°';updateCardPreview()"><span class="slider-val">0°</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,0)">↺</button></div></div>
-              <div class="field"><label>🔀 Invertir</label><div class="slider-wrap"><input type="range" id="f-cs-fi" min="0" max="1" step="0.05" value="0" oninput="sv(this);updateCardPreview()"><span class="slider-val">0.00</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,0)">↺</button></div></div>
+              <div class="field"><label>🔄 Hue rotate</label><div class="slider-wrap"><input type="range" id="f-cs-fh" min="0" max="360" step="1" value="0" oninput="this.nextElementSibling.textContent=this.value+'°';updateCardPreview()"><span class="slider-val">0°</span><button class="slider-reset" data-action="reset-slider" data-reset-val="0">↺</button></div></div>
+              <div class="field"><label>🔀 Invertir</label><div class="slider-wrap"><input type="range" id="f-cs-fi" min="0" max="1" step="0.05" value="0" oninput="sv(this);updateCardPreview()"><span class="slider-val">0.00</span><button class="slider-reset" data-action="reset-slider" data-reset-val="0">↺</button></div></div>
             </div>
 
             <div style="margin:10px 0 8px">
@@ -659,18 +659,18 @@ definen géneros.</textarea></div>
                 <option value="focus">Focus</option>
               </select>
             </div>
-            <div class="field"><label>Intensidad</label><div class="slider-wrap"><input type="range" id="f-cs-fbl" min="0" max="50" step="0.5" value="0" oninput="this.nextElementSibling.textContent=parseFloat(this.value).toFixed(1)+'px';updateCardPreview()"><span class="slider-val">0.0px</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,0)">↺</button></div></div>
+            <div class="field"><label>Intensidad</label><div class="slider-wrap"><input type="range" id="f-cs-fbl" min="0" max="50" step="0.5" value="0" oninput="this.nextElementSibling.textContent=parseFloat(this.value).toFixed(1)+'px';updateCardPreview()"><span class="slider-val">0.0px</span><button class="slider-reset" data-action="reset-slider" data-reset-val="0">↺</button></div></div>
 
             <div style="margin:10px 0 8px">
               <div style="font-size:10px;font-weight:600;color:var(--hi);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">Drop Shadow</div>
             </div>
             <div class="fg2">
-              <div class="field"><label>↔ Offset X</label><div class="slider-wrap"><input type="range" id="f-cs-ds-x" min="-80" max="80" step="1" value="0" oninput="this.nextElementSibling.textContent=this.value+'px';updateCardPreview()"><span class="slider-val">0px</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,0)">↺</button></div></div>
-              <div class="field"><label>↕ Offset Y</label><div class="slider-wrap"><input type="range" id="f-cs-ds-y" min="-80" max="80" step="1" value="0" oninput="this.nextElementSibling.textContent=this.value+'px';updateCardPreview()"><span class="slider-val">0px</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,0)">↺</button></div></div>
+              <div class="field"><label>↔ Offset X</label><div class="slider-wrap"><input type="range" id="f-cs-ds-x" min="-80" max="80" step="1" value="0" oninput="this.nextElementSibling.textContent=this.value+'px';updateCardPreview()"><span class="slider-val">0px</span><button class="slider-reset" data-action="reset-slider" data-reset-val="0">↺</button></div></div>
+              <div class="field"><label>↕ Offset Y</label><div class="slider-wrap"><input type="range" id="f-cs-ds-y" min="-80" max="80" step="1" value="0" oninput="this.nextElementSibling.textContent=this.value+'px';updateCardPreview()"><span class="slider-val">0px</span><button class="slider-reset" data-action="reset-slider" data-reset-val="0">↺</button></div></div>
             </div>
             <div class="fg2">
-              <div class="field"><label>💫 Blur</label><div class="slider-wrap"><input type="range" id="f-cs-ds-bl" min="0" max="100" step="1" value="0" oninput="this.nextElementSibling.textContent=this.value+'px';updateCardPreview()"><span class="slider-val">0px</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,0)">↺</button></div></div>
-              <div class="field"><label>👁 Opacidad</label><div class="slider-wrap"><input type="range" id="f-cs-ds-op" min="0" max="1" step="0.05" value="0" oninput="sv(this);updateCardPreview()"><span class="slider-val">0.00</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,0)">↺</button></div></div>
+              <div class="field"><label>💫 Blur</label><div class="slider-wrap"><input type="range" id="f-cs-ds-bl" min="0" max="100" step="1" value="0" oninput="this.nextElementSibling.textContent=this.value+'px';updateCardPreview()"><span class="slider-val">0px</span><button class="slider-reset" data-action="reset-slider" data-reset-val="0">↺</button></div></div>
+              <div class="field"><label>👁 Opacidad</label><div class="slider-wrap"><input type="range" id="f-cs-ds-op" min="0" max="1" step="0.05" value="0" oninput="sv(this);updateCardPreview()"><span class="slider-val">0.00</span><button class="slider-reset" data-action="reset-slider" data-reset-val="0">↺</button></div></div>
             </div>
             <div class="color-wrap"><label>Color shadow</label><div class="color-swatch"><input type="color" id="f-cs-ds-clr" value="#000000" oninput="updateCardPreview()"></div><input type="text" class="color-hex" id="f-cs-ds-clr-h" value="#000000"></div>
           </div>
@@ -678,7 +678,7 @@ definen géneros.</textarea></div>
 
         <!-- ═══ Glow animado ═══ -->
         <div class="card" class="mt-sm">
-          <div class="card-title" onclick="toggleCard(this)"><span>✨ Glow animado</span><i class="fas fa-chevron-down"></i></div>
+          <div class="card-title" data-action="toggle-card"><span>✨ Glow animado</span><i class="fas fa-chevron-down"></i></div>
           <div class="card-body">
             <div class="tog-row"><input type="checkbox" class="tog" id="f-glow-on" onchange="updateCardPreview()"><span class="tog-lbl">Activar glow</span></div>
             <div class="field"><label>Tipo de glow</label>
@@ -692,15 +692,15 @@ definen géneros.</textarea></div>
             </div>
             <div class="color-wrap"><label>Color glow</label><div class="color-swatch"><input type="color" id="f-glow-color" value="#dc2626" oninput="syncBeatGlowColor('picker');updateCardPreview()"></div><input type="text" class="color-hex" id="f-glow-color-h" value="#dc2626" oninput="syncBeatGlowColor('hex');updateCardPreview()"></div>
             <div class="fg2">
-              <div class="field"><label>Velocidad</label><div class="slider-wrap"><input type="range" id="f-glow-speed" min="0.3" max="10" step="0.1" value="3" oninput="this.nextElementSibling.textContent=parseFloat(this.value).toFixed(1)+'s';updateCardPreview()"><span class="slider-val">3.0s</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,3)">↺</button></div></div>
-              <div class="field"><label>Intensidad</label><div class="slider-wrap"><input type="range" id="f-glow-int" min="0" max="20" step="0.1" value="1" oninput="this.nextElementSibling.textContent=parseFloat(this.value).toFixed(1)+'x';updateCardPreview()"><span class="slider-val">1.0x</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,1)">↺</button></div></div>
+              <div class="field"><label>Velocidad</label><div class="slider-wrap"><input type="range" id="f-glow-speed" min="0.3" max="10" step="0.1" value="3" oninput="this.nextElementSibling.textContent=parseFloat(this.value).toFixed(1)+'s';updateCardPreview()"><span class="slider-val">3.0s</span><button class="slider-reset" data-action="reset-slider" data-reset-val="3">↺</button></div></div>
+              <div class="field"><label>Intensidad</label><div class="slider-wrap"><input type="range" id="f-glow-int" min="0" max="20" step="0.1" value="1" oninput="this.nextElementSibling.textContent=parseFloat(this.value).toFixed(1)+'x';updateCardPreview()"><span class="slider-val">1.0x</span><button class="slider-reset" data-action="reset-slider" data-reset-val="1">↺</button></div></div>
             </div>
             <div class="fg2">
-              <div class="field"><label>Blur</label><div class="slider-wrap"><input type="range" id="f-glow-blur" min="0" max="200" step="1" value="20" oninput="this.nextElementSibling.textContent=this.value+'px';updateCardPreview()"><span class="slider-val">20px</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,20)">↺</button></div></div>
-              <div class="field"><label>Spread</label><div class="slider-wrap"><input type="range" id="f-glow-spread" min="0" max="100" step="1" value="0" oninput="this.nextElementSibling.textContent=this.value+'px';updateCardPreview()"><span class="slider-val">0px</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,0)">↺</button></div></div>
+              <div class="field"><label>Blur</label><div class="slider-wrap"><input type="range" id="f-glow-blur" min="0" max="200" step="1" value="20" oninput="this.nextElementSibling.textContent=this.value+'px';updateCardPreview()"><span class="slider-val">20px</span><button class="slider-reset" data-action="reset-slider" data-reset-val="20">↺</button></div></div>
+              <div class="field"><label>Spread</label><div class="slider-wrap"><input type="range" id="f-glow-spread" min="0" max="100" step="1" value="0" oninput="this.nextElementSibling.textContent=this.value+'px';updateCardPreview()"><span class="slider-val">0px</span><button class="slider-reset" data-action="reset-slider" data-reset-val="0">↺</button></div></div>
             </div>
             <div class="fg2">
-              <div class="field"><label>Opacidad</label><div class="slider-wrap"><input type="range" id="f-glow-op" min="0" max="1" step="0.05" value="1" oninput="sv(this);updateCardPreview()"><span class="slider-val">1.00</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,1)">↺</button></div></div>
+              <div class="field"><label>Opacidad</label><div class="slider-wrap"><input type="range" id="f-glow-op" min="0" max="1" step="0.05" value="1" oninput="sv(this);updateCardPreview()"><span class="slider-val">1.00</span><button class="slider-reset" data-action="reset-slider" data-reset-val="1">↺</button></div></div>
               <div style="display:flex;align-items:end;padding-bottom:6px"><div class="tog-row" style="margin:0"><input type="checkbox" class="tog" id="f-glow-hover" onchange="updateCardPreview()"><span class="tog-lbl">Solo en hover</span></div></div>
             </div>
           </div>
@@ -708,7 +708,7 @@ definen géneros.</textarea></div>
 
         <!-- ═══ Animación de tarjeta ═══ -->
         <div class="card" class="mt-sm">
-          <div class="card-title" onclick="toggleCard(this)"><span>🎬 Animación de tarjeta</span><i class="fas fa-chevron-down"></i></div>
+          <div class="card-title" data-action="toggle-card"><span>🎬 Animación de tarjeta</span><i class="fas fa-chevron-down"></i></div>
           <div class="card-body">
             <div class="field"><label>Animación principal</label>
               <select id="f-anim-type" onchange="updateCardPreview()" class="inline-select">
@@ -749,10 +749,10 @@ definen géneros.</textarea></div>
               </select>
             </div>
             </div>
-            <div class="field"><label>⚡ Velocidad</label><div class="slider-wrap"><input type="range" id="f-anim-int" min="10" max="300" step="5" value="100" oninput="this.nextElementSibling.textContent=this.value+'%';updateCardPreview()"><span class="slider-val">100%</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,100)">↺</button></div></div>
+            <div class="field"><label>⚡ Velocidad</label><div class="slider-wrap"><input type="range" id="f-anim-int" min="10" max="300" step="5" value="100" oninput="this.nextElementSibling.textContent=this.value+'%';updateCardPreview()"><span class="slider-val">100%</span><button class="slider-reset" data-action="reset-slider" data-reset-val="100">↺</button></div></div>
             <div class="fg2">
-              <div class="field"><label>Duración</label><div class="slider-wrap"><input type="range" id="f-anim-dur" min="0.05" max="30" step="0.1" value="2" oninput="this.nextElementSibling.textContent=parseFloat(this.value).toFixed(1)+'s';updateCardPreview()"><span class="slider-val">2.0s</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,2)">↺</button></div></div>
-              <div class="field"><label>Delay</label><div class="slider-wrap"><input type="range" id="f-anim-del" min="0" max="30" step="0.1" value="0" oninput="this.nextElementSibling.textContent=parseFloat(this.value).toFixed(1)+'s';updateCardPreview()"><span class="slider-val">0.0s</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,0)">↺</button></div></div>
+              <div class="field"><label>Duración</label><div class="slider-wrap"><input type="range" id="f-anim-dur" min="0.05" max="30" step="0.1" value="2" oninput="this.nextElementSibling.textContent=parseFloat(this.value).toFixed(1)+'s';updateCardPreview()"><span class="slider-val">2.0s</span><button class="slider-reset" data-action="reset-slider" data-reset-val="2">↺</button></div></div>
+              <div class="field"><label>Delay</label><div class="slider-wrap"><input type="range" id="f-anim-del" min="0" max="30" step="0.1" value="0" oninput="this.nextElementSibling.textContent=parseFloat(this.value).toFixed(1)+'s';updateCardPreview()"><span class="slider-val">0.0s</span><button class="slider-reset" data-action="reset-slider" data-reset-val="0">↺</button></div></div>
             </div>
             <div class="fg2">
               <div class="field"><label>Easing</label>
@@ -786,8 +786,8 @@ definen géneros.</textarea></div>
               </select>
             </div>
             <div class="fg2" id="hue-controls" class="mt-xs">
-              <div class="field"><label>Hue inicio (holograma/color)</label><div class="slider-wrap"><input type="range" id="f-anim-hue-start" min="0" max="360" step="1" value="0" oninput="this.nextElementSibling.textContent=this.value+'°';updateCardPreview()"><span class="slider-val">0°</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,0)">↺</button></div></div>
-              <div class="field"><label>Hue fin</label><div class="slider-wrap"><input type="range" id="f-anim-hue-end" min="0" max="360" step="1" value="360" oninput="this.nextElementSibling.textContent=this.value+'°';updateCardPreview()"><span class="slider-val">360°</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,360)">↺</button></div></div>
+              <div class="field"><label>Hue inicio (holograma/color)</label><div class="slider-wrap"><input type="range" id="f-anim-hue-start" min="0" max="360" step="1" value="0" oninput="this.nextElementSibling.textContent=this.value+'°';updateCardPreview()"><span class="slider-val">0°</span><button class="slider-reset" data-action="reset-slider" data-reset-val="0">↺</button></div></div>
+              <div class="field"><label>Hue fin</label><div class="slider-wrap"><input type="range" id="f-anim-hue-end" min="0" max="360" step="1" value="360" oninput="this.nextElementSibling.textContent=this.value+'°';updateCardPreview()"><span class="slider-val">360°</span><button class="slider-reset" data-action="reset-slider" data-reset-val="360">↺</button></div></div>
             </div>
             <!-- Per-animation sub-settings -->
             <div id="anim-subsettings" style="margin-top:8px;border-top:1px solid var(--b);padding-top:8px;display:none">
@@ -803,16 +803,16 @@ definen géneros.</textarea></div>
                 <button onclick="addHoloColor()" style="font-size:9px;padding:3px 8px;border:1px dashed var(--b);border-radius:var(--rad);background:none;color:var(--tx2);cursor:pointer;font-family:var(--fm)">+ Añadir color</button>
                 <div class="mt-sm">
                   <div class="fg2">
-                    <div class="field"><label>Brillo mín</label><div class="slider-wrap"><input type="range" id="f-anim-holo-bright-min" min="0.3" max="1.5" step="0.05" value="0.9" oninput="this.nextElementSibling.textContent=parseFloat(this.value).toFixed(2);updateCardPreview()"><span class="slider-val">0.90</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,0.9)">↺</button></div></div>
-                    <div class="field"><label>Brillo máx</label><div class="slider-wrap"><input type="range" id="f-anim-holo-bright-max" min="1" max="4" step="0.05" value="1.4" oninput="this.nextElementSibling.textContent=parseFloat(this.value).toFixed(2);updateCardPreview()"><span class="slider-val">1.40</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,1.4)">↺</button></div></div>
+                    <div class="field"><label>Brillo mín</label><div class="slider-wrap"><input type="range" id="f-anim-holo-bright-min" min="0.3" max="1.5" step="0.05" value="0.9" oninput="this.nextElementSibling.textContent=parseFloat(this.value).toFixed(2);updateCardPreview()"><span class="slider-val">0.90</span><button class="slider-reset" data-action="reset-slider" data-reset-val="0.9">↺</button></div></div>
+                    <div class="field"><label>Brillo máx</label><div class="slider-wrap"><input type="range" id="f-anim-holo-bright-max" min="1" max="4" step="0.05" value="1.4" oninput="this.nextElementSibling.textContent=parseFloat(this.value).toFixed(2);updateCardPreview()"><span class="slider-val">1.40</span><button class="slider-reset" data-action="reset-slider" data-reset-val="1.4">↺</button></div></div>
                   </div>
                   <div class="fg2">
-                    <div class="field"><label>Saturación mín</label><div class="slider-wrap"><input type="range" id="f-anim-holo-sat-min" min="0" max="3" step="0.1" value="0.8" oninput="this.nextElementSibling.textContent=parseFloat(this.value).toFixed(1);updateCardPreview()"><span class="slider-val">0.8</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,0.8)">↺</button></div></div>
-                    <div class="field"><label>Saturación máx</label><div class="slider-wrap"><input type="range" id="f-anim-holo-sat-max" min="0.5" max="8" step="0.1" value="2" oninput="this.nextElementSibling.textContent=parseFloat(this.value).toFixed(1);updateCardPreview()"><span class="slider-val">2.0</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,2)">↺</button></div></div>
+                    <div class="field"><label>Saturación mín</label><div class="slider-wrap"><input type="range" id="f-anim-holo-sat-min" min="0" max="3" step="0.1" value="0.8" oninput="this.nextElementSibling.textContent=parseFloat(this.value).toFixed(1);updateCardPreview()"><span class="slider-val">0.8</span><button class="slider-reset" data-action="reset-slider" data-reset-val="0.8">↺</button></div></div>
+                    <div class="field"><label>Saturación máx</label><div class="slider-wrap"><input type="range" id="f-anim-holo-sat-max" min="0.5" max="8" step="0.1" value="2" oninput="this.nextElementSibling.textContent=parseFloat(this.value).toFixed(1);updateCardPreview()"><span class="slider-val">2.0</span><button class="slider-reset" data-action="reset-slider" data-reset-val="2">↺</button></div></div>
                   </div>
                   <div class="fg2">
-                    <div class="field"><label>Glow brillo</label><div class="slider-wrap"><input type="range" id="f-anim-holo-glow" min="0" max="60" step="1" value="0" oninput="this.nextElementSibling.textContent=this.value+'px';updateCardPreview()"><span class="slider-val">0px</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,0)">↺</button></div></div>
-                    <div class="field"><label>Blur animación</label><div class="slider-wrap"><input type="range" id="f-anim-holo-blur" min="0" max="10" step="0.5" value="0" oninput="this.nextElementSibling.textContent=parseFloat(this.value).toFixed(1)+'px';updateCardPreview()"><span class="slider-val">0.0px</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,0)">↺</button></div></div>
+                    <div class="field"><label>Glow brillo</label><div class="slider-wrap"><input type="range" id="f-anim-holo-glow" min="0" max="60" step="1" value="0" oninput="this.nextElementSibling.textContent=this.value+'px';updateCardPreview()"><span class="slider-val">0px</span><button class="slider-reset" data-action="reset-slider" data-reset-val="0">↺</button></div></div>
+                    <div class="field"><label>Blur animación</label><div class="slider-wrap"><input type="range" id="f-anim-holo-blur" min="0" max="10" step="0.5" value="0" oninput="this.nextElementSibling.textContent=parseFloat(this.value).toFixed(1)+'px';updateCardPreview()"><span class="slider-val">0.0px</span><button class="slider-reset" data-action="reset-slider" data-reset-val="0">↺</button></div></div>
                   </div>
                   <div class="field"><label>Dirección ciclo</label>
                     <select id="f-anim-holo-dir" onchange="updateCardPreview()" class="inline-select">
@@ -826,78 +826,78 @@ definen géneros.</textarea></div>
               <!-- ═══ Brillo sub-settings ═══ -->
               <div id="sub-brillo" class="anim-sub-panel" style="display:none">
                 <div class="fg2">
-                  <div class="field"><label>Brillo mín</label><div class="slider-wrap"><input type="range" id="f-anim-brillo-min" min="0.3" max="1" step="0.05" value="0.8" oninput="this.nextElementSibling.textContent=parseFloat(this.value).toFixed(2);updateCardPreview()"><span class="slider-val">0.80</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,0.8)">↺</button></div></div>
-                  <div class="field"><label>Brillo máx</label><div class="slider-wrap"><input type="range" id="f-anim-brillo-max" min="1" max="5" step="0.05" value="1.5" oninput="this.nextElementSibling.textContent=parseFloat(this.value).toFixed(2);updateCardPreview()"><span class="slider-val">1.50</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,1.5)">↺</button></div></div>
+                  <div class="field"><label>Brillo mín</label><div class="slider-wrap"><input type="range" id="f-anim-brillo-min" min="0.3" max="1" step="0.05" value="0.8" oninput="this.nextElementSibling.textContent=parseFloat(this.value).toFixed(2);updateCardPreview()"><span class="slider-val">0.80</span><button class="slider-reset" data-action="reset-slider" data-reset-val="0.8">↺</button></div></div>
+                  <div class="field"><label>Brillo máx</label><div class="slider-wrap"><input type="range" id="f-anim-brillo-max" min="1" max="5" step="0.05" value="1.5" oninput="this.nextElementSibling.textContent=parseFloat(this.value).toFixed(2);updateCardPreview()"><span class="slider-val">1.50</span><button class="slider-reset" data-action="reset-slider" data-reset-val="1.5">↺</button></div></div>
                 </div>
               </div>
               <!-- ═══ Glitch sub-settings ═══ -->
               <div id="sub-glitch" class="anim-sub-panel" style="display:none">
                 <div class="fg2">
-                  <div class="field"><label>Distancia X</label><div class="slider-wrap"><input type="range" id="f-anim-glitch-x" min="0" max="40" step="1" value="4" oninput="this.nextElementSibling.textContent=this.value+'px';updateCardPreview()"><span class="slider-val">4px</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,4)">↺</button></div></div>
-                  <div class="field"><label>Distancia Y</label><div class="slider-wrap"><input type="range" id="f-anim-glitch-y" min="0" max="40" step="1" value="4" oninput="this.nextElementSibling.textContent=this.value+'px';updateCardPreview()"><span class="slider-val">4px</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,4)">↺</button></div></div>
+                  <div class="field"><label>Distancia X</label><div class="slider-wrap"><input type="range" id="f-anim-glitch-x" min="0" max="40" step="1" value="4" oninput="this.nextElementSibling.textContent=this.value+'px';updateCardPreview()"><span class="slider-val">4px</span><button class="slider-reset" data-action="reset-slider" data-reset-val="4">↺</button></div></div>
+                  <div class="field"><label>Distancia Y</label><div class="slider-wrap"><input type="range" id="f-anim-glitch-y" min="0" max="40" step="1" value="4" oninput="this.nextElementSibling.textContent=this.value+'px';updateCardPreview()"><span class="slider-val">4px</span><button class="slider-reset" data-action="reset-slider" data-reset-val="4">↺</button></div></div>
                 </div>
-                <div class="field"><label>Rotación glitch</label><div class="slider-wrap"><input type="range" id="f-anim-glitch-rot" min="0" max="15" step="0.5" value="0" oninput="this.nextElementSibling.textContent=parseFloat(this.value).toFixed(1)+'°';updateCardPreview()"><span class="slider-val">0.0°</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,0)">↺</button></div></div>
+                <div class="field"><label>Rotación glitch</label><div class="slider-wrap"><input type="range" id="f-anim-glitch-rot" min="0" max="15" step="0.5" value="0" oninput="this.nextElementSibling.textContent=parseFloat(this.value).toFixed(1)+'°';updateCardPreview()"><span class="slider-val">0.0°</span><button class="slider-reset" data-action="reset-slider" data-reset-val="0">↺</button></div></div>
                 <div class="tog-row"><input type="checkbox" class="tog" id="f-anim-glitch-chromatic" onchange="updateCardPreview()"><span class="tog-lbl">Desplazamiento cromático</span></div>
               </div>
               <!-- ═══ Flotar/Rebotar/Deslizar sub-settings ═══ -->
               <div id="sub-translate" class="anim-sub-panel" style="display:none">
                 <div class="fg2">
-                  <div class="field"><label>Distancia X</label><div class="slider-wrap"><input type="range" id="f-anim-translate-x" min="0" max="80" step="1" value="0" oninput="this.nextElementSibling.textContent=this.value+'px';updateCardPreview()"><span class="slider-val">0px</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,0)">↺</button></div></div>
-                  <div class="field"><label>Distancia Y</label><div class="slider-wrap"><input type="range" id="f-anim-translate-y" min="0" max="80" step="1" value="12" oninput="this.nextElementSibling.textContent=this.value+'px';updateCardPreview()"><span class="slider-val">12px</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,12)">↺</button></div></div>
+                  <div class="field"><label>Distancia X</label><div class="slider-wrap"><input type="range" id="f-anim-translate-x" min="0" max="80" step="1" value="0" oninput="this.nextElementSibling.textContent=this.value+'px';updateCardPreview()"><span class="slider-val">0px</span><button class="slider-reset" data-action="reset-slider" data-reset-val="0">↺</button></div></div>
+                  <div class="field"><label>Distancia Y</label><div class="slider-wrap"><input type="range" id="f-anim-translate-y" min="0" max="80" step="1" value="12" oninput="this.nextElementSibling.textContent=this.value+'px';updateCardPreview()"><span class="slider-val">12px</span><button class="slider-reset" data-action="reset-slider" data-reset-val="12">↺</button></div></div>
                 </div>
-                <div class="field"><label>Rotación (°)</label><div class="slider-wrap"><input type="range" id="f-anim-translate-rot" min="0" max="20" step="0.5" value="0" oninput="this.nextElementSibling.textContent=parseFloat(this.value).toFixed(1)+'°';updateCardPreview()"><span class="slider-val">0.0°</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,0)">↺</button></div></div>
+                <div class="field"><label>Rotación (°)</label><div class="slider-wrap"><input type="range" id="f-anim-translate-rot" min="0" max="20" step="0.5" value="0" oninput="this.nextElementSibling.textContent=parseFloat(this.value).toFixed(1)+'°';updateCardPreview()"><span class="slider-val">0.0°</span><button class="slider-reset" data-action="reset-slider" data-reset-val="0">↺</button></div></div>
               </div>
               <!-- ═══ Neon flicker sub-settings ═══ -->
               <div id="sub-neon" class="anim-sub-panel" style="display:none">
                 <div class="fg2">
-                  <div class="field"><label>Opacidad mín</label><div class="slider-wrap"><input type="range" id="f-anim-neon-min" min="0" max="1" step="0.05" value="0.4" oninput="this.nextElementSibling.textContent=parseFloat(this.value).toFixed(2);updateCardPreview()"><span class="slider-val">0.40</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,0.4)">↺</button></div></div>
-                  <div class="field"><label>Opacidad máx</label><div class="slider-wrap"><input type="range" id="f-anim-neon-max" min="0.5" max="1" step="0.05" value="1" oninput="this.nextElementSibling.textContent=parseFloat(this.value).toFixed(2);updateCardPreview()"><span class="slider-val">1.00</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,1)">↺</button></div></div>
+                  <div class="field"><label>Opacidad mín</label><div class="slider-wrap"><input type="range" id="f-anim-neon-min" min="0" max="1" step="0.05" value="0.4" oninput="this.nextElementSibling.textContent=parseFloat(this.value).toFixed(2);updateCardPreview()"><span class="slider-val">0.40</span><button class="slider-reset" data-action="reset-slider" data-reset-val="0.4">↺</button></div></div>
+                  <div class="field"><label>Opacidad máx</label><div class="slider-wrap"><input type="range" id="f-anim-neon-max" min="0.5" max="1" step="0.05" value="1" oninput="this.nextElementSibling.textContent=parseFloat(this.value).toFixed(2);updateCardPreview()"><span class="slider-val">1.00</span><button class="slider-reset" data-action="reset-slider" data-reset-val="1">↺</button></div></div>
                 </div>
-                <div class="field"><label>Brillo extra en peak</label><div class="slider-wrap"><input type="range" id="f-anim-neon-bright" min="1" max="3" step="0.05" value="1" oninput="this.nextElementSibling.textContent=parseFloat(this.value).toFixed(2);updateCardPreview()"><span class="slider-val">1.00</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,1)">↺</button></div></div>
+                <div class="field"><label>Brillo extra en peak</label><div class="slider-wrap"><input type="range" id="f-anim-neon-bright" min="1" max="3" step="0.05" value="1" oninput="this.nextElementSibling.textContent=parseFloat(this.value).toFixed(2);updateCardPreview()"><span class="slider-val">1.00</span><button class="slider-reset" data-action="reset-slider" data-reset-val="1">↺</button></div></div>
               </div>
               <!-- ═══ Parpadeo sub-settings ═══ -->
               <div id="sub-parpadeo" class="anim-sub-panel" style="display:none">
                 <div class="fg2">
-                  <div class="field"><label>Opacidad mín</label><div class="slider-wrap"><input type="range" id="f-anim-parpadeo-min" min="0" max="1" step="0.05" value="0.3" oninput="this.nextElementSibling.textContent=parseFloat(this.value).toFixed(2);updateCardPreview()"><span class="slider-val">0.30</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,0.3)">↺</button></div></div>
-                  <div class="field"><label>Opacidad máx</label><div class="slider-wrap"><input type="range" id="f-anim-parpadeo-max" min="0.5" max="1" step="0.05" value="1" oninput="this.nextElementSibling.textContent=parseFloat(this.value).toFixed(2);updateCardPreview()"><span class="slider-val">1.00</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,1)">↺</button></div></div>
+                  <div class="field"><label>Opacidad mín</label><div class="slider-wrap"><input type="range" id="f-anim-parpadeo-min" min="0" max="1" step="0.05" value="0.3" oninput="this.nextElementSibling.textContent=parseFloat(this.value).toFixed(2);updateCardPreview()"><span class="slider-val">0.30</span><button class="slider-reset" data-action="reset-slider" data-reset-val="0.3">↺</button></div></div>
+                  <div class="field"><label>Opacidad máx</label><div class="slider-wrap"><input type="range" id="f-anim-parpadeo-max" min="0.5" max="1" step="0.05" value="1" oninput="this.nextElementSibling.textContent=parseFloat(this.value).toFixed(2);updateCardPreview()"><span class="slider-val">1.00</span><button class="slider-reset" data-action="reset-slider" data-reset-val="1">↺</button></div></div>
                 </div>
               </div>
               <!-- ═══ Rotar/Wobble/Balanceo sub-settings ═══ -->
               <div id="sub-rotate" class="anim-sub-panel" style="display:none">
                 <div class="fg2">
-                  <div class="field"><label>Ángulo máx</label><div class="slider-wrap"><input type="range" id="f-anim-rotate-angle" min="1" max="90" step="1" value="5" oninput="this.nextElementSibling.textContent=this.value+'°';updateCardPreview()"><span class="slider-val">5°</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,5)">↺</button></div></div>
-                  <div class="field"><label>Scale pico</label><div class="slider-wrap"><input type="range" id="f-anim-rotate-scale" min="1" max="1.5" step="0.01" value="1" oninput="this.nextElementSibling.textContent=parseFloat(this.value).toFixed(2)+'x';updateCardPreview()"><span class="slider-val">1.00x</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,1)">↺</button></div></div>
+                  <div class="field"><label>Ángulo máx</label><div class="slider-wrap"><input type="range" id="f-anim-rotate-angle" min="1" max="90" step="1" value="5" oninput="this.nextElementSibling.textContent=this.value+'°';updateCardPreview()"><span class="slider-val">5°</span><button class="slider-reset" data-action="reset-slider" data-reset-val="5">↺</button></div></div>
+                  <div class="field"><label>Scale pico</label><div class="slider-wrap"><input type="range" id="f-anim-rotate-scale" min="1" max="1.5" step="0.01" value="1" oninput="this.nextElementSibling.textContent=parseFloat(this.value).toFixed(2)+'x';updateCardPreview()"><span class="slider-val">1.00x</span><button class="slider-reset" data-action="reset-slider" data-reset-val="1">↺</button></div></div>
                 </div>
               </div>
               <!-- ═══ Pulse/Respirar/Latido sub-settings ═══ -->
               <div id="sub-scale" class="anim-sub-panel" style="display:none">
                 <div class="fg2">
-                  <div class="field"><label>Scale mín</label><div class="slider-wrap"><input type="range" id="f-anim-scale-min" min="0.5" max="1" step="0.01" value="1" oninput="this.nextElementSibling.textContent=parseFloat(this.value).toFixed(2)+'x';updateCardPreview()"><span class="slider-val">1.00x</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,1)">↺</button></div></div>
-                  <div class="field"><label>Scale máx</label><div class="slider-wrap"><input type="range" id="f-anim-scale-max" min="1" max="1.8" step="0.01" value="1.06" oninput="this.nextElementSibling.textContent=parseFloat(this.value).toFixed(2)+'x';updateCardPreview()"><span class="slider-val">1.06x</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,1.06)">↺</button></div></div>
+                  <div class="field"><label>Scale mín</label><div class="slider-wrap"><input type="range" id="f-anim-scale-min" min="0.5" max="1" step="0.01" value="1" oninput="this.nextElementSibling.textContent=parseFloat(this.value).toFixed(2)+'x';updateCardPreview()"><span class="slider-val">1.00x</span><button class="slider-reset" data-action="reset-slider" data-reset-val="1">↺</button></div></div>
+                  <div class="field"><label>Scale máx</label><div class="slider-wrap"><input type="range" id="f-anim-scale-max" min="1" max="1.8" step="0.01" value="1.06" oninput="this.nextElementSibling.textContent=parseFloat(this.value).toFixed(2)+'x';updateCardPreview()"><span class="slider-val">1.06x</span><button class="slider-reset" data-action="reset-slider" data-reset-val="1.06">↺</button></div></div>
                 </div>
-                <div class="field"><label>Opacidad mín</label><div class="slider-wrap"><input type="range" id="f-anim-scale-opacity" min="0" max="1" step="0.05" value="0.8" oninput="this.nextElementSibling.textContent=parseFloat(this.value).toFixed(2);updateCardPreview()"><span class="slider-val">0.80</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,0.8)">↺</button></div></div>
+                <div class="field"><label>Opacidad mín</label><div class="slider-wrap"><input type="range" id="f-anim-scale-opacity" min="0" max="1" step="0.05" value="0.8" oninput="this.nextElementSibling.textContent=parseFloat(this.value).toFixed(2);updateCardPreview()"><span class="slider-val">0.80</span><button class="slider-reset" data-action="reset-slider" data-reset-val="0.8">↺</button></div></div>
               </div>
               <!-- ═══ Sacudida/Temblor sub-settings ═══ -->
               <div id="sub-shake" class="anim-sub-panel" style="display:none">
                 <div class="fg2">
-                  <div class="field"><label>Distancia X</label><div class="slider-wrap"><input type="range" id="f-anim-shake-x" min="0" max="30" step="1" value="4" oninput="this.nextElementSibling.textContent=this.value+'px';updateCardPreview()"><span class="slider-val">4px</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,4)">↺</button></div></div>
-                  <div class="field"><label>Distancia Y</label><div class="slider-wrap"><input type="range" id="f-anim-shake-y" min="0" max="30" step="1" value="4" oninput="this.nextElementSibling.textContent=this.value+'px';updateCardPreview()"><span class="slider-val">4px</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,4)">↺</button></div></div>
+                  <div class="field"><label>Distancia X</label><div class="slider-wrap"><input type="range" id="f-anim-shake-x" min="0" max="30" step="1" value="4" oninput="this.nextElementSibling.textContent=this.value+'px';updateCardPreview()"><span class="slider-val">4px</span><button class="slider-reset" data-action="reset-slider" data-reset-val="4">↺</button></div></div>
+                  <div class="field"><label>Distancia Y</label><div class="slider-wrap"><input type="range" id="f-anim-shake-y" min="0" max="30" step="1" value="4" oninput="this.nextElementSibling.textContent=this.value+'px';updateCardPreview()"><span class="slider-val">4px</span><button class="slider-reset" data-action="reset-slider" data-reset-val="4">↺</button></div></div>
                 </div>
               </div>
               <!-- ═══ Cambio-color sub-settings ═══ -->
               <div id="sub-color-shift" class="anim-sub-panel" style="display:none">
                 <div class="fg2">
-                  <div class="field"><label>Hue inicio</label><div class="slider-wrap"><input type="range" id="f-anim-cs-hue-start" min="0" max="360" step="1" value="0" oninput="this.nextElementSibling.textContent=this.value+'°';updateCardPreview()"><span class="slider-val">0°</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,0)">↺</button></div></div>
-                  <div class="field"><label>Hue fin</label><div class="slider-wrap"><input type="range" id="f-anim-cs-hue-end" min="0" max="360" step="1" value="360" oninput="this.nextElementSibling.textContent=this.value+'°';updateCardPreview()"><span class="slider-val">360°</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,360)">↺</button></div></div>
+                  <div class="field"><label>Hue inicio</label><div class="slider-wrap"><input type="range" id="f-anim-cs-hue-start" min="0" max="360" step="1" value="0" oninput="this.nextElementSibling.textContent=this.value+'°';updateCardPreview()"><span class="slider-val">0°</span><button class="slider-reset" data-action="reset-slider" data-reset-val="0">↺</button></div></div>
+                  <div class="field"><label>Hue fin</label><div class="slider-wrap"><input type="range" id="f-anim-cs-hue-end" min="0" max="360" step="1" value="360" oninput="this.nextElementSibling.textContent=this.value+'°';updateCardPreview()"><span class="slider-val">360°</span><button class="slider-reset" data-action="reset-slider" data-reset-val="360">↺</button></div></div>
                 </div>
-                <div class="field"><label>Saturación durante</label><div class="slider-wrap"><input type="range" id="f-anim-cs-sat" min="0" max="5" step="0.1" value="1" oninput="this.nextElementSibling.textContent=parseFloat(this.value).toFixed(1);updateCardPreview()"><span class="slider-val">1.0</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,1)">↺</button></div></div>
+                <div class="field"><label>Saturación durante</label><div class="slider-wrap"><input type="range" id="f-anim-cs-sat" min="0" max="5" step="0.1" value="1" oninput="this.nextElementSibling.textContent=parseFloat(this.value).toFixed(1);updateCardPreview()"><span class="slider-val">1.0</span><button class="slider-reset" data-action="reset-slider" data-reset-val="1">↺</button></div></div>
               </div>
             </div>
           </div>
         <div class="card" class="mt-sm">
         <!-- ═══ Animación 2 (Combo) ═══ -->
         <div class="card" class="mt-sm">
-          <div class="card-title" onclick="toggleCard(this)"><span>🔄 Animación 2 (Combo)</span><i class="fas fa-chevron-down"></i></div>
+          <div class="card-title" data-action="toggle-card"><span>🔄 Animación 2 (Combo)</span><i class="fas fa-chevron-down"></i></div>
           <div class="card-body">
             <p style="font-size:9px;color:var(--hi);margin-bottom:8px">Segunda capa de animación. Se superpone a la animación principal.</p>
             <div class="field"><label>Tipo</label>
@@ -932,24 +932,24 @@ definen géneros.</textarea></div>
           </div>
         </div>
         <div class="card" class="mt-sm">
-          <div class="card-title" onclick="toggleCard(this)"><span>🎨 Estilo de tarjeta</span><i class="fas fa-chevron-down"></i></div>
+          <div class="card-title" data-action="toggle-card"><span>🎨 Estilo de tarjeta</span><i class="fas fa-chevron-down"></i></div>
           <div class="card-body">
             <div class="color-wrap"><label>Color acento</label><div class="color-swatch"><input type="color" id="f-accent-color" value="#dc2626" oninput="syncAccentColor('picker');updateCardPreview()"></div><input type="text" class="color-hex" id="f-accent-color-h" value="#dc2626" oninput="syncAccentColor('hex');updateCardPreview()"></div>
             <div class="fg2">
               <div class="tog-row"><input type="checkbox" class="tog" id="f-shimmer" onchange="updateCardPreview()"><span class="tog-lbl">Shimmer</span></div>
-              <div class="field"><label>Border radius</label><div class="slider-wrap"><input type="range" id="f-cs-radius" min="0" max="80" step="1" value="0" oninput="this.nextElementSibling.textContent=this.value+'px';updateCardPreview()"><span class="slider-val">0px</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,0)">↺</button></div></div>
+              <div class="field"><label>Border radius</label><div class="slider-wrap"><input type="range" id="f-cs-radius" min="0" max="80" step="1" value="0" oninput="this.nextElementSibling.textContent=this.value+'px';updateCardPreview()"><span class="slider-val">0px</span><button class="slider-reset" data-action="reset-slider" data-reset-val="0">↺</button></div></div>
             </div>
             <div class="fg2" id="shimmer-controls">
-              <div class="field"><label>Velocidad shimmer</label><div class="slider-wrap"><input type="range" id="f-shimmer-speed" min="0.5" max="10" step="0.5" value="3" oninput="this.nextElementSibling.textContent=parseFloat(this.value).toFixed(1)+'s';updateCardPreview()"><span class="slider-val">3.0s</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,1)">↺</button></div></div>
-              <div class="field"><label>Opacidad shimmer</label><div class="slider-wrap"><input type="range" id="f-shimmer-op" min="0.01" max="0.3" step="0.01" value="0.04" oninput="this.nextElementSibling.textContent=parseFloat(this.value).toFixed(2);updateCardPreview()"><span class="slider-val">0.04</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,1)">↺</button></div></div>
+              <div class="field"><label>Velocidad shimmer</label><div class="slider-wrap"><input type="range" id="f-shimmer-speed" min="0.5" max="10" step="0.5" value="3" oninput="this.nextElementSibling.textContent=parseFloat(this.value).toFixed(1)+'s';updateCardPreview()"><span class="slider-val">3.0s</span><button class="slider-reset" data-action="reset-slider" data-reset-val="1">↺</button></div></div>
+              <div class="field"><label>Opacidad shimmer</label><div class="slider-wrap"><input type="range" id="f-shimmer-op" min="0.01" max="0.3" step="0.01" value="0.04" oninput="this.nextElementSibling.textContent=parseFloat(this.value).toFixed(2);updateCardPreview()"><span class="slider-val">0.04</span><button class="slider-reset" data-action="reset-slider" data-reset-val="1">↺</button></div></div>
             </div>
-            <div class="field"><label>Opacidad tarjeta</label><div class="slider-wrap"><input type="range" id="f-cs-opacity" min="0.05" max="1" step="0.05" value="1" oninput="sv(this);updateCardPreview()"><span class="slider-val">1.00</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,1)">↺</button></div></div>
+            <div class="field"><label>Opacidad tarjeta</label><div class="slider-wrap"><input type="range" id="f-cs-opacity" min="0.05" max="1" step="0.05" value="1" oninput="sv(this);updateCardPreview()"><span class="slider-val">1.00</span><button class="slider-reset" data-action="reset-slider" data-reset-val="1">↺</button></div></div>
             <div style="border-top:1px solid var(--b);margin-top:8px;padding-top:10px">
               <p class="fs-hint-sm">Borde personalizado</p>
               <div class="tog-row"><input type="checkbox" class="tog" id="f-border-on" onchange="updateCardPreview()"><span class="tog-lbl">Activar borde</span></div>
               <div class="fg3">
                 <div class="color-wrap"><label>Color</label><div class="color-swatch"><input type="color" id="f-border-color" value="#dc2626" oninput="updateCardPreview()"></div></div>
-                <div class="field"><label>Grosor</label><div class="slider-wrap"><input type="range" id="f-border-width" min="0.5" max="20" step="0.5" value="1" oninput="this.nextElementSibling.textContent=parseFloat(this.value).toFixed(1)+'px';updateCardPreview()"><span class="slider-val">1.0px</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,1)">↺</button></div></div>
+                <div class="field"><label>Grosor</label><div class="slider-wrap"><input type="range" id="f-border-width" min="0.5" max="20" step="0.5" value="1" oninput="this.nextElementSibling.textContent=parseFloat(this.value).toFixed(1)+'px';updateCardPreview()"><span class="slider-val">1.0px</span><button class="slider-reset" data-action="reset-slider" data-reset-val="1">↺</button></div></div>
                 <div class="field"><label>Estilo</label>
                   <select id="f-border-style" onchange="updateCardPreview()" style="font-family:var(--fm);font-size:11px;background:var(--abg);color:var(--tx);border:1px solid var(--b);border-radius:var(--rad);padding:6px 8px;width:100%;cursor:pointer">
                     <option value="solid">── Sólido</option>
@@ -965,20 +965,20 @@ definen géneros.</textarea></div>
 
         <!-- ═══ Sombra ═══ -->
         <div class="card" class="mt-sm">
-          <div class="card-title" onclick="toggleCard(this)"><span>🌑 Sombra (box-shadow)</span><i class="fas fa-chevron-down"></i></div>
+          <div class="card-title" data-action="toggle-card"><span>🌑 Sombra (box-shadow)</span><i class="fas fa-chevron-down"></i></div>
           <div class="card-body">
             <div class="tog-row"><input type="checkbox" class="tog" id="f-shadow-on" onchange="updateCardPreview()"><span class="tog-lbl">Activar sombra</span></div>
             <div class="fg2">
               <div class="color-wrap"><label>Color</label><div class="color-swatch"><input type="color" id="f-shadow-color" value="#000000" oninput="updateCardPreview()"></div></div>
-              <div class="field"><label>Opacidad</label><div class="slider-wrap"><input type="range" id="f-shadow-op" min="0" max="1" step="0.05" value="0.35" oninput="sv(this);updateCardPreview()"><span class="slider-val">0.35</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,0.35)">↺</button></div></div>
+              <div class="field"><label>Opacidad</label><div class="slider-wrap"><input type="range" id="f-shadow-op" min="0" max="1" step="0.05" value="0.35" oninput="sv(this);updateCardPreview()"><span class="slider-val">0.35</span><button class="slider-reset" data-action="reset-slider" data-reset-val="0.35">↺</button></div></div>
             </div>
             <div class="fg2">
-              <div class="field"><label>Offset X</label><div class="slider-wrap"><input type="range" id="f-shadow-x" min="-80" max="80" step="1" value="0" oninput="this.nextElementSibling.textContent=this.value+'px';updateCardPreview()"><span class="slider-val">0px</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,0)">↺</button></div></div>
-              <div class="field"><label>Offset Y</label><div class="slider-wrap"><input type="range" id="f-shadow-y" min="-80" max="80" step="1" value="4" oninput="this.nextElementSibling.textContent=this.value+'px';updateCardPreview()"><span class="slider-val">4px</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,4)">↺</button></div></div>
+              <div class="field"><label>Offset X</label><div class="slider-wrap"><input type="range" id="f-shadow-x" min="-80" max="80" step="1" value="0" oninput="this.nextElementSibling.textContent=this.value+'px';updateCardPreview()"><span class="slider-val">0px</span><button class="slider-reset" data-action="reset-slider" data-reset-val="0">↺</button></div></div>
+              <div class="field"><label>Offset Y</label><div class="slider-wrap"><input type="range" id="f-shadow-y" min="-80" max="80" step="1" value="4" oninput="this.nextElementSibling.textContent=this.value+'px';updateCardPreview()"><span class="slider-val">4px</span><button class="slider-reset" data-action="reset-slider" data-reset-val="4">↺</button></div></div>
             </div>
             <div class="fg2">
-              <div class="field"><label>Blur</label><div class="slider-wrap"><input type="range" id="f-shadow-blur" min="0" max="150" step="1" value="12" oninput="this.nextElementSibling.textContent=this.value+'px';updateCardPreview()"><span class="slider-val">12px</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,12)">↺</button></div></div>
-              <div class="field"><label>Spread</label><div class="slider-wrap"><input type="range" id="f-shadow-spread" min="-50" max="100" step="1" value="0" oninput="this.nextElementSibling.textContent=this.value+'px';updateCardPreview()"><span class="slider-val">0px</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,0)">↺</button></div></div>
+              <div class="field"><label>Blur</label><div class="slider-wrap"><input type="range" id="f-shadow-blur" min="0" max="150" step="1" value="12" oninput="this.nextElementSibling.textContent=this.value+'px';updateCardPreview()"><span class="slider-val">12px</span><button class="slider-reset" data-action="reset-slider" data-reset-val="12">↺</button></div></div>
+              <div class="field"><label>Spread</label><div class="slider-wrap"><input type="range" id="f-shadow-spread" min="-50" max="100" step="1" value="0" oninput="this.nextElementSibling.textContent=this.value+'px';updateCardPreview()"><span class="slider-val">0px</span><button class="slider-reset" data-action="reset-slider" data-reset-val="0">↺</button></div></div>
             </div>
             <div class="tog-row"><input type="checkbox" class="tog" id="f-shadow-inset" onchange="updateCardPreview()"><span class="tog-lbl">Inset (sombra interna)</span></div>
           </div>
@@ -986,7 +986,7 @@ definen géneros.</textarea></div>
 
         <!-- ═══ Hover ═══ -->
         <div class="card" class="mt-sm">
-          <div class="card-title" onclick="toggleCard(this)"><span>🎭 Efectos Hover</span><i class="fas fa-chevron-down"></i></div>
+          <div class="card-title" data-action="toggle-card"><span>🎭 Efectos Hover</span><i class="fas fa-chevron-down"></i></div>
           <div class="card-body">
             <p class="fs-hint-sm">Lo que pasa al pasar el mouse sobre la tarjeta.</p>
             <!-- Hover presets -->
@@ -994,24 +994,24 @@ definen géneros.</textarea></div>
               <label style="font-size:10px;display:block;margin-bottom:5px">⚡ Preset rápido</label>
               <div style="display:flex;flex-wrap:wrap;gap:5px" id="hover-presets-grid"></div>
             </div>
-            <div class="field"><label>Escala hover</label><div class="slider-wrap"><input type="range" id="f-hov-scale" min="0.5" max="2" step="0.01" value="1" oninput="this.nextElementSibling.textContent=parseFloat(this.value).toFixed(2)+'x';updateCardPreview()"><span class="slider-val">1.00x</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,1)">↺</button></div></div>
+            <div class="field"><label>Escala hover</label><div class="slider-wrap"><input type="range" id="f-hov-scale" min="0.5" max="2" step="0.01" value="1" oninput="this.nextElementSibling.textContent=parseFloat(this.value).toFixed(2)+'x';updateCardPreview()"><span class="slider-val">1.00x</span><button class="slider-reset" data-action="reset-slider" data-reset-val="1">↺</button></div></div>
             <div class="fg2">
-              <div class="field"><label>Brillo hover</label><div class="slider-wrap"><input type="range" id="f-hov-bright" min="0" max="5" step="0.05" value="1" oninput="sv(this);updateCardPreview()"><span class="slider-val">1.00</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,1)">↺</button></div></div>
-              <div class="field"><label>Saturación hover</label><div class="slider-wrap"><input type="range" id="f-hov-sat" min="0" max="8" step="0.05" value="1" oninput="sv(this);updateCardPreview()"><span class="slider-val">1.00</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,1)">↺</button></div></div>
+              <div class="field"><label>Brillo hover</label><div class="slider-wrap"><input type="range" id="f-hov-bright" min="0" max="5" step="0.05" value="1" oninput="sv(this);updateCardPreview()"><span class="slider-val">1.00</span><button class="slider-reset" data-action="reset-slider" data-reset-val="1">↺</button></div></div>
+              <div class="field"><label>Saturación hover</label><div class="slider-wrap"><input type="range" id="f-hov-sat" min="0" max="8" step="0.05" value="1" oninput="sv(this);updateCardPreview()"><span class="slider-val">1.00</span><button class="slider-reset" data-action="reset-slider" data-reset-val="1">↺</button></div></div>
             </div>
             <div class="fg2">
-              <div class="field"><label>Elevación</label><div class="slider-wrap"><input type="range" id="f-hov-shadow" min="0" max="100" step="1" value="0" oninput="this.nextElementSibling.textContent=this.value+'px';updateCardPreview()"><span class="slider-val">0px</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,0)">↺</button></div></div>
-              <div class="field"><label>Transición</label><div class="slider-wrap"><input type="range" id="f-hov-trans" min="0" max="3" step="0.05" value="0.3" oninput="this.nextElementSibling.textContent=parseFloat(this.value).toFixed(2)+'s';updateCardPreview()"><span class="slider-val">0.30s</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,0.3)">↺</button></div></div>
+              <div class="field"><label>Elevación</label><div class="slider-wrap"><input type="range" id="f-hov-shadow" min="0" max="100" step="1" value="0" oninput="this.nextElementSibling.textContent=this.value+'px';updateCardPreview()"><span class="slider-val">0px</span><button class="slider-reset" data-action="reset-slider" data-reset-val="0">↺</button></div></div>
+              <div class="field"><label>Transición</label><div class="slider-wrap"><input type="range" id="f-hov-trans" min="0" max="3" step="0.05" value="0.3" oninput="this.nextElementSibling.textContent=parseFloat(this.value).toFixed(2)+'s';updateCardPreview()"><span class="slider-val">0.30s</span><button class="slider-reset" data-action="reset-slider" data-reset-val="0.3">↺</button></div></div>
             </div>
             <div class="color-wrap"><label>Borde hover</label><div class="color-swatch"><input type="color" id="f-hov-border" value="#dc2626" oninput="updateCardPreview()"></div><span class="fs-hint">dejar igual para no cambiar</span></div>
             <div class="tog-row"><input type="checkbox" class="tog" id="f-hov-glow" onchange="updateCardPreview()"><span class="tog-lbl">Intensificar glow en hover</span></div>
             <div style="border-top:1px solid var(--b);margin-top:8px;padding-top:10px">
               <p class="fs-hint-sm">Propiedades nuevas</p>
-              <div class="field"><label>Blur hover</label><div class="slider-wrap"><input type="range" id="f-hov-blur" min="0" max="30" step="0.5" value="0" oninput="this.nextElementSibling.textContent=parseFloat(this.value).toFixed(1)+'px';updateCardPreview()"><span class="slider-val">0.0px</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,0)">↺</button></div></div>
-              <div class="field"><label>Blur hermanos</label><div class="slider-wrap"><input type="range" id="f-hov-sib-blur" min="0" max="20" step="0.5" value="0" oninput="this.nextElementSibling.textContent=parseFloat(this.value).toFixed(1)+'px';updateCardPreview()"><span class="slider-val">0.0px</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,0)">↺</button></div></div>
+              <div class="field"><label>Blur hover</label><div class="slider-wrap"><input type="range" id="f-hov-blur" min="0" max="30" step="0.5" value="0" oninput="this.nextElementSibling.textContent=parseFloat(this.value).toFixed(1)+'px';updateCardPreview()"><span class="slider-val">0.0px</span><button class="slider-reset" data-action="reset-slider" data-reset-val="0">↺</button></div></div>
+              <div class="field"><label>Blur hermanos</label><div class="slider-wrap"><input type="range" id="f-hov-sib-blur" min="0" max="20" step="0.5" value="0" oninput="this.nextElementSibling.textContent=parseFloat(this.value).toFixed(1)+'px';updateCardPreview()"><span class="slider-val">0.0px</span><button class="slider-reset" data-action="reset-slider" data-reset-val="0">↺</button></div></div>
               <div class="fg2">
-                <div class="field"><label>Hue rotate hover</label><div class="slider-wrap"><input type="range" id="f-hov-hue" min="0" max="360" step="1" value="0" oninput="this.nextElementSibling.textContent=this.value+'°';updateCardPreview()"><span class="slider-val">0°</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,0)">↺</button></div></div>
-                <div class="field"><label>Opacidad hover</label><div class="slider-wrap"><input type="range" id="f-hov-opacity" min="0" max="1" step="0.05" value="1" oninput="sv(this);updateCardPreview()"><span class="slider-val">1.00</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,1)">↺</button></div></div>
+                <div class="field"><label>Hue rotate hover</label><div class="slider-wrap"><input type="range" id="f-hov-hue" min="0" max="360" step="1" value="0" oninput="this.nextElementSibling.textContent=this.value+'°';updateCardPreview()"><span class="slider-val">0°</span><button class="slider-reset" data-action="reset-slider" data-reset-val="0">↺</button></div></div>
+                <div class="field"><label>Opacidad hover</label><div class="slider-wrap"><input type="range" id="f-hov-opacity" min="0" max="1" step="0.05" value="1" oninput="sv(this);updateCardPreview()"><span class="slider-val">1.00</span><button class="slider-reset" data-action="reset-slider" data-reset-val="1">↺</button></div></div>
               </div>
               <div style="border-top:1px solid var(--b);margin-top:8px;padding-top:10px">
                 <p class="fs-hint-sm">Animación al hover</p>
@@ -1050,7 +1050,7 @@ definen géneros.</textarea></div>
                     <option value="wobble">🪱 Wobble</option>
                   </select>
                 </div>
-                <div class="field"><label>Duración anim hover</label><div class="slider-wrap"><input type="range" id="f-hov-anim-dur" min="0.1" max="15" step="0.1" value="1" oninput="this.nextElementSibling.textContent=parseFloat(this.value).toFixed(1)+'s';updateCardPreview()"><span class="slider-val">1.0s</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,1)">↺</button></div></div>
+                <div class="field"><label>Duración anim hover</label><div class="slider-wrap"><input type="range" id="f-hov-anim-dur" min="0.1" max="15" step="0.1" value="1" oninput="this.nextElementSibling.textContent=parseFloat(this.value).toFixed(1)+'s';updateCardPreview()"><span class="slider-val">1.0s</span><button class="slider-reset" data-action="reset-slider" data-reset-val="1">↺</button></div></div>
               </div>
             </div>
           </div>
@@ -1058,20 +1058,20 @@ definen géneros.</textarea></div>
 
         <!-- ═══ Transform ═══ -->
         <div class="card" class="mt-sm">
-          <div class="card-title" onclick="toggleCard(this)"><span>📐 Transform inicial</span><i class="fas fa-chevron-down"></i></div>
+          <div class="card-title" data-action="toggle-card"><span>📐 Transform inicial</span><i class="fas fa-chevron-down"></i></div>
           <div class="card-body">
             <p class="fs-hint-sm">Transformación CSS aplicada siempre a la tarjeta.</p>
             <div class="fg2">
-              <div class="field"><label>Rotación</label><div class="slider-wrap"><input type="range" id="f-tf-rotate" min="-180" max="180" step="0.5" value="0" oninput="this.nextElementSibling.textContent=parseFloat(this.value).toFixed(1)+'°';updateCardPreview()"><span class="slider-val">0.0°</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,0)">↺</button></div></div>
-              <div class="field"><label>Escala</label><div class="slider-wrap"><input type="range" id="f-tf-scale" min="0.7" max="1.3" step="0.01" value="1" oninput="this.nextElementSibling.textContent=parseFloat(this.value).toFixed(2)+'x';updateCardPreview()"><span class="slider-val">1.00x</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,1)">↺</button></div></div>
+              <div class="field"><label>Rotación</label><div class="slider-wrap"><input type="range" id="f-tf-rotate" min="-180" max="180" step="0.5" value="0" oninput="this.nextElementSibling.textContent=parseFloat(this.value).toFixed(1)+'°';updateCardPreview()"><span class="slider-val">0.0°</span><button class="slider-reset" data-action="reset-slider" data-reset-val="0">↺</button></div></div>
+              <div class="field"><label>Escala</label><div class="slider-wrap"><input type="range" id="f-tf-scale" min="0.7" max="1.3" step="0.01" value="1" oninput="this.nextElementSibling.textContent=parseFloat(this.value).toFixed(2)+'x';updateCardPreview()"><span class="slider-val">1.00x</span><button class="slider-reset" data-action="reset-slider" data-reset-val="1">↺</button></div></div>
             </div>
             <div class="fg2">
-              <div class="field"><label>Skew X</label><div class="slider-wrap"><input type="range" id="f-tf-skewX" min="-45" max="45" step="0.5" value="0" oninput="this.nextElementSibling.textContent=parseFloat(this.value).toFixed(1)+'°';updateCardPreview()"><span class="slider-val">0.0°</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,0)">↺</button></div></div>
-              <div class="field"><label>Skew Y</label><div class="slider-wrap"><input type="range" id="f-tf-skewY" min="-45" max="45" step="0.5" value="0" oninput="this.nextElementSibling.textContent=parseFloat(this.value).toFixed(1)+'°';updateCardPreview()"><span class="slider-val">0.0°</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,0)">↺</button></div></div>
+              <div class="field"><label>Skew X</label><div class="slider-wrap"><input type="range" id="f-tf-skewX" min="-45" max="45" step="0.5" value="0" oninput="this.nextElementSibling.textContent=parseFloat(this.value).toFixed(1)+'°';updateCardPreview()"><span class="slider-val">0.0°</span><button class="slider-reset" data-action="reset-slider" data-reset-val="0">↺</button></div></div>
+              <div class="field"><label>Skew Y</label><div class="slider-wrap"><input type="range" id="f-tf-skewY" min="-45" max="45" step="0.5" value="0" oninput="this.nextElementSibling.textContent=parseFloat(this.value).toFixed(1)+'°';updateCardPreview()"><span class="slider-val">0.0°</span><button class="slider-reset" data-action="reset-slider" data-reset-val="0">↺</button></div></div>
             </div>
             <div class="fg2">
-              <div class="field"><label>Translate X</label><div class="slider-wrap"><input type="range" id="f-tf-x" min="-100" max="100" step="1" value="0" oninput="this.nextElementSibling.textContent=this.value+'px';updateCardPreview()"><span class="slider-val">0px</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,0)">↺</button></div></div>
-              <div class="field"><label>Translate Y</label><div class="slider-wrap"><input type="range" id="f-tf-y" min="-100" max="100" step="1" value="0" oninput="this.nextElementSibling.textContent=this.value+'px';updateCardPreview()"><span class="slider-val">0px</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,0)">↺</button></div></div>
+              <div class="field"><label>Translate X</label><div class="slider-wrap"><input type="range" id="f-tf-x" min="-100" max="100" step="1" value="0" oninput="this.nextElementSibling.textContent=this.value+'px';updateCardPreview()"><span class="slider-val">0px</span><button class="slider-reset" data-action="reset-slider" data-reset-val="0">↺</button></div></div>
+              <div class="field"><label>Translate Y</label><div class="slider-wrap"><input type="range" id="f-tf-y" min="-100" max="100" step="1" value="0" oninput="this.nextElementSibling.textContent=this.value+'px';updateCardPreview()"><span class="slider-val">0px</span><button class="slider-reset" data-action="reset-slider" data-reset-val="0">↺</button></div></div>
             </div>
           </div>
         </div>
@@ -1090,19 +1090,19 @@ definen géneros.</textarea></div>
       <div class="section-title"><i class="fas fa-shopping-bag"></i> Elementos</div>
 
       <div class="card">
-        <div class="card-title" onclick="toggleCard(this)"><span>Waveform</span><i class="fas fa-chevron-down"></i></div>
+        <div class="card-title" data-action="toggle-card"><span>Waveform</span><i class="fas fa-chevron-down"></i></div>
         <div class="card-body">
           <div class="color-wrap"><label>Color normal</label><div class="color-swatch"><input type="color" id="tc-wbar" value="#ffffff" oninput="syncWB(this.value)"></div><input type="text" class="color-hex" id="tt-wbar" value="#ffffff33" oninput="syncWB(this.value)"></div>
           <div class="color-wrap"><label>Color activo</label><div class="color-swatch"><input type="color" id="tc-wbar-a" value="#dc2626" oninput="syncWBA(this.value)"></div><input type="text" class="color-hex" id="tt-wbar-a" value="#dc2626" oninput="syncWBA(this.value)"></div>
           <div class="field"><label>Opacidad inactivo</label><div class="slider-wrap"><input type="range" id="t-wbar-op" min="0" max="1" step="0.05" value="0.18" oninput="sv(this);autoSave()"><span class="slider-val">0.18</span></div></div>
           <div class="field"><label>Opacidad activo</label><div class="slider-wrap"><input type="range" id="t-wbar-aop" min="0" max="1" step="0.05" value="1" oninput="sv(this);autoSave()"><span class="slider-val">1.00</span></div></div>
-          <div class="field"><label>Altura barras</label><div class="slider-wrap"><input type="range" id="t-wbar-h" min="4" max="30" value="12" oninput="sv(this);autoSave()"><span class="slider-val">12px</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,12)">↺</button></div></div>
-          <div class="field"><label>Radio barras</label><div class="slider-wrap"><input type="range" id="t-wbar-r" min="0" max="10" value="2" oninput="sv(this);autoSave()"><span class="slider-val">2px</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,2)">↺</button></div></div>
+          <div class="field"><label>Altura barras</label><div class="slider-wrap"><input type="range" id="t-wbar-h" min="4" max="30" value="12" oninput="sv(this);autoSave()"><span class="slider-val">12px</span><button class="slider-reset" data-action="reset-slider" data-reset-val="12">↺</button></div></div>
+          <div class="field"><label>Radio barras</label><div class="slider-wrap"><input type="range" id="t-wbar-r" min="0" max="10" value="2" oninput="sv(this);autoSave()"><span class="slider-val">2px</span><button class="slider-reset" data-action="reset-slider" data-reset-val="2">↺</button></div></div>
         </div>
       </div>
 
       <div class="card">
-        <div class="card-title" onclick="toggleCard(this)"><span>Botón licencias</span><i class="fas fa-chevron-down"></i></div>
+        <div class="card-title" data-action="toggle-card"><span>Botón licencias</span><i class="fas fa-chevron-down"></i></div>
         <div class="card-body">
           <div class="color-wrap"><label>Texto</label><div class="color-swatch"><input type="color" id="tc-btn-clr" value="#dc2626" oninput="syncBtnColor(this.value)"></div><input type="text" class="color-hex" id="tt-btn-clr" value="#dc2626"></div>
           <div class="color-wrap"><label>Borde</label><div class="color-swatch"><input type="color" id="tc-btn-bdr" value="#b91c1c" oninput="syncBtnBdr(this.value)"></div><input type="text" class="color-hex" id="tt-btn-bdr" value="#b91c1c"></div>
@@ -1111,7 +1111,7 @@ definen géneros.</textarea></div>
       </div>
 
       <div class="card">
-        <div class="card-title" onclick="toggleCard(this)"><span>Opacidades</span><i class="fas fa-chevron-down"></i></div>
+        <div class="card-title" data-action="toggle-card"><span>Opacidades</span><i class="fas fa-chevron-down"></i></div>
         <div class="card-body">
           <div class="field"><label>Fondo general</label><div class="slider-wrap"><input type="range" id="t-bg-op" min="0" max="1" step="0.05" value="1" oninput="sv(this);autoSave()"><span class="slider-val">1.00</span></div></div>
           <div class="fg2">
@@ -1127,7 +1127,7 @@ definen géneros.</textarea></div>
 
       <!-- Def Licenses -->
       <div class="card">
-        <div class="card-title" onclick="toggleCard(this)"><span>Licencias base</span><i class="fas fa-chevron-down"></i></div>
+        <div class="card-title" data-action="toggle-card"><span>Licencias base</span><i class="fas fa-chevron-down"></i></div>
         <div class="card-body">
           <p style="font-size:10px;color:var(--mu);margin-bottom:6px">Predeterminadas para nuevos beats</p>
           <div class="lic-ed" id="deflics-editor"></div>
@@ -1137,7 +1137,7 @@ definen géneros.</textarea></div>
 
       <!-- Links -->
       <div class="card">
-        <div class="card-title" onclick="toggleCard(this)"><span>Links personalizados</span><i class="fas fa-chevron-down"></i></div>
+        <div class="card-title" data-action="toggle-card"><span>Links personalizados</span><i class="fas fa-chevron-down"></i></div>
         <div class="card-body">
           <div id="links-editor"></div>
           <div class="btn-row" class="mt-xs"><button class="btn btn-g" onclick="addLinkRow()"><i class="fas fa-plus"></i></button><button class="btn btn-ok" onclick="saveLinks()">Guardar</button></div>
@@ -1146,7 +1146,7 @@ definen géneros.</textarea></div>
 
       <!-- Testimonials -->
       <div class="card">
-        <div class="card-title" onclick="toggleCard(this)"><span>Artistas / Testimonios</span><i class="fas fa-chevron-down"></i></div>
+        <div class="card-title" data-action="toggle-card"><span>Artistas / Testimonios</span><i class="fas fa-chevron-down"></i></div>
         <div class="card-body">
           <div class="tog-row"><input type="checkbox" class="tog" id="s-testi" onchange="autoSave()"><span class="tog-lbl">Mostrar sección</span></div>
           <div id="testi-editor"></div>
@@ -1166,7 +1166,7 @@ definen géneros.</textarea></div>
     <div class="section" id="sec-floating">
       <div class="section-title"><i class="fas fa-arrows-alt"></i> Elementos Flotantes</div>
       <div class="card">
-        <div class="card-title" onclick="toggleCard(this)"><span>Canvas flotante</span><i class="fas fa-chevron-down"></i></div>
+        <div class="card-title" data-action="toggle-card"><span>Canvas flotante</span><i class="fas fa-chevron-down"></i></div>
         <div class="card-body">
           <p class="fs-section-label">Imágenes y texto flotantes sobre la tienda</p>
           <div id="floating-preview" style="width:100%;height:120px;border:1px solid var(--b);border-radius:var(--rlg);position:relative;overflow:hidden;background:var(--abg);margin-bottom:8px"></div>
@@ -1188,7 +1188,7 @@ definen géneros.</textarea></div>
       <div class="preset-grid" id="preset-grid"></div>
 
       <div class="card">
-        <div class="card-title" onclick="toggleCard(this)"><span>Mi tema personalizado</span><i class="fas fa-chevron-down"></i></div>
+        <div class="card-title" data-action="toggle-card"><span>Mi tema personalizado</span><i class="fas fa-chevron-down"></i></div>
         <div class="card-body">
           <div class="field"><label>Nombre</label><input type="text" id="custom-theme-name" placeholder="Mi tema"></div>
           <button class="btn btn-ok" onclick="saveCustomTheme()"><i class="fas fa-save"></i> Guardar como tema</button>
@@ -1198,7 +1198,7 @@ definen géneros.</textarea></div>
 
       <!-- Snapshots -->
       <div class="card">
-        <div class="card-title" onclick="toggleCard(this)"><span>Snapshots</span><i class="fas fa-chevron-down"></i></div>
+        <div class="card-title" data-action="toggle-card"><span>Snapshots</span><i class="fas fa-chevron-down"></i></div>
         <div class="card-body">
           <p class="fs-section-label">Compara antes/después de cambios</p>
           <div class="fg2">
@@ -1211,7 +1211,7 @@ definen géneros.</textarea></div>
 
       <!-- Visual Diff -->
       <div class="card">
-        <div class="card-title" onclick="toggleCard(this)"><span>Visual Diff</span><i class="fas fa-columns"></i></div>
+        <div class="card-title" data-action="toggle-card"><span>Visual Diff</span><i class="fas fa-columns"></i></div>
         <div class="card-body">
           <p class="fs-section-label">Compara lado a lado dos snapshots</p>
           <div class="fg2">
@@ -1236,7 +1236,7 @@ definen géneros.</textarea></div>
 
       <!-- Cloudflare R2 Config -->
       <div class="card">
-        <div class="card-title" onclick="toggleCard(this)"><span>☁️ Cloudflare R2</span><i class="fas fa-chevron-down"></i></div>
+        <div class="card-title" data-action="toggle-card"><span>☁️ Cloudflare R2</span><i class="fas fa-chevron-down"></i></div>
         <div class="card-body">
           <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
             <span class="sdot" id="r2-status-dot"></span>
@@ -1264,7 +1264,7 @@ definen géneros.</textarea></div>
 
       <!-- Utilidades -->
       <div class="card">
-        <div class="card-title" onclick="toggleCard(this)"><span>🛠️ Utilidades</span><i class="fas fa-chevron-down"></i></div>
+        <div class="card-title" data-action="toggle-card"><span>🛠️ Utilidades</span><i class="fas fa-chevron-down"></i></div>
         <div class="card-body">
           <p style="font-size:9px;color:var(--hi);margin-bottom:10px">Acciones que se ejecutan en el servidor vía Worker. Requiere R2 configurado.</p>
           <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
@@ -1291,7 +1291,7 @@ definen géneros.</textarea></div>
       </div>
 
       <div class="card">
-        <div class="card-title" onclick="toggleCard(this)"><span>Sitio</span><i class="fas fa-chevron-down"></i></div>
+        <div class="card-title" data-action="toggle-card"><span>Sitio</span><i class="fas fa-chevron-down"></i></div>
         <div class="card-body">
           <div class="fg2">
             <div class="field"><label>Nombre</label><input type="text" id="s-name" placeholder="DACE" oninput="autoSave()"></div>
@@ -1304,7 +1304,7 @@ definen géneros.</textarea></div>
 
       <!-- Section Divider -->
       <div class="card">
-        <div class="card-title" onclick="toggleCard(this)"><span>Section Divider</span><i class="fas fa-chevron-down"></i></div>
+        <div class="card-title" data-action="toggle-card"><span>Section Divider</span><i class="fas fa-chevron-down"></i></div>
         <div class="card-body">
           <!-- Divider Preview -->
           <div style="background:var(--abg);border:1px solid var(--b);border-radius:var(--rad);padding:24px 16px;text-align:center;margin-bottom:12px;position:relative;overflow:hidden">
@@ -1343,7 +1343,7 @@ definen géneros.</textarea></div>
 
       <!-- Historial de cambios -->
       <div class="card">
-        <div class="card-title" onclick="toggleCard(this)"><span>Historial de cambios</span><i class="fas fa-chevron-down"></i></div>
+        <div class="card-title" data-action="toggle-card"><span>Historial de cambios</span><i class="fas fa-chevron-down"></i></div>
         <div class="card-body">
           <div id="change-log"></div>
         </div>
@@ -1553,7 +1553,7 @@ definen géneros.</textarea></div>
      JAVASCRIPT
      ═══════════════════════════════════════════════════════════ -->
 
-<script src="dist/admin-app.js?v=7338709a"></script>
+<script src="dist/admin-app.js?v=ec87df3d"></script>
 
 <!-- ═══ PREVIEW SYNC — runs AFTER admin-app.js so it wraps the real autoSave ═══ -->
 <script>

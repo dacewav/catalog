@@ -258,21 +258,21 @@ export function renderFiltersHTML(prefix) {
     <div style="margin-bottom:8px">
       <div style="font-size:10px;font-weight:600;color:var(--hi);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">Ajustes básicos</div>
     </div>
-    <div class="field"><label>🔆 Brillo</label><div class="slider-wrap"><input type="range" id="${p}cs-fb" min="0" max="5" step="0.05" value="1" oninput="sv(this)"><span class="slider-val">1.00</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,1)">↺</button></div></div>
-    <div class="field"><label>◑ Contraste</label><div class="slider-wrap"><input type="range" id="${p}cs-fc" min="0" max="5" step="0.05" value="1" oninput="sv(this)"><span class="slider-val">1.00</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,1)">↺</button></div></div>
-    <div class="field"><label>🎨 Saturación</label><div class="slider-wrap"><input type="range" id="${p}cs-fs" min="0" max="10" step="0.05" value="1" oninput="sv(this)"><span class="slider-val">1.00</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,1)">↺</button></div></div>
-    <div class="field"><label>👁 Opacidad</label><div class="slider-wrap"><input type="range" id="${p}cs-fo" min="0" max="1" step="0.01" value="1" oninput="sv(this)"><span class="slider-val">1.00</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,1)">↺</button></div></div>
+    <div class="field"><label>🔆 Brillo</label><div class="slider-wrap"><input type="range" id="${p}cs-fb" min="0" max="5" step="0.05" value="1" oninput="sv(this)"><span class="slider-val">1.00</span><button class="slider-reset" data-action="reset-slider" data-reset-val="1">↺</button></div></div>
+    <div class="field"><label>◑ Contraste</label><div class="slider-wrap"><input type="range" id="${p}cs-fc" min="0" max="5" step="0.05" value="1" oninput="sv(this)"><span class="slider-val">1.00</span><button class="slider-reset" data-action="reset-slider" data-reset-val="1">↺</button></div></div>
+    <div class="field"><label>🎨 Saturación</label><div class="slider-wrap"><input type="range" id="${p}cs-fs" min="0" max="10" step="0.05" value="1" oninput="sv(this)"><span class="slider-val">1.00</span><button class="slider-reset" data-action="reset-slider" data-reset-val="1">↺</button></div></div>
+    <div class="field"><label>👁 Opacidad</label><div class="slider-wrap"><input type="range" id="${p}cs-fo" min="0" max="1" step="0.01" value="1" oninput="sv(this)"><span class="slider-val">1.00</span><button class="slider-reset" data-action="reset-slider" data-reset-val="1">↺</button></div></div>
 
     <div style="margin:10px 0 8px">
       <div style="font-size:10px;font-weight:600;color:var(--hi);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">Efectos de color</div>
     </div>
     <div class="fg2">
-      <div class="field"><label>⬜ Grayscale</label><div class="slider-wrap"><input type="range" id="${p}cs-fg" min="0" max="1" step="0.05" value="0" oninput="sv(this)"><span class="slider-val">0.00</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,0)">↺</button></div></div>
-      <div class="field"><label>🟤 Sepia</label><div class="slider-wrap"><input type="range" id="${p}cs-fse" min="0" max="1" step="0.05" value="0" oninput="sv(this)"><span class="slider-val">0.00</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,0)">↺</button></div></div>
+      <div class="field"><label>⬜ Grayscale</label><div class="slider-wrap"><input type="range" id="${p}cs-fg" min="0" max="1" step="0.05" value="0" oninput="sv(this)"><span class="slider-val">0.00</span><button class="slider-reset" data-action="reset-slider" data-reset-val="0">↺</button></div></div>
+      <div class="field"><label>🟤 Sepia</label><div class="slider-wrap"><input type="range" id="${p}cs-fse" min="0" max="1" step="0.05" value="0" oninput="sv(this)"><span class="slider-val">0.00</span><button class="slider-reset" data-action="reset-slider" data-reset-val="0">↺</button></div></div>
     </div>
     <div class="fg2">
-      <div class="field"><label>🔄 Hue rotate</label><div class="slider-wrap"><input type="range" id="${p}cs-fh" min="0" max="360" step="1" value="0" oninput="this.nextElementSibling.textContent=this.value+'°'"><span class="slider-val">0°</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,0)">↺</button></div></div>
-      <div class="field"><label>🔀 Invertir</label><div class="slider-wrap"><input type="range" id="${p}cs-fi" min="0" max="1" step="0.05" value="0" oninput="sv(this)"><span class="slider-val">0.00</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,0)">↺</button></div></div>
+      <div class="field"><label>🔄 Hue rotate</label><div class="slider-wrap"><input type="range" id="${p}cs-fh" min="0" max="360" step="1" value="0" oninput="this.nextElementSibling.textContent=this.value+'°'"><span class="slider-val">0°</span><button class="slider-reset" data-action="reset-slider" data-reset-val="0">↺</button></div></div>
+      <div class="field"><label>🔀 Invertir</label><div class="slider-wrap"><input type="range" id="${p}cs-fi" min="0" max="1" step="0.05" value="0" oninput="sv(this)"><span class="slider-val">0.00</span><button class="slider-reset" data-action="reset-slider" data-reset-val="0">↺</button></div></div>
     </div>
 
     <div style="margin:10px 0 8px">
@@ -286,18 +286,18 @@ export function renderFiltersHTML(prefix) {
         <option value="focus">Focus</option>
       </select>
     </div>
-    <div class="field"><label>Intensidad</label><div class="slider-wrap"><input type="range" id="${p}cs-fbl" min="0" max="50" step="0.5" value="0" oninput="this.nextElementSibling.textContent=parseFloat(this.value).toFixed(1)+'px'"><span class="slider-val">0.0px</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,0)">↺</button></div></div>
+    <div class="field"><label>Intensidad</label><div class="slider-wrap"><input type="range" id="${p}cs-fbl" min="0" max="50" step="0.5" value="0" oninput="this.nextElementSibling.textContent=parseFloat(this.value).toFixed(1)+'px'"><span class="slider-val">0.0px</span><button class="slider-reset" data-action="reset-slider" data-reset-val="0">↺</button></div></div>
 
     <div style="margin:10px 0 8px">
       <div style="font-size:10px;font-weight:600;color:var(--hi);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">Drop Shadow</div>
     </div>
     <div class="fg2">
-      <div class="field"><label>↔ Offset X</label><div class="slider-wrap"><input type="range" id="${p}cs-ds-x" min="-80" max="80" step="1" value="0" oninput="this.nextElementSibling.textContent=this.value+'px'"><span class="slider-val">0px</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,0)">↺</button></div></div>
-      <div class="field"><label>↕ Offset Y</label><div class="slider-wrap"><input type="range" id="${p}cs-ds-y" min="-80" max="80" step="1" value="0" oninput="this.nextElementSibling.textContent=this.value+'px'"><span class="slider-val">0px</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,0)">↺</button></div></div>
+      <div class="field"><label>↔ Offset X</label><div class="slider-wrap"><input type="range" id="${p}cs-ds-x" min="-80" max="80" step="1" value="0" oninput="this.nextElementSibling.textContent=this.value+'px'"><span class="slider-val">0px</span><button class="slider-reset" data-action="reset-slider" data-reset-val="0">↺</button></div></div>
+      <div class="field"><label>↕ Offset Y</label><div class="slider-wrap"><input type="range" id="${p}cs-ds-y" min="-80" max="80" step="1" value="0" oninput="this.nextElementSibling.textContent=this.value+'px'"><span class="slider-val">0px</span><button class="slider-reset" data-action="reset-slider" data-reset-val="0">↺</button></div></div>
     </div>
     <div class="fg2">
-      <div class="field"><label>💫 Blur</label><div class="slider-wrap"><input type="range" id="${p}cs-ds-bl" min="0" max="100" step="1" value="0" oninput="this.nextElementSibling.textContent=this.value+'px'"><span class="slider-val">0px</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,0)">↺</button></div></div>
-      <div class="field"><label>👁 Opacidad</label><div class="slider-wrap"><input type="range" id="${p}cs-ds-op" min="0" max="1" step="0.05" value="0" oninput="sv(this)"><span class="slider-val">0.00</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,0)">↺</button></div></div>
+      <div class="field"><label>💫 Blur</label><div class="slider-wrap"><input type="range" id="${p}cs-ds-bl" min="0" max="100" step="1" value="0" oninput="this.nextElementSibling.textContent=this.value+'px'"><span class="slider-val">0px</span><button class="slider-reset" data-action="reset-slider" data-reset-val="0">↺</button></div></div>
+      <div class="field"><label>👁 Opacidad</label><div class="slider-wrap"><input type="range" id="${p}cs-ds-op" min="0" max="1" step="0.05" value="0" oninput="sv(this)"><span class="slider-val">0.00</span><button class="slider-reset" data-action="reset-slider" data-reset-val="0">↺</button></div></div>
     </div>
     <div class="color-wrap"><label>Color shadow</label><div class="color-swatch"><input type="color" id="${p}cs-ds-clr" value="#000000"></div><input type="text" class="color-hex" id="${p}cs-ds-clr-h" value="#000000"></div>`;
 }
@@ -364,9 +364,9 @@ export function renderStyleHTML(prefix) {
     <div class="color-wrap"><label>Color acento</label><div class="color-swatch"><input type="color" id="${p}accent-color" value="#dc2626"></div><input type="text" class="color-hex" id="${p}accent-color-h" value="#dc2626"></div>
     <div class="fg2">
       <div class="tog-row"><input type="checkbox" class="tog" id="${p}shimmer"><span class="tog-lbl">Shimmer</span></div>
-      <div class="field"><label>Border radius</label><div class="slider-wrap"><input type="range" id="${p}cs-radius" min="0" max="80" step="1" value="0" oninput="this.nextElementSibling.textContent=this.value+'px'"><span class="slider-val">0px</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,0)">↺</button></div></div>
+      <div class="field"><label>Border radius</label><div class="slider-wrap"><input type="range" id="${p}cs-radius" min="0" max="80" step="1" value="0" oninput="this.nextElementSibling.textContent=this.value+'px'"><span class="slider-val">0px</span><button class="slider-reset" data-action="reset-slider" data-reset-val="0">↺</button></div></div>
     </div>
-    <div class="field"><label>Opacidad tarjeta</label><div class="slider-wrap"><input type="range" id="${p}cs-opacity" min="0.05" max="1" step="0.05" value="1" oninput="sv(this)"><span class="slider-val">1.00</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,1)">↺</button></div></div>`;
+    <div class="field"><label>Opacidad tarjeta</label><div class="slider-wrap"><input type="range" id="${p}cs-opacity" min="0.05" max="1" step="0.05" value="1" oninput="sv(this)"><span class="slider-val">1.00</span><button class="slider-reset" data-action="reset-slider" data-reset-val="1">↺</button></div></div>`;
 }
 
 export function renderBorderHTML(prefix) {
@@ -406,13 +406,13 @@ export function renderShadowHTML(prefix) {
 export function renderHoverHTML(prefix) {
   const p = prefix;
   return `
-    <div class="field"><label>Escala hover</label><div class="slider-wrap"><input type="range" id="${p}hov-scale" min="0.5" max="2" step="0.01" value="1" oninput="this.nextElementSibling.textContent=parseFloat(this.value).toFixed(2)+'x'"><span class="slider-val">1.00x</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,1)">↺</button></div></div>
+    <div class="field"><label>Escala hover</label><div class="slider-wrap"><input type="range" id="${p}hov-scale" min="0.5" max="2" step="0.01" value="1" oninput="this.nextElementSibling.textContent=parseFloat(this.value).toFixed(2)+'x'"><span class="slider-val">1.00x</span><button class="slider-reset" data-action="reset-slider" data-reset-val="1">↺</button></div></div>
     <div class="fg2">
-      <div class="field"><label>Brillo hover</label><div class="slider-wrap"><input type="range" id="${p}hov-bright" min="0" max="5" step="0.05" value="1" oninput="sv(this)"><span class="slider-val">1.00</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,1)">↺</button></div></div>
-      <div class="field"><label>Saturación hover</label><div class="slider-wrap"><input type="range" id="${p}hov-sat" min="0" max="8" step="0.05" value="1" oninput="sv(this)"><span class="slider-val">1.00</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,1)">↺</button></div></div>
+      <div class="field"><label>Brillo hover</label><div class="slider-wrap"><input type="range" id="${p}hov-bright" min="0" max="5" step="0.05" value="1" oninput="sv(this)"><span class="slider-val">1.00</span><button class="slider-reset" data-action="reset-slider" data-reset-val="1">↺</button></div></div>
+      <div class="field"><label>Saturación hover</label><div class="slider-wrap"><input type="range" id="${p}hov-sat" min="0" max="8" step="0.05" value="1" oninput="sv(this)"><span class="slider-val">1.00</span><button class="slider-reset" data-action="reset-slider" data-reset-val="1">↺</button></div></div>
     </div>
     <div class="fg2">
-      <div class="field"><label>Elevación</label><div class="slider-wrap"><input type="range" id="${p}hov-shadow" min="0" max="100" step="1" value="0" oninput="this.nextElementSibling.textContent=this.value+'px'"><span class="slider-val">0px</span><button class="slider-reset" onclick="resetSlider(this.previousElementSibling.previousElementSibling,0)">↺</button></div></div>
+      <div class="field"><label>Elevación</label><div class="slider-wrap"><input type="range" id="${p}hov-shadow" min="0" max="100" step="1" value="0" oninput="this.nextElementSibling.textContent=this.value+'px'"><span class="slider-val">0px</span><button class="slider-reset" data-action="reset-slider" data-reset-val="0">↺</button></div></div>
       <div class="field"><label>Transición</label><div class="slider-wrap"><input type="range" id="${p}hov-trans" min="0" max="3" step="0.05" value="0.3" oninput="this.nextElementSibling.textContent=parseFloat(this.value).toFixed(2)+'s'"><span class="slider-val">0.30s</span></div></div>
     </div>
     <div class="color-wrap"><label>Borde hover</label><div class="color-swatch"><input type="color" id="${p}hov-border" value="#dc2626"></div></div>

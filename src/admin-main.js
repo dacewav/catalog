@@ -19,6 +19,20 @@ import './admin/resize.js';
 import './admin/beat-preview.js';
 import './admin/beats.js';
 import './admin/card-global.js';
+
+// Register global UI actions (toggleCard, resetSlider) via event delegation
+import { registerActions } from './admin/click-handler.js';
+import { toggleCard, resetSlider, sv } from './admin/helpers.js';
+registerActions({
+  'toggle-card': (el) => toggleCard(el),
+  'reset-slider': (el) => {
+    const val = parseFloat(el.dataset.resetVal) || 0;
+    // Find the range input: it's the first <input type="range"> in the same slider-wrap
+    const wrap = el.closest('.slider-wrap');
+    const input = wrap?.querySelector('input[type="range"]');
+    if (input) resetSlider(input, val);
+  },
+});
 import './admin/r2.js';
 import './admin/features.js';
 import './admin/trash.js';
