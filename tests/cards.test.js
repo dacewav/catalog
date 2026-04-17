@@ -21,6 +21,7 @@ vi.mock('../src/player.js', () => ({
 vi.mock('../src/utils.js', () => ({
   hexRgba: (hex, a) => `rgba(0,0,0,${a})`,
   applyAnim: (el) => el,
+  esc: (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;'),
 }));
 vi.mock('../src/config.js', () => ({ ANIMS: {} }));
 vi.mock('../src/wishlist.js', () => ({ toggleWish: vi.fn() }));
@@ -159,5 +160,23 @@ describe('beatCard', () => {
     const html = beatCard(makeBeat({ id: '99' }), 0);
     expect(html).toContain('♡');
     expect(html).not.toContain('wish-btn active');
+  });
+
+  it('escapes HTML in beat name to prevent XSS', () => {
+    const html = beatCard(makeBeat({ name: '<script>alert("xss")</script>' }), 0);
+    expect(html).not.toContain('<script>');
+    expect(html).toContain('&lt;script&gt;');
+  });
+
+  it('escapes HTML in beat tags to prevent XSS', () => {
+    const html = beatCard(makeBeat({ tags: ['<img src=x onerror=alert(1)>'] }), 0);
+    expect(html).not.toContain('<img src=x');
+    expect(html).toContain('&lt;img');
+  });
+
+  it('escapes special chars in beat genre and key', () => {
+    const html = beatCard(makeBeat({ genre: 'Trap&Bass', key: 'C#"m' }), 0);
+    expect(html).toContain('Trap&amp;Bass');
+    expect(html).toContain('C#&quot;m');
   });
 });

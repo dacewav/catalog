@@ -20,16 +20,12 @@ function applyLiveUpdate(beatId, data, version) {
   if (bi === -1) {
     // Beat not loaded yet — buffer for later
     _pendingBeatUpdates[beatId] = { data, version };
-    console.log('[LiveEdit] buffered update for', beatId, '(beats not loaded yet)');
     return false;
   }
   
   // Version check to prevent stale updates
   const currentVersion = state.allBeats[bi]._version || 0;
-  if (version && version <= currentVersion) {
-    console.log('[LiveEdit] skipping stale update for', beatId, '| version:', version, '≤', currentVersion);
-    return false;
-  }
+  if (version && version <= currentVersion) return false;
   
   if (data.cardStyle) {
     const cs = data.cardStyle;
@@ -40,14 +36,6 @@ function applyLiveUpdate(beatId, data, version) {
     state.allBeats[bi].shimmer = cs.style?.shimmer || false;
     state.allBeats[bi].shimmerSpeed = cs.style?.shimmerSpeed || 3;
     state.allBeats[bi].shimmerOp = cs.style?.shimmerOp || 0.04;
-    console.log('[LiveEdit] cardStyle applied:', {
-      glow: cs.glow?.enabled ? cs.glow.type : 'off',
-      anim: cs.anim?.type || 'none',
-      shimmer: !!cs.style?.shimmer,
-      shadow: cs.shadow?.enabled ? 'on' : 'off',
-      border: cs.border?.enabled ? 'on' : 'off',
-      hover: Object.keys(cs.hover || {}).filter(k => cs.hover[k] && cs.hover[k] !== 1 && cs.hover[k] !== 0).length ? 'custom' : 'default'
-    });
   }
   
   // Migrate legacy properties if they exist (for backward compatibility)
@@ -77,11 +65,7 @@ export function flushPendingUpdates() {
   console.log('[LiveEdit] flushing', ids.length, 'buffered updates');
   ids.forEach(beatId => {
     const { data, version } = _pendingBeatUpdates[beatId];
-    const success = applyLiveUpdate(beatId, data, version);
-    if (success) {
-      // Send ACK for flushed updates
-      sendAck(beatId, state.allBeats.find(b => b.id === beatId)?._version);
-    }
+    applyLiveUpdate(beatId, data, version);
     delete _pendingBeatUpdates[beatId];
   });
 }
@@ -104,11 +88,8 @@ function sendAck(beatId, version) {
         beatId, 
         version,
         ts: Date.now() 
-      }, '*');
-      console.log('[LiveEdit] ACK sent for', beatId, '| version:', version);
-    } catch (e) {
-      console.warn('[LiveEdit] failed to send ACK:', e.message);
-    }
+      }, window.location.origin);
+    } catch {}
   }
 }
 
@@ -172,9 +153,6 @@ export function initLiveEditBridge() {
       
       // Re-render all cards
       renderAll();
-      // Note: renderAll() already re-applies waveforms after 500ms
-      
-      console.log('[GlobalStyle] applied to', state.allBeats.length, 'beats');
     }
   });
 

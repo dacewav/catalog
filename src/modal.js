@@ -2,6 +2,7 @@
 // Beat detail modal: open, close, license selection, OG tags, player modal link.
 import { state } from './state.js';
 import { AP } from './player.js';
+import { esc } from './utils.js';
 
 // ─── OG Tags ───
 function _setMeta(prop, content) {
@@ -17,7 +18,7 @@ function _updateOG(beat) {
     _ogDefaults.desc = document.querySelector('meta[property="og:description"]')?.content;
     _ogDefaults.img = document.querySelector('meta[property="og:image"]')?.content;
   }
-  const title = beat.name + ' · DACE Beats';
+  const title = esc(beat.name) + ' · DACE Beats';
   const desc = `${beat.bpm} BPM · ${beat.key} · ${beat.genre}${beat.licenses?.[0] ? ` · Desde $${beat.licenses[0].priceMXN} MXN` : ''}`;
   const img = beat.imageUrl || _ogDefaults.img;
   _setMeta('og:title', title); _setMeta('twitter:title', title);
@@ -48,7 +49,7 @@ export function openModal(id) {
   _updateOG(b);
 
   document.getElementById('m-name').textContent = b.name;
-  document.getElementById('m-sub').innerHTML = `<span>${b.bpm} BPM</span><span>${b.key}</span><span>${b.genre}</span>`;
+  document.getElementById('m-sub').innerHTML = `<span>${esc(b.bpm)} BPM</span><span>${esc(b.key)}</span><span>${esc(b.genre)}</span>`;
 
   const mhero = document.getElementById('mhero');
   const oi = mhero?.querySelector('img');
@@ -67,7 +68,7 @@ export function openModal(id) {
   if (mDesc) mDesc.textContent = b.description || '';
 
   const mTags = document.getElementById('m-tags');
-  if (mTags) mTags.innerHTML = (b.tags || []).map((t) => `<span class="tag">${t}</span>`).join('');
+  if (mTags) mTags.innerHTML = (b.tags || []).map((t) => `<span class="tag">${esc(t)}</span>`).join('');
 
   const platHtml = [
     b.spotify && `<a class="plat-btn plat-spotify" href="${b.spotify}" target="_blank">🎵 Spotify</a>`,
@@ -85,8 +86,8 @@ export function openModal(id) {
   if (mLics) {
     mLics.innerHTML = (b.licenses || []).map((l, i) => `
       <div class="lic-row${i === 0 ? ' sel' : ''}" onclick="selLic(this)">
-        <div class="lic-name">${l.name}</div>
-        <div class="lic-desc">${l.description}</div>
+        <div class="lic-name">${esc(l.name)}</div>
+        <div class="lic-desc">${esc(l.description)}</div>
         <div class="lic-p">
           <div class="lic-mxn">$${(l.priceMXN || 0).toLocaleString()} MXN</div>
           <div class="lic-usd">≈ $${l.priceUSD || 0} USD</div>

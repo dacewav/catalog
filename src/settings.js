@@ -1,6 +1,6 @@
 // ═══ DACEWAV.STORE — Settings & Dynamic Content ═══
 import { state } from './state.js';
-import { applyAnim, hexRgba } from './utils.js';
+import { applyAnim, hexRgba, esc } from './utils.js';
 import { ANIMS } from './config.js';
 
 // Change detection for expensive operations
@@ -231,9 +231,9 @@ export function applySettings() {
       testiGrid.innerHTML = s.testimonials.map((t) => `
         <div class="testi-card">
           <div class="testi-stars"><span>★</span><span>★</span><span>★</span><span>★</span><span>★</span></div>
-          <p class="testi-text">${t.text}</p>
-          <div class="testi-name">${t.name}</div>
-          <div class="testi-role">${t.role || ''}</div>
+          <p class="testi-text">${esc(t.text)}</p>
+          <div class="testi-name">${esc(t.name)}</div>
+          <div class="testi-role">${esc(t.role || '')}</div>
         </div>`).join('');
     }
   }

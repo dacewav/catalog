@@ -131,6 +131,24 @@ function _updatePlayingState() {
   }
 }
 
+function _updatePlayerUI(beat) {
+  const piName = document.getElementById('pi-name');
+  if (piName) piName.textContent = beat.name;
+
+  const piMeta = document.getElementById('pi-meta');
+  if (piMeta) piMeta.textContent = `${beat.bpm} BPM · ${beat.key} · ${beat.genre}`;
+
+  const th = document.getElementById('pi-thumb');
+  if (th) {
+    th.innerHTML = beat.imageUrl
+      ? `<img src="${beat.imageUrl}" alt="" loading="lazy">`
+      : '♦';
+  }
+
+  const bar = document.getElementById('player-bar');
+  if (bar) bar.classList.add('up');
+}
+
 function _playIdx(idx) {
   const b = state.allBeats[idx];
   if (!b) return;
@@ -145,23 +163,7 @@ function _playIdx(idx) {
   _audio.play().catch((err) => logError('Player/play', err));
   _playing = true;
   trackPlay(b.id);
-
-  const piName = document.getElementById('pi-name');
-  if (piName) piName.textContent = b.name;
-
-  const piMeta = document.getElementById('pi-meta');
-  if (piMeta) piMeta.textContent = `${b.bpm} BPM · ${b.key} · ${b.genre}`;
-
-  const th = document.getElementById('pi-thumb');
-  if (th) {
-    th.innerHTML = b.imageUrl
-      ? `<img src="${b.imageUrl}" alt="" loading="lazy">`
-      : '♦';
-  }
-
-  const bar = document.getElementById('player-bar');
-  if (bar) bar.classList.add('up');
-
+  _updatePlayerUI(b);
   _updateIcons();
 }
 
@@ -181,22 +183,7 @@ export const AP = {
       _playing = true;
       _idx = bi;
       trackPlay(beat.id);
-
-      const bar = document.getElementById('player-bar');
-      if (bar) bar.classList.add('up');
-
-      const piName = document.getElementById('pi-name');
-      if (piName) piName.textContent = beat.name;
-
-      const piMeta = document.getElementById('pi-meta');
-      if (piMeta) piMeta.textContent = `${beat.bpm} BPM · ${beat.key} · ${beat.genre}`;
-
-      const th = document.getElementById('pi-thumb');
-      if (th) {
-        th.innerHTML = beat.imageUrl
-          ? `<img src="${beat.imageUrl}" alt="" loading="lazy">`
-          : '♦';
-      }
+      _updatePlayerUI(beat);
     }
     _updateIcons();
   },
@@ -234,7 +221,6 @@ export const AP = {
   exitModal() { _modalMode = false; _updateIcons(); },
 
   playModalBeat(beat) {
-    // Play a beat from modal context — uses global player with modal tracking
     _modalMode = true;
     const bi = state.allBeats.findIndex((b) => b.id === beat.id);
     const url = beat.previewUrl || beat.audioUrl || '';
@@ -247,24 +233,8 @@ export const AP = {
       _playing = true;
       _idx = bi;
       trackPlay(beat.id);
-
-      const bar = document.getElementById('player-bar');
-      if (bar) bar.classList.add('up');
-
-      const piName = document.getElementById('pi-name');
-      if (piName) piName.textContent = beat.name;
-
-      const piMeta = document.getElementById('pi-meta');
-      if (piMeta) piMeta.textContent = `${beat.bpm} BPM · ${beat.key} · ${beat.genre}`;
-
-      const th = document.getElementById('pi-thumb');
-      if (th) {
-        th.innerHTML = beat.imageUrl
-          ? `<img src="${beat.imageUrl}" alt="" loading="lazy">`
-          : '♦';
-      }
+      _updatePlayerUI(beat);
     } else {
-      // Same beat, just resume
       _audio.play().catch((err) => logError('Player/toggle', err));
       _playing = true;
     }

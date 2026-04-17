@@ -153,7 +153,7 @@ initLiveEditBridge();
   // Patch AP.play to add error handling
   const origPlay = AP.playIdx.bind(AP);
   AP.playIdx = function (idx) {
-    retryMap.clear?.();
+    for (const k in retryMap) delete retryMap[k];
     try { origPlay(idx); } catch (e) { showToast('Error al reproducir'); return; }
     requestAnimationFrame(() => {
       const audio = AP.audio;
@@ -282,16 +282,8 @@ window.addEventListener('load', () => {
         .map((k) => { raw[k].id = raw[k].id || k; return raw[k]; })
         .filter((b) => b.active !== false && b.id && b.id !== 'undefined')
         .sort((a, b) => (a.order || 0) - (b.order || 0));
-      // Apply any active live edit overlays before rendering
-      state.db.ref('liveEdits').once('value').then(editSnap => {
-        const edits = editSnap.val() || {};
-        Object.keys(edits).forEach(beatId => {
-          const bi = state.allBeats.findIndex(x => x.id === beatId);
-          if (bi > -1) Object.assign(state.allBeats[bi], edits[beatId]);
-        });
-        renderAll();
-        flushPendingUpdates(); // Apply any buffered iframe postMessage updates
-      }).catch(() => { renderAll(); flushPendingUpdates(); });
+      renderAll();
+      flushPendingUpdates(); // Apply any buffered iframe postMessage updates
       localStorage.setItem('dace-beats', JSON.stringify(state.allBeats));
       state.ldBeats = true;
       _checkReady();
@@ -304,38 +296,24 @@ window.addEventListener('load', () => {
     // Live edits from admin — overlay preview data on beats
     state.db.ref('liveEdits').on('value', (snap) => {
       const edits = snap.val() || {};
-      const editCount = Object.keys(edits).length;
-      console.log('[LiveEdit:store] liveEdits changed, count:', editCount, editCount ? Object.keys(edits) : '');
-      
-      if (!state.allBeats || state.allBeats.length === 0) {
-        console.warn('[LiveEdit:store] Beats not loaded yet, skipping overlay');
-        return;
-      }
-      
-      Object.keys(edits).forEach(beatId => {
+      const editIds = Object.keys(edits);
+      if (!editIds.length || !state.allBeats?.length) return;
+
+      editIds.forEach(beatId => {
         const bi = state.allBeats.findIndex(x => x.id === beatId);
-        if (bi === -1) {
-          console.warn('[LiveEdit:store] Beat not found:', beatId);
-          return;
-        }
-        console.log('[LiveEdit:store] overlay', beatId, 'index:', bi);
-        
+        if (bi === -1) return;
         const edit = edits[beatId];
         if (edit.cardStyle) {
-          state.allBeats[bi].glowConfig = edit.cardStyle.glow || { enabled: false };
-          state.allBeats[bi].cardAnim = edit.cardStyle.anim || null;
-          state.allBeats[bi].accentColor = edit.cardStyle.style?.accentColor || '';
-          state.allBeats[bi].cardBorder = edit.cardStyle.border || { enabled: false };
-          state.allBeats[bi].shimmer = edit.cardStyle.style?.shimmer || false;
+          const cs = edit.cardStyle;
+          state.allBeats[bi].glowConfig = cs.glow || { enabled: false };
+          state.allBeats[bi].cardAnim = cs.anim || null;
+          state.allBeats[bi].accentColor = cs.style?.accentColor || '';
+          state.allBeats[bi].cardBorder = cs.border || { enabled: false };
+          state.allBeats[bi].shimmer = cs.style?.shimmer || false;
         }
         Object.assign(state.allBeats[bi], edit);
       });
-      if (editCount) {
-        console.log('[LiveEdit:store] Rendering with', editCount, 'live edits');
-        renderAll();
-      }
-    }, (err) => {
-      console.error('[LiveEdit:store] Firebase read error:', err.code, err.message);
+      renderAll();
     });
 
     initAnalytics();

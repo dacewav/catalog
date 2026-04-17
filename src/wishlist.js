@@ -1,6 +1,7 @@
 // ═══ DACEWAV.STORE — Wishlist System ═══
 import { state } from './state.js';
 import { logError, fbCatch } from './error-handler.js';
+import { esc } from './utils.js';
 
 export function getWishlist() {
   return state.wishlist;
@@ -66,13 +67,13 @@ export function renderWishList() {
       ? `<img src="${b.imageUrl}" alt="" loading="lazy">`
       : '<span style="font-size:1.2rem">♦</span>';
     const price = minL ? ` · $${minL.priceMXN} MXN` : '';
-    return `<div class="wl-item" onclick="openModal('${b.id}');toggleWishlist()">
+    return `<div class="wl-item" onclick="openModal('${esc(b.id)}');toggleWishlist()">
       <div class="wl-item-img">${img}</div>
       <div class="wl-item-info">
-        <div class="wl-item-name">${b.name}</div>
-        <div class="wl-item-meta">${b.bpm} BPM · ${b.key}${price}</div>
+        <div class="wl-item-name">${esc(b.name)}</div>
+        <div class="wl-item-meta">${esc(b.bpm)} BPM · ${esc(b.key)}${price}</div>
       </div>
-      <button class="wl-item-remove" onclick="event.stopPropagation();toggleWish('${b.id}')" title="Quitar">✕</button>
+      <button class="wl-item-remove" onclick="event.stopPropagation();toggleWish('${esc(b.id)}')" title="Quitar">✕</button>
     </div>`;
   }).join('');
 }

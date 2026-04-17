@@ -56,6 +56,14 @@ export function safeJSON(str, fallback = null) {
 }
 
 /**
+ * Escape HTML entities to prevent XSS.
+ */
+export function esc(s) {
+  if (s == null) return '';
+  return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
+/**
  * Debounce a function.
  */
 export function debounce(fn, ms) {

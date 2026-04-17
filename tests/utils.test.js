@@ -1,6 +1,6 @@
 // ═══ DACEWAV.STORE — Utility Tests ═══
 import { describe, it, expect } from 'vitest';
-import { hexRgba, formatTime, safeJSON, debounce } from '../src/utils.js';
+import { hexRgba, formatTime, safeJSON, debounce, esc } from '../src/utils.js';
 
 describe('hexRgba', () => {
   it('converts hex to rgba', () => {
@@ -53,6 +53,28 @@ describe('safeJSON', () => {
   it('uses custom fallback', () => {
     expect(safeJSON('bad', 'default')).toBe('default');
     expect(safeJSON('bad', 42)).toBe(42);
+  });
+});
+
+describe('esc', () => {
+  it('escapes HTML entities', () => {
+    expect(esc('<script>alert("xss")</script>')).toBe('&lt;script&gt;alert(&quot;xss&quot;)&lt;/script&gt;');
+    expect(esc('a & b')).toBe('a &amp; b');
+    expect(esc("it's")).toBe('it&#39;s');
+  });
+
+  it('handles null/undefined gracefully', () => {
+    expect(esc(null)).toBe('');
+    expect(esc(undefined)).toBe('');
+  });
+
+  it('passes through safe strings unchanged', () => {
+    expect(esc('Normal Beat Name')).toBe('Normal Beat Name');
+    expect(esc('140 BPM')).toBe('140 BPM');
+  });
+
+  it('escapes all dangerous chars in combination', () => {
+    expect(esc('<img src="x" onerror=\'alert(1)\'>')).toBe('&lt;img src=&quot;x&quot; onerror=&#39;alert(1)&#39;&gt;');
   });
 });
 

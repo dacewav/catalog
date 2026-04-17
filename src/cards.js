@@ -1,6 +1,6 @@
 // ═══ DACEWAV.STORE — Beat Cards & Modal ═══
 import { state } from './state.js';
-import { hexRgba, applyAnim } from './utils.js';
+import { hexRgba, applyAnim, esc } from './utils.js';
 import { ANIMS } from './config.js';
 import { AP } from './player.js';
 import { toggleWish } from './wishlist.js';
@@ -30,7 +30,7 @@ export function beatCard(b, globalIdx) {
   const lics = b.licenses || [];
   const minL = lics[0];
   const imgH = b.imageUrl
-    ? `<img src="${b.imageUrl}" alt="${b.name}" loading="lazy">`
+    ? `<img src="${esc(b.imageUrl)}" alt="${esc(b.name)}" loading="lazy">`
     : '<div class="beat-img-ph">♦</div>';
   const isWished = state.wishlist.indexOf(b.id) > -1;
 
@@ -317,12 +317,12 @@ export function beatCard(b, globalIdx) {
         <div class="play-hint"><div class="play-circle"><svg width="16" height="16" viewBox="0 0 16 16" fill="white"><path d="${isPlay ? 'M4 2h2v12H4zM10 2h2v12h-2z' : 'M5 3l10 5-10 5V3z'}"/></svg></div></div>
       </div>
       <div class="beat-body">
-        <div class="beat-name">${b.name}${b.exclusive ? '<span class="tag" style="border-color:rgba(185,28,28,.5);color:var(--accent);margin-left:6px">EXCL</span>' : ''}</div>
+        <div class="beat-name">${esc(b.name)}${b.exclusive ? '<span class="tag" style="border-color:rgba(185,28,28,.5);color:var(--accent);margin-left:6px">EXCL</span>' : ''}</div>
         <div class="beat-meta-row">
-          <span>${b.bpm} BPM</span><span>${b.key}</span><span>${b.genre}</span>
-          ${b.plays ? `<span>▶ ${b.plays}</span>` : ''}
+          <span>${esc(b.bpm)} BPM</span><span>${esc(b.key)}</span><span>${esc(b.genre)}</span>
+          ${b.plays ? `<span>▶ ${esc(b.plays)}</span>` : ''}
         </div>
-        <div class="beat-tags-row">${(b.tags || []).map((t) => `<span class="tag">${t}</span>`).join('')}</div>
+        <div class="beat-tags-row">${(b.tags || []).map((t) => `<span class="tag">${esc(t)}</span>`).join('')}</div>
         <div class="beat-foot">${b.available !== false
           ? `<div><div class="price-from">desde</div><div class="price-main">$${minL ? minL.priceMXN.toLocaleString() : '350'} <span style="font-size:11px;color:var(--muted);font-weight:400">MXN</span><span class="price-usd">· $${minL ? minL.priceUSD : '18'} USD</span></div></div><button class="btn-lic" onclick="event.stopPropagation();openModal('${b.id}')">Ver licencias</button>`
           : '<span class="unavail-lbl">No disponible</span>'}</div>
