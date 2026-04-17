@@ -137,17 +137,61 @@ export function _setHoloColors(colors) {
 export function _isCardStyleDefault(cs) {
   if (!cs) return true;
   const f = cs.filter || {};
-  if ((f.brightness || 1) !== 1 || (f.contrast || 1) !== 1 || (f.saturate || 1) !== 1 || f.grayscale || f.sepia || f.hueRotate || f.blur || f.invert) return false;
-  if (cs.glow && cs.glow.enabled) return false;
-  if (cs.anim && cs.anim.type) return false;
-  if (cs.border && cs.border.enabled) return false;
-  if (cs.shadow && cs.shadow.enabled) return false;
+  // Check if ANY filter is non-default
+  if ((f.brightness != null && f.brightness !== 1) || 
+      (f.contrast != null && f.contrast !== 1) || 
+      (f.saturate != null && f.saturate !== 1) || 
+      (f.grayscale != null && f.grayscale !== 0) || 
+      (f.sepia != null && f.sepia !== 0) || 
+      (f.hueRotate != null && f.hueRotate !== 0) || 
+      (f.blur != null && f.blur !== 0) || 
+      (f.invert != null && f.invert !== 0) ||
+      (f.opacity != null && f.opacity !== 1)) return false;
+  
+  // Check glow
+  const g = cs.glow || {};
+  if (g.enabled === true) return false;
+  
+  // Check animation
+  const a = cs.anim || {};
+  if (a.type && a.type !== '') return false;
+  
+  // Check border
+  const b = cs.border || {};
+  if (b.enabled === true) return false;
+  
+  // Check shadow
+  const s = cs.shadow || {};
+  if (s.enabled === true) return false;
+  
+  // Check hover
   const hv = cs.hover || {};
-  if ((hv.scale || 1) !== 1 || (hv.brightness || 1) !== 1 || (hv.saturate || 1) !== 1 || hv.shadowBlur || hv.blur || hv.siblingsBlur || hv.hueRotate || (hv.opacity || 1) !== 1) return false;
+  if ((hv.scale != null && hv.scale !== 1) || 
+      (hv.brightness != null && hv.brightness !== 1) || 
+      (hv.saturate != null && hv.saturate !== 1) || 
+      (hv.shadowBlur != null && hv.shadowBlur !== 0) || 
+      (hv.blur != null && hv.blur !== 0) || 
+      (hv.siblingsBlur != null && hv.siblingsBlur !== 0) || 
+      (hv.hueRotate != null && hv.hueRotate !== 0) || 
+      (hv.opacity != null && hv.opacity !== 1)) return false;
+  
+  // Check transform
   const tf = cs.transform || {};
-  if (tf.rotate || (tf.scale || 1) !== 1 || tf.skewX || tf.skewY || tf.x || tf.y) return false;
+  if ((tf.rotate != null && tf.rotate !== 0) || 
+      (tf.scale != null && tf.scale !== 1) || 
+      (tf.skewX != null && tf.skewX !== 0) || 
+      (tf.skewY != null && tf.skewY !== 0) || 
+      (tf.x != null && tf.x !== 0) || 
+      (tf.y != null && tf.y !== 0)) return false;
+  
+  // Check style
   const st = cs.style || {};
-  if (st.shimmer || (st.borderRadius || 0) !== 0 || (st.opacity || 1) !== 1) return false;
+  if (st.shimmer === true || 
+      (st.borderRadius != null && st.borderRadius !== 0) || 
+      (st.opacity != null && st.opacity !== 1) ||
+      (st.accentColor && st.accentColor !== '')) return false;
+  
+  // If we reach here, all values are default
   return true;
 }
 
