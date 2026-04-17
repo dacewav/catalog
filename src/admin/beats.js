@@ -498,7 +498,11 @@ export async function batchAddBeats() {
     var id = 'beat_' + Date.now() + '_' + i;
     promises.push(db.ref('beats/' + id).set({ name: 'Beat ' + (base + i + 1), genre: 'Trap', bpm: 140, key: 'Am', active: false, order: base + i, tags: [], description: '', imageUrl: '', audioUrl: '', previewUrl: '', spotify: '', youtube: '', soundcloud: '', date: new Date().toISOString().split('T')[0], available: true, exclusive: false, featured: false, plays: 0, licenses: [{ name: 'Basic', description: 'MP3 sin tag', priceMXN: 350, priceUSD: 18 }, { name: 'Premium', description: 'WAV sin tag', priceMXN: 1500, priceUSD: 75 }, { name: 'Exclusive', description: 'Stems + exclusividad', priceMXN: 8000, priceUSD: 400 }] }));
   }
-  Promise.all(promises).then(() => { showSaving(false); showToast(count + ' beats creados'); }).catch(() => { showSaving(false); showToast('Error', true); });
+  Promise.all(promises).then(() => { 
+    showSaving(false); 
+    showToast(count + ' beats creados'); 
+    if (typeof window.broadcastThemeNow === 'function') window.broadcastThemeNow();
+  }).catch(() => { showSaving(false); showToast('Error', true); });
 }
 
 // MP3 Player
