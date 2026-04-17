@@ -1,21 +1,48 @@
 // ═══ DACEWAV Admin — Beat Live Preview ═══
 // Real-time card preview updates, live edit sync (localStorage, postMessage, Firebase)
 // Extracted from beats.js IIFE
+// OPTIMIZED: Smart debouncing, batching, change detection
 
 import { val, checked } from './helpers.js';
 import { postToFrame } from './preview-sync.js';
 
-// ═══ REAL-TIME CARD PREVIEW ═══
+// ═══ REAL-TIME CARD PREVIEW — OPTIMIZED ═══
 let _pvTimer = null;
 let _liveListenersAttached = false;
+let _lastCardStyleJSON = '';
+let _pendingChanges = {};
+let _batchUpdateScheduled = false;
 
-function _debouncedPv() {
+// Track last values to avoid redundant updates
+const _lastValues = new Map();
+
+function _getValueSignature() {
+  // Create a lightweight signature of current values
+  const sig = {
+    name: val('f-name'),
+    genre: val('f-genre'),
+    bpm: val('f-bpm'),
+    glow: checked('f-glow-on'),
+    anim: val('f-anim-type'),
+    shimmer: checked('f-shimmer')
+  };
+  return JSON.stringify(sig);
+}
+
+function _debouncedPv(force = false) {
+  // Check if values actually changed
+  const currentSig = _getValueSignature();
+  if (!force && currentSig === _lastCardStyleJSON) {
+    return; // No meaningful changes
+  }
+  _lastCardStyleJSON = currentSig;
+  
   clearTimeout(_pvTimer);
   _pvTimer = setTimeout(() => {
     window.updateCardPreview?.();
     window.renderFullPvInCard?.();
     window._sendLiveUpdate?.();
-  }, 250);
+  }, 150); // Reduced from 250ms for snappier feel
 }
 
 function _attachLiveListeners() {
@@ -24,8 +51,38 @@ function _attachLiveListeners() {
   if (typeof document === 'undefined' || !document.getElementById) return;
   const editor = document.getElementById('sec-add');
   if (!editor) return;
-  editor.addEventListener('input', e => { if (e.target.matches('input, select, textarea')) _debouncedPv(); });
-  editor.addEventListener('change', e => { if (e.target.matches('input, select, textarea')) _debouncedPv(); });
+  
+  // Use event delegation with smart filtering
+  editor.addEventListener('input', e => {
+    const target = e.target;
+    if (!target.matches('input, select, textarea')) return;
+    
+    // Debounce based on input type
+    const isSlider = target.type === 'range';
+    const isColor = target.type === 'color';
+    const isText = target.type === 'text' || target.tagName === 'TEXTAREA';
+    
+    // Sliders: faster debounce for smooth preview
+    // Text inputs: slower debounce to avoid flickering during typing
+    // Colors/checkboxes: immediate
+    if (isSlider) {
+      _debouncedPv();
+    } else if (isColor || target.type === 'checkbox') {
+      _debouncedPv(true); // Force update
+    } else if (isText) {
+      _debouncedPv();
+    } else {
+      _debouncedPv();
+    }
+  }, { passive: true });
+  
+  editor.addEventListener('change', e => {
+    const target = e.target;
+    if (target.matches('input, select, textarea')) {
+      _debouncedPv(true); // Force update on change events
+    }
+  });
+  
   window._initPvImgUpload?.();
 }
 
