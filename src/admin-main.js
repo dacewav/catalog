@@ -19,6 +19,7 @@ import './admin/resize.js';
 import './admin/beat-preview.js';
 import './admin/beats.js';
 import './admin/card-global.js';
+import './admin/beat-live-preview.js';
 
 // Register global UI actions (toggleCard, resetSlider) via event delegation
 import { registerActions } from './admin/click-handler.js';
