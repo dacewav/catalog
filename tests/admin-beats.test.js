@@ -75,6 +75,8 @@ vi.mock('../src/admin/beat-presets.js', () => ({
 vi.mock('../src/admin/card-style-ui.js', () => ({
   renderEffectGalleryHTML: vi.fn(() => ''),
   renderCardStyleControls: vi.fn(),
+  populateFromCardStyle: vi.fn(),
+  resetCardStyleInputs: vi.fn(),
 }));
 
 vi.mock('../src/admin/click-handler.js', () => ({

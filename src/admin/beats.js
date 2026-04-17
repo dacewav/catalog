@@ -9,7 +9,7 @@ import { autoSave, postToFrame } from './core.js';
 import { siteSettings } from './state.js';
 import { R2_ENABLED, uploadToR2 } from './r2.js';
 import { updateCardPreview, syncSliderDisplay, _buildCardStyleFromInputs, _isCardStyleDefault, _setHoloColors, _toggleAnimSubsettings } from './beat-card-style.js';
-import { renderEffectGalleryHTML } from './card-style-ui.js';
+import { renderEffectGalleryHTML, populateFromCardStyle, resetCardStyleInputs } from './card-style-ui.js';
 import { ALL_SLIDER_IDS, renderPresets, renderHoverPresets, applyPreset, applyHoverPreset, resetCardStyle, resetBeatToGlobal } from './beat-presets.js';
 import { registerActions, initClickHandler } from './click-handler.js';
 import { renderLicEditor, upLic, addLicRow, rmLic, loadDefaultLics } from './beat-licenses.js';
@@ -78,139 +78,23 @@ export function openEditor(id) {
     setChecked('f-feat', b.featured); setChecked('f-excl', b.exclusive); setChecked('f-active', b.active !== false); setChecked('f-avail', b.available !== false);
     // Load image gallery — prefer images array, fallback to single imageUrl
     _imgGallery = (b.images && b.images.length) ? b.images.slice() : (b.imageUrl ? [b.imageUrl] : []);
-    // Load cardStyle (new mega schema) or fall back to legacy fields
-    const cs = b.cardStyle || {};
-    const csF = cs.filter || {};
-    const csG = cs.glow || b.glowConfig || {};
-    const csA = cs.anim || b.cardAnim || {};
-    const csS = cs.style || {};
-    const csB = cs.border || b.cardBorder || {};
-    const csSh = cs.shadow || {};
-    const csH = cs.hover || {};
-    const csTf = cs.transform || {};
 
-    // Filters
-    setVal('f-cs-fb', csF.brightness != null ? csF.brightness : 1);
-    setVal('f-cs-fc', csF.contrast != null ? csF.contrast : 1);
-    setVal('f-cs-fs', csF.saturate != null ? csF.saturate : 1);
-    setVal('f-cs-fg', csF.grayscale || 0);
-    setVal('f-cs-fse', csF.sepia || 0);
-    setVal('f-cs-fh', csF.hueRotate || 0);
-    setVal('f-cs-fbl', csF.blur || 0);
-    setVal('f-cs-fbl-type', csF.blurType || '');
-    setVal('f-cs-fi', csF.invert || 0);
-    setVal('f-cs-fo', csF.opacity != null ? csF.opacity : 1);
-    setVal('f-cs-ds-x', csF.dropShadowX || 0);
-    setVal('f-cs-ds-y', csF.dropShadowY || 0);
-    setVal('f-cs-ds-bl', csF.dropShadowBlur || 0);
-    setVal('f-cs-ds-op', csF.dropShadowOpacity || 0);
-    setVal('f-cs-ds-clr', csF.dropShadowColor || '#000000');
-    setVal('f-cs-ds-clr-h', csF.dropShadowColor || '#000000');
+    // Load cardStyle: use new schema, fall back to legacy fields for old beats
+    const cs = b.cardStyle || {
+      filter: {}, glow: b.glowConfig || {}, anim: b.cardAnim || null,
+      style: { accentColor: b.accentColor || '', shimmer: b.shimmer || false, shimmerSpeed: b.shimmerSpeed || 3, shimmerOp: b.shimmerOp || 0.04 },
+      border: b.cardBorder || {}, shadow: {}, hover: {}, transform: {}
+    };
 
-    // Glow
-    setChecked('f-glow-on', csG.enabled || false);
-    const glowTypeEl = g('f-glow-type'); if (glowTypeEl) glowTypeEl.value = csG.type || 'active';
-    setVal('f-glow-color', csG.color || '#dc2626'); setVal('f-glow-color-h', csG.color || '#dc2626');
-    setVal('f-glow-speed', csG.speed || 3);
-    setVal('f-glow-int', csG.intensity != null ? csG.intensity : 1);
-    setVal('f-glow-blur', csG.blur != null ? csG.blur : 20);
-    setVal('f-glow-spread', csG.spread || 0);
-    setVal('f-glow-op', csG.opacity != null ? csG.opacity : 1);
-    setChecked('f-glow-hover', csG.hoverOnly || false);
+    // Single call loads ALL card style fields (filter, glow, anim + sub-settings, style, border, shadow, hover + hover anim, transform)
+    populateFromCardStyle(cs, 'f-');
 
-    // Animation
-    const animTypeEl = g('f-anim-type'); if (animTypeEl) animTypeEl.value = csA.type || '';
-    const animType2El = g('f-anim-type2'); if (animType2El) animType2El.value = csA.type2 || '';
-    setVal('f-anim-dur', csA.dur || 2);
-    setVal('f-anim-del', csA.del || 0);
-    const animEaseEl = g('f-anim-ease'); if (animEaseEl) animEaseEl.value = csA.easing || 'ease-in-out';
-    const animDirEl = g('f-anim-dir'); if (animDirEl) animDirEl.value = csA.direction || 'normal';
-    const animIterEl = g('f-anim-iter'); if (animIterEl) animIterEl.value = csA.iterations || 'infinite';
-    setVal('f-anim-int', csA.intensity != null ? csA.intensity : 100);
-    setVal('f-anim-hue-start', csA.hueStart != null ? csA.hueStart : 0);
-    setVal('f-anim-hue-end', csA.hueEnd != null ? csA.hueEnd : 360);
+    // Holo colors need special DOM handling (color picker list)
+    const csA = cs.anim || {};
     _setHoloColors(csA.holoColors || ['#ff0080','#00ff80','#0080ff']);
-    setVal('f-anim-holo-bright-min', csA.holoBrightMin || 0.9);
-    setVal('f-anim-holo-bright-max', csA.holoBrightMax || 1.4);
-    setVal('f-anim-holo-sat-min', csA.holoSatMin || 0.8);
-    setVal('f-anim-holo-sat-max', csA.holoSatMax || 2);
-    setVal('f-anim-holo-glow', csA.holoGlow || 0);
-    setVal('f-anim-holo-blur', csA.holoBlur || 0);
-    const holoDirElEd = g('f-anim-holo-dir'); if (holoDirElEd) holoDirElEd.value = csA.holoDir || 'hue';
-    setVal('f-anim-brillo-min', csA.brilloMin || 0.8);
-    setVal('f-anim-brillo-max', csA.brilloMax || 1.5);
-    setVal('f-anim-glitch-x', csA.glitchX || 4);
-    setVal('f-anim-glitch-y', csA.glitchY || 4);
-    setVal('f-anim-glitch-rot', csA.glitchRot || 0);
-    setChecked('f-anim-glitch-chromatic', csA.glitchChromatic || false);
-    setVal('f-anim-translate-x', csA.translateX || 0);
-    setVal('f-anim-translate-y', csA.translateY || 12);
-    setVal('f-anim-translate-rot', csA.translateRot || 0);
-    setVal('f-anim-neon-min', csA.neonMin || 0.4);
-    setVal('f-anim-neon-max', csA.neonMax || 1);
-    setVal('f-anim-neon-bright', csA.neonBright || 1);
-    setVal('f-anim-parpadeo-min', csA.parpadeoMin || 0.3);
-    setVal('f-anim-parpadeo-max', csA.parpadeoMax || 1);
-    setVal('f-anim-rotate-angle', csA.rotateAngle || 5);
-    setVal('f-anim-rotate-scale', csA.rotateScale || 1);
-    setVal('f-anim-scale-min', csA.scaleMin || 1);
-    setVal('f-anim-scale-max', csA.scaleMax || 1.06);
-    setVal('f-anim-scale-opacity', csA.scaleOpacity || 0.8);
-    setVal('f-anim-shake-x', csA.shakeX || 4);
-    setVal('f-anim-shake-y', csA.shakeY || 4);
-    setVal('f-anim-cs-hue-start', csA.csHueStart || 0);
-    setVal('f-anim-cs-hue-end', csA.csHueEnd || 360);
-    setVal('f-anim-cs-sat', csA.csSat || 1);
+
+    // Show/hide animation sub-settings panel
     _toggleAnimSubsettings(csA.type || '');
-
-    // Style
-    const accentClr = csS.accentColor || b.accentColor || '#dc2626';
-    setVal('f-accent-color', accentClr); setVal('f-accent-color-h', accentClr);
-    setChecked('f-shimmer', csS.shimmer != null ? csS.shimmer : (b.shimmer || false));
-    setVal('f-shimmer-speed', csS.shimmerSpeed || b.shimmerSpeed || 3);
-    setVal('f-shimmer-op', csS.shimmerOp || b.shimmerOp || 0.04);
-    setVal('f-cs-radius', csS.borderRadius || 0);
-    setVal('f-cs-opacity', csS.opacity != null ? csS.opacity : 1);
-
-    // Border
-    setChecked('f-border-on', csB.enabled || false);
-    setVal('f-border-color', csB.color || '#dc2626');
-    setVal('f-border-width', csB.width || 1);
-    const borderStyleEl = g('f-border-style'); if (borderStyleEl) borderStyleEl.value = csB.style || 'solid';
-
-    // Shadow
-    setChecked('f-shadow-on', csSh.enabled || false);
-    setVal('f-shadow-color', csSh.color || '#000000');
-    setVal('f-shadow-op', csSh.opacity != null ? csSh.opacity : 0.35);
-    setVal('f-shadow-x', csSh.x || 0);
-    setVal('f-shadow-y', csSh.y != null ? csSh.y : 4);
-    setVal('f-shadow-blur', csSh.blur != null ? csSh.blur : 12);
-    setVal('f-shadow-spread', csSh.spread || 0);
-    setChecked('f-shadow-inset', csSh.inset || false);
-
-    // Hover
-    setVal('f-hov-scale', csH.scale || 1);
-    setVal('f-hov-bright', csH.brightness != null ? csH.brightness : 1);
-    setVal('f-hov-sat', csH.saturate != null ? csH.saturate : 1);
-    setVal('f-hov-shadow', csH.shadowBlur || 0);
-    setVal('f-hov-trans', csH.transition != null ? csH.transition : 0.3);
-    setVal('f-hov-border', csH.borderColor || '#dc2626');
-    setChecked('f-hov-glow', csH.glowIntensify || false);
-    setVal('f-hov-blur', csH.blur || 0);
-    setVal('f-hov-sib-blur', csH.siblingsBlur || 0);
-    setVal('f-hov-hue', csH.hueRotate || 0);
-    setVal('f-hov-opacity', csH.opacity != null ? csH.opacity : 1);
-    setChecked('f-hov-anim-on', csH.enableAnim || false);
-    const hovAnimTypeEl = g('f-hov-anim-type'); if (hovAnimTypeEl) hovAnimTypeEl.value = csH.animType || '';
-    setVal('f-hov-anim-dur', csH.animDur || 1);
-
-    // Transform
-    setVal('f-tf-rotate', csTf.rotate || 0);
-    setVal('f-tf-scale', csTf.scale || 1);
-    setVal('f-tf-skewX', csTf.skewX || 0);
-    setVal('f-tf-skewY', csTf.skewY || 0);
-    setVal('f-tf-x', csTf.x || 0);
-    setVal('f-tf-y', csTf.y || 0);
 
     // Sync all slider displays
     ALL_SLIDER_IDS.forEach(syncSliderDisplay);
@@ -221,55 +105,10 @@ export function openEditor(id) {
     g('f-genre').value = 'Trap';
     _imgGallery = [];
     // Reset all cardStyle fields to defaults
-    const animTypeEl = g('f-anim-type'); if (animTypeEl) animTypeEl.value = '';
-    const animType2El = g('f-anim-type2'); if (animType2El) animType2El.value = '';
-    setVal('f-anim-dur', 2); setVal('f-anim-del', 0);
-    const animEaseElE = g('f-anim-ease'); if (animEaseElE) animEaseElE.value = 'ease-in-out';
-    const animDirElE = g('f-anim-dir'); if (animDirElE) animDirElE.value = 'normal';
-    const animIterElE = g('f-anim-iter'); if (animIterElE) animIterElE.value = 'infinite';
-    setVal('f-anim-int', 100); setVal('f-anim-hue-start', 0); setVal('f-anim-hue-end', 360);
+    resetCardStyleInputs('f-');
     _setHoloColors(['#ff0080','#00ff80','#0080ff']);
-    setVal('f-anim-holo-bright-min', 0.9); setVal('f-anim-holo-bright-max', 1.4);
-    setVal('f-anim-holo-sat-min', 0.8); setVal('f-anim-holo-sat-max', 2);
-    setVal('f-anim-holo-glow', 0); setVal('f-anim-holo-blur', 0);
-    const holoDirElE = g('f-anim-holo-dir'); if (holoDirElE) holoDirElE.value = 'hue';
-    setVal('f-anim-brillo-min', 0.8); setVal('f-anim-brillo-max', 1.5);
-    setVal('f-anim-glitch-x', 4); setVal('f-anim-glitch-y', 4); setVal('f-anim-glitch-rot', 0);
-    setChecked('f-anim-glitch-chromatic', false);
-    setVal('f-anim-translate-x', 0); setVal('f-anim-translate-y', 12); setVal('f-anim-translate-rot', 0);
-    setVal('f-anim-neon-min', 0.4); setVal('f-anim-neon-max', 1); setVal('f-anim-neon-bright', 1);
-    setVal('f-anim-parpadeo-min', 0.3); setVal('f-anim-parpadeo-max', 1);
-    setVal('f-anim-rotate-angle', 5); setVal('f-anim-rotate-scale', 1);
-    setVal('f-anim-scale-min', 1); setVal('f-anim-scale-max', 1.06); setVal('f-anim-scale-opacity', 0.8);
-    setVal('f-anim-shake-x', 4); setVal('f-anim-shake-y', 4);
-    setVal('f-anim-cs-hue-start', 0); setVal('f-anim-cs-hue-end', 360); setVal('f-anim-cs-sat', 1);
     _toggleAnimSubsettings('');
-    // Glow reset
-    setVal('f-glow-speed', 3); setVal('f-glow-int', 1); setVal('f-glow-blur', 20); setVal('f-glow-spread', 0); setVal('f-glow-op', 1);
-    setChecked('f-glow-on', false); setChecked('f-glow-hover', false);
-    // Shadow reset
-    setVal('f-shadow-op', 0.35); setVal('f-shadow-x', 0); setVal('f-shadow-y', 4); setVal('f-shadow-blur', 12); setVal('f-shadow-spread', 0);
-    setChecked('f-shadow-on', false); setVal('f-shadow-color', '#000000'); setChecked('f-shadow-inset', false);
-    // Filter reset
-    setVal('f-cs-fb', 1); setVal('f-cs-fc', 1); setVal('f-cs-fs', 1); setVal('f-cs-fg', 0); setVal('f-cs-fse', 0); setVal('f-cs-fh', 0); setVal('f-cs-fbl', 0); setVal('f-cs-fbl-type', ''); setVal('f-cs-fi', 0);
-    setVal('f-cs-fo', 1); setVal('f-cs-ds-x', 0); setVal('f-cs-ds-y', 0); setVal('f-cs-ds-bl', 0); setVal('f-cs-ds-op', 0); setVal('f-cs-ds-clr', '#000000'); setVal('f-cs-ds-clr-h', '#000000');
-    setVal('f-cs-radius', 0); setVal('f-cs-opacity', 1);
-    // Hover reset
-    setVal('f-hov-scale', 1); setVal('f-hov-bright', 1); setVal('f-hov-sat', 1);
-    setVal('f-hov-shadow', 0); setVal('f-hov-trans', 0.3);
-    setVal('f-hov-blur', 0); setVal('f-hov-sib-blur', 0); setVal('f-hov-hue', 0); setVal('f-hov-opacity', 1);
-    setChecked('f-hov-glow', false); setChecked('f-hov-anim-on', false);
-    const hovAnimTypeEl2 = g('f-hov-anim-type'); if (hovAnimTypeEl2) hovAnimTypeEl2.value = '';
-    setVal('f-hov-anim-dur', 1);
-    // Transform reset
-    setVal('f-tf-rotate', 0); setVal('f-tf-scale', 1); setVal('f-tf-skewX', 0); setVal('f-tf-skewY', 0); setVal('f-tf-x', 0); setVal('f-tf-y', 0);
-    // Sync all slider displays
     ALL_SLIDER_IDS.forEach(syncSliderDisplay);
-    setVal('f-accent-color', '#dc2626'); setVal('f-accent-color-h', '#dc2626');
-    setChecked('f-shimmer', false);
-    setVal('f-shimmer-speed', 3); setVal('f-shimmer-op', 0.04);
-    setChecked('f-border-on', false); setVal('f-border-color', '#dc2626');
-    setVal('f-hov-border', '#dc2626');
     renderLicEditor(defLics.length ? JSON.parse(JSON.stringify(defLics)) : []);
   }
   prevImg();
@@ -388,14 +227,9 @@ export function saveBeat() {
   if (!id || !name) { showToast('ID y nombre requeridos', true); return; }
   collectLics();
   const cardStyle = _buildCardStyleFromInputs();
-  // Legacy fields for backwards compat
-  const animType = val('f-anim-type');
-  // Determine if this beat has custom style (non-default)
   const _hasCustom = !_isCardStyleDefault(cardStyle);
   const beat = { name, genre: val('f-genre'), genreCustom: val('f-genre-c'), bpm: parseInt(val('f-bpm')) || 0, key: val('f-key'), description: val('f-desc'), tags: val('f-tags').split(',').map(t => t.trim()).filter(Boolean), imageUrl: val('f-img'), images: _imgGallery.slice(), audioUrl: val('f-audio'), previewUrl: val('f-prev'), spotify: val('f-spotify'), youtube: val('f-youtube'), soundcloud: val('f-soundcloud'), date: val('f-date'), order: parseInt(val('f-order')) || 0, plays: parseInt(val('f-plays')) || 0, featured: checked('f-feat'), exclusive: checked('f-excl'), active: checked('f-active'), available: checked('f-avail'), licenses: _edLics.filter(l => l.name),
-    // Legacy fields (backwards compat)
-    glowConfig: cardStyle.glow, cardAnim: cardStyle.anim, accentColor: cardStyle.style.accentColor, shimmer: cardStyle.style.shimmer, cardBorder: cardStyle.border,
-    // New mega schema
+    // Single source of truth for card styling
     cardStyle: cardStyle, _customStyle: _hasCustom
   };
   showSaving(true); db.ref('beats/' + id).set(beat).then(() => { showSaving(false); if (typeof window._clearLiveEdit === 'function') window._clearLiveEdit(); showToast('Beat guardado ✓'); showSection('beats'); }).catch(err => { showSaving(false); showToast('Error: ' + err.message, true); });

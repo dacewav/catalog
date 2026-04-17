@@ -342,6 +342,42 @@ export function populateFromCardStyle(cs, prefix) {
   s(p + 'anim-ease', a.easing || 'ease-in-out'); s(p + 'anim-dir', a.direction || 'normal');
   s(p + 'anim-iter', a.iterations || 'infinite'); s(p + 'anim-int', a.intensity != null ? a.intensity : 100);
 
+  // Animation sub-settings (beat editor only — gracefully skipped if elements don't exist)
+  s(p + 'anim-type2', a.type2 || '');
+  if (a.hueStart != null) s(p + 'anim-hue-start', a.hueStart);
+  if (a.hueEnd != null) s(p + 'anim-hue-end', a.hueEnd);
+  if (a.holoBrightMin != null) s(p + 'anim-holo-bright-min', a.holoBrightMin);
+  if (a.holoBrightMax != null) s(p + 'anim-holo-bright-max', a.holoBrightMax);
+  if (a.holoSatMin != null) s(p + 'anim-holo-sat-min', a.holoSatMin);
+  if (a.holoSatMax != null) s(p + 'anim-holo-sat-max', a.holoSatMax);
+  if (a.holoGlow != null) s(p + 'anim-holo-glow', a.holoGlow);
+  if (a.holoBlur != null) s(p + 'anim-holo-blur', a.holoBlur);
+  s(p + 'anim-holo-dir', a.holoDir || 'hue');
+  if (a.brilloMin != null) s(p + 'anim-brillo-min', a.brilloMin);
+  if (a.brilloMax != null) s(p + 'anim-brillo-max', a.brilloMax);
+  if (a.glitchX != null) s(p + 'anim-glitch-x', a.glitchX);
+  if (a.glitchY != null) s(p + 'anim-glitch-y', a.glitchY);
+  if (a.glitchRot != null) s(p + 'anim-glitch-rot', a.glitchRot);
+  ck(p + 'anim-glitch-chromatic', a.glitchChromatic);
+  if (a.translateX != null) s(p + 'anim-translate-x', a.translateX);
+  if (a.translateY != null) s(p + 'anim-translate-y', a.translateY);
+  if (a.translateRot != null) s(p + 'anim-translate-rot', a.translateRot);
+  if (a.neonMin != null) s(p + 'anim-neon-min', a.neonMin);
+  if (a.neonMax != null) s(p + 'anim-neon-max', a.neonMax);
+  if (a.neonBright != null) s(p + 'anim-neon-bright', a.neonBright);
+  if (a.parpadeoMin != null) s(p + 'anim-parpadeo-min', a.parpadeoMin);
+  if (a.parpadeoMax != null) s(p + 'anim-parpadeo-max', a.parpadeoMax);
+  if (a.rotateAngle != null) s(p + 'anim-rotate-angle', a.rotateAngle);
+  if (a.rotateScale != null) s(p + 'anim-rotate-scale', a.rotateScale);
+  if (a.scaleMin != null) s(p + 'anim-scale-min', a.scaleMin);
+  if (a.scaleMax != null) s(p + 'anim-scale-max', a.scaleMax);
+  if (a.scaleOpacity != null) s(p + 'anim-scale-opacity', a.scaleOpacity);
+  if (a.shakeX != null) s(p + 'anim-shake-x', a.shakeX);
+  if (a.shakeY != null) s(p + 'anim-shake-y', a.shakeY);
+  if (a.csHueStart != null) s(p + 'anim-cs-hue-start', a.csHueStart);
+  if (a.csHueEnd != null) s(p + 'anim-cs-hue-end', a.csHueEnd);
+  if (a.csSat != null) s(p + 'anim-cs-sat', a.csSat);
+
   const st = cs.style || {};
   s(p + 'accent-color', st.accentColor || '#dc2626'); s(p + 'accent-color-h', st.accentColor || '#dc2626');
   ck(p + 'shimmer', st.shimmer); s(p + 'cs-radius', st.borderRadius || 0);
@@ -367,6 +403,9 @@ export function populateFromCardStyle(cs, prefix) {
   s(p + 'hov-border', hv.borderColor || '#dc2626'); ck(p + 'hov-glow', hv.glowIntensify);
   s(p + 'hov-blur', hv.blur || 0); s(p + 'hov-sib-blur', hv.siblingsBlur || 0);
   s(p + 'hov-hue', hv.hueRotate || 0); s(p + 'hov-opacity', hv.opacity != null ? hv.opacity : 1);
+  ck(p + 'hov-anim-on', hv.enableAnim);
+  s(p + 'hov-anim-type', hv.animType || '');
+  s(p + 'hov-anim-dur', hv.animDur || 1);
 
   const tf = cs.transform || {};
   s(p + 'tf-rotate', tf.rotate || 0); s(p + 'tf-scale', tf.scale || 1);

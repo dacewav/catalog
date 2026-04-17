@@ -52,13 +52,24 @@ export function beatCard(b, globalIdx) {
       }
     });
   } else {
-    cs = b.cardStyle || {};
+    // No global style — use beat's cardStyle, or reconstruct from legacy fields
+    cs = b.cardStyle;
+    if (!cs || !Object.keys(cs).length) {
+      cs = {
+        filter: {},
+        glow: b.glowConfig && b.glowConfig.enabled ? b.glowConfig : {},
+        anim: b.cardAnim && b.cardAnim.type ? b.cardAnim : null,
+        style: { accentColor: b.accentColor || '', shimmer: b.shimmer || false, shimmerSpeed: b.shimmerSpeed || 3, shimmerOp: b.shimmerOp || 0.04 },
+        border: b.cardBorder && b.cardBorder.enabled ? b.cardBorder : {},
+        shadow: {}, hover: {}, transform: {}
+      };
+    }
   }
   const csF = cs.filter || {};
-  const csG = cs.glow || (b.glowConfig && b.glowConfig.enabled ? b.glowConfig : {});
-  const csA = cs.anim || (b.cardAnim && b.cardAnim.type ? b.cardAnim : {});
+  const csG = cs.glow || {};
+  const csA = cs.anim || {};
   const csS = cs.style || {};
-  const csBd = cs.border || (b.cardBorder && b.cardBorder.enabled ? b.cardBorder : {});
+  const csBd = cs.border || {};
   const csSh = cs.shadow || {};
   const csH = cs.hover || {};
   const csTf = cs.transform || {};
@@ -66,7 +77,7 @@ export function beatCard(b, globalIdx) {
   // Glow classes & vars
   let glowClasses = '';
   let glowStyle = '';
-  const glowEnabled = csG.enabled || (b.glowConfig && b.glowConfig.enabled);
+  const glowEnabled = csG.enabled;
   if (glowEnabled) {
     const glowType = csG.type || 'active';
     // Validate glowType matches known CSS classes
@@ -171,14 +182,14 @@ export function beatCard(b, globalIdx) {
 
   // Card border
   let borderStyle = '';
-  const borderEnabled = csBd.enabled || (b.cardBorder && b.cardBorder.enabled);
+  const borderEnabled = csBd.enabled;
   if (borderEnabled) {
     borderStyle = `border:${csBd.width || 1}px ${csBd.style || 'solid'} ${csBd.color || '#dc2626'}`;
   }
 
   // Accent color
-  const accentColor = csS.accentColor || b.accentColor;
-  const shimmer = csS.shimmer != null ? csS.shimmer : b.shimmer;
+  const accentColor = csS.accentColor;
+  const shimmer = csS.shimmer;
 
   // Secondary animation (any type — now on ::before to avoid conflicts)
   const anim2Type = (csA && csA.type2) ? csA.type2 : '';
@@ -224,8 +235,8 @@ export function beatCard(b, globalIdx) {
 
   // Shimmer variables (speed + opacity)
   if (shimmer) {
-    const shimSpeed = parseFloat(csS.shimmerSpeed) || parseFloat(b.shimmerSpeed) || 3;
-    const shimOp = parseFloat(csS.shimmerOp) || parseFloat(b.shimmerOp) || 0.04;
+    const shimSpeed = parseFloat(csS.shimmerSpeed) || 3;
+    const shimOp = parseFloat(csS.shimmerOp) || 0.04;
     styleParts.push(`--shim-speed:${shimSpeed}s`);
     styleParts.push(`--shim-op:${shimOp}`);
   }
