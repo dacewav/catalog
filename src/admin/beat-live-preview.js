@@ -13,8 +13,7 @@ function _debouncedPv() {
   clearTimeout(_pvTimer);
   _pvTimer = setTimeout(() => {
     window.updateCardPreview?.();
-    window.renderFullPvInCard?.();
-    window._sendLiveUpdate?.();
+    // _sendLiveUpdate is called inside updateCardPreview() — no need to call it twice
   }, 250);
 }
 

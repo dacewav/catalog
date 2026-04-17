@@ -33,6 +33,19 @@ registerActions({
     if (input) resetSlider(input, val);
   },
   'pickGalleryItem': (el) => { const url = el.dataset.url; if (url && window.__pickGalleryImg) window.__pickGalleryImg(url); },
+  // File upload triggers — click hidden file inputs
+  'triggerImgFile': () => document.getElementById('f-img-file')?.click(),
+  'triggerAudioFile': () => document.getElementById('f-audio-file')?.click(),
+  'triggerPrevFile': () => document.getElementById('f-prev-file')?.click(),
+  'triggerEmojiImport': () => document.getElementById('ce-file-input')?.click(),
+  'triggerImport': () => document.getElementById('imp-f')?.click(),
+  'triggerPreviewsInput': () => document.getElementById('previews-input')?.click(),
+  // Backdrop close handlers (click outside modal content)
+  'closeBatchImgBackdrop': (el, e) => { if (e.target === e.currentTarget) window.closeBatchImg?.(); },
+  'closeQRPanelBackdrop': (el, e) => { if (e.target === e.currentTarget) window.closeQRPanel?.(); },
+  'closeGalleryPickerBackdrop': (el, e) => { if (e.target === e.currentTarget) window.closeGalleryPicker?.(); },
+  // Gradient reset
+  'resetGradStops': () => window.resetGradStops?.(),
 });
 import './admin/r2.js';
 import './admin/features.js';

@@ -5,7 +5,7 @@
 import { state } from './state.js';
 import { applyTheme } from './theme.js';
 import { applySettings, renderFloating } from './settings.js';
-import { renderAll, applyWaveformToCard } from './cards.js';
+import { renderAll } from './cards.js';
 
 let _lastThemeJSON = '';
 let _lastSettingsJSON = '';
@@ -65,18 +65,7 @@ function applyLiveUpdate(beatId, data, version) {
   
   // Re-render all cards to apply new styles
   renderAll();
-  
-  // Re-apply waveform SVGs after render completes
-  setTimeout(() => {
-    state.allBeats.forEach((b) => { 
-      if (b.previewUrl) {
-        const card = document.getElementById('card-' + b.id);
-        if (card && !card.querySelector('.waveform-svg')) {
-          applyWaveformToCard(b.id);
-        }
-      }
-    });
-  }, 100);
+  // Note: renderAll() already re-applies waveforms after 500ms — no need for duplicate here
   
   return true;
 }
@@ -183,18 +172,7 @@ export function initLiveEditBridge() {
       
       // Re-render all cards
       renderAll();
-      
-      // Re-apply waveform SVGs after render
-      setTimeout(() => {
-        state.allBeats.forEach((b) => { 
-          if (b.previewUrl) {
-            const card = document.getElementById('card-' + b.id);
-            if (card && !card.querySelector('.waveform-svg')) {
-              applyWaveformToCard(b.id);
-            }
-          }
-        });
-      }, 100);
+      // Note: renderAll() already re-applies waveforms after 500ms
       
       console.log('[GlobalStyle] applied to', state.allBeats.length, 'beats');
     }

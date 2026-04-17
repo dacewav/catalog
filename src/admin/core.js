@@ -11,7 +11,7 @@ import {
 import { pushUndo, pushUndoInitial, undo, redo, setUndoDeps } from './undo.js';
 import {
   renderGradEditor, buildGradCSS, addGradStop, updateGradStop,
-  rmGradStop, startDragStop, applyGradToHero
+  rmGradStop, startDragStop, applyGradToHero, resetGradStops
 } from './gradient.js';
 import {
   logChange, renderChangeLog, logFieldChange, addTooltips
@@ -123,7 +123,7 @@ Object.assign(window, {
   logChange, renderChangeLog, logFieldChange,
   addTooltips,
   renderFloatingEditor, renderFloatingPreview, addFE, saveFE, rmFE,
-  renderGradEditor, buildGradCSS, addGradStop, updateGradStop, rmGradStop, startDragStop, applyGradToHero,
+  renderGradEditor, buildGradCSS, addGradStop, updateGradStop, rmGradStop, startDragStop, applyGradToHero, resetGradStops,
   takeSnapshot, renderSnapshots, loadSnapshot, rmSnapshot,
   populateDiffSelects, updateDiff,
   promptImportURL, importThemeFromURL

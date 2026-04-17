@@ -118,6 +118,14 @@ export function startDragStop(e, i) {
   document.addEventListener('mouseup', onUp);
 }
 
+export function resetGradStops() {
+  _gradStops.length = 0;
+  _gradStops.push({ pos: 0, color: '#dc2626', opacity: 0.1 });
+  _gradStops.push({ pos: 100, color: '#000000', opacity: 0.1 });
+  renderGradEditor();
+  applyGradToHero();
+}
+
 export function applyGradToHero() {
   const css = buildGradCSS();
   const pvg = g('hpv-grad');
