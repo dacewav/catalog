@@ -537,35 +537,38 @@ export function _applyCardStyleToPreview(pv, cs) {
 
 // ═══ Live card preview update ═══
 export function updateCardPreview() {
-  const pv = g('beat-card-pv'); if (!pv) return;
-
-  const name = val('f-name') || 'Nombre del Beat';
-  const bpm = val('f-bpm') || '140';
-  const key = val('f-key') || 'Am';
-  const genre = g('f-genre')?.value || 'Trap';
-  const imgUrl = val('f-img');
-
-  const nameEl = g('bcpv-name'); if (nameEl) nameEl.textContent = name;
-  const bpmEl = g('bcpv-bpm'); if (bpmEl) bpmEl.textContent = bpm + ' BPM';
-  const keyEl = g('bcpv-key'); if (keyEl) keyEl.textContent = key;
-  const genreEl = g('bcpv-genre'); if (genreEl) genreEl.textContent = genre;
-
-  const imgWrap = g('bcpv-img');
-  if (imgWrap) {
-    if (imgUrl) imgWrap.innerHTML = '<img src="' + imgUrl + '" alt="">';
-    else imgWrap.innerHTML = '<div class="bcpv-img-ph">♪</div>';
-  }
-
-  pv.className = 'bcpv';
-  pv.style.cssText = '';
-  var inner;
-  if (inner = pv.querySelector('.bcpv-inner')) { inner.style.border = ''; inner.style.borderRadius = ''; }
+  const pv = g('beat-card-pv');
 
   const cs = _buildCardStyleFromInputs();
-  _applyCardStyleToPreview(pv, cs);
-
   const animTypeVal = val('f-anim-type');
   _toggleAnimSubsettings(animTypeVal);
+
+  // Update mini preview card if it exists (may be in iframe panel instead)
+  if (pv) {
+    const name = val('f-name') || 'Nombre del Beat';
+    const bpm = val('f-bpm') || '140';
+    const key = val('f-key') || 'Am';
+    const genre = g('f-genre')?.value || 'Trap';
+    const imgUrl = val('f-img');
+
+    const nameEl = g('bcpv-name'); if (nameEl) nameEl.textContent = name;
+    const bpmEl = g('bcpv-bpm'); if (bpmEl) bpmEl.textContent = bpm + ' BPM';
+    const keyEl = g('bcpv-key'); if (keyEl) keyEl.textContent = key;
+    const genreEl = g('bcpv-genre'); if (genreEl) genreEl.textContent = genre;
+
+    const imgWrap = g('bcpv-img');
+    if (imgWrap) {
+      if (imgUrl) imgWrap.innerHTML = '<img src="' + imgUrl + '" alt="">';
+      else imgWrap.innerHTML = '<div class="bcpv-img-ph">♪</div>';
+    }
+
+    pv.className = 'bcpv';
+    pv.style.cssText = '';
+    var inner;
+    if (inner = pv.querySelector('.bcpv-inner')) { inner.style.border = ''; inner.style.borderRadius = ''; }
+
+    _applyCardStyleToPreview(pv, cs);
+  }
 
   if (typeof window.renderFullPvInCard === 'function') window.renderFullPvInCard();
 
