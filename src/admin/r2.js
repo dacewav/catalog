@@ -22,19 +22,27 @@ export function loadR2Config(settings) {
 export async function uploadToR2(file, objectKey) {
   if (!R2_ENABLED) throw new Error('R2 Worker no configurado');
   const key = objectKey || ('beats/' + Date.now() + '-' + file.name.replace(/[^a-zA-Z0-9._-]/g, '_'));
+  const uploadUrl = `${R2_WORKER_URL.replace(/\/+$/, '')}/${encodeURIComponent(key)}`;
   let res;
   try {
-    res = await fetch(`${R2_WORKER_URL}/${encodeURIComponent(key)}`, {
+    res = await fetch(uploadUrl, {
       method: 'PUT',
       headers: { 'Content-Type': file.type || 'application/octet-stream', 'X-Upload-Token': R2_UPLOAD_TOKEN },
       body: file,
     });
   } catch (e) {
-    throw new Error('R2 Worker no responde. Verifica la URL en Ajustes → R2 Storage.');
+    // Diagnóstico detallado
+    const isLocalhost = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+    const workerHost = (() => { try { return new URL(R2_WORKER_URL).hostname; } catch { return R2_WORKER_URL; } })();
+    throw new Error(
+      `R2 Worker no responde (${workerHost}). ` +
+      (isLocalhost ? 'Si estás en localhost, prueba desde la URL deployada. ' : '') +
+      'Verifica: 1) Worker desplegado en Cloudflare, 2) URL correcta en Ajustes → R2.'
+    );
   }
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
-    throw new Error(err.error || `Upload failed: ${res.status}`);
+    throw new Error(err.error || `Upload falló: HTTP ${res.status}`);
   }
   return await res.json();
 }
@@ -66,15 +74,21 @@ export async function saveR2Config() {
 }
 
 export async function testR2Connection() {
-  const url = (g('r2-worker-url') || {}).value || R2_WORKER_URL;
+  const url = (g('r2-worker-url') || {}).value?.replace(/\/+$/, '') || R2_WORKER_URL.replace(/\/+$/, '');
   const token = (g('r2-upload-token') || {}).value || R2_UPLOAD_TOKEN;
   if (!url || !token) { showToast('Configura Worker URL y Token primero', true); return; }
   try {
     const res = await fetch(url + '/', { headers: { 'X-Upload-Token': token } });
+    if (!res.ok) {
+      showToast('Worker respondió HTTP ' + res.status + (res.status === 401 ? ' — Token incorrecto' : ''), true);
+      return;
+    }
     const data = await res.json();
-    if (data.status === 'ok') showToast('✅ Worker conectado: ' + data.service);
-    else showToast('Respuesta inesperada', true);
-  } catch (err) { showToast('Error: ' + err.message, true); }
+    if (data.status === 'ok') showToast('✅ Worker conectado: ' + (data.service || 'OK'));
+    else showToast('Respuesta inesperada: ' + JSON.stringify(data), true);
+  } catch (err) {
+    showToast('❌ No se pudo conectar: ' + err.message + '. ¿Worker desplegado?', true);
+  }
 }
 
 export async function purgeCache() {
