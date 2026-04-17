@@ -1,45 +1,276 @@
 {
   "rules": {
+
     ".read": false,
     ".write": false,
+
+    "// ════════════════════════════════════════════════════": "//",
+    "//  HELPERS: admin check (UID-based whitelist)": "//",
+    "// ════════════════════════════════════════════════════": "//",
 
     "adminWhitelist": {
       ".read": "auth != null",
       ".write": "auth.uid === 'Uks9YGSd6rS40zqlRujoe6pE6N22' || (auth != null && root.child('adminWhitelist/approved').child(auth.uid).exists())",
+
       "approved": {
         "$uid": {
-          ".read": "auth != null",
-          ".write": "auth.uid === 'Uks9YGSd6rS40zqlRujoe6pE6N22' || (auth != null && root.child('adminWhitelist/approved').child(auth.uid).exists())"
+          ".validate": "newData.isString() && newData.val().length <= 200"
         }
       },
+
       "pending": {
         ".read": "auth != null && root.child('adminWhitelist/approved').child(auth.uid).exists()",
-        ".write": "auth.uid === 'Uks9YGSd6rS40zqlRujoe6pE6N22' || (auth != null && root.child('adminWhitelist/approved').child(auth.uid).exists())"
+        ".write": "auth.uid === 'Uks9YGSd6rS40zqlRujoe6pE6N22' || (auth != null && root.child('adminWhitelist/approved').child(auth.uid).exists())",
+        "$emailKey": {
+          ".validate": "newData.isBoolean()"
+        }
       }
     },
 
-    "settings": { ".read": true, ".write": "auth != null && root.child('adminWhitelist/approved').child(auth.uid).exists()" },
-    "theme": { ".read": true, ".write": "auth != null && root.child('adminWhitelist/approved').child(auth.uid).exists()" },
+    "// ════════════════════════════════════════════════════": "//",
+    "//  THEME — global site theme (public read, admin write)": "//",
+    "// ════════════════════════════════════════════════════": "//",
+
+    "theme": {
+      ".read": true,
+      ".write": "auth != null && root.child('adminWhitelist/approved').child(auth.uid).exists()",
+
+      "bg": { ".validate": "newData.isString() && newData.val().length <= 30" },
+      "surface": { ".validate": "newData.isString() && newData.val().length <= 50" },
+      "surface2": { ".validate": "newData.isString() && newData.val().length <= 50" },
+      "accent": { ".validate": "newData.isString() && newData.val().length <= 30" },
+      "text": { ".validate": "newData.isString() && newData.val().length <= 30" },
+      "muted": { ".validate": "newData.isString() && newData.val().length <= 50" },
+      "hint": { ".validate": "newData.isString() && newData.val().length <= 50" },
+      "border": { ".validate": "newData.isString() && newData.val().length <= 50" },
+      "border2": { ".validate": "newData.isString() && newData.val().length <= 50" },
+      "red": { ".validate": "newData.isString() && newData.val().length <= 30" },
+      "redL": { ".validate": "newData.isString() && newData.val().length <= 30" },
+
+      "glowColor": { ".validate": "newData.isString() && newData.val().length <= 30" },
+      "glowIntensity": { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 10" },
+      "glowOpacity": { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 1" },
+      "glowBlur": { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 200" },
+      "glowActive": { ".validate": "newData.isBoolean()" },
+      "glowAnim": { ".validate": "newData.isString() && newData.val().length <= 30" },
+      "glowAnimSpeed": { ".validate": "newData.isNumber() && newData.val() >= 0.1 && newData.val() <= 30" },
+
+      "cardOpacity": { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 1" },
+      "blurBg": { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 50" },
+      "grainOpacity": { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 1" },
+      "radiusGlobal": { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 50" },
+      "padSection": { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 20" },
+      "beatGap": { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 60" },
+      "bgOpacity": { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 1" },
+      "cardShadowIntensity": { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 1" },
+      "cardShadowColor": { ".validate": "newData.isString() && newData.val().length <= 30" },
+
+      "wbarColor": { ".validate": "newData.isString() && newData.val().length <= 50" },
+      "wbarActive": { ".validate": "newData.isString() && newData.val().length <= 30" },
+      "wbarHeight": { ".validate": "newData.isNumber() && newData.val() >= 2 && newData.val() <= 80" },
+      "wbarRadius": { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 10" },
+
+      "btnLicBg": { ".validate": "newData.isString() && newData.val().length <= 50" },
+      "btnLicClr": { ".validate": "newData.isString() && newData.val().length <= 30" },
+      "btnLicBdr": { ".validate": "newData.isString() && newData.val().length <= 50" },
+      "btnOpacityNormal": { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 1" },
+      "btnOpacityHover": { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 1" },
+
+      "waveOpacityOff": { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 1" },
+      "waveOpacityOn": { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 1" },
+
+      "fontDisplay": { ".validate": "newData.isString() && newData.val().length <= 100" },
+      "fontBody": { ".validate": "newData.isString() && newData.val().length <= 100" },
+      "fontSize": { ".validate": "newData.isNumber() && newData.val() >= 8 && newData.val() <= 30" },
+      "lineHeight": { ".validate": "newData.isNumber() && newData.val() >= 0.8 && newData.val() <= 3" },
+      "fontWeight": { ".validate": "newData.isNumber() && newData.val() >= 100 && newData.val() <= 900" },
+
+      "logoUrl": { ".validate": "newData.isString() && newData.val().length <= 2000" },
+      "logoWidth": { ".validate": "newData.isNumber() && newData.val() >= 10 && newData.val() <= 500" },
+      "logoHeight": { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 500" },
+      "logoScale": { ".validate": "newData.isNumber() && newData.val() >= 0.1 && newData.val() <= 5" },
+      "logoRotation": { ".validate": "newData.isNumber() && newData.val() >= -180 && newData.val() <= 180" },
+      "logoTextGap": { ".validate": "newData.isNumber() && newData.val() >= -20 && newData.val() <= 50" },
+      "showLogoText": { ".validate": "newData.isBoolean()" },
+
+      "heroTitleCustom": { ".validate": "newData.isString() && newData.val().length <= 500" },
+      "heroSubCustom": { ".validate": "newData.isString() && newData.val().length <= 300" },
+      "heroTextClr": { ".validate": "newData.isString() && newData.val().length <= 30" },
+      "heroTitleSize": { ".validate": "newData.isNumber() && newData.val() >= 1 && newData.val() <= 10" },
+      "heroLetterSpacing": { ".validate": "newData.isNumber() && newData.val() >= -0.2 && newData.val() <= 0.5" },
+      "heroLineHeight": { ".validate": "newData.isNumber() && newData.val() >= 0.5 && newData.val() <= 3" },
+      "heroGlowOn": { ".validate": "newData.isBoolean()" },
+      "heroGlowClr": { ".validate": "newData.isString() && newData.val().length <= 30" },
+      "heroGlowInt": { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 10" },
+      "heroGlowBlur": { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 200" },
+      "heroStrokeOn": { ".validate": "newData.isBoolean()" },
+      "heroStrokeClr": { ".validate": "newData.isString() && newData.val().length <= 30" },
+      "heroStrokeW": { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 10" },
+      "heroWordBlur": { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 50" },
+      "heroWordOp": { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 1" },
+      "heroPadTop": { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 20" },
+      "heroGradOn": { ".validate": "newData.isBoolean()" },
+      "heroGradClr": { ".validate": "newData.isString() && newData.val().length <= 30" },
+      "heroGradOp": { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 1" },
+      "heroGradW": { ".validate": "newData.isNumber() && newData.val() >= 10 && newData.val() <= 200" },
+      "heroGradH": { ".validate": "newData.isNumber() && newData.val() >= 10 && newData.val() <= 200" },
+      "heroEyebrowOn": { ".validate": "newData.isBoolean()" },
+      "heroEyebrow": { ".validate": "newData.isString() && newData.val().length <= 100" },
+      "heroEyebrowClr": { ".validate": "newData.isString() && newData.val().length <= 30" },
+      "heroEyebrowSize": { ".validate": "newData.isNumber() && newData.val() >= 6 && newData.val() <= 30" },
+      "heroTitleSegments": { ".validate": "newData.isString()" },
+
+      "navOpacity": { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 1" },
+      "beatImgOpacity": { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 1" },
+      "textOpacity": { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 1" },
+      "heroBgOpacity": { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 1" },
+      "sectionOpacity": { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 1" },
+
+      "orbBlendMode": { ".validate": "newData.isString() && newData.val().length <= 30" },
+      "grainBlendMode": { ".validate": "newData.isString() && newData.val().length <= 30" },
+
+      "bannerBg": { ".validate": "newData.isString() && newData.val().length <= 30" },
+      "bannerText": { ".validate": "newData.isString() && newData.val().length <= 500" },
+      "bannerSpeed": { ".validate": "newData.isNumber() && newData.val() >= 1 && newData.val() <= 120" },
+      "bannerTxtClr": { ".validate": "newData.isString() && newData.val().length <= 30" },
+
+      "particlesOn": { ".validate": "newData.isBoolean()" },
+      "particlesCount": { ".validate": "newData.isNumber() && newData.val() >= 1 && newData.val() <= 200" },
+      "particlesMin": { ".validate": "newData.isNumber() && newData.val() >= 0.5 && newData.val() <= 20" },
+      "particlesMax": { ".validate": "newData.isNumber() && newData.val() >= 1 && newData.val() <= 30" },
+      "particlesSpeed": { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 10" },
+      "particlesType": { ".validate": "newData.isString() && newData.val().length <= 20" },
+      "particlesColor": { ".validate": "newData.isString() && newData.val().length <= 30" },
+      "particlesOpacity": { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 1" },
+      "particlesText": { ".validate": "newData.isString() && newData.val().length <= 20" },
+      "particlesImgUrl": { ".validate": "newData.isString() && newData.val().length <= 2000" },
+
+      "animLogo": { ".validate": "newData.isString()" },
+      "animTitle": { ".validate": "newData.isString()" },
+      "animPlayer": { ".validate": "newData.isString()" },
+      "animCards": { ".validate": "newData.isString()" },
+      "animButtons": { ".validate": "newData.isString()" },
+      "animWaveform": { ".validate": "newData.isString()" },
+
+      "layout": {
+        "heroMarginTop": { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 20" },
+        "playerBottom": { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 100" },
+        "logoOffsetX": { ".validate": "newData.isNumber() && newData.val() >= -100 && newData.val() <= 100" }
+      },
+
+      "$other": {
+        ".validate": "newData.isString() || newData.isNumber() || newData.isBoolean()"
+      }
+    },
+
+    "// ════════════════════════════════════════════════════": "//",
+    "//  SETTINGS — site config (public read, admin write)": "//",
+    "// ════════════════════════════════════════════════════": "//",
+
+    "settings": {
+      ".read": true,
+      ".write": "auth != null && root.child('adminWhitelist/approved').child(auth.uid).exists()",
+
+      "siteName": { ".validate": "newData.isString() && newData.val().length <= 100" },
+      "whatsapp": { ".validate": "!newData.exists() || (newData.isString() && newData.val().length <= 20)" },
+      "instagram": { ".validate": "!newData.exists() || (newData.isString() && newData.val().length <= 100)" },
+      "email": { ".validate": "!newData.exists() || (newData.isString() && newData.val().length <= 200)" },
+      "bannerActive": { ".validate": "newData.isBoolean()" },
+      "bannerAnim": { ".validate": "!newData.exists() || (newData.isString() && newData.val().length <= 30)" },
+      "bannerEasing": { ".validate": "!newData.exists() || (newData.isString() && newData.val().length <= 40)" },
+      "bannerDir": { ".validate": "!newData.exists() || (newData.isString() && newData.val().length <= 15)" },
+      "bannerDelay": { ".validate": "!newData.exists() || (newData.isNumber() && newData.val() >= 0 && newData.val() <= 30)" },
+      "heroTitle": { ".validate": "!newData.exists() || (newData.isString() && newData.val().length <= 500)" },
+      "heroSubtitle": { ".validate": "!newData.exists() || (newData.isString() && newData.val().length <= 300)" },
+      "lightMode": { ".validate": "newData.isBoolean()" },
+
+      "dividerTitle": { ".validate": "!newData.exists() || (newData.isString() && newData.val().length <= 300)" },
+      "dividerTitleSize": { ".validate": "!newData.exists() || (newData.isNumber() && newData.val() >= 0.5 && newData.val() <= 8)" },
+      "dividerLetterSpacing": { ".validate": "!newData.exists() || (newData.isNumber() && newData.val() >= -0.2 && newData.val() <= 0.5)" },
+      "dividerSub": { ".validate": "!newData.exists() || (newData.isString() && newData.val().length <= 500)" },
+      "dividerSubColor": { ".validate": "!newData.exists() || (newData.isString() && newData.val().length <= 30)" },
+      "dividerSubSize": { ".validate": "!newData.exists() || (newData.isNumber() && newData.val() >= 6 && newData.val() <= 30)" },
+      "dividerGlowOn": { ".validate": "!newData.exists() || newData.isBoolean()" },
+      "dividerGlowInt": { ".validate": "!newData.exists() || (newData.isNumber() && newData.val() >= 0 && newData.val() <= 10)" },
+      "dividerGlowBlur": { ".validate": "!newData.exists() || (newData.isNumber() && newData.val() >= 0 && newData.val() <= 200)" },
+      "dividerTitleSegments": { ".validate": "!newData.exists() || newData.isString()" },
+
+      "testimonialsActive": { ".validate": "!newData.exists() || newData.isBoolean()" },
+      "testimonials": {
+        "$idx": {
+          "text": { ".validate": "newData.isString() && newData.val().length <= 1000" },
+          "name": { ".validate": "newData.isString() && newData.val().length <= 100" },
+          "role": { ".validate": "!newData.exists() || (newData.isString() && newData.val().length <= 100)" }
+        }
+      },
+
+      "globalCardStyle": {
+        "filter": { ".validate": "!newData.exists() || newData.hasChildren()" },
+        "glow": { ".validate": "!newData.exists() || newData.hasChildren()" },
+        "anim": { ".validate": "!newData.exists() || newData.hasChildren()" },
+        "style": { ".validate": "!newData.exists() || newData.hasChildren()" },
+        "border": { ".validate": "!newData.exists() || newData.hasChildren()" },
+        "shadow": { ".validate": "!newData.exists() || newData.hasChildren()" },
+        "hover": { ".validate": "!newData.exists() || newData.hasChildren()" },
+        "transform": { ".validate": "!newData.exists() || newData.hasChildren()" }
+      },
+
+      "r2Config": {
+        ".read": "auth != null && root.child('adminWhitelist/approved').child(auth.uid).exists()",
+        ".write": "auth != null && root.child('adminWhitelist/approved').child(auth.uid).exists()",
+        "workerUrl": { ".validate": "newData.isString() && newData.val().length <= 500" },
+        "uploadToken": { ".validate": "newData.isString() && newData.val().length <= 200" }
+      },
+
+      "$other": {
+        ".validate": "newData.isString() || newData.isNumber() || newData.isBoolean()"
+      }
+    },
+
+    "// ════════════════════════════════════════════════════": "//",
+    "//  BEATS — the core catalog (public read, admin write)": "//",
+    "// ════════════════════════════════════════════════════": "//",
 
     "beats": {
       ".read": true,
       ".write": "auth != null && root.child('adminWhitelist/approved').child(auth.uid).exists()",
+
       "$beatId": {
         ".validate": "newData.hasChildren(['name', 'genre', 'bpm', 'key'])",
+
+        "// ── Core fields ──": "",
         "name": { ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 200" },
         "genre": { ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 100" },
         "genreCustom": { ".validate": "!newData.exists() || (newData.isString() && newData.val().length <= 100)" },
         "bpm": { ".validate": "newData.isNumber() && newData.val() >= 20 && newData.val() <= 400" },
         "key": { ".validate": "newData.isString() && newData.val().length <= 10" },
         "description": { ".validate": "!newData.exists() || (newData.isString() && newData.val().length <= 2000)" },
-        "tags": { ".validate": "!newData.exists() || newData.isString()" },
+
+        "// ── Tags (array of strings) ──": "",
+        "tags": {
+          "$tagIdx": {
+            ".validate": "newData.isString() && newData.val().length <= 50"
+          }
+        },
+
+        "// ── Images ──": "",
         "imageUrl": { ".validate": "!newData.exists() || (newData.isString() && newData.val().length <= 2000)" },
-        "images": { ".validate": "!newData.exists() || newData.isString()" },
+        "images": {
+          "$imgIdx": {
+            ".validate": "newData.isString() && newData.val().length <= 2000"
+          }
+        },
+
+        "// ── Audio URLs (R2 or external) ──": "",
         "audioUrl": { ".validate": "!newData.exists() || (newData.isString() && newData.val().length <= 2000)" },
         "previewUrl": { ".validate": "!newData.exists() || (newData.isString() && newData.val().length <= 2000)" },
+
+        "// ── Platform links ──": "",
         "spotify": { ".validate": "!newData.exists() || (newData.isString() && newData.val().length <= 500)" },
         "youtube": { ".validate": "!newData.exists() || (newData.isString() && newData.val().length <= 500)" },
         "soundcloud": { ".validate": "!newData.exists() || (newData.isString() && newData.val().length <= 500)" },
+
+        "// ── Metadata ──": "",
         "date": { ".validate": "!newData.exists() || newData.isString()" },
         "order": { ".validate": "!newData.exists() || (newData.isNumber() && newData.val() >= 0)" },
         "active": { ".validate": "newData.isBoolean()" },
@@ -47,42 +278,81 @@
         "exclusive": { ".validate": "newData.isBoolean()" },
         "available": { ".validate": "newData.isBoolean()" },
         "_customStyle": { ".validate": "!newData.exists() || newData.isBoolean()" },
+        "_version": { ".validate": "!newData.exists() || newData.isNumber()" },
 
-        "plays": { ".read": true, ".write": "auth != null && root.child('adminWhitelist/approved').child(auth.uid).exists()", ".validate": "newData.isNumber() && newData.val() >= 0" },
-        "clicks": { ".read": true, ".write": "auth != null && root.child('adminWhitelist/approved').child(auth.uid).exists()", ".validate": "newData.isNumber() && newData.val() >= 0" },
-        "views": { ".read": true, ".write": "auth != null && root.child('adminWhitelist/approved').child(auth.uid).exists()", ".validate": "newData.isNumber() && newData.val() >= 0" },
-        "waClicks": { ".read": true, ".write": "auth != null && root.child('adminWhitelist/approved').child(auth.uid).exists()", ".validate": "newData.isNumber() && newData.val() >= 0" },
+        "// ── Analytics counters (store increments via transaction) ──": "",
+        "plays": { ".read": true, ".write": "auth != null", ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 10000000" },
 
+        "// ── Licenses (array of objects) ──": "",
         "licenses": {
           "$licIdx": {
             "name": { ".validate": "newData.isString() && newData.val().length <= 100" },
-            "priceMXN": { ".validate": "newData.isNumber() && newData.val() >= 0" },
-            "priceUSD": { ".validate": "newData.isNumber() && newData.val() >= 0" },
-            "description": { ".validate": "!newData.exists() || (newData.isString() && newData.val().length <= 500)" }
+            "description": { ".validate": "!newData.exists() || (newData.isString() && newData.val().length <= 500)" },
+            "priceMXN": { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 1000000" },
+            "priceUSD": { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 100000" }
           }
         },
 
+        "// ── Legacy card style fields (backwards compat) ──": "",
         "glowConfig": {
           "enabled": { ".validate": "newData.isBoolean()" },
-          "type": { ".validate": "newData.isString() && newData.val().length <= 30" },
-          "color": { ".validate": "newData.isString() && newData.val().length <= 20" },
-          "speed": { ".validate": "newData.isNumber() && newData.val() >= 0.1 && newData.val() <= 30" },
+          "type": { ".validate": "!newData.exists() || (newData.isString() && newData.val().length <= 30)" },
+          "color": { ".validate": "!newData.exists() || (newData.isString() && newData.val().length <= 20)" },
+          "speed": { ".validate": "!newData.exists() || (newData.isNumber() && newData.val() >= 0.1 && newData.val() <= 30)" },
           "intensity": { ".validate": "!newData.exists() || (newData.isNumber() && newData.val() >= 0 && newData.val() <= 10)" },
           "blur": { ".validate": "!newData.exists() || (newData.isNumber() && newData.val() >= 0 && newData.val() <= 200)" },
           "spread": { ".validate": "!newData.exists() || (newData.isNumber() && newData.val() >= 0 && newData.val() <= 100)" },
           "opacity": { ".validate": "!newData.exists() || (newData.isNumber() && newData.val() >= 0 && newData.val() <= 1)" },
           "hoverOnly": { ".validate": "!newData.exists() || newData.isBoolean()" }
         },
-
         "cardAnim": {
-          ".validate": "!newData.exists() || (newData.hasChildren(['type', 'dur', 'del']))",
-          "type": { ".validate": "newData.isString() && newData.val().length <= 30" },
-          "dur": { ".validate": "newData.isNumber() && newData.val() >= 0.1 && newData.val() <= 30" },
-          "del": { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 10" }
+          "type": { ".validate": "!newData.exists() || (newData.isString() && newData.val().length <= 30)" },
+          "type2": { ".validate": "!newData.exists() || (newData.isString() && newData.val().length <= 30)" },
+          "dur": { ".validate": "!newData.exists() || (newData.isNumber() && newData.val() >= 0.1 && newData.val() <= 30)" },
+          "del": { ".validate": "!newData.exists() || (newData.isNumber() && newData.val() >= 0 && newData.val() <= 10)" },
+          "easing": { ".validate": "!newData.exists() || (newData.isString() && newData.val().length <= 60)" },
+          "direction": { ".validate": "!newData.exists() || (newData.isString() && newData.val().length <= 25)" },
+          "iterations": { ".validate": "!newData.exists() || (newData.isString() && newData.val().length <= 10)" },
+          "intensity": { ".validate": "!newData.exists() || (newData.isNumber() && newData.val() >= 0 && newData.val() <= 200)" },
+          "hueStart": { ".validate": "!newData.exists() || (newData.isNumber() && newData.val() >= 0 && newData.val() <= 360)" },
+          "hueEnd": { ".validate": "!newData.exists() || (newData.isNumber() && newData.val() >= 0 && newData.val() <= 360)" },
+          "holoColors": { ".validate": "!newData.exists() || newData.isString()" },
+          "holoBrightMin": { ".validate": "!newData.exists() || (newData.isNumber() && newData.val() >= 0 && newData.val() <= 3)" },
+          "holoBrightMax": { ".validate": "!newData.exists() || (newData.isNumber() && newData.val() >= 0 && newData.val() <= 3)" },
+          "holoSatMin": { ".validate": "!newData.exists() || (newData.isNumber() && newData.val() >= 0 && newData.val() <= 3)" },
+          "holoSatMax": { ".validate": "!newData.exists() || (newData.isNumber() && newData.val() >= 0 && newData.val() <= 3)" },
+          "holoGlow": { ".validate": "!newData.exists() || (newData.isNumber() && newData.val() >= 0 && newData.val() <= 50)" },
+          "holoBlur": { ".validate": "!newData.exists() || (newData.isNumber() && newData.val() >= 0 && newData.val() <= 20)" },
+          "holoDir": { ".validate": "!newData.exists() || (newData.isString() && newData.val().length <= 20)" },
+          "brilloMin": { ".validate": "!newData.exists() || (newData.isNumber() && newData.val() >= 0 && newData.val() <= 3)" },
+          "brilloMax": { ".validate": "!newData.exists() || (newData.isNumber() && newData.val() >= 0 && newData.val() <= 3)" },
+          "glitchX": { ".validate": "!newData.exists() || (newData.isNumber() && newData.val() >= 0 && newData.val() <= 30)" },
+          "glitchY": { ".validate": "!newData.exists() || (newData.isNumber() && newData.val() >= 0 && newData.val() <= 30)" },
+          "glitchRot": { ".validate": "!newData.exists() || (newData.isNumber() && newData.val() >= 0 && newData.val() <= 15)" },
+          "glitchChromatic": { ".validate": "!newData.exists() || newData.isBoolean()" },
+          "translateX": { ".validate": "!newData.exists() || (newData.isNumber() && newData.val() >= -50 && newData.val() <= 50)" },
+          "translateY": { ".validate": "!newData.exists() || (newData.isNumber() && newData.val() >= -50 && newData.val() <= 50)" },
+          "translateRot": { ".validate": "!newData.exists() || (newData.isNumber() && newData.val() >= -15 && newData.val() <= 15)" },
+          "neonMin": { ".validate": "!newData.exists() || (newData.isNumber() && newData.val() >= 0 && newData.val() <= 1)" },
+          "neonMax": { ".validate": "!newData.exists() || (newData.isNumber() && newData.val() >= 0 && newData.val() <= 2)" },
+          "neonBright": { ".validate": "!newData.exists() || (newData.isNumber() && newData.val() >= 0 && newData.val() <= 3)" },
+          "parpadeoMin": { ".validate": "!newData.exists() || (newData.isNumber() && newData.val() >= 0 && newData.val() <= 1)" },
+          "parpadeoMax": { ".validate": "!newData.exists() || (newData.isNumber() && newData.val() >= 0 && newData.val() <= 1)" },
+          "rotateAngle": { ".validate": "!newData.exists() || (newData.isNumber() && newData.val() >= 0 && newData.val() <= 45)" },
+          "rotateScale": { ".validate": "!newData.exists() || (newData.isNumber() && newData.val() >= 0.5 && newData.val() <= 1.5)" },
+          "scaleMin": { ".validate": "!newData.exists() || (newData.isNumber() && newData.val() >= 0.5 && newData.val() <= 1)" },
+          "scaleMax": { ".validate": "!newData.exists() || (newData.isNumber() && newData.val() >= 1 && newData.val() <= 1.5)" },
+          "scaleOpacity": { ".validate": "!newData.exists() || (newData.isNumber() && newData.val() >= 0 && newData.val() <= 1)" },
+          "shakeX": { ".validate": "!newData.exists() || (newData.isNumber() && newData.val() >= 0 && newData.val() <= 30)" },
+          "shakeY": { ".validate": "!newData.exists() || (newData.isNumber() && newData.val() >= 0 && newData.val() <= 30)" },
+          "csHueStart": { ".validate": "!newData.exists() || (newData.isNumber() && newData.val() >= 0 && newData.val() <= 360)" },
+          "csHueEnd": { ".validate": "!newData.exists() || (newData.isNumber() && newData.val() >= 0 && newData.val() <= 360)" },
+          "csSat": { ".validate": "!newData.exists() || (newData.isNumber() && newData.val() >= 0 && newData.val() <= 3)" }
         },
-
         "accentColor": { ".validate": "!newData.exists() || (newData.isString() && newData.val().length <= 20)" },
         "shimmer": { ".validate": "!newData.exists() || newData.isBoolean()" },
+        "shimmerSpeed": { ".validate": "!newData.exists() || (newData.isNumber() && newData.val() >= 0.1 && newData.val() <= 20)" },
+        "shimmerOp": { ".validate": "!newData.exists() || (newData.isNumber() && newData.val() >= 0 && newData.val() <= 0.5)" },
         "cardBorder": {
           "enabled": { ".validate": "newData.isBoolean()" },
           "color": { ".validate": "!newData.exists() || (newData.isString() && newData.val().length <= 20)" },
@@ -90,11 +360,13 @@
           "style": { ".validate": "!newData.exists() || (newData.isString() && newData.val().length <= 15)" }
         },
 
+        "// ── NEW mega cardStyle schema ──": "",
         "cardStyle": {
+
           "filter": {
-            "brightness": { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 5" },
-            "contrast": { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 5" },
-            "saturate": { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 10" },
+            "brightness": { ".validate": "!newData.exists() || (newData.isNumber() && newData.val() >= 0 && newData.val() <= 5)" },
+            "contrast": { ".validate": "!newData.exists() || (newData.isNumber() && newData.val() >= 0 && newData.val() <= 5)" },
+            "saturate": { ".validate": "!newData.exists() || (newData.isNumber() && newData.val() >= 0 && newData.val() <= 10)" },
             "grayscale": { ".validate": "!newData.exists() || (newData.isNumber() && newData.val() >= 0 && newData.val() <= 1)" },
             "sepia": { ".validate": "!newData.exists() || (newData.isNumber() && newData.val() >= 0 && newData.val() <= 1)" },
             "hueRotate": { ".validate": "!newData.exists() || (newData.isNumber() && newData.val() >= 0 && newData.val() <= 360)" },
@@ -108,6 +380,7 @@
             "dropShadowOpacity": { ".validate": "!newData.exists() || (newData.isNumber() && newData.val() >= 0 && newData.val() <= 1)" },
             "dropShadowColor": { ".validate": "!newData.exists() || (newData.isString() && newData.val().length <= 20)" }
           },
+
           "glow": {
             "enabled": { ".validate": "newData.isBoolean()" },
             "type": { ".validate": "!newData.exists() || (newData.isString() && newData.val().length <= 30)" },
@@ -119,6 +392,7 @@
             "opacity": { ".validate": "!newData.exists() || (newData.isNumber() && newData.val() >= 0 && newData.val() <= 1)" },
             "hoverOnly": { ".validate": "!newData.exists() || newData.isBoolean()" }
           },
+
           "anim": {
             "type": { ".validate": "!newData.exists() || (newData.isString() && newData.val().length <= 30)" },
             "type2": { ".validate": "!newData.exists() || (newData.isString() && newData.val().length <= 30)" },
@@ -163,6 +437,7 @@
             "csHueEnd": { ".validate": "!newData.exists() || (newData.isNumber() && newData.val() >= 0 && newData.val() <= 360)" },
             "csSat": { ".validate": "!newData.exists() || (newData.isNumber() && newData.val() >= 0 && newData.val() <= 3)" }
           },
+
           "style": {
             "accentColor": { ".validate": "!newData.exists() || (newData.isString() && newData.val().length <= 20)" },
             "shimmer": { ".validate": "!newData.exists() || newData.isBoolean()" },
@@ -171,12 +446,14 @@
             "borderRadius": { ".validate": "!newData.exists() || (newData.isNumber() && newData.val() >= 0 && newData.val() <= 80)" },
             "opacity": { ".validate": "!newData.exists() || (newData.isNumber() && newData.val() >= 0.05 && newData.val() <= 1)" }
           },
+
           "border": {
             "enabled": { ".validate": "newData.isBoolean()" },
             "color": { ".validate": "!newData.exists() || (newData.isString() && newData.val().length <= 20)" },
             "width": { ".validate": "!newData.exists() || (newData.isNumber() && newData.val() >= 0.5 && newData.val() <= 10)" },
             "style": { ".validate": "!newData.exists() || (newData.isString() && newData.val().length <= 15)" }
           },
+
           "shadow": {
             "enabled": { ".validate": "newData.isBoolean()" },
             "color": { ".validate": "!newData.exists() || (newData.isString() && newData.val().length <= 20)" },
@@ -187,6 +464,7 @@
             "spread": { ".validate": "!newData.exists() || (newData.isNumber() && newData.val() >= -30 && newData.val() <= 60)" },
             "inset": { ".validate": "!newData.exists() || newData.isBoolean()" }
           },
+
           "hover": {
             "scale": { ".validate": "!newData.exists() || (newData.isNumber() && newData.val() >= 0.5 && newData.val() <= 1.5)" },
             "brightness": { ".validate": "!newData.exists() || (newData.isNumber() && newData.val() >= 0 && newData.val() <= 3)" },
@@ -203,6 +481,7 @@
             "animType": { ".validate": "!newData.exists() || (newData.isString() && newData.val().length <= 30)" },
             "animDur": { ".validate": "!newData.exists() || (newData.isNumber() && newData.val() >= 0.1 && newData.val() <= 10)" }
           },
+
           "transform": {
             "rotate": { ".validate": "!newData.exists() || (newData.isNumber() && newData.val() >= -45 && newData.val() <= 45)" },
             "scale": { ".validate": "!newData.exists() || (newData.isNumber() && newData.val() >= 0.5 && newData.val() <= 1.5)" },
@@ -213,12 +492,111 @@
           }
         },
 
+        "// ── Catch-all for future beat fields ──": "",
+        "$other": {
+          ".validate": "newData.isString() || newData.isNumber() || newData.isBoolean() || newData.isNull()"
+        }
+      }
+    },
+
+    "// ════════════════════════════════════════════════════": "//",
+    "//  LIVE EDITS — admin preview overlays (real-time)": "//",
+    "// ════════════════════════════════════════════════════": "//",
+
+    "liveEdits": {
+      ".read": true,
+      ".write": "auth != null && root.child('adminWhitelist/approved').child(auth.uid).exists()",
+
+      "$beatId": {
+        "_version": { ".validate": "newData.isNumber()" },
+        "cardStyle": { ".validate": "!newData.exists() || newData.hasChildren()" },
+        "glowConfig": { ".validate": "!newData.exists() || newData.hasChildren()" },
+        "cardAnim": { ".validate": "!newData.exists() || newData.hasChildren()" },
+        "accentColor": { ".validate": "!newData.exists() || (newData.isString() && newData.val().length <= 20)" },
+        "shimmer": { ".validate": "!newData.exists() || newData.isBoolean()" },
+        "shimmerSpeed": { ".validate": "!newData.exists() || (newData.isNumber() && newData.val() >= 0.1 && newData.val() <= 20)" },
+        "shimmerOp": { ".validate": "!newData.exists() || (newData.isNumber() && newData.val() >= 0 && newData.val() <= 0.5)" },
+        "cardBorder": { ".validate": "!newData.exists() || newData.hasChildren()" },
+        "name": { ".validate": "!newData.exists() || (newData.isString() && newData.val().length <= 200)" },
+        "imageUrl": { ".validate": "!newData.exists() || (newData.isString() && newData.val().length <= 2000)" },
+
+        "$other": {
+          ".validate": "newData.isString() || newData.isNumber() || newData.isBoolean() || newData.isNull()"
+        }
+      }
+    },
+
+    "// ════════════════════════════════════════════════════": "//",
+    "//  FLOATING ELEMENTS — decorative overlays": "//",
+    "// ════════════════════════════════════════════════════": "//",
+
+    "floatingElements": {
+      ".read": true,
+      ".write": "auth != null && root.child('adminWhitelist/approved').child(auth.uid).exists()",
+      "$elId": {
+        "visible": { ".validate": "newData.isBoolean()" },
+        "type": { ".validate": "newData.isString() && newData.val().length <= 20" },
+        "content": { ".validate": "!newData.exists() || (newData.isString() && newData.val().length <= 5000)" },
+        "x": { ".validate": "!newData.exists() || (newData.isNumber() && newData.val() >= -1000 && newData.val() <= 5000)" },
+        "y": { ".validate": "!newData.exists() || (newData.isNumber() && newData.val() >= -1000 && newData.val() <= 5000)" },
+        "width": { ".validate": "!newData.exists() || (newData.isNumber() && newData.val() >= 10 && newData.val() <= 2000)" },
+        "height": { ".validate": "!newData.exists() || (newData.isNumber() && newData.val() >= 10 && newData.val() <= 2000)" },
+        "opacity": { ".validate": "!newData.exists() || (newData.isNumber() && newData.val() >= 0 && newData.val() <= 1)" },
+        "fontSize": { ".validate": "!newData.exists() || (newData.isNumber() && newData.val() >= 6 && newData.val() <= 200)" },
+        "anim": { ".validate": "!newData.exists() || (newData.isString() && newData.val().length <= 30)" },
+        "animDur": { ".validate": "!newData.exists() || (newData.isNumber() && newData.val() >= 0.1 && newData.val() <= 30)" },
         "$other": { ".validate": "newData.isString() || newData.isNumber() || newData.isBoolean()" }
       }
     },
 
-    "floatingElements": { ".read": true, ".write": "auth != null && root.child('adminWhitelist/approved').child(auth.uid).exists()" },
-    "liveEdits": { ".read": true, ".write": "auth != null && root.child('adminWhitelist/approved').child(auth.uid).exists()" },
+    "// ════════════════════════════════════════════════════": "//",
+    "//  CUSTOM LINKS — nav/hero/footer links": "//",
+    "// ════════════════════════════════════════════════════": "//",
+
+    "customLinks": {
+      ".read": true,
+      ".write": "auth != null && root.child('adminWhitelist/approved').child(auth.uid).exists()",
+      "$linkId": {
+        "label": { ".validate": "newData.isString() && newData.val().length <= 100" },
+        "url": { ".validate": "newData.isString() && newData.val().length <= 2000" },
+        "location": { ".validate": "newData.isString() && newData.val().length <= 20" },
+        "$other": { ".validate": "newData.isString() || newData.isNumber()" }
+      }
+    },
+
+    "// ════════════════════════════════════════════════════": "//",
+    "//  CUSTOM EMOJIS — inline emoji system": "//",
+    "// ════════════════════════════════════════════════════": "//",
+
+    "customEmojis": {
+      ".read": true,
+      ".write": "auth != null && root.child('adminWhitelist/approved').child(auth.uid).exists()",
+      "$emojiId": {
+        "name": { ".validate": "newData.isString() && newData.val().length <= 50" },
+        "url": { ".validate": "newData.isString() && newData.val().length <= 2000" },
+        "height": { ".validate": "!newData.exists() || (newData.isNumber() && newData.val() >= 8 && newData.val() <= 100)" },
+        "$other": { ".validate": "newData.isString() || newData.isNumber()" }
+      }
+    },
+
+    "// ════════════════════════════════════════════════════": "//",
+    "//  DEFAULT LICENSES — template for new beats": "//",
+    "// ════════════════════════════════════════════════════": "//",
+
+    "defaultLicenses": {
+      ".read": true,
+      ".write": "auth != null && root.child('adminWhitelist/approved').child(auth.uid).exists()",
+      "$licIdx": {
+        "name": { ".validate": "newData.isString() && newData.val().length <= 100" },
+        "description": { ".validate": "!newData.exists() || (newData.isString() && newData.val().length <= 500)" },
+        "priceMXN": { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 1000000" },
+        "priceUSD": { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 100000" }
+      }
+    },
+
+    "// ════════════════════════════════════════════════════": "//",
+    "//  IMAGE GALLERY — admin image management": "//",
+    "// ════════════════════════════════════════════════════": "//",
 
     "imageGallery": {
       ".read": "auth != null && root.child('adminWhitelist/approved').child(auth.uid).exists()",
@@ -226,7 +604,7 @@
       "$imgId": {
         "url": { ".validate": "newData.isString() && newData.val().length <= 2000" },
         "name": { ".validate": "newData.isString() && newData.val().length <= 200" },
-        "type": { ".validate": "newData.isString() && newData.val().length <= 30" },
+        "type": { ".validate": "!newData.exists() || (newData.isString() && newData.val().length <= 30)" },
         "size": { ".validate": "!newData.exists() || newData.isNumber()" },
         "width": { ".validate": "!newData.exists() || newData.isNumber()" },
         "height": { ".validate": "!newData.exists() || newData.isNumber()" },
@@ -237,18 +615,19 @@
       }
     },
 
-    "customLinks": { ".read": true, ".write": "auth != null && root.child('adminWhitelist/approved').child(auth.uid).exists()" },
-    "customEmojis": { ".read": true, ".write": "auth != null && root.child('adminWhitelist/approved').child(auth.uid).exists()" },
-    "team": { ".read": "auth != null && root.child('adminWhitelist/approved').child(auth.uid).exists()", ".write": "auth != null && root.child('adminWhitelist/approved').child(auth.uid).exists()" },
-    "defaultLicenses": { ".read": true, ".write": "auth != null && root.child('adminWhitelist/approved').child(auth.uid).exists()" },
+    "// ════════════════════════════════════════════════════": "//",
+    "//  ANALYTICS — store writes events (anonymous OK)": "//",
+    "//  Admin reads (auth required)": "//",
+    "// ════════════════════════════════════════════════════": "//",
 
     "analytics": {
       ".read": "auth != null && root.child('adminWhitelist/approved').child(auth.uid).exists()",
+
       "events": {
         "$date": {
           "$eventId": {
             ".write": true,
-            ".validate": "newData.hasChildren(['ts', 'cat', 'act']) && newData.child('ts').val() <= (now + 60000)",
+            ".validate": "newData.hasChildren(['ts', 'cat', 'act']) && newData.child('ts').isNumber()",
             "ts": { ".validate": "newData.isNumber()" },
             "cat": { ".validate": "newData.isString() && newData.val().length <= 50" },
             "act": { ".validate": "newData.isString() && newData.val().length <= 100" },
@@ -258,24 +637,32 @@
           }
         }
       },
+
       "counts": {
         "$beatId": {
           ".write": true,
-          "clicks": { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 1000000" },
-          "views": { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 1000000" },
-          "waClicks": { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 1000000" }
+          "clicks": { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 10000000" },
+          "views": { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 10000000" },
+          "waClicks": { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 10000000" },
+          "$other": { ".validate": false }
         }
       },
+
       "daily": {
         "$date": {
           ".write": true,
-          "total": { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 100000" },
+          "total": { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 1000000" },
           "actions": {
-            "$action": { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 100000" }
-          }
+            "$action": { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 1000000" }
+          },
+          "$other": { ".validate": false }
         }
       }
     },
+
+    "// ════════════════════════════════════════════════════": "//",
+    "//  SUBSCRIBERS — email list (admin only)": "//",
+    "// ════════════════════════════════════════════════════": "//",
 
     "subscribers": {
       ".read": "auth != null && root.child('adminWhitelist/approved').child(auth.uid).exists()",
@@ -290,6 +677,10 @@
         "$other": { ".validate": "newData.isString() || newData.isNumber() || newData.isBoolean()" }
       }
     },
+
+    "// ════════════════════════════════════════════════════": "//",
+    "//  CONTACT MESSAGES — public write, admin read": "//",
+    "// ════════════════════════════════════════════════════": "//",
 
     "contactMessages": {
       ".read": "auth != null && root.child('adminWhitelist/approved').child(auth.uid).exists()",
@@ -306,7 +697,31 @@
       }
     },
 
-    "notifications": { ".read": "auth != null && root.child('adminWhitelist/approved').child(auth.uid).exists()", ".write": "auth != null && root.child('adminWhitelist/approved').child(auth.uid).exists()" },
-    "backups": { ".read": "auth != null && root.child('adminWhitelist/approved').child(auth.uid).exists()", ".write": "auth != null && root.child('adminWhitelist/approved').child(auth.uid).exists()" }
+    "// ════════════════════════════════════════════════════": "//",
+    "//  NOTIFICATIONS — admin push notifications": "//",
+    "// ════════════════════════════════════════════════════": "//",
+
+    "notifications": {
+      ".read": "auth != null && root.child('adminWhitelist/approved').child(auth.uid).exists()",
+      ".write": "auth != null && root.child('adminWhitelist/approved').child(auth.uid).exists()"
+    },
+
+    "// ════════════════════════════════════════════════════": "//",
+    "//  BACKUPS — admin data snapshots": "//",
+    "// ════════════════════════════════════════════════════": "//",
+
+    "backups": {
+      ".read": "auth != null && root.child('adminWhitelist/approved').child(auth.uid).exists()",
+      ".write": "auth != null && root.child('adminWhitelist/approved').child(auth.uid).exists()"
+    },
+
+    "// ════════════════════════════════════════════════════": "//",
+    "//  TEAM — future feature (admin only)": "//",
+    "// ════════════════════════════════════════════════════": "//",
+
+    "team": {
+      ".read": "auth != null && root.child('adminWhitelist/approved').child(auth.uid).exists()",
+      ".write": "auth != null && root.child('adminWhitelist/approved').child(auth.uid).exists()"
+    }
   }
 }
