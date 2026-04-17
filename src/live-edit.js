@@ -162,6 +162,41 @@ export function initLiveEditBridge() {
       }
     } else if (d.type === 'beat-revert' && d.beatId && d.original) {
       applyLiveRevert(d.beatId, d.original);
+    } else if (d.type === 'global-card-style-update' && d.cardStyle) {
+      // Apply global card style to all beats
+      const cs = d.cardStyle;
+      state.allBeats.forEach((beat, idx) => {
+        // Merge global style with beat-specific style
+        if (cs) {
+          state.allBeats[idx].glowConfig = cs.glow || { enabled: false };
+          state.allBeats[idx].cardAnim = cs.anim || null;
+          state.allBeats[idx].accentColor = cs.style?.accentColor || '';
+          state.allBeats[idx].cardBorder = cs.border || { enabled: false };
+          state.allBeats[idx].shimmer = cs.style?.shimmer || false;
+          state.allBeats[idx].shimmerSpeed = cs.style?.shimmerSpeed || 3;
+          state.allBeats[idx].shimmerOp = cs.style?.shimmerOp || 0.04;
+          
+          // Also update cardStyle directly for consistency
+          state.allBeats[idx].cardStyle = cs;
+        }
+      });
+      
+      // Re-render all cards
+      renderAll();
+      
+      // Re-apply waveform SVGs after render
+      setTimeout(() => {
+        state.allBeats.forEach((b) => { 
+          if (b.previewUrl) {
+            const card = document.getElementById('card-' + b.id);
+            if (card && !card.querySelector('.waveform-svg')) {
+              applyWaveformToCard(b.id);
+            }
+          }
+        });
+      }, 100);
+      
+      console.log('[GlobalStyle] applied to', state.allBeats.length, 'beats');
     }
   });
 

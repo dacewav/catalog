@@ -118,6 +118,11 @@ function updateGlobalPreview() {
   if (!pv) return;
   const cs = buildCardStyleFromPrefix(PREFIX);
   _applyStyleToPv(pv, cs);
+  
+  // Send live update to store (real-time sync with ACK)
+  if (typeof window._sendGlobalStyleUpdate === 'function') {
+    window._sendGlobalStyleUpdate(cs);
+  }
 }
 
 // Apply cardStyle to a preview element (mirrors beats.js _applyCardStyleToPreview)

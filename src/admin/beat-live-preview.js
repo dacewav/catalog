@@ -155,3 +155,43 @@ window._clearLiveEdit = function () {
   window._liveEditId = null;
   window._liveEditOriginal = null;
 };
+
+// ═══ GLOBAL CARD STYLE LIVE UPDATE ═══
+// Send global card style changes to store in real-time
+window._sendGlobalStyleUpdate = function(cardStyle) {
+  // PostMessage to iframe (primary channel)
+  const frame = document.getElementById('preview-frame');
+  if (frame?.contentWindow) {
+    try {
+      frame.contentWindow.postMessage({ 
+        type: 'global-card-style-update', 
+        cardStyle,
+        ts: Date.now() 
+      }, '*');
+      console.log('[GlobalStyle] sent to store:', {
+        glow: cardStyle.glow?.enabled ? cardStyle.glow.type : 'off',
+        anim: cardStyle.anim?.type || 'none',
+        shimmer: !!cardStyle.style?.shimmer,
+        shadow: cardStyle.shadow?.enabled ? 'on' : 'off',
+        border: cardStyle.border?.enabled ? 'on' : 'off'
+      });
+    } catch (e) { /* iframe may be cross-origin */ }
+  } else {
+    postToFrame({ 
+      type: 'global-card-style-update', 
+      cardStyle,
+      ts: Date.now() 
+    });
+  }
+
+  // Firebase — persistent storage
+  clearTimeout(window._globalStyleFirebaseTimer);
+  window._globalStyleFirebaseTimer = setTimeout(() => {
+    const _db = window._db || (typeof db !== 'undefined' ? db : null);
+    if (_db) {
+      _db.ref('settings/globalCardStyle').set(cardStyle)
+        .then(() => console.log('[GlobalStyle] Firebase write OK'))
+        .catch(err => console.error('[GlobalStyle] Firebase write error:', err.message));
+    }
+  }, 150);
+};
