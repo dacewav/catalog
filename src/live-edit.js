@@ -5,7 +5,7 @@
 import { state } from './state.js';
 import { applyTheme } from './theme.js';
 import { applySettings, renderFloating } from './settings.js';
-import { renderAll } from './cards.js';
+import { renderAll, applyWaveformToCard } from './cards.js';
 
 let _lastThemeJSON = '';
 let _lastSettingsJSON = '';
@@ -63,7 +63,21 @@ function applyLiveUpdate(beatId, data, version) {
   Object.assign(state.allBeats[bi], data);
   state.allBeats[bi]._version = version || Date.now();
   
+  // Re-render all cards to apply new styles
   renderAll();
+  
+  // Re-apply waveform SVGs after render completes
+  setTimeout(() => {
+    state.allBeats.forEach((b) => { 
+      if (b.previewUrl) {
+        const card = document.getElementById('card-' + b.id);
+        if (card && !card.querySelector('.waveform-svg')) {
+          applyWaveformToCard(b.id);
+        }
+      }
+    });
+  }, 100);
+  
   return true;
 }
 

@@ -7,6 +7,7 @@ import { toggleWish } from './wishlist.js';
 import { applyWaveformToCard } from './waveform.js';
 import { setupCardTilt, observeStagger, animateCounter } from './effects.js';
 export { openPlayerModal, openModal, playModalBeat, closeModal, selLic } from './modal.js';
+export { applyWaveformToCard };
 
 export function beatCard(b, globalIdx) {
   const isCurrent = AP.currentBeatIdx === globalIdx;
