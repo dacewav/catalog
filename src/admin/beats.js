@@ -398,17 +398,47 @@ export function saveBeat() {
     // New mega schema
     cardStyle: cardStyle, _customStyle: _hasCustom
   };
-  showSaving(true); db.ref('beats/' + id).set(beat).then(() => { showSaving(false); if (typeof window._clearLiveEdit === 'function') window._clearLiveEdit(); showToast('Beat guardado ✓'); showSection('beats'); }).catch(err => { showSaving(false); showToast('Error: ' + err.message, true); });
+  showSaving(true);
+  // Save beat to Firebase and clear liveEdits for this beat
+  const updates = {};
+  updates['beats/' + id] = beat;
+  updates['liveEdits/' + id] = null; // Clear any live edits for this beat
+  db.ref().update(updates).then(() => {
+    showSaving(false);
+    if (typeof window._clearLiveEdit === 'function') window._clearLiveEdit();
+    // Force broadcast full state to preview iframe
+    if (typeof window.broadcastThemeNow === 'function') window.broadcastThemeNow();
+    showToast('Beat guardado ✓');
+    showSection('beats');
+  }).catch(err => { showSaving(false); showToast('Error: ' + err.message, true); });
 }
 export async function deleteBeat() {
   var delId = editId || val('f-id');
   if (!delId) { showToast('No hay beat seleccionado', true); return; }
   if (!await confirmInline('¿Eliminar beat "' + delId + '"?')) return;
-  showSaving(true); db.ref('beats/' + delId).remove().then(() => { showSaving(false); showToast('Eliminado ✓'); setEditId(null); showSection('beats'); }).catch(err => { showSaving(false); showToast('Error: ' + (err.message || err.code), true); });
+  showSaving(true);
+  const updates = {};
+  updates['beats/' + delId] = null;
+  updates['liveEdits/' + delId] = null; // Clear live edits too
+  db.ref().update(updates).then(() => {
+    showSaving(false);
+    showToast('Eliminado ✓');
+    setEditId(null);
+    if (typeof window.broadcastThemeNow === 'function') window.broadcastThemeNow();
+    showSection('beats');
+  }).catch(err => { showSaving(false); showToast('Error: ' + (err.message || err.code), true); });
 }
 export async function quickDel(id) {
   if (!await confirmInline('¿Eliminar este beat?')) return;
-  showSaving(true); db.ref('beats/' + id).remove().then(() => { showSaving(false); showToast('Eliminado ✓'); }).catch(err => { showSaving(false); showToast('Error: ' + (err.message || err.code), true); });
+  showSaving(true);
+  const updates = {};
+  updates['beats/' + id] = null;
+  updates['liveEdits/' + id] = null; // Clear live edits too
+  db.ref().update(updates).then(() => {
+    showSaving(false);
+    showToast('Eliminado ✓');
+    if (typeof window.broadcastThemeNow === 'function') window.broadcastThemeNow();
+  }).catch(err => { showSaving(false); showToast('Error: ' + (err.message || err.code), true); });
 }
 
 // Batch
@@ -453,10 +483,10 @@ export function saveBatchImages() {
     if (R2_ENABLED && item.file) {
       uploadToR2(item.file, 'beats/' + item.beatId + '/cover-' + item.file.name.replace(/[^a-zA-Z0-9._-]/g, '_'))
         .then(r => db.ref(dbPath).set(r.url))
-        .then(() => { done++; if (done >= total) { showSaving(false); showToast(total + ' subidas a R2 ✓'); clearBatchImgQueue(); closeBatchImg(); } })
+        .then(() => { done++; if (done >= total) { showSaving(false); showToast(total + ' subidas a R2 ✓'); clearBatchImgQueue(); closeBatchImg(); if (typeof window.broadcastThemeNow === 'function') window.broadcastThemeNow(); } })
         .catch(() => { done++; if (done >= total) { showSaving(false); showToast('Error', true); } });
     } else {
-      db.ref(dbPath).set(item.preview).then(() => { done++; if (done >= total) { showSaving(false); showToast(total + ' asignadas ✓'); clearBatchImgQueue(); closeBatchImg(); } }).catch(() => { done++; if (done >= total) { showSaving(false); showToast('Error', true); } });
+      db.ref(dbPath).set(item.preview).then(() => { done++; if (done >= total) { showSaving(false); showToast(total + ' asignadas ✓'); clearBatchImgQueue(); closeBatchImg(); if (typeof window.broadcastThemeNow === 'function') window.broadcastThemeNow(); } }).catch(() => { done++; if (done >= total) { showSaving(false); showToast('Error', true); } });
     }
   });
 }
