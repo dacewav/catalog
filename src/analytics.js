@@ -29,8 +29,17 @@ function _flushQueue() {
     }
   });
   state.db.ref().update(updates).catch((err) => logError('Analytics/flush', err));
-  // Increment daily counters once per batch
-  state.db.ref(`analytics/daily/${date}/total`).transaction((c) => (c || 0) + batch.length);
+  // Increment daily counters once per batch (con escudo anti-permission_denied)
+  state.db.ref(`analytics/daily/${date}/total`).transaction((c) => (c || 0) + batch.length)
+    .catch(err => {
+      if (err.code !== 'PERMISSION_DENIED') {
+        logError('Analytics/daily-counter', err);
+      }
+      // En desarrollo avisamos, en prod silenciamos para no saturar
+      if (window.location.hostname.includes('localhost')) {
+        console.warn('[Analytics] Permission denied en daily counter. Verificar Firebase Rules.');
+      }
+    });
 }
 
 export function trackEvent(category, action, label, value) {
