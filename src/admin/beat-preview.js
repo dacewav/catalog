@@ -408,9 +408,10 @@ window._initPvImgUpload = function() {
     reader.readAsDataURL(file);
 
     // If R2 is configured, also upload to R2 (will update URL when done)
+    // This is a background upgrade — local preview already works via FileReader
     var r2Enabled = typeof window._r2IsEnabled === 'function' && window._r2IsEnabled();
     if (r2Enabled && typeof window.uploadBeatImg === 'function') {
-      window.uploadBeatImg(input);
+      try { window.uploadBeatImg(input); } catch(e) { /* R2 upload is optional, preview already works */ }
     }
     input.value = '';
   });

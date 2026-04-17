@@ -22,11 +22,16 @@ export function loadR2Config(settings) {
 export async function uploadToR2(file, objectKey) {
   if (!R2_ENABLED) throw new Error('R2 Worker no configurado');
   const key = objectKey || ('beats/' + Date.now() + '-' + file.name.replace(/[^a-zA-Z0-9._-]/g, '_'));
-  const res = await fetch(`${R2_WORKER_URL}/${encodeURIComponent(key)}`, {
-    method: 'PUT',
-    headers: { 'Content-Type': file.type || 'application/octet-stream', 'X-Upload-Token': R2_UPLOAD_TOKEN },
-    body: file,
-  });
+  let res;
+  try {
+    res = await fetch(`${R2_WORKER_URL}/${encodeURIComponent(key)}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': file.type || 'application/octet-stream', 'X-Upload-Token': R2_UPLOAD_TOKEN },
+      body: file,
+    });
+  } catch (e) {
+    throw new Error('R2 Worker no responde. Verifica la URL en Ajustes → R2 Storage.');
+  }
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
     throw new Error(err.error || `Upload failed: ${res.status}`);
