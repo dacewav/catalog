@@ -550,6 +550,19 @@ registerActions({
       }
     });
   },
+  // Trigger file inputs for beat media uploads
+  'triggerImgFile': () => {
+    var f = document.getElementById('f-img-file');
+    if (f) f.click();
+  },
+  'triggerAudioFile': () => {
+    var f = document.getElementById('f-audio-file');
+    if (f) f.click();
+  },
+  'triggerPrevFile': () => {
+    var f = document.getElementById('f-prev-file');
+    if (f) f.click();
+  },
   // Trash actions for beat editor fields
   'trash-audio': () => {
     var f = document.getElementById('f-audio');
