@@ -108,11 +108,10 @@ export function initLiveEditBridge() {
     } else if (d.type === 'beat-revert' && d.beatId && d.original) {
       applyLiveRevert(d.beatId, d.original);
     } else if (d.type === 'global-card-style-update' && d.cardStyle) {
-      // Apply global card style to all beats via cardStyle (single source of truth)
-      const cs = d.cardStyle;
-      state.allBeats.forEach((beat, idx) => {
-        state.allBeats[idx].cardStyle = cs;
-      });
+      // Store global card style in siteSettings — beatCard() merges it with individual styles
+      // DON'T overwrite individual beat cardStyles (they have _customStyle flag)
+      state.siteSettings = state.siteSettings || {};
+      state.siteSettings.globalCardStyle = d.cardStyle;
       renderAll();
     }
   });

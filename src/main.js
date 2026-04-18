@@ -283,7 +283,9 @@ window.addEventListener('load', () => {
         .filter((b) => b.active !== false && b.id && b.id !== 'undefined')
         .sort((a, b) => (a.order || 0) - (b.order || 0));
       renderAll();
-      flushPendingUpdates(); // Apply any buffered iframe postMessage updates
+      // Clean up any stale liveEdits that match saved beats
+      // (admin should remove them on save, but handle edge cases)
+      flushPendingUpdates();
       localStorage.setItem('dace-beats', JSON.stringify(state.allBeats));
       state.ldBeats = true;
       _checkReady();
