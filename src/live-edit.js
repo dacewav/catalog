@@ -71,10 +71,14 @@ function sendAck(beatId, version) {
 export function initLiveEditBridge() {
   // PostMessage bridge (admin iframe preview)
   window.addEventListener('message', (e) => {
+    // Accept messages from: own origin, parent window (admin iframe), or 'null' origin
     const own = window.location?.origin || '*';
-    if (e.origin !== own && e.origin !== 'https://dacewav.store' && e.origin !== 'null') {
-      if (e.source !== window.parent) return;
-    }
+    const isParent = e.source === window.parent;
+    const isOwnOrigin = e.origin === own;
+    const isNull = e.origin === 'null';
+    // In production, admin is on same origin or cross-origin iframe
+    // In dev, admin could be on localhost:PORT
+    if (!isParent && !isOwnOrigin && !isNull) return;
     const d = e.data;
     if (!d || !d.type) return;
 

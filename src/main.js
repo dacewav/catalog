@@ -200,8 +200,9 @@ function setupInspector() {
 // ─── Boot ───
 window.addEventListener('load', () => {
   setupInspector();
+  // Notify admin iframe that store is ready (use '*' for cross-origin admin)
   if (window.parent !== window) {
-    window.parent.postMessage({ type: 'index-ready', ver: DACE_VER }, window.location?.origin || '*');
+    try { window.parent.postMessage({ type: 'index-ready', ver: DACE_VER }, '*'); } catch {}
   }
 
   initAllEffects();
