@@ -39,6 +39,32 @@ export function initPreviewIframe() {
   if (_iframeInited && currentSrc && !currentSrc.endsWith('about:blank')) return;
   _iframeInited = true;
   console.log('[PreviewSync] Loading store:', STORE_URL);
+
+  // Detect iframe load errors (404, network issues, etc.)
+  frame.addEventListener('error', function() {
+    console.error('[PreviewSync] iframe failed to load:', STORE_URL);
+    showToast('Preview: la tienda no cargó. Verifica el deploy de Cloudflare.', true);
+  });
+
+  // Detect successful load vs error page
+  frame.addEventListener('load', function() {
+    try {
+      // If iframe loaded but shows a Cloudflare error page
+      const frameDoc = frame.contentDocument;
+      if (frameDoc) {
+        const title = frameDoc.title || '';
+        const body = frameDoc.body?.textContent || '';
+        if (title.includes('Error') || body.includes('error code:') || body.includes('1926')) {
+          console.warn('[PreviewSync] iframe loaded but shows error page');
+          showToast('⚠️ Preview: la tienda muestra error ' + (body.match(/error code: (\d+)/)?.[1] || 'desconocido') + '. Verifica Cloudflare Pages.', true);
+        }
+      }
+    } catch (e) {
+      // Cross-origin — can't read content, which is normal (means store loaded)
+      console.log('[PreviewSync] iframe loaded (cross-origin, OK)');
+    }
+  });
+
   frame.src = STORE_URL;
   // Also set the preview-url input
   const urlInput = g('preview-url');
