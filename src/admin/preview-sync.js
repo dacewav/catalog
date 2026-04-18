@@ -36,7 +36,11 @@ export function initPreviewIframe() {
   if (!frame) { console.warn('[PreviewSync] preview-frame not found'); return; }
   // Don't reload if already loaded with correct URL
   const currentSrc = frame.src || '';
-  if (_iframeInited && currentSrc && !currentSrc.endsWith('about:blank')) return;
+  console.log('[PreviewSync] initPreviewIframe called. Current src:', currentSrc, 'iframeInited:', _iframeInited, 'STORE_URL:', STORE_URL);
+  if (_iframeInited && currentSrc && !currentSrc.endsWith('about:blank')) {
+    console.log('[PreviewSync] Already inited, skipping');
+    return;
+  }
   _iframeInited = true;
   console.log('[PreviewSync] Loading store:', STORE_URL);
 
@@ -66,9 +70,19 @@ export function initPreviewIframe() {
   });
 
   frame.src = STORE_URL;
+  console.log('[PreviewSync] iframe.src set to:', STORE_URL);
   // Also set the preview-url input
   const urlInput = g('preview-url');
   if (urlInput) urlInput.value = STORE_URL;
+
+  // Fallback: if iframe is still about:blank after 3s, force reload
+  setTimeout(() => {
+    const f = g('preview-frame');
+    if (f && (f.src || '').endsWith('about:blank')) {
+      console.warn('[PreviewSync] Fallback: iframe still about:blank after 3s, forcing reload');
+      f.src = STORE_URL;
+    }
+  }, 3000);
 }
 
 // Post to iframe with fallback: try specific origin first, then '*'

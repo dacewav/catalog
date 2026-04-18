@@ -32,6 +32,8 @@ function copyCSS() {
   fs.mkdirSync('dist', { recursive: true });
   fs.copyFileSync('store-styles.css', 'dist/store-styles.css');
   fs.copyFileSync('admin-styles.css', 'dist/admin-styles.css');
+  // Copy _headers for Cloudflare Pages (CSP, security headers)
+  if (fs.existsSync('_headers')) fs.copyFileSync('_headers', 'dist/_headers');
 }
 
 function bustCache() {
