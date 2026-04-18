@@ -226,23 +226,62 @@ export function saveBeat() {
   const id = val('f-id').trim(), name = val('f-name').trim();
   if (!id || !name) { showToast('ID y nombre requeridos', true); return; }
 
-  // Validate Firebase connection
+  // Validate Firebase connection — check both imported db and window._db
   const _db = db || window._db;
-  if (!_db) { showToast('Firebase no conectado. Espera o recarga la página.', true); return; }
+  if (!_db) {
+    // Check if user is logged in (firebase auth)
+    const user = firebase.auth?.()?.currentUser;
+    if (!user) {
+      showToast('No autenticado. Recarga e inicia sesión.', true);
+    } else {
+      showToast('Firebase no conectado. Espera unos segundos o recarga.', true);
+    }
+    console.error('[saveBeat] db is null. Auth:', user?.email || 'none');
+    return;
+  }
+
+  // Validate beat ID format (Firebase keys can't contain . # $ [ ] /)
+  if (/[.#$\[\]\/]/.test(id)) { showToast('ID inválido: no usar . # $ [ ] /', true); return; }
 
   collectLics();
   const cardStyle = _buildCardStyleFromInputs();
   const _hasCustom = !_isCardStyleDefault(cardStyle);
-  const beat = { name, genre: val('f-genre'), genreCustom: val('f-genre-c'), bpm: parseInt(val('f-bpm')) || 0, key: val('f-key'), description: val('f-desc'), tags: val('f-tags').split(',').map(t => t.trim()).filter(Boolean), imageUrl: val('f-img'), images: _imgGallery.slice(), audioUrl: val('f-audio'), previewUrl: val('f-prev'), spotify: val('f-spotify'), youtube: val('f-youtube'), soundcloud: val('f-soundcloud'), date: val('f-date'), order: parseInt(val('f-order')) || 0, plays: parseInt(val('f-plays')) || 0, featured: checked('f-feat'), exclusive: checked('f-excl'), active: checked('f-active'), available: checked('f-avail'), licenses: _edLics.filter(l => l.name),
+  const beat = {
+    name, genre: val('f-genre'), genreCustom: val('f-genre-c'),
+    bpm: parseInt(val('f-bpm')) || 0, key: val('f-key'),
+    description: val('f-desc'),
+    tags: val('f-tags').split(',').map(t => t.trim()).filter(Boolean),
+    imageUrl: val('f-img'), images: _imgGallery.slice(),
+    audioUrl: val('f-audio'), previewUrl: val('f-prev'),
+    spotify: val('f-spotify'), youtube: val('f-youtube'), soundcloud: val('f-soundcloud'),
+    date: val('f-date'), order: parseInt(val('f-order')) || 0,
+    plays: parseInt(val('f-plays')) || 0,
+    featured: checked('f-feat'), exclusive: checked('f-excl'),
+    active: checked('f-active'), available: checked('f-avail'),
+    licenses: _edLics.filter(l => l.name),
     // Single source of truth for card styling
-    cardStyle: cardStyle, _customStyle: _hasCustom
+    cardStyle, _customStyle: _hasCustom,
+    // Timestamp for conflict resolution
+    updatedAt: firebase.database.ServerValue.TIMESTAMP
   };
   showSaving(true);
   // Clear live edit node for this beat before saving final data
   _db.ref('liveEdits/' + id).remove().catch(() => {});
   _db.ref('beats/' + id).set(beat)
-    .then(() => { showSaving(false); if (typeof window._clearLiveEdit === 'function') window._clearLiveEdit(); showToast('Beat guardado ✓'); showSection('beats'); })
-    .catch(err => { showSaving(false); showToast('Error al guardar: ' + (err.message || err.code || 'desconocido'), true); console.error('[saveBeat]', err); });
+    .then(() => {
+      showSaving(false);
+      if (typeof window._clearLiveEdit === 'function') window._clearLiveEdit();
+      showToast('Beat guardado ✓');
+      showSection('beats');
+    })
+    .catch(err => {
+      showSaving(false);
+      const msg = err.code === 'PERMISSION_DENIED'
+        ? 'Sin permisos. Verifica Firebase Rules.'
+        : 'Error al guardar: ' + (err.message || err.code || 'desconocido');
+      showToast(msg, true);
+      console.error('[saveBeat]', err);
+    });
 }
 export async function deleteBeat() {
   var delId = editId || val('f-id');
@@ -308,11 +347,14 @@ export async function batchAddBeats() {
   var count = await promptInline('¿Cuántos beats? (máx 20)', '3'); if (!count) return;
   count = parseInt(count); if (isNaN(count) || count < 1 || count > 20) { showToast('Máximo 20', true); return; }
   var base = allBeats.length; showSaving(true); var promises = [];
+  var _db = db || window._db;
+  if (!_db) { showSaving(false); showToast('Firebase no conectado', true); return; }
   for (var i = 0; i < count; i++) {
-    var id = 'beat_' + Date.now() + '_' + i;
-    promises.push(db.ref('beats/' + id).set({ name: 'Beat ' + (base + i + 1), genre: 'Trap', bpm: 140, key: 'Am', active: false, order: base + i, tags: [], description: '', imageUrl: '', audioUrl: '', previewUrl: '', spotify: '', youtube: '', soundcloud: '', date: new Date().toISOString().split('T')[0], available: true, exclusive: false, featured: false, plays: 0, licenses: [{ name: 'Basic', description: 'MP3 sin tag', priceMXN: 350, priceUSD: 18 }, { name: 'Premium', description: 'WAV sin tag', priceMXN: 1500, priceUSD: 75 }, { name: 'Exclusive', description: 'Stems + exclusividad', priceMXN: 8000, priceUSD: 400 }] }));
+    var ref = _db.ref('beats').push();
+    var id = ref.key;
+    promises.push(ref.set({ name: 'Beat ' + (base + i + 1), genre: 'Trap', bpm: 140, key: 'Am', active: false, order: base + i, tags: [], description: '', imageUrl: '', audioUrl: '', previewUrl: '', spotify: '', youtube: '', soundcloud: '', date: new Date().toISOString().split('T')[0], available: true, exclusive: false, featured: false, plays: 0, licenses: [{ name: 'Basic', description: 'MP3 sin tag', priceMXN: 350, priceUSD: 18 }, { name: 'Premium', description: 'WAV sin tag', priceMXN: 1500, priceUSD: 75 }, { name: 'Exclusive', description: 'Stems + exclusividad', priceMXN: 8000, priceUSD: 400 }] }));
   }
-  Promise.all(promises).then(() => { showSaving(false); showToast(count + ' beats creados'); }).catch(() => { showSaving(false); showToast('Error', true); });
+  Promise.all(promises).then(function() { showSaving(false); showToast(count + ' beats creados ✓'); }).catch(function(e) { showSaving(false); showToast('Error: ' + e.message, true); });
 }
 
 // MP3 Player

@@ -12,9 +12,15 @@ export function setPreviewSyncDeps({ collectTheme }) { _collectThemeFn = collect
 let _broadcastTimer = null;
 let _lastBroadcastJSON = '';
 
-// Store URL: auto-detect or use known URL
+// Store URL: auto-detect from current hostname or fallback to known URL
 const STORE_URL = (() => {
-  // Known store URL — update if domain changes
+  try {
+    const host = window.location.hostname;
+    // If admin is on a subdomain of dacewav.store, use the main store
+    if (host.includes('dacewav.store')) return 'https://dacewav.store/';
+    // If admin is on localhost, store is likely on localhost too (dev mode)
+    if (host === 'localhost' || host === '127.0.0.1') return window.location.origin;
+  } catch {}
   return 'https://dacewav.store/';
 })();
 
@@ -22,16 +28,21 @@ const PM_ORIGIN = (() => {
   try { return new URL(STORE_URL).origin; } catch { return '*'; }
 })();
 
+let _iframeInited = false;
+
 // Initialize iframe with store URL (called on load)
 export function initPreviewIframe() {
   const frame = g('preview-frame');
-  if (!frame) return;
+  if (!frame) { console.warn('[PreviewSync] preview-frame not found'); return; }
   // Don't reload if already loaded with correct URL
-  if (frame.src && frame.src !== 'about:blank' && !frame.src.endsWith('about:blank')) return;
+  const currentSrc = frame.src || '';
+  if (_iframeInited && currentSrc && !currentSrc.endsWith('about:blank')) return;
+  _iframeInited = true;
+  console.log('[PreviewSync] Loading store:', STORE_URL);
   frame.src = STORE_URL;
   // Also set the preview-url input
   const urlInput = g('preview-url');
-  if (urlInput && !urlInput.value) urlInput.value = STORE_URL;
+  if (urlInput) urlInput.value = STORE_URL;
 }
 
 // Post to iframe with fallback: try specific origin first, then '*'
@@ -76,9 +87,21 @@ export function clearHighlight() { if (_iframeReady) postToFrame({ type: 'clear-
 window.addEventListener('message', function (e) {
   // Accept messages from: same origin, store origin, or any origin when using '*'
   const own = window.location.origin;
-  if (e.origin !== own && e.origin !== PM_ORIGIN && PM_ORIGIN !== '*' && own !== 'null') return;
+  const isOwnOrigin = e.origin === own;
+  const isStoreOrigin = e.origin === PM_ORIGIN;
+  const isWildcard = PM_ORIGIN === '*' || own === 'null';
+  if (!isOwnOrigin && !isStoreOrigin && !isWildcard) return;
   const d = e.data; if (!d || !d.type) return;
-  if (d.type === 'index-ready') { setIframeReady(true); broadcastTheme(); showToast('Preview conectado ✓'); }
+  if (d.type === 'index-ready') {
+    setIframeReady(true);
+    broadcastTheme();
+    showToast('Preview conectado ✓');
+    console.log('[PreviewSync] Store connected, ver:', d.ver || 'unknown');
+  }
+  if (d.type === 'beat-update-ack') {
+    // ACK from store — handled by beat-live-preview.js
+    return;
+  }
   if (d.type === 'element-clicked' && d.info) {
     const map = { 'hero-title': 'hero', 'hero-eyebrow': 'hero', 'hero-sub': 'hero', 'hero': 'hero', 'nav': 'layout', 'beat-card': 'elements', 'btn-lic': 'elements', 'wbar': 'elements', 'player-bar': 'layout' };
     for (const [sel, sec] of Object.entries(map)) { if (d.info.classes && d.info.classes.includes(sel)) { showSection(sec); break; } }
