@@ -12,9 +12,27 @@ export function setPreviewSyncDeps({ collectTheme }) { _collectThemeFn = collect
 let _broadcastTimer = null;
 let _lastBroadcastJSON = '';
 
-const PM_ORIGIN = (() => {
-  try { return window.location.origin || '*'; } catch { return '*'; }
+// Store URL: auto-detect or use known URL
+const STORE_URL = (() => {
+  // Known store URL — update if domain changes
+  return 'https://dacewav.store/';
 })();
+
+const PM_ORIGIN = (() => {
+  try { return new URL(STORE_URL).origin; } catch { return '*'; }
+})();
+
+// Initialize iframe with store URL (called on load)
+export function initPreviewIframe() {
+  const frame = g('preview-frame');
+  if (!frame) return;
+  // Don't reload if already loaded with correct URL
+  if (frame.src && frame.src !== 'about:blank' && !frame.src.endsWith('about:blank')) return;
+  frame.src = STORE_URL;
+  // Also set the preview-url input
+  const urlInput = g('preview-url');
+  if (urlInput && !urlInput.value) urlInput.value = STORE_URL;
+}
 
 // Post to iframe with fallback: try specific origin first, then '*'
 export function postToFrame(msg) {
@@ -56,7 +74,9 @@ export function broadcastHighlight(selector) { postToFrame({ type: 'highlight-el
 export function clearHighlight() { if (_iframeReady) postToFrame({ type: 'clear-highlight' }); }
 
 window.addEventListener('message', function (e) {
-  if (e.origin !== PM_ORIGIN && PM_ORIGIN !== '*' && e.origin !== 'null') return;
+  // Accept messages from: same origin, store origin, or any origin when using '*'
+  const own = window.location.origin;
+  if (e.origin !== own && e.origin !== PM_ORIGIN && PM_ORIGIN !== '*' && own !== 'null') return;
   const d = e.data; if (!d || !d.type) return;
   if (d.type === 'index-ready') { setIframeReady(true); broadcastTheme(); showToast('Preview conectado ✓'); }
   if (d.type === 'element-clicked' && d.info) {

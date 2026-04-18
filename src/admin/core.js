@@ -62,6 +62,7 @@ import {
   postToFrame, broadcastTheme, broadcastThemeNow,
   broadcastHighlight, clearHighlight,
   refreshIframe, loadPreviewURL, setViewport,
+  initPreviewIframe,
   setPreviewSyncDeps
 } from './preview-sync.js';
 import {
@@ -73,6 +74,7 @@ import {
 export { collectTheme, loadThemeUI } from './theme-io.js';
 export { autoSave, saveAll } from './autosave.js';
 export { broadcastTheme, broadcastThemeNow, postToFrame } from './preview-sync.js';
+export { initPreviewIframe } from './preview-sync.js';
 export { updatePreview } from './glow.js';
 export { updateHeroPv, updateBannerPv, updateDividerPv } from './hero-preview.js';
 export { initParticlesPreview } from './particles.js';

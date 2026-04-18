@@ -98,6 +98,8 @@ function initAdmin() {
     m.renderGradEditor?.();
     m.setupHeroDrag?.();
     m.renderChangeLog?.();
+    // Initialize preview iframe with store URL
+    m.initPreviewIframe?.();
     // Mark UI as built → triggers _checkReady() if data is already loaded
     _markUIBuilt();
   }).catch(e => { console.error('[core]', e); _markUIBuilt(); });
