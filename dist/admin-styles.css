@@ -845,15 +845,15 @@ body > * { position: relative; z-index: 1; }
 .vp-btn:hover { color: var(--tx); background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.06); }
 .vp-btn.on { color: var(--tx); background: rgba(255,255,255,0.06); border-color: var(--b2); }
 .preview-iframe-wrap {
-  flex: 1; display: flex; align-items: center; justify-content: center;
-  padding: 12px; overflow: hidden; background: #000;
+  flex: 1; position: relative;
+  padding: 0; overflow: hidden; background: #000;
 }
 #preview-frame {
-  width: 100%; height: 100%; border: none; border-radius: var(--rad);
-  transition: width 0.3s ease, max-width 0.3s ease;
+  position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+  border: none; border-radius: 0;
 }
-#preview-frame.mobile { max-width: 375px; }
-#preview-frame.tablet { max-width: 768px; }
+#preview-frame.mobile { max-width: 375px; left: 50%; transform: translateX(-50%); }
+#preview-frame.tablet { max-width: 768px; left: 50%; transform: translateX(-50%); }
 
 /* ═══ RESIZE HANDLE ═══ */
 .resize-handle-h {
