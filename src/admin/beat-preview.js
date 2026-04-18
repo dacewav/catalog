@@ -3,7 +3,7 @@
 // NOTE: The main preview lives in the iframe panel (preview-frame). The mini preview was removed.
 
 import { g, val, checked } from './helpers.js';
-import { _buildCardStyleFromInputs, SD_FMT } from './beat-card-style.js';
+import { _buildCardStyleFromInputs } from './beat-card-style.js';
 
 // ═══ Shared card HTML builder (DRY) ═══
 window._buildCardHTML = function(cs, opts) {
