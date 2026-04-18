@@ -5,44 +5,58 @@
 ### Proyecto
 - **Repo**: `github.com/dacewav/catalog`
 - **Branch**: `main`
-- **Deploy**: Cloudflare Pages (lee de GitHub, sirve estáticos desde dist/)
-- **Build**: Local `node build.js` → dist/ commiteado a git
+- **Deploy**: Cloudflare Pages (lee de GitHub, sirve desde root del repo)
+- **Build**: Local `node build.js` → dist/ con esbuild
 - **CDN**: Cloudflare frente al site
-- **Vercel**: desconectado
-- **Bundle**: store 65.2KB, admin 247.5KB
-- **Tests**: 125/125 pass
+- **Bundle**: store 65.2KB, admin 241.8KB
+- **Tests**: 125/125 pass (pre-refactor)
 
-### card-style-engine refactor (completado 2026-04-18)
-- Nuevo módulo compartido: `src/card-style-engine.js`
-- Single source of truth para cardStyle (build, populate, apply, check, merge)
-- Eliminado código duplicado: _buildCardStyleFromInputs, _applyCardStyleToPreview, _isCardStyleDefault, SD_FMT
-- Admin (-7.8KB), Store (-0.9KB) por eliminación de duplicación
-- Legacy fields (glowConfig, cardAnim, accentColor, cardBorder, shimmer) eliminados de live-edit pipeline
-- Preview global ahora aplica TODOS los anim sub-settings (antes solo aplicaba básico)
+### Arquitectura
+```
+┌─────────────────────────────────────────────────┐
+│ Cloudflare Pages: dacewav.store                  │
+│                                                  │
+│  index.html → dist/store-app.js (tienda pública) │
+│  admin.html → dist/admin-app.js (panel admin)    │
+│  _headers → CSP, security headers                │
+│  dist/ → JS/CSS bundles con hash cache busting   │
+└─────────────────────────────────────────────────┘
 
-### Admin refactor (completado sesiones anteriores)
-- core.js: 1405 → 130 líneas (-91%)
-- 16 módulos extraídos, todos con dependency injection
-- 131 onclick migrados a data-action delegation
-- Ver `REFACTOR-PLAN.md` para detalle de cada bloque
+Admin (iframe) ──postMessage──→ Store (en iframe)
+       ↕                              ↕
+    Firebase ◄─────────────────────→ Firebase
+```
 
-### Pendientes reales
-- [ ] Testing real en browser — preview panel, beat save, card styles end-to-end
-- [ ] Confirmar shimmer/glow effects post-deploy en browser real
-- [ ] Confirmar admin editing con Firebase rules actualizadas
-- [ ] Stats charts necesitan datos reales para verificar render
-- [ ] Preview panel resize handle — verificar en browser
+### Módulos por pares críticos
+| Admin | Store | Función |
+|-------|-------|---------|
+| preview-sync.js | live-edit.js | Comunicación postMessage |
+| beat-card-style.js + card-global.js | card-style-engine.js + cards.js | Card styling |
+| beats.js | Firebase → main.js | CRUD beats |
+| autosave.js | live-edit.js | Theme/settings sync |
+| firebase-init.js | main.js | Auth + data loading |
+
+### Pendientes reales (ACTUALIZADO)
+- [ ] Confirmar fix iframe preview (position: absolute) — deploy hecho
+- [ ] Fix: global-card-style-update no debe sobreescribir beats individuales en live-edit.js
+- [ ] Firebase rules: usuario debe pegar firebase-rules-secure.json en Console
+- [ ] Audit completo de pares admin↔store
+- [ ] Testing end-to-end: beat CRUD → preview → store
+- [ ] Revisar initAdmin: dynamic imports fallan silenciosamente
+- [ ] card-style-engine.js: verificar que ambos lados lo usan correctamente
+- [ ] Error handling en saveBeat (PERMISSION_DENIED visible en console)
 
 ---
 
 ## Decisiones clave
 
-- **Cloudflare Pages > Vercel**: Vercel desconectado por cache agresivo y tokens limitados
-- **dist/ commiteado**: Cloudflare Pages lee de git, no tiene build step propio
+- **Cloudflare Pages > Vercel**: Cache agresivo de Vercel causaba problemas
+- **Root deploy**: Cloudflare Pages sirve desde root del repo, no desde dist/
+- **_headers en root**: Cloudflare lee CSP de _headers en el root del deployment
 - **Dependency injection**: Para romper circular deps entre módulos admin
-- **cardStyle como single source of truth**: No más legacy fields (glowConfig, cardAnim, etc.) en pipeline
-- **No tocar HTML sin verificar nesting**: Lección de sesión 4 (paneles huérfanos)
-- **No quitar will-change de todos los cards**: Solo de cards sin animaciones
+- **cardStyle como single source of truth**: No más legacy fields (glowConfig, cardAnim, etc.)
+- **Layout grid**: `80px minmax(380px,1fr) 2fr` — store toma 2/3, controles 1/3
+- **iframe sizing**: `position: absolute` dentro de wrapper `position: relative`
 
 ---
 
@@ -57,17 +71,23 @@
 | will-change:transform en cards con glow | GPU layer clippea box-shadow animado | Solo aplicar will-change en cards sin anim |
 | firebase.database.ServerValue vs db.ServerValue | ServerValue está en namespace, no en instancia | Usar `firebase.database.ServerValue.TIMESTAMP` |
 | require() en ES modules | card-style-ui.js usó require por error | Usar import estático |
+| Toccar store cuando solo se pidió admin | Cambios en live-edit.js/main.js afectan store | Revertir store, solo tocar admin |
+| iframe height 0 en grid+flex | CSS grid + flex: 1 no garantiza height del iframe | Usar position: absolute en iframe |
 
 ---
 
 ## Instrucciones para sesiones
 
 1. Leer `CONTEXT.md` al inicio (checklist de arranque)
-2. Actualizar `memory/YYYY-MM-DD.md` al final de cada sesión
+2. Actualizar `memory/YYYY-MM-DD.md` al final de cada bloque de trabajo
 3. Cuando un bug se resuelva → mover a "Bugs resueltos" con commit hash
 4. No acumular bugs sin reproducir — documentar condiciones
 5. Build + commit + push después de cada bloque de trabajo
 6. **Auto-save a los ~50 min** — ver SOUL.md para protocolo completo
+7. **NO tocar store files sin autorización explícita** — solo admin
+8. **Analizar ANTES de escribir** — leer todos los archivos relevantes primero
+
+---
 
 ## Recovery system
 - Cron `catalog-recovery` corre cada 30 min
@@ -78,6 +98,14 @@
 ---
 
 ## Bugs resueltos (historial completo)
+
+### Sesión 8 — Layout + iframe fix (2026-04-19)
+- Layout reestructurado: store index como contenido principal (2/3 pantalla)
+- Grid: `80px minmax(380px,1fr) 2fr` con `.split.preview-collapsed` para colapso
+- iframe sizing: `position: absolute` para garantizar height correcto
+- Debug logging agregado a initPreviewIframe
+- Store files revertidos (live-edit.js, main.js) — no se debieron tocar
+- Commits: `73227a3`, `a4299d6`, `677bbb0`, `f67bdd7`
 
 ### Sesión 7 — Firebase Rules + Glow + Analytics (2026-04-17)
 - Firebase rules desalineadas: 12+ campos con límites más restrictivos en producción
