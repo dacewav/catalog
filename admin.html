@@ -26,7 +26,7 @@
       <svg width="18" height="18" viewBox="0 0 18 18"><path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844a4.14 4.14 0 01-1.796 2.716v2.259h2.908c1.702-1.567 2.684-3.875 2.684-6.615z"/><path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 009 18z"/><path fill="#FBBC05" d="M3.964 10.71A5.41 5.41 0 013.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 000 9c0 1.452.348 2.827.957 4.042l3.007-2.332z"/><path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 00.957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58z"/></svg>
       Iniciar sesión con Google
     </button>
-    <div class="login-error" id="login-error" class="mt-md"></div>
+    <div class="login-error mt-md" id="login-error"></div>
     <div class="login-lockout" id="login-lockout"></div>
   </div>
 </div>
@@ -97,12 +97,12 @@
         <div class="card-title" data-action="toggle-card"><span>Tipografía</span><i class="fas fa-chevron-down"></i></div>
         <div class="card-body">
           <div class="btn-row" style="flex-wrap:wrap">
-            <button class="btn btn-g" data-action="applyTypo" data-typo="industrial" class="fs-xs">Industrial</button>
-            <button class="btn btn-g" data-action="applyTypo" data-typo="brutalista" class="fs-xs">Brutalista</button>
-            <button class="btn btn-g" data-action="applyTypo" data-typo="minimal" class="fs-xs">Minimal</button>
-            <button class="btn btn-g" data-action="applyTypo" data-typo="scifi" class="fs-xs">Sci-fi</button>
-            <button class="btn btn-g" data-action="applyTypo" data-typo="elegant" class="fs-xs">Elegant</button>
-            <button class="btn btn-g" data-action="applyTypo" data-typo="modern" class="fs-xs">Modern</button>
+            <button class="btn btn-g fs-xs" data-action="applyTypo" data-typo="industrial">Industrial</button>
+            <button class="btn btn-g fs-xs" data-action="applyTypo" data-typo="brutalista">Brutalista</button>
+            <button class="btn btn-g fs-xs" data-action="applyTypo" data-typo="minimal">Minimal</button>
+            <button class="btn btn-g fs-xs" data-action="applyTypo" data-typo="scifi">Sci-fi</button>
+            <button class="btn btn-g fs-xs" data-action="applyTypo" data-typo="elegant">Elegant</button>
+            <button class="btn btn-g fs-xs" data-action="applyTypo" data-typo="modern">Modern</button>
           </div>
           <div class="field">
             <label>Fuente display <span class="tip" title="Para títulos y nombres">?</span></label>
@@ -294,14 +294,14 @@
           <div class="mb-md">
             <label style="font-size:10px;color:var(--mu);font-weight:700;display:block;margin-bottom:6px">Presets rápidos</label>
             <div style="display:flex;flex-wrap:wrap;gap:4px">
-              <button class="btn btn-g" data-action="applyGlowPreset" data-preset="soft" class="btn-xs">☁️ Soft</button>
-              <button class="btn btn-g" data-action="applyGlowPreset" data-preset="neon" class="btn-xs">💡 Neon</button>
-              <button class="btn btn-g" data-action="applyGlowPreset" data-preset="fire" class="btn-xs">🔥 Fire</button>
-              <button class="btn btn-g" data-action="applyGlowPreset" data-preset="ice" class="btn-xs">🧊 Ice</button>
-              <button class="btn btn-g" data-action="applyGlowPreset" data-preset="toxic" class="btn-xs">☢️ Toxic</button>
-              <button class="btn btn-g" data-action="applyGlowPreset" data-preset="sunset" class="btn-xs">🌅 Sunset</button>
-              <button class="btn btn-g" data-action="applyGlowPreset" data-preset="royal" class="btn-xs">👑 Royal</button>
-              <button class="btn btn-g" data-action="applyGlowPreset" data-preset="disco" class="btn-xs">🪩 Disco</button>
+              <button class="btn btn-g btn-xs" data-action="applyGlowPreset" data-preset="soft">☁️ Soft</button>
+              <button class="btn btn-g btn-xs" data-action="applyGlowPreset" data-preset="neon">💡 Neon</button>
+              <button class="btn btn-g btn-xs" data-action="applyGlowPreset" data-preset="fire">🔥 Fire</button>
+              <button class="btn btn-g btn-xs" data-action="applyGlowPreset" data-preset="ice">🧊 Ice</button>
+              <button class="btn btn-g btn-xs" data-action="applyGlowPreset" data-preset="toxic">☢️ Toxic</button>
+              <button class="btn btn-g btn-xs" data-action="applyGlowPreset" data-preset="sunset">🌅 Sunset</button>
+              <button class="btn btn-g btn-xs" data-action="applyGlowPreset" data-preset="royal">👑 Royal</button>
+              <button class="btn btn-g btn-xs" data-action="applyGlowPreset" data-preset="disco">🪩 Disco</button>
             </div>
           </div>
 
@@ -477,7 +477,7 @@ definen géneros.</textarea></div>
             <div class="field"><label>Alto</label><input type="number" id="ce-h" value="24"></div>
             <div class="field"><label>Anim</label><select id="ce-anim"><option value="none">Ninguna</option><option value="flotar">Flotar</option><option value="pulsar">Pulsar</option><option value="rotar">Rotar</option><option value="rebotar">Rebotar</option></select></div>
           </div>
-          <button class="btn btn-ok" data-action="addCustomEmoji" class="mt-xs"><i class="fas fa-plus"></i> Añadir</button>
+          <button class="btn btn-ok mt-xs" data-action="addCustomEmoji"><i class="fas fa-plus"></i> Añadir</button>
         </div>
       </div>
     </div>
@@ -498,7 +498,7 @@ definen géneros.</textarea></div>
         <div class="card-body">
           <p class="fs-section-label">Arrastra los bloques verticalmente para reorganizar</p>
           <div id="layout-canvas" class="mb-sm"></div>
-          <button class="btn btn-g" data-action="initLayoutCanvas" class="fs-xs"><i class="fas fa-sync-alt"></i> Reiniciar</button>
+          <button class="btn btn-g fs-xs" data-action="initLayoutCanvas"><i class="fas fa-sync-alt"></i> Reiniciar</button>
         </div>
       </div>
       <div class="card">
@@ -614,7 +614,7 @@ definen géneros.</textarea></div>
           <div class="card-title" data-action="toggle-card"><span>🎨 Presets de Estilo</span><i class="fas fa-chevron-down"></i></div>
           <div class="card-body">
             <div style="display:flex;gap:6px;margin-bottom:8px">
-              <button class="btn btn-g" data-action="resetBeatToGlobal" class="fs-xs">🌐 Usar estilo global</button>
+              <button class="btn btn-g fs-xs" data-action="resetBeatToGlobal">🌐 Usar estilo global</button>
             </div>
             <p class="fs-hint-sm">Aplica un preset completo de estilo a la tarjeta. Sobrescribe filtros, sombra, borde y hover.</p>
             <div class="preset-grid" id="style-presets-grid"></div>
@@ -788,7 +788,7 @@ definen géneros.</textarea></div>
                 <option value="10">10 veces</option>
               </select>
             </div>
-            <div class="fg2" id="hue-controls" class="mt-xs">
+            <div class="fg2 mt-xs" id="hue-controls">
               <div class="field"><label>Hue inicio (holograma/color)</label><div class="slider-wrap"><input type="range" id="f-anim-hue-start" min="0" max="360" step="1" value="0" oninput="this.nextElementSibling.textContent=this.value+'°';updateCardPreview()"><span class="slider-val">0°</span><button class="slider-reset" data-action="reset-slider" data-reset-val="0">↺</button></div></div>
               <div class="field"><label>Hue fin</label><div class="slider-wrap"><input type="range" id="f-anim-hue-end" min="0" max="360" step="1" value="360" oninput="this.nextElementSibling.textContent=this.value+'°';updateCardPreview()"><span class="slider-val">360°</span><button class="slider-reset" data-action="reset-slider" data-reset-val="360">↺</button></div></div>
             </div>
@@ -1176,7 +1176,7 @@ definen géneros.</textarea></div>
           <p class="fs-section-label">Imágenes y texto flotantes sobre la tienda</p>
           <div id="floating-preview" style="width:100%;height:120px;border:1px solid var(--b);border-radius:var(--rlg);position:relative;overflow:hidden;background:var(--abg);margin-bottom:8px"></div>
           <div id="floating-editor"></div>
-          <button class="btn btn-ok" data-action="addFE" class="mt-sm"><i class="fas fa-plus"></i> Añadir elemento</button>
+          <button class="btn btn-ok mt-sm" data-action="addFE"><i class="fas fa-plus"></i> Añadir elemento</button>
         </div>
       </div>
     </div>
@@ -1256,9 +1256,9 @@ definen géneros.</textarea></div>
             <input type="password" id="r2-upload-token" placeholder="Token del Worker" oninput="autoSave()">
           </div>
           <div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap">
-            <button class="btn btn-g" data-action="saveR2Config" class="fs-xs"><i class="fas fa-save"></i> Guardar</button>
-            <button class="btn btn-g" data-action="testR2Connection" class="fs-xs"><i class="fas fa-plug"></i> Probar</button>
-            <button class="btn btn-g" data-action="purgeCache" class="fs-xs"><i class="fas fa-broom"></i> Purge Cache</button>
+            <button class="btn btn-g fs-xs" data-action="saveR2Config"><i class="fas fa-save"></i> Guardar</button>
+            <button class="btn btn-g fs-xs" data-action="testR2Connection"><i class="fas fa-plug"></i> Probar</button>
+            <button class="btn btn-g fs-xs" data-action="purgeCache"><i class="fas fa-broom"></i> Purge Cache</button>
           </div>
           <p style="font-size:9px;color:var(--hi);line-height:1.6;margin-top:8px">
             Los uploads irán a <code style="background:var(--bg2);padding:2px 4px;border-radius:3px">cdn.dacewav.store</code>.
@@ -1273,16 +1273,16 @@ definen géneros.</textarea></div>
         <div class="card-body">
           <p style="font-size:9px;color:var(--hi);margin-bottom:10px">Acciones que se ejecutan en el servidor vía Worker. Requiere R2 configurado.</p>
           <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
-            <button class="btn btn-g" data-action="runBackup" class="flex-1"><i class="fas fa-download"></i> Backup ahora</button>
+            <button class="btn btn-g flex-1" data-action="runBackup"><i class="fas fa-download"></i> Backup ahora</button>
           </div>
           <div id="backup-status" class="fs-muted-sm"></div>
           <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
-            <button class="btn btn-g" data-action="runSitemap" class="flex-1"><i class="fas fa-sitemap"></i> Generar Sitemap</button>
+            <button class="btn btn-g flex-1" data-action="runSitemap"><i class="fas fa-sitemap"></i> Generar Sitemap</button>
           </div>
           <div id="sitemap-status" class="fs-muted-sm"></div>
           <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
             <input type="file" id="previews-input" accept=".mp3,.wav,.ogg,.m4a" multiple style="display:none" onchange="uploadPreviews(this)">
-            <button class="btn btn-g" data-action="triggerPreviewsInput" class="flex-1"><i class="fas fa-headphones"></i> Subir Previews MP3</button>
+            <button class="btn btn-g flex-1" data-action="triggerPreviewsInput"><i class="fas fa-headphones"></i> Subir Previews MP3</button>
           </div>
           <div id="previews-status" class="fs-muted-sm"></div>
           <div style="border-top:1px solid var(--b);padding-top:10px;margin-top:4px">
