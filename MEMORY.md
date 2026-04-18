@@ -9,19 +9,27 @@
 - **Build**: Local `node build.js` → dist/ commiteado a git
 - **CDN**: Cloudflare frente al site
 - **Vercel**: desconectado
+- **Bundle**: store 65.2KB, admin 247.5KB
+- **Tests**: 125/125 pass
 
-### Admin refactor (completado)
+### card-style-engine refactor (completado 2026-04-18)
+- Nuevo módulo compartido: `src/card-style-engine.js`
+- Single source of truth para cardStyle (build, populate, apply, check, merge)
+- Eliminado código duplicado: _buildCardStyleFromInputs, _applyCardStyleToPreview, _isCardStyleDefault, SD_FMT
+- Admin (-7.8KB), Store (-0.9KB) por eliminación de duplicación
+- Legacy fields (glowConfig, cardAnim, accentColor, cardBorder, shimmer) eliminados de live-edit pipeline
+- Preview global ahora aplica TODOS los anim sub-settings (antes solo aplicaba básico)
+
+### Admin refactor (completado sesiones anteriores)
 - core.js: 1405 → 130 líneas (-91%)
-- 15 módulos extraídos, todos con dependency injection
-- Bloques 1-16 completados
+- 16 módulos extraídos, todos con dependency injection
+- 131 onclick migrados a data-action delegation
 - Ver `REFACTOR-PLAN.md` para detalle de cada bloque
 
 ### Pendientes reales
-- [ ] **Deploy firebase-rules-secure.json en Firebase Console** (usuario debe hacerlo manualmente)
-- [ ] Confirmar shimmer/glow effects post-deploy (fix aplicado, pendiente verificar en browser)
-- [ ] Confirmar admin editing post-deploy (fix aplicado con rules alignment)
+- [ ] Confirmar shimmer/glow effects post-deploy en browser real
+- [ ] Confirmar admin editing con Firebase rules actualizadas
 - [ ] Rediseño de la store (feature request principal)
-- [ ] Glow no visible en iframe preview (live edit → store)
 
 ---
 
@@ -30,6 +38,7 @@
 - **Cloudflare Pages > Vercel**: Vercel desconectado por cache agresivo y tokens limitados
 - **dist/ commiteado**: Cloudflare Pages lee de git, no tiene build step propio
 - **Dependency injection**: Para romper circular deps entre módulos admin
+- **cardStyle como single source of truth**: No más legacy fields (glowConfig, cardAnim, etc.) en pipeline
 - **No tocar HTML sin verificar nesting**: Lección de sesión 4 (paneles huérfanos)
 - **No quitar will-change de todos los cards**: Solo de cards sin animaciones
 
@@ -45,6 +54,7 @@
 | Depurar botón en vez de bundle | Error silencioso en import | Revisar console del browser PRIMERO |
 | will-change:transform en cards con glow | GPU layer clippea box-shadow animado | Solo aplicar will-change en cards sin anim |
 | firebase.database.ServerValue vs db.ServerValue | ServerValue está en namespace, no en instancia | Usar `firebase.database.ServerValue.TIMESTAMP` |
+| require() en ES modules | card-style-ui.js usó require por error | Usar import estático |
 
 ---
 
