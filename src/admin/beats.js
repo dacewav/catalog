@@ -225,6 +225,11 @@ export function uploadPreviews(input) {
 export function saveBeat() {
   const id = val('f-id').trim(), name = val('f-name').trim();
   if (!id || !name) { showToast('ID y nombre requeridos', true); return; }
+
+  // Validate Firebase connection
+  const _db = db || window._db;
+  if (!_db) { showToast('Firebase no conectado. Espera o recarga la página.', true); return; }
+
   collectLics();
   const cardStyle = _buildCardStyleFromInputs();
   const _hasCustom = !_isCardStyleDefault(cardStyle);
@@ -232,7 +237,12 @@ export function saveBeat() {
     // Single source of truth for card styling
     cardStyle: cardStyle, _customStyle: _hasCustom
   };
-  showSaving(true); db.ref('beats/' + id).set(beat).then(() => { showSaving(false); if (typeof window._clearLiveEdit === 'function') window._clearLiveEdit(); showToast('Beat guardado ✓'); showSection('beats'); }).catch(err => { showSaving(false); showToast('Error: ' + err.message, true); });
+  showSaving(true);
+  // Clear live edit node for this beat before saving final data
+  _db.ref('liveEdits/' + id).remove().catch(() => {});
+  _db.ref('beats/' + id).set(beat)
+    .then(() => { showSaving(false); if (typeof window._clearLiveEdit === 'function') window._clearLiveEdit(); showToast('Beat guardado ✓'); showSection('beats'); })
+    .catch(err => { showSaving(false); showToast('Error al guardar: ' + (err.message || err.code || 'desconocido'), true); console.error('[saveBeat]', err); });
 }
 export async function deleteBeat() {
   var delId = editId || val('f-id');

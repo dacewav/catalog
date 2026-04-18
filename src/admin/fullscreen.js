@@ -34,17 +34,29 @@ export function setupHeroDrag() {
   });
 }
 
+let _savedPanelWidth = '';
+
 export function toggleFullscreenPreview() {
   const panel = g('preview-panel');
   if (!panel) return;
   const handle = g('resize-handle');
   const isFs = panel.classList.toggle('fullscreen');
   if (isFs) {
-    panel.style.cssText = 'position:fixed;inset:0;z-index:9999;background:#000';
+    // Save current width so we can restore it
+    _savedPanelWidth = panel.style.width || '';
+    panel.style.position = 'fixed';
+    panel.style.inset = '0';
+    panel.style.zIndex = '9999';
+    panel.style.background = '#000';
     if (handle) handle.style.display = 'none';
     document.addEventListener('keydown', escFullscreen);
   } else {
-    panel.style.cssText = '';
+    // Restore saved width — don't nuke all inline styles
+    panel.style.position = '';
+    panel.style.inset = '';
+    panel.style.zIndex = '';
+    panel.style.background = '';
+    panel.style.width = _savedPanelWidth;
     if (handle) handle.style.display = '';
     document.removeEventListener('keydown', escFullscreen);
   }
@@ -57,7 +69,11 @@ function escFullscreen(e) {
     const h = g('resize-handle');
     if (p) {
       p.classList.remove('fullscreen');
-      p.style.cssText = '';
+      p.style.position = '';
+      p.style.inset = '';
+      p.style.zIndex = '';
+      p.style.background = '';
+      p.style.width = _savedPanelWidth;
     }
     if (h) h.style.display = '';
     document.removeEventListener('keydown', escFullscreen);

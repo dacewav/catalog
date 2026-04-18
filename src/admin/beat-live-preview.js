@@ -108,22 +108,28 @@ window._sendLiveUpdate = function () {
   // Firebase — persistent storage (fallback + multi-admin sync)
   clearTimeout(window._liveEditFirebaseTimer);
   window._liveEditFirebaseTimer = setTimeout(() => {
-    const _db = window._db || (typeof db !== 'undefined' ? db : null);
-    if (_db) {
-      _db.ref('liveEdits/' + window._liveEditId).set(data)
-        .then(() => console.log('[LiveEdit] Firebase write OK'))
-        .catch(err => {
-          console.error('[LiveEdit] Firebase write error:', err.code, err.message);
-          // If Firebase fails, rely on postMessage only
-          window._liveEditPending.delete(window._liveEditId);
-          if (statusEl) {
-            statusEl.textContent = 'Error Firebase - usando solo preview';
-            statusEl.style.color = '#ef4444';
-          }
-        });
-    } else {
-      console.warn('[LiveEdit] Firebase DB not ready, using postMessage only');
-    }
+    import('./state.js').then(({ db }) => {
+      const _db = db || window._db;
+      if (_db) {
+        _db.ref('liveEdits/' + window._liveEditId).set(data)
+          .then(() => console.log('[LiveEdit] Firebase write OK'))
+          .catch(err => {
+            console.error('[LiveEdit] Firebase write error:', err.code, err.message);
+            window._liveEditPending.delete(window._liveEditId);
+            if (statusEl) {
+              statusEl.textContent = 'Error Firebase - usando solo preview';
+              statusEl.style.color = '#ef4444';
+            }
+          });
+      } else {
+        console.warn('[LiveEdit] Firebase DB not ready, using postMessage only');
+      }
+    }).catch(() => {
+      // Fallback if dynamic import fails
+      if (window._db) {
+        window._db.ref('liveEdits/' + window._liveEditId).set(data).catch(() => {});
+      }
+    });
   }, 150);
 };
 
@@ -133,8 +139,10 @@ window._sendBeatRevert = function () {
   localStorage.setItem('dace-live-edit-revert', JSON.stringify(revertData));
   localStorage.removeItem('dace-live-edit');
   postToFrame({ type: 'beat-revert', beatId: revertData.beatId, original: revertData.original });
-  const _db = window._db || (typeof db !== 'undefined' ? db : null);
-  if (_db) _db.ref('liveEdits/' + window._liveEditId).remove().catch(() => {});
+  import('./state.js').then(({ db }) => {
+    const _db = db || window._db;
+    if (_db) _db.ref('liveEdits/' + window._liveEditId).remove().catch(() => {});
+  }).catch(() => {});
   window._liveEditId = null;
   window._liveEditOriginal = null;
 };
@@ -148,8 +156,10 @@ window._clearLiveEdit = function () {
   localStorage.removeItem('dace-live-edit');
   localStorage.removeItem('dace-live-edit-revert');
   if (window._liveEditId) {
-    const _db = window._db || (typeof db !== 'undefined' ? db : null);
-    if (_db) _db.ref('liveEdits/' + window._liveEditId).remove().catch(() => {});
+    import('./state.js').then(({ db }) => {
+      const _db = db || window._db;
+      if (_db) _db.ref('liveEdits/' + window._liveEditId).remove().catch(() => {});
+    }).catch(() => {});
   }
   window._liveEditId = null;
   window._liveEditOriginal = null;
@@ -186,11 +196,13 @@ window._sendGlobalStyleUpdate = function(cardStyle) {
   // Firebase — persistent storage
   clearTimeout(window._globalStyleFirebaseTimer);
   window._globalStyleFirebaseTimer = setTimeout(() => {
-    const _db = window._db || (typeof db !== 'undefined' ? db : null);
-    if (_db) {
-      _db.ref('settings/globalCardStyle').set(cardStyle)
-        .then(() => console.log('[GlobalStyle] Firebase write OK'))
-        .catch(err => console.error('[GlobalStyle] Firebase write error:', err.message));
-    }
+    import('./state.js').then(({ db }) => {
+      const _db = db || window._db;
+      if (_db) {
+        _db.ref('settings/globalCardStyle').set(cardStyle)
+          .then(() => console.log('[GlobalStyle] Firebase write OK'))
+          .catch(err => console.error('[GlobalStyle] Firebase write error:', err.message));
+      }
+    }).catch(() => {});
   }, 150);
 };
