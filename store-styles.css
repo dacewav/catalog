@@ -304,7 +304,7 @@ nav.nav-scrolled{background:rgba(6,4,4,0.95);border-bottom-color:rgba(185,28,28,
 .beat-card-inner{background:var(--surface);border:1px solid var(--border);border-radius:var(--card-radius,var(--r-lg));overflow:hidden;height:100%;transition:border-color .35s,box-shadow .35s;box-shadow:var(--card-shadow);transform-style:preserve-3d;display:flex;flex-direction:column}
 .beat-card:not([class*="anim"]):not([class*="glow"]):not(.has-hover-fx) .beat-card-inner{will-change:transform}
 .beat-card:hover .beat-card-inner{border-color:rgba(185,28,28,0.35)}
-.beat-card:not(.has-custom-shadow):hover .beat-card-inner{box-shadow:0 20px 60px rgba(0,0,0,0.4),0 0 30px rgba(185,28,28,0.08)}
+.beat-card:not(.has-custom-shadow):not(.has-hover-fx):hover .beat-card-inner{box-shadow:0 20px 60px rgba(0,0,0,0.4),0 0 30px rgba(185,28,28,0.08)}
 .beat-card.has-custom-shadow:not(.has-hover-fx):hover{filter:brightness(1.08)}
 .beat-card.is-playing .beat-card-inner{border-color:rgba(185,28,28,0.9);box-shadow:var(--glow-md)}
 /* Disable glow animation when playing to avoid conflicts */
@@ -734,7 +734,7 @@ body.light-mode .pi-meta{color:#666}
 
 /* ── Hover Effects System ── */
 .beat-card.has-hover-fx{transition:transform var(--hov-trans,0.3s) ease,filter var(--hov-trans,0.3s) ease,box-shadow var(--hov-trans,0.3s) ease,border-color var(--hov-trans,0.3s) ease,opacity var(--hov-trans,0.3s) ease;will-change:transform,filter,opacity}
-.beat-card.has-hover-fx:hover{transform:scale(var(--hov-scale,1));filter:brightness(var(--hov-bright,1)) saturate(var(--hov-sat,1)) blur(var(--hov-blur,0px)) hue-rotate(var(--hov-hue,0deg));box-shadow:0 0 var(--hov-shadow,0px) rgba(0,0,0,.3);opacity:var(--hov-opacity,1)}
+.beat-card.has-hover-fx:hover{transform:scale(var(--hov-scale,1));filter:brightness(var(--hov-bright,1)) saturate(var(--hov-sat,1)) blur(var(--hov-blur,0px)) hue-rotate(var(--hov-hue,0deg));box-shadow:0 0 var(--hov-shadow,0px) var(--hov-bdr,rgba(0,0,0,.3));opacity:var(--hov-opacity,1)}
 .beat-card.has-hover-fx:hover .beat-card-inner{border-color:var(--hov-bdr,transparent)}
 
 /* Siblings blur on hover — JS-driven class for performance (avoids :has() on large grids) */
