@@ -735,7 +735,7 @@ body.light-mode .pi-meta{color:#666}
 /* ── Hover Effects System ── */
 .beat-card.has-hover-fx{transition:transform var(--hov-trans,0.3s) ease,filter var(--hov-trans,0.3s) ease,box-shadow var(--hov-trans,0.3s) ease,border-color var(--hov-trans,0.3s) ease,opacity var(--hov-trans,0.3s) ease;will-change:transform,filter,opacity}
 .beat-card.has-hover-fx:hover{transform:scale(var(--hov-scale,1));filter:brightness(var(--hov-bright,1)) saturate(var(--hov-sat,1)) blur(var(--hov-blur,0px)) hue-rotate(var(--hov-hue,0deg));box-shadow:0 0 var(--hov-shadow,0px) var(--hov-bdr,rgba(0,0,0,.3));opacity:var(--hov-opacity,1)}
-.beat-card.has-hover-fx:hover .beat-card-inner{border-color:var(--hov-bdr,transparent)}
+.beat-card.has-hover-fx:hover .beat-card-inner{border-color:var(--hov-bdr,rgba(185,28,28,0.35))}
 
 /* Siblings blur on hover — JS-driven class for performance (avoids :has() on large grids) */
 .beat-grid.hovering .beat-card.has-hover-fx:not(.hover-active){filter:blur(var(--hov-sib-blur,0px));transition:filter var(--hov-trans,0.3s) ease}
