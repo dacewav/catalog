@@ -18,32 +18,43 @@ let _autoSaveTimer = null;
 
 export function autoSave() {
   clearTimeout(_autoSaveTimer);
-  pushUndo();
-  logFieldChange();
-  _broadcastThemeFn();
-  const dot = g('sdot'); dot.className = 'sdot';
+  try { pushUndo(); } catch {}
+  try { logFieldChange(); } catch {}
+  try { _broadcastThemeFn(); } catch {}
+  const dot = g('sdot'); if (dot) dot.className = 'sdot';
   _autoSaveTimer = setTimeout(() => {
-    const theme = _collectThemeFn();
-    localStorage.setItem('dace-theme', JSON.stringify(theme));
-    if (!db) { dot.className = 'sdot ok'; return; }
-    _collectSiteSettings();
-    const p1 = db.ref('theme').update(theme).catch(() => {});
-    const p2 = db.ref('settings').update(siteSettings).catch(() => {});
-    Promise.all([p1, p2]).then(() => { dot.className = 'sdot ok'; setTimeout(() => dot.className = 'sdot', 2000); }).catch(() => { dot.className = 'sdot err' });
+    try {
+      const theme = _collectThemeFn();
+      localStorage.setItem('dace-theme', JSON.stringify(theme));
+      if (!db) { if (dot) dot.className = 'sdot ok'; return; }
+      _collectSiteSettings();
+      const p1 = db.ref('theme').update(theme).catch(e => console.warn('[autoSave] theme:', e.code));
+      const p2 = db.ref('settings').update(siteSettings).catch(e => console.warn('[autoSave] settings:', e.code));
+      Promise.all([p1, p2]).then(() => { if (dot) { dot.className = 'sdot ok'; setTimeout(() => dot.className = 'sdot', 2000); } }).catch(() => { if (dot) dot.className = 'sdot err'; });
+    } catch (e) {
+      console.error('[autoSave] collectTheme error:', e);
+      if (dot) dot.className = 'sdot err';
+    }
   }, 2000);
 }
 
 export function saveAll() {
-  const theme = _collectThemeFn(); pushUndo();
-  localStorage.setItem('dace-theme', JSON.stringify(theme));
-  _collectSiteSettings();
-  localStorage.setItem('dace-settings', JSON.stringify(siteSettings));
-  showSaving(true);
-  if (db) {
-    Promise.all([db.ref('theme').set(theme), db.ref('settings').update(siteSettings)])
-      .then(() => { showSaving(false); showToast('Todo guardado ✓') })
-      .catch(() => { showSaving(false); showToast('Error al guardar', true) });
-  } else { showSaving(false); showToast('Guardado local ✓'); }
+  try {
+    const theme = _collectThemeFn(); pushUndo();
+    localStorage.setItem('dace-theme', JSON.stringify(theme));
+    _collectSiteSettings();
+    localStorage.setItem('dace-settings', JSON.stringify(siteSettings));
+    showSaving(true);
+    if (db) {
+      Promise.all([db.ref('theme').set(theme), db.ref('settings').update(siteSettings)])
+        .then(() => { showSaving(false); showToast('Todo guardado ✓') })
+        .catch(err => { showSaving(false); showToast('Error: ' + (err.message || 'desconocido'), true) });
+    } else { showSaving(false); showToast('Guardado local ✓'); }
+  } catch (e) {
+    showSaving(false);
+    showToast('Error al recopilar datos: ' + (e.message || 'desconocido'), true);
+    console.error('[saveAll]', e);
+  }
 }
 
 export function _collectSiteSettings() {

@@ -582,6 +582,7 @@ export function mergeCardStyles(globalCs, beatCs, beatHasCustom) {
   allKeys.forEach(k => {
     const gv = globalCs[k];
     const bv = beatCs[k];
+    // Beat value takes priority if it's not null/undefined
     if (bv != null && typeof bv === 'object' && !Array.isArray(bv) && typeof gv === 'object' && gv) {
       merged[k] = { ...gv, ...bv };
     } else if (bv != null) {
