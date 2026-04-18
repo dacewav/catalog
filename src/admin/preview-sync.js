@@ -148,14 +148,9 @@ export function loadPreviewURL() {
 export function setViewport(mode) {
   var f = g('preview-frame'); if (!f) return;
   f.className = mode;
-  var widths = { mobile: 375, tablet: 768, desktop: Math.max(400, Math.round(window.innerWidth * 0.5)) };
-  var w = widths[mode] || 380;
-  if (typeof window._syncPanel === 'function') window._syncPanel(w);
-  else {
-    var panel = g('preview-panel');
-    if (panel) panel.style.width = w + 'px';
-  }
+  // Update viewport buttons
   document.querySelectorAll('.preview-bar-center .vp-btn').forEach(b => b.classList.remove('on'));
   const btnMap = { mobile: 0, tablet: 1, desktop: 2 };
-  document.querySelectorAll('.preview-bar-center .vp-btn')[btnMap[mode]]?.classList.add('on');
+  const btns = document.querySelectorAll('.preview-bar-center .vp-btn');
+  if (btns[btnMap[mode]]) btns[btnMap[mode]].classList.add('on');
 }

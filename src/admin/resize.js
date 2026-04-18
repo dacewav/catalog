@@ -1,12 +1,12 @@
-// ═══ DACEWAV Admin — Resize Handle (Viewport Sync) ═══
-// Viewport sync utilities for the preview panel.
-// The actual resize/drag/collapse/fullscreen is handled by preview-resize.js
+// ═══ DACEWAV Admin — Viewport Sync ═══
+// Syncs the iframe viewport class (mobile/tablet/desktop) based on panel width.
+// The actual panel width is controlled by CSS grid, not JS.
 import { g } from './helpers.js';
 
-function syncPanel(w) {
+export function syncViewport() {
   var preview = g('preview-panel');
-  if (preview) preview.style.width = w + 'px';
-  document.documentElement.style.setProperty('--pw', w + 'px');
+  if (!preview) return;
+  var w = preview.offsetWidth;
   var frame = document.getElementById('preview-frame');
   if (frame) {
     if (w < 450) frame.className = 'mobile';
@@ -24,6 +24,14 @@ function updateViewportBtns(w) {
   else if (btns[2]) btns[2].classList.add('on');
 }
 
-// Export for core.js and preview-resize.js
-window._syncPanel = syncPanel;
+// Export for other modules
+window._syncViewport = syncViewport;
 window._updateViewportBtns = updateViewportBtns;
+
+// Auto-sync on load and resize
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', function() { syncViewport(); });
+} else {
+  syncViewport();
+}
+window.addEventListener('resize', syncViewport);

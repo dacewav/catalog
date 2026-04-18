@@ -1,9 +1,10 @@
-// ═══ DACEWAV Admin — Preview Resize & Collapse ═══
-// Panel collapse toggle, drag-to-resize, fullscreen, keyboard shortcuts
+// ═══ DACEWAV Admin — Preview Panel Controls ═══
+// Panel collapse toggle, fullscreen, keyboard shortcuts.
+// Panel width is controlled by CSS grid — no manual resize needed.
 
-function initPreviewResize() {
+function initPreviewControls() {
   const panel = document.getElementById('preview-panel');
-  const handle = document.getElementById('resize-handle');
+  const split = document.querySelector('.split');
   if (!panel) return;
 
   // ── Toggle collapse ──
@@ -12,17 +13,22 @@ function initPreviewResize() {
     if (iframe) iframe.style.visibility = 'hidden';
 
     panel.classList.toggle('collapsed');
+    if (split) split.classList.toggle('preview-collapsed');
+
     const btn = document.getElementById('preview-collapse-btn');
     const icon = btn?.querySelector('i');
     if (icon) icon.className = panel.classList.contains('collapsed') ? 'fas fa-chevron-left' : 'fas fa-chevron-right';
 
     localStorage.setItem('dace-preview-collapsed', panel.classList.contains('collapsed') ? '1' : '0');
     setTimeout(() => { if (iframe) iframe.style.visibility = ''; }, 200);
+    // Re-sync viewport after collapse toggle
+    if (typeof window._syncViewport === 'function') setTimeout(window._syncViewport, 250);
   };
 
   // Restore collapse state
   if (localStorage.getItem('dace-preview-collapsed') === '1') {
     panel.classList.add('collapsed');
+    if (split) split.classList.add('preview-collapsed');
   }
 
   // ── Keyboard shortcut: P to toggle ──
@@ -34,49 +40,7 @@ function initPreviewResize() {
     }
   });
 
-  // ── Resize drag ──
-  if (handle) {
-    let dragging = false, startX = 0, startW = 0;
-
-    handle.addEventListener('mousedown', (e) => {
-      dragging = true; startX = e.clientX; startW = panel.offsetWidth;
-      handle.classList.add('active');
-      document.body.style.cursor = 'col-resize';
-      document.body.style.userSelect = 'none';
-      const iframe = panel.querySelector('.preview-iframe-wrap');
-      if (iframe) iframe.style.visibility = 'hidden';
-      e.preventDefault();
-    });
-
-    document.addEventListener('mousemove', (e) => {
-      if (!dragging) return;
-      const delta = startX - e.clientX;
-      const newW = Math.max(280, Math.min(window.innerWidth * 0.7, startW + delta));
-      panel.style.width = panel.style.minWidth = panel.style.maxWidth = newW + 'px';
-      // Sync viewport buttons and iframe class
-      if (typeof window._syncPanel === 'function') window._syncPanel(newW);
-    });
-
-    document.addEventListener('mouseup', () => {
-      if (!dragging) return;
-      dragging = false;
-      handle.classList.remove('active');
-      document.body.style.cursor = '';
-      document.body.style.userSelect = '';
-      const iframe = panel.querySelector('.preview-iframe-wrap');
-      if (iframe) iframe.style.visibility = '';
-      localStorage.setItem('dace-preview-width', panel.offsetWidth);
-    });
-
-    // Restore saved width
-    const savedW = parseInt(localStorage.getItem('dace-preview-width'));
-    if (savedW && savedW >= 280) {
-      panel.style.width = panel.style.minWidth = panel.style.maxWidth = savedW + 'px';
-    }
-  }
-
-  // ── Override fullscreen toggle ──
-  const _origFullscreen = window.toggleFullscreenPreview;
+  // ── Fullscreen toggle ──
   window.toggleFullscreenPreview = function () {
     panel.classList.toggle('fullscreen');
     const isFs = panel.classList.contains('fullscreen');
@@ -96,4 +60,4 @@ function initPreviewResize() {
   }
 }
 
-initPreviewResize();
+initPreviewControls();
