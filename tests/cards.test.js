@@ -123,12 +123,12 @@ describe('beatCard', () => {
   });
 
   it('uses accent color in card style', () => {
-    const html = beatCard(makeBeat({ accentColor: '#00ff00' }), 0);
+    const html = beatCard(makeBeat({ cardStyle: { style: { accentColor: '#00ff00' } } }), 0);
     expect(html).toContain('#00ff00');
   });
 
   it('uses default gradient when no accentColor', () => {
-    const html = beatCard(makeBeat({ accentColor: null }), 0);
+    const html = beatCard(makeBeat({ cardStyle: { style: { accentColor: '' } } }), 0);
     expect(html).toContain('rgba(185,28,28');
   });
 

@@ -302,16 +302,7 @@ window.addEventListener('load', () => {
       editIds.forEach(beatId => {
         const bi = state.allBeats.findIndex(x => x.id === beatId);
         if (bi === -1) return;
-        const edit = edits[beatId];
-        if (edit.cardStyle) {
-          const cs = edit.cardStyle;
-          state.allBeats[bi].glowConfig = cs.glow || { enabled: false };
-          state.allBeats[bi].cardAnim = cs.anim || null;
-          state.allBeats[bi].accentColor = cs.style?.accentColor || '';
-          state.allBeats[bi].cardBorder = cs.border || { enabled: false };
-          state.allBeats[bi].shimmer = cs.style?.shimmer || false;
-        }
-        Object.assign(state.allBeats[bi], edit);
+        Object.assign(state.allBeats[bi], edits[beatId]);
       });
       renderAll();
     });

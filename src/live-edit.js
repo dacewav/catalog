@@ -18,43 +18,18 @@ const _pendingBeatUpdates = {};
 function applyLiveUpdate(beatId, data, version) {
   const bi = state.allBeats.findIndex(x => x.id === beatId);
   if (bi === -1) {
-    // Beat not loaded yet — buffer for later
     _pendingBeatUpdates[beatId] = { data, version };
     return false;
   }
   
-  // Version check to prevent stale updates
   const currentVersion = state.allBeats[bi]._version || 0;
   if (version && version <= currentVersion) return false;
   
-  if (data.cardStyle) {
-    const cs = data.cardStyle;
-    state.allBeats[bi].glowConfig = cs.glow || { enabled: false };
-    state.allBeats[bi].cardAnim = cs.anim || null;
-    state.allBeats[bi].accentColor = cs.style?.accentColor || '';
-    state.allBeats[bi].cardBorder = cs.border || { enabled: false };
-    state.allBeats[bi].shimmer = cs.style?.shimmer || false;
-    state.allBeats[bi].shimmerSpeed = cs.style?.shimmerSpeed || 3;
-    state.allBeats[bi].shimmerOp = cs.style?.shimmerOp || 0.04;
-  }
-  
-  // Migrate legacy properties if they exist (for backward compatibility)
-  if (data.glowConfig && !data.cardStyle?.glow) state.allBeats[bi].glowConfig = data.glowConfig;
-  if (data.cardAnim && !data.cardStyle?.anim) state.allBeats[bi].cardAnim = data.cardAnim;
-  if (data.accentColor && !data.cardStyle?.style?.accentColor) state.allBeats[bi].accentColor = data.accentColor;
-  if (data.shimmer != null && data.cardStyle?.style?.shimmer == null) state.allBeats[bi].shimmer = data.shimmer;
-  if (data.shimmerSpeed && !data.cardStyle?.style?.shimmerSpeed) state.allBeats[bi].shimmerSpeed = data.shimmerSpeed;
-  if (data.shimmerOp && !data.cardStyle?.style?.shimmerOp) state.allBeats[bi].shimmerOp = data.shimmerOp;
-  if (data.cardBorder && !data.cardStyle?.border) state.allBeats[bi].cardBorder = data.cardBorder;
-  
-  // Update beat data with version tracking
+  // Direct assignment — cardStyle is single source of truth
   Object.assign(state.allBeats[bi], data);
   state.allBeats[bi]._version = version || Date.now();
   
-  // Re-render all cards to apply new styles
   renderAll();
-  // Note: renderAll() already re-applies waveforms after 500ms — no need for duplicate here
-  
   return true;
 }
 
@@ -133,25 +108,11 @@ export function initLiveEditBridge() {
     } else if (d.type === 'beat-revert' && d.beatId && d.original) {
       applyLiveRevert(d.beatId, d.original);
     } else if (d.type === 'global-card-style-update' && d.cardStyle) {
-      // Apply global card style to all beats
+      // Apply global card style to all beats via cardStyle (single source of truth)
       const cs = d.cardStyle;
       state.allBeats.forEach((beat, idx) => {
-        // Merge global style with beat-specific style
-        if (cs) {
-          state.allBeats[idx].glowConfig = cs.glow || { enabled: false };
-          state.allBeats[idx].cardAnim = cs.anim || null;
-          state.allBeats[idx].accentColor = cs.style?.accentColor || '';
-          state.allBeats[idx].cardBorder = cs.border || { enabled: false };
-          state.allBeats[idx].shimmer = cs.style?.shimmer || false;
-          state.allBeats[idx].shimmerSpeed = cs.style?.shimmerSpeed || 3;
-          state.allBeats[idx].shimmerOp = cs.style?.shimmerOp || 0.04;
-          
-          // Also update cardStyle directly for consistency
-          state.allBeats[idx].cardStyle = cs;
-        }
+        state.allBeats[idx].cardStyle = cs;
       });
-      
-      // Re-render all cards
       renderAll();
     }
   });

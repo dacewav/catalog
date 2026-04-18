@@ -6,6 +6,7 @@ import { AP } from './player.js';
 import { toggleWish } from './wishlist.js';
 import { applyWaveformToCard } from './waveform.js';
 import { setupCardTilt, observeStagger, animateCounter } from './effects.js';
+import { mergeCardStyles } from './card-style-engine.js';
 export { openPlayerModal, openModal, playModalBeat, closeModal, selLic } from './modal.js';
 export { applyWaveformToCard };
 
@@ -34,37 +35,14 @@ export function beatCard(b, globalIdx) {
     : '<div class="beat-img-ph">♦</div>';
   const isWished = state.wishlist.indexOf(b.id) > -1;
 
-  // ── New mega cardStyle system ──
-  // Merge global defaults with beat-specific overrides (beat wins)
-  let cs = {};
-  const globalCs = state.siteSettings?.globalCardStyle;
-  if (globalCs) {
-    const allKeys = new Set([...Object.keys(globalCs), ...Object.keys(b.cardStyle || {})]);
-    allKeys.forEach(k => {
-      const gv = globalCs[k];
-      const bv = b.cardStyle?.[k];
-      if (bv != null && b._customStyle !== false) {
-        cs[k] = typeof bv === 'object' && !Array.isArray(bv) && typeof gv === 'object' && gv
-          ? { ...gv, ...bv }
-          : bv;
-      } else if (gv != null) {
-        cs[k] = gv;
-      }
-    });
-  } else {
-    // No global style — use beat's cardStyle, or reconstruct from legacy fields
-    cs = b.cardStyle;
-    if (!cs || !Object.keys(cs).length) {
-      cs = {
-        filter: {},
-        glow: b.glowConfig && b.glowConfig.enabled ? b.glowConfig : {},
-        anim: b.cardAnim && b.cardAnim.type ? b.cardAnim : null,
-        style: { accentColor: b.accentColor || '', shimmer: b.shimmer || false, shimmerSpeed: b.shimmerSpeed || 3, shimmerOp: b.shimmerOp || 0.04 },
-        border: b.cardBorder && b.cardBorder.enabled ? b.cardBorder : {},
-        shadow: {}, hover: {}, transform: {}
-      };
-    }
-  }
+  // ── cardStyle: merge global + beat-specific using shared engine ──
+  let cs = mergeCardStyles(
+    state.siteSettings?.globalCardStyle,
+    b.cardStyle,
+    b._customStyle
+  );
+  // Fallback: if no cardStyle at all, empty object
+  if (!cs) cs = {};
   const csF = cs.filter || {};
   const csG = cs.glow || {};
   const csA = cs.anim || {};

@@ -1,10 +1,24 @@
 // ═══ DACEWAV Admin — Card Style Controls Generator ═══
 // Generates HTML for card style controls (filters, glow, anim, border, shadow, hover, transform)
 // Used in both: beat editor (Extras tab) and global card style section
+//
+// Core logic (build, populate, apply, check) lives in card-style-engine.js
 
 import { g } from './helpers.js';
 import { EFFECT_PRESETS } from './card-effect-presets.js';
 
+// Re-export everything from engine (single source of truth)
+export {
+  DEFAULT_CARD_STYLE,
+  buildCardStyle as buildCardStyleFromPrefix,
+  populateCardStyle as populateFromCardStyle,
+  resetCardStyle as resetCardStyleInputs,
+  isCardStyleDefault as isCardStyleEmpty,
+  syncSliderDisplays,
+  applyStyleToPreview,
+  mergeCardStyles,
+  safeGlowType,
+} from '../card-style-engine.js';
 
 // ═══ Blur type options for the dropdown
 export const BLUR_TYPES = [
@@ -34,32 +48,8 @@ export function renderEffectGalleryHTML(prefix) {
   return html;
 }
 
-// Default cardStyle shape
-export const DEFAULT_CARD_STYLE = {
-  filter: { brightness: 1, contrast: 1, saturate: 1, grayscale: 0, sepia: 0, hueRotate: 0, blur: 0, blurType: '', invert: 0, opacity: 1, dropShadowX: 0, dropShadowY: 0, dropShadowBlur: 0, dropShadowColor: '#000000', dropShadowOpacity: 0 },
-  glow: { enabled: false, type: 'active', color: '#dc2626', speed: 3, intensity: 1, blur: 20, spread: 0, opacity: 1, hoverOnly: false },
-  anim: null,
-  style: { accentColor: '#dc2626', shimmer: false, borderRadius: 0, opacity: 1 },
-  border: { enabled: false, color: '#dc2626', width: 1, style: 'solid' },
-  shadow: { enabled: false, color: '#000000', opacity: 0.35, x: 0, y: 4, blur: 12, spread: 0, inset: false },
-  hover: { scale: 1, brightness: 1, saturate: 1, shadowBlur: 0, transition: 0.3, borderColor: '#dc2626', glowIntensify: false, blur: 0, siblingsBlur: 0, hueRotate: 0, opacity: 1, enableAnim: false, animType: '', animDur: 1 },
-  transform: { rotate: 0, scale: 1, skewX: 0, skewY: 0, x: 0, y: 0 }
-};
+// ═══ HTML generators (these stay here — they're UI, not logic) ═══
 
-// Check if a cardStyle is effectively empty/default (no customizations)
-export function isCardStyleEmpty(cs) {
-  if (!cs || typeof cs !== 'object') return true;
-  const keys = ['filter', 'glow', 'anim', 'style', 'border', 'shadow', 'hover', 'transform'];
-  return !keys.some(k => {
-    if (!cs[k]) return false;
-    if (k === 'anim') return !!cs[k];
-    const d = DEFAULT_CARD_STYLE[k];
-    if (!d) return !!cs[k];
-    return JSON.stringify(cs[k]) !== JSON.stringify(d);
-  });
-}
-
-// Generate filters section HTML. prefix = field ID prefix (e.g. 'f-' or 'g-')
 export function renderFiltersHTML(prefix) {
   const p = prefix;
   return `
@@ -252,231 +242,7 @@ export function renderTransformHTML(prefix) {
     </div>`;
 }
 
-// Build cardStyle object from inputs with given prefix
-export function buildCardStyleFromPrefix(prefix) {
-  const p = prefix;
-  const v = id => { const el = g(id); return el ? el.value : ''; };
-  const n = id => parseFloat(v(id)) || 0;
-  const c = id => { const el = g(id); return el ? el.checked : false; };
-  const animType = v(p + 'anim-type');
-  return {
-    filter: {
-      brightness: n(p + 'cs-fb') || 1, contrast: n(p + 'cs-fc') || 1, saturate: n(p + 'cs-fs') || 1,
-      grayscale: n(p + 'cs-fg'), sepia: n(p + 'cs-fse'), hueRotate: parseInt(v(p + 'cs-fh')) || 0,
-      blur: n(p + 'cs-fbl'), blurType: v(p + 'cs-fbl-type') || '', invert: n(p + 'cs-fi'), opacity: n(p + 'cs-fo') || 1,
-      dropShadowX: parseInt(v(p + 'cs-ds-x')) || 0, dropShadowY: parseInt(v(p + 'cs-ds-y')) || 0,
-      dropShadowBlur: parseInt(v(p + 'cs-ds-bl')) || 0, dropShadowColor: v(p + 'cs-ds-clr') || '#000000',
-      dropShadowOpacity: n(p + 'cs-ds-op') || 0
-    },
-    glow: {
-      enabled: c(p + 'glow-on'), type: v(p + 'glow-type') || 'active', color: v(p + 'glow-color') || '#dc2626',
-      speed: n(p + 'glow-speed') || 3, intensity: n(p + 'glow-int') || 1, blur: parseInt(v(p + 'glow-blur')) || 20,
-      spread: parseInt(v(p + 'glow-spread')) || 0, opacity: n(p + 'glow-op') || 1, hoverOnly: c(p + 'glow-hover')
-    },
-    anim: animType ? {
-      type: animType, dur: n(p + 'anim-dur') || 2, del: n(p + 'anim-del') || 0,
-      easing: v(p + 'anim-ease') || 'ease-in-out', direction: v(p + 'anim-dir') || 'normal',
-      iterations: v(p + 'anim-iter') || 'infinite', intensity: parseInt(v(p + 'anim-int')) || 100
-    } : null,
-    style: {
-      accentColor: v(p + 'accent-color') || '#dc2626', shimmer: c(p + 'shimmer'),
-      shimmerSpeed: parseFloat(v(p + 'shimmer-speed')) || 3,
-      shimmerOp: parseFloat(v(p + 'shimmer-op')) || 0.04,
-      borderRadius: parseInt(v(p + 'cs-radius')) || 0, opacity: n(p + 'cs-opacity') || 1
-    },
-    border: {
-      enabled: c(p + 'border-on'), color: v(p + 'border-color') || '#dc2626',
-      width: n(p + 'border-width') || 1, style: v(p + 'border-style') || 'solid'
-    },
-    shadow: {
-      enabled: c(p + 'shadow-on'), color: v(p + 'shadow-color') || '#000000',
-      opacity: n(p + 'shadow-op') || 0.35, x: parseInt(v(p + 'shadow-x')) || 0,
-      y: parseInt(v(p + 'shadow-y')) || 4, blur: parseInt(v(p + 'shadow-blur')) || 12,
-      spread: parseInt(v(p + 'shadow-spread')) || 0, inset: c(p + 'shadow-inset')
-    },
-    hover: {
-      scale: n(p + 'hov-scale') || 1, brightness: n(p + 'hov-bright') || 1, saturate: n(p + 'hov-sat') || 1,
-      shadowBlur: parseInt(v(p + 'hov-shadow')) || 0, transition: n(p + 'hov-trans') || 0.3,
-      borderColor: v(p + 'hov-border') || '#dc2626', glowIntensify: c(p + 'hov-glow'),
-      blur: n(p + 'hov-blur'), siblingsBlur: n(p + 'hov-sib-blur'),
-      hueRotate: parseInt(v(p + 'hov-hue')) || 0, opacity: n(p + 'hov-opacity') || 1
-    },
-    transform: {
-      rotate: parseInt(v(p + 'tf-rotate')) || 0, scale: n(p + 'tf-scale') || 1,
-      skewX: parseInt(v(p + 'tf-skewX')) || 0, skewY: parseInt(v(p + 'tf-skewY')) || 0,
-      x: parseInt(v(p + 'tf-x')) || 0, y: parseInt(v(p + 'tf-y')) || 0
-    }
-  };
-}
-
-// Populate inputs from a cardStyle object with given prefix
-export function populateFromCardStyle(cs, prefix) {
-  if (!cs) return;
-  const p = prefix;
-  const s = (id, val) => { const el = g(id); if (el) el.value = val; };
-  const ck = (id, val) => { const el = g(id); if (el) el.checked = !!val; };
-
-  const f = cs.filter || {};
-  s(p + 'cs-fb', f.brightness != null ? f.brightness : 1);
-  s(p + 'cs-fc', f.contrast != null ? f.contrast : 1);
-  s(p + 'cs-fs', f.saturate != null ? f.saturate : 1);
-  s(p + 'cs-fo', f.opacity != null ? f.opacity : 1);
-  s(p + 'cs-fg', f.grayscale || 0); s(p + 'cs-fse', f.sepia || 0);
-  s(p + 'cs-fh', f.hueRotate || 0); s(p + 'cs-fbl', f.blur || 0); s(p + 'cs-fi', f.invert || 0);
-  s(p + 'cs-fbl-type', f.blurType || '');
-  s(p + 'cs-ds-x', f.dropShadowX || 0); s(p + 'cs-ds-y', f.dropShadowY || 0);
-  s(p + 'cs-ds-bl', f.dropShadowBlur || 0);
-  s(p + 'cs-ds-clr', f.dropShadowColor || '#000000'); s(p + 'cs-ds-clr-h', f.dropShadowColor || '#000000');
-  s(p + 'cs-ds-op', f.dropShadowOpacity || 0);
-
-  const gc = cs.glow || {};
-  ck(p + 'glow-on', gc.enabled);
-  s(p + 'glow-type', gc.type || 'active');
-  s(p + 'glow-color', gc.color || '#dc2626'); s(p + 'glow-color-h', gc.color || '#dc2626');
-  s(p + 'glow-speed', gc.speed || 3); s(p + 'glow-int', gc.intensity != null ? gc.intensity : 1);
-  s(p + 'glow-blur', gc.blur != null ? gc.blur : 20); s(p + 'glow-spread', gc.spread || 0);
-  s(p + 'glow-op', gc.opacity != null ? gc.opacity : 1); ck(p + 'glow-hover', gc.hoverOnly);
-
-  const a = cs.anim || {};
-  s(p + 'anim-type', a.type || ''); s(p + 'anim-dur', a.dur || 2); s(p + 'anim-del', a.del || 0);
-  s(p + 'anim-ease', a.easing || 'ease-in-out'); s(p + 'anim-dir', a.direction || 'normal');
-  s(p + 'anim-iter', a.iterations || 'infinite'); s(p + 'anim-int', a.intensity != null ? a.intensity : 100);
-
-  // Animation sub-settings (beat editor only — gracefully skipped if elements don't exist)
-  s(p + 'anim-type2', a.type2 || '');
-  if (a.hueStart != null) s(p + 'anim-hue-start', a.hueStart);
-  if (a.hueEnd != null) s(p + 'anim-hue-end', a.hueEnd);
-  if (a.holoBrightMin != null) s(p + 'anim-holo-bright-min', a.holoBrightMin);
-  if (a.holoBrightMax != null) s(p + 'anim-holo-bright-max', a.holoBrightMax);
-  if (a.holoSatMin != null) s(p + 'anim-holo-sat-min', a.holoSatMin);
-  if (a.holoSatMax != null) s(p + 'anim-holo-sat-max', a.holoSatMax);
-  if (a.holoGlow != null) s(p + 'anim-holo-glow', a.holoGlow);
-  if (a.holoBlur != null) s(p + 'anim-holo-blur', a.holoBlur);
-  s(p + 'anim-holo-dir', a.holoDir || 'hue');
-  if (a.brilloMin != null) s(p + 'anim-brillo-min', a.brilloMin);
-  if (a.brilloMax != null) s(p + 'anim-brillo-max', a.brilloMax);
-  if (a.glitchX != null) s(p + 'anim-glitch-x', a.glitchX);
-  if (a.glitchY != null) s(p + 'anim-glitch-y', a.glitchY);
-  if (a.glitchRot != null) s(p + 'anim-glitch-rot', a.glitchRot);
-  ck(p + 'anim-glitch-chromatic', a.glitchChromatic);
-  if (a.translateX != null) s(p + 'anim-translate-x', a.translateX);
-  if (a.translateY != null) s(p + 'anim-translate-y', a.translateY);
-  if (a.translateRot != null) s(p + 'anim-translate-rot', a.translateRot);
-  if (a.neonMin != null) s(p + 'anim-neon-min', a.neonMin);
-  if (a.neonMax != null) s(p + 'anim-neon-max', a.neonMax);
-  if (a.neonBright != null) s(p + 'anim-neon-bright', a.neonBright);
-  if (a.parpadeoMin != null) s(p + 'anim-parpadeo-min', a.parpadeoMin);
-  if (a.parpadeoMax != null) s(p + 'anim-parpadeo-max', a.parpadeoMax);
-  if (a.rotateAngle != null) s(p + 'anim-rotate-angle', a.rotateAngle);
-  if (a.rotateScale != null) s(p + 'anim-rotate-scale', a.rotateScale);
-  if (a.scaleMin != null) s(p + 'anim-scale-min', a.scaleMin);
-  if (a.scaleMax != null) s(p + 'anim-scale-max', a.scaleMax);
-  if (a.scaleOpacity != null) s(p + 'anim-scale-opacity', a.scaleOpacity);
-  if (a.shakeX != null) s(p + 'anim-shake-x', a.shakeX);
-  if (a.shakeY != null) s(p + 'anim-shake-y', a.shakeY);
-  if (a.csHueStart != null) s(p + 'anim-cs-hue-start', a.csHueStart);
-  if (a.csHueEnd != null) s(p + 'anim-cs-hue-end', a.csHueEnd);
-  if (a.csSat != null) s(p + 'anim-cs-sat', a.csSat);
-
-  const st = cs.style || {};
-  s(p + 'accent-color', st.accentColor || '#dc2626'); s(p + 'accent-color-h', st.accentColor || '#dc2626');
-  ck(p + 'shimmer', st.shimmer); s(p + 'cs-radius', st.borderRadius || 0);
-  s(p + 'cs-opacity', st.opacity != null ? st.opacity : 1);
-  s(p + 'shimmer-speed', st.shimmerSpeed || 3);
-  s(p + 'shimmer-op', st.shimmerOp || 0.04);
-
-  const bd = cs.border || {};
-  ck(p + 'border-on', bd.enabled); s(p + 'border-color', bd.color || '#dc2626');
-  s(p + 'border-width', bd.width || 1); s(p + 'border-style', bd.style || 'solid');
-
-  const sh = cs.shadow || {};
-  ck(p + 'shadow-on', sh.enabled); s(p + 'shadow-color', sh.color || '#000000');
-  s(p + 'shadow-op', sh.opacity != null ? sh.opacity : 0.35);
-  s(p + 'shadow-x', sh.x || 0); s(p + 'shadow-y', sh.y != null ? sh.y : 4);
-  s(p + 'shadow-blur', sh.blur != null ? sh.blur : 12); s(p + 'shadow-spread', sh.spread || 0);
-  ck(p + 'shadow-inset', sh.inset);
-
-  const hv = cs.hover || {};
-  s(p + 'hov-scale', hv.scale || 1); s(p + 'hov-bright', hv.brightness != null ? hv.brightness : 1);
-  s(p + 'hov-sat', hv.saturate != null ? hv.saturate : 1); s(p + 'hov-shadow', hv.shadowBlur || 0);
-  s(p + 'hov-trans', hv.transition != null ? hv.transition : 0.3);
-  s(p + 'hov-border', hv.borderColor || '#dc2626'); ck(p + 'hov-glow', hv.glowIntensify);
-  s(p + 'hov-blur', hv.blur || 0); s(p + 'hov-sib-blur', hv.siblingsBlur || 0);
-  s(p + 'hov-hue', hv.hueRotate || 0); s(p + 'hov-opacity', hv.opacity != null ? hv.opacity : 1);
-  ck(p + 'hov-anim-on', hv.enableAnim);
-  s(p + 'hov-anim-type', hv.animType || '');
-  s(p + 'hov-anim-dur', hv.animDur || 1);
-
-  const tf = cs.transform || {};
-  s(p + 'tf-rotate', tf.rotate || 0); s(p + 'tf-scale', tf.scale || 1);
-  s(p + 'tf-skewX', tf.skewX || 0); s(p + 'tf-skewY', tf.skewY || 0);
-  s(p + 'tf-x', tf.x || 0); s(p + 'tf-y', tf.y || 0);
-}
-
-// Reset all inputs to defaults with given prefix
-export function resetCardStyleInputs(prefix) {
-  populateFromCardStyle(DEFAULT_CARD_STYLE, prefix);
-  const s = (id, v) => { const el = g(id); if (el) el.value = v; };
-  s(prefix + 'anim-type', '');
-}
-
-// Sync slider displays for a prefix
-export function syncSliderDisplays(prefix) {
-  const ids = [
-    'cs-fb','cs-fc','cs-fs','cs-fg','cs-fse','cs-fi','cs-fo','cs-radius','cs-opacity',
-    'cs-ds-x','cs-ds-y','cs-ds-bl','cs-ds-op',
-    'glow-speed','glow-int','glow-blur','glow-spread','glow-op',
-    'anim-dur','anim-del','anim-int',
-    'border-width','shadow-op','shadow-x','shadow-y','shadow-blur','shadow-spread',
-    'hov-scale','hov-bright','hov-sat','hov-shadow','hov-trans','hov-blur','hov-sib-blur','hov-hue','hov-opacity',
-    'tf-rotate','tf-scale','tf-skewX','tf-skewY','tf-x','tf-y'
-  ];
-  ids.forEach(id => {
-    const el = g(prefix + id);
-    if (!el) return;
-    const sib = el.nextElementSibling;
-    if (!sib) return;
-    const v = parseFloat(el.value);
-    if (id.includes('dur') || id.includes('del') || id.includes('speed')) sib.textContent = v.toFixed(1) + 's';
-    else if (id.includes('blur') || id.includes('spread') || id.includes('shadow') || id.includes('width') || id.includes('x') || id.includes('y') || id.includes('radius')) sib.textContent = v + (id.includes('blur') || id.includes('spread') ? 'px' : id.includes('radius') ? 'px' : 'px');
-    else if (id.includes('rotate') || id.includes('skew') || id.includes('hue') || id.includes('fh')) sib.textContent = v.toFixed(1) + '°';
-    else if (id.includes('scale')) sib.textContent = v.toFixed(2) + 'x';
-    else if (id.includes('trans')) sib.textContent = v.toFixed(2) + 's';
-    else if (id.includes('int') && !id.includes('glow')) sib.textContent = v + '%';
-    else sib.textContent = v.toFixed(2);
-  });
-}
-
-// ═══ Global function: apply an effect preset to a panel with given prefix ═══
-window.__applyFxPreset = function(presetId, prefix) {
-  const preset = EFFECT_PRESETS.find(p => p.id === presetId);
-  if (!preset) return;
-  const cs = preset.apply();
-  // Reset all inputs first
-  resetCardStyleInputs(prefix);
-  // Populate with preset values
-  populateFromCardStyle(cs, prefix);
-  syncSliderDisplays(prefix);
-  // Highlight active preset in gallery
-  const galleryEl = document.querySelector(`[data-prefix="${prefix}"]`)?.closest('.fx-gallery');
-  if (galleryEl) {
-    galleryEl.querySelectorAll('.fx-preset').forEach(el => el.classList.toggle('active', el.dataset.fx === presetId));
-  }
-  // Trigger preview — depends on which panel
-  if (prefix === 'f-') {
-    if (typeof window.updateCardPreview === 'function') window.updateCardPreview();
-    if (typeof window._sendLiveUpdate === 'function') window._sendLiveUpdate();
-  } else {
-    // Global panel: trigger input event on the section to fire delegation
-    const section = document.getElementById('sec-card-global');
-    if (section) section.dispatchEvent(new Event('input', { bubbles: true }));
-  }
-};
-
 // ═══ Universal slider → preview bridge ═══
-// Catches ALL range/slider input events and routes to the correct preview function.
-// This ensures dynamically generated sliders (from renderFiltersHTML, renderGlowHTML, etc.)
-// always trigger a preview update, even if their oninput only calls sv(this).
 document.addEventListener('input', function(e) {
   if (e.target.type !== 'range' && e.target.type !== 'color') return;
   var id = e.target.id || '';
@@ -488,10 +254,8 @@ document.addEventListener('input', function(e) {
   }
 });
 
-// Also catch select changes and checkbox changes in the generated controls
 document.addEventListener('change', function(e) {
   var id = e.target.id || '';
-  // Only handle f-/g- prefixed controls (beat editor or global card style)
   if (id.startsWith('f-') && (e.target.type === 'checkbox' || e.target.tagName === 'SELECT')) {
     if (typeof window.updateCardPreview === 'function') window.updateCardPreview();
   } else if (id.startsWith('g-') && (e.target.type === 'checkbox' || e.target.tagName === 'SELECT')) {
@@ -499,3 +263,26 @@ document.addEventListener('change', function(e) {
     if (section) section.dispatchEvent(new Event('input', { bubbles: true }));
   }
 });
+
+// ═══ Effect preset application ═══
+// Uses lazy import to avoid circular deps at module load time
+import { populateCardStyle, resetCardStyle, syncSliderDisplays } from '../card-style-engine.js';
+
+window.__applyFxPreset = function(presetId, prefix) {
+  const preset = EFFECT_PRESETS.find(p => p.id === presetId);
+  if (!preset) return;
+  const cs = preset.apply();
+  resetCardStyle(prefix);
+  populateCardStyle(cs, prefix);
+  syncSliderDisplays(prefix);
+  const galleryEl = document.querySelector(`[data-prefix="${prefix}"]`)?.closest('.fx-gallery');
+  if (galleryEl) {
+    galleryEl.querySelectorAll('.fx-preset').forEach(el => el.classList.toggle('active', el.dataset.fx === presetId));
+  }
+  if (prefix === 'f-') {
+    if (typeof window.updateCardPreview === 'function') window.updateCardPreview();
+  } else {
+    const section = document.getElementById('sec-card-global');
+    if (section) section.dispatchEvent(new Event('input', { bubbles: true }));
+  }
+};
