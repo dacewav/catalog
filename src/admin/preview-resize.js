@@ -53,6 +53,8 @@ function initPreviewResize() {
       const delta = startX - e.clientX;
       const newW = Math.max(280, Math.min(window.innerWidth * 0.7, startW + delta));
       panel.style.width = panel.style.minWidth = panel.style.maxWidth = newW + 'px';
+      // Sync viewport buttons and iframe class
+      if (typeof window._syncPanel === 'function') window._syncPanel(newW);
     });
 
     document.addEventListener('mouseup', () => {

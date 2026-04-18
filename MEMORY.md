@@ -27,9 +27,11 @@
 - Ver `REFACTOR-PLAN.md` para detalle de cada bloque
 
 ### Pendientes reales
+- [ ] Testing real en browser — preview panel, beat save, card styles end-to-end
 - [ ] Confirmar shimmer/glow effects post-deploy en browser real
 - [ ] Confirmar admin editing con Firebase rules actualizadas
-- [ ] Rediseño de la store (feature request principal)
+- [ ] Stats charts necesitan datos reales para verificar render
+- [ ] Preview panel resize handle — verificar en browser
 
 ---
 
