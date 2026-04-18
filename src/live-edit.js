@@ -71,14 +71,10 @@ function sendAck(beatId, version) {
 export function initLiveEditBridge() {
   // PostMessage bridge (admin iframe preview)
   window.addEventListener('message', (e) => {
-    // Accept messages from: own origin, parent window (admin iframe), or 'null' origin
     const own = window.location?.origin || '*';
-    const isParent = e.source === window.parent;
-    const isOwnOrigin = e.origin === own;
-    const isNull = e.origin === 'null';
-    // In production, admin is on same origin or cross-origin iframe
-    // In dev, admin could be on localhost:PORT
-    if (!isParent && !isOwnOrigin && !isNull) return;
+    if (e.origin !== own && e.origin !== 'https://dacewav.store' && e.origin !== 'null') {
+      if (e.source !== window.parent) return;
+    }
     const d = e.data;
     if (!d || !d.type) return;
 
@@ -112,10 +108,11 @@ export function initLiveEditBridge() {
     } else if (d.type === 'beat-revert' && d.beatId && d.original) {
       applyLiveRevert(d.beatId, d.original);
     } else if (d.type === 'global-card-style-update' && d.cardStyle) {
-      // Store global card style in siteSettings — beatCard() merges it with individual styles
-      // DON'T overwrite individual beat cardStyles (they have _customStyle flag)
-      state.siteSettings = state.siteSettings || {};
-      state.siteSettings.globalCardStyle = d.cardStyle;
+      // Apply global card style to all beats via cardStyle (single source of truth)
+      const cs = d.cardStyle;
+      state.allBeats.forEach((beat, idx) => {
+        state.allBeats[idx].cardStyle = cs;
+      });
       renderAll();
     }
   });

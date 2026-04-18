@@ -200,9 +200,8 @@ function setupInspector() {
 // ─── Boot ───
 window.addEventListener('load', () => {
   setupInspector();
-  // Notify admin iframe that store is ready (use '*' for cross-origin admin)
   if (window.parent !== window) {
-    try { window.parent.postMessage({ type: 'index-ready', ver: DACE_VER }, '*'); } catch {}
+    window.parent.postMessage({ type: 'index-ready', ver: DACE_VER }, window.location?.origin || '*');
   }
 
   initAllEffects();
@@ -284,9 +283,7 @@ window.addEventListener('load', () => {
         .filter((b) => b.active !== false && b.id && b.id !== 'undefined')
         .sort((a, b) => (a.order || 0) - (b.order || 0));
       renderAll();
-      // Clean up any stale liveEdits that match saved beats
-      // (admin should remove them on save, but handle edge cases)
-      flushPendingUpdates();
+      flushPendingUpdates(); // Apply any buffered iframe postMessage updates
       localStorage.setItem('dace-beats', JSON.stringify(state.allBeats));
       state.ldBeats = true;
       _checkReady();
