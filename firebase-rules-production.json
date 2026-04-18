@@ -2,7 +2,6 @@
   "rules": {
     ".read": false,
     ".write": false,
-
     "adminWhitelist": {
       ".read": "auth != null",
       ".write": "auth.uid === 'Uks9YGSd6rS40zqlRujoe6pE6N2' || (auth != null && root.child('adminWhitelist/approved').child(auth.uid).exists())",
@@ -17,97 +16,218 @@
         ".write": "auth.uid === 'Uks9YGSd6rS40zqlRujoe6pE6N22' || (auth != null && root.child('adminWhitelist/approved').child(auth.uid).exists())"
       }
     },
-
-    "settings": { ".read": true, ".write": "auth != null && root.child('adminWhitelist/approved').child(auth.uid).exists()" },
-    "theme": { ".read": true, ".write": "auth != null && root.child('adminWhitelist/approved').child(auth.uid).exists()" },
-
+    "settings": {
+      ".read": true,
+      ".write": "auth != null && root.child('adminWhitelist/approved').child(auth.uid).exists()"
+    },
+    "theme": {
+      ".read": true,
+      ".write": "auth != null && root.child('adminWhitelist/approved').child(auth.uid).exists()"
+    },
     "beats": {
       ".read": true,
       ".write": "auth != null && root.child('adminWhitelist/approved').child(auth.uid).exists()",
       "$beatId": {
         ".validate": "newData.hasChildren(['name', 'genre', 'bpm', 'key'])",
-        "name": { ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 200" },
-        "genre": { ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 100" },
-        "genreCustom": { ".validate": "!newData.exists() || (newData.isString() && newData.val().length <= 10)" },
-        "bpm": { ".validate": "newData.isNumber() && newData.val() >= 20 && newData.val() <= 400" },
-        "key": { ".validate": "newData.isString() && newData.val().length <= 10" },
-        "description": { ".validate": "!newData.exists() || (newData.isString() && newData.val().length <= 200)" },
-        "tags": { ".validate": "!newData.exists() || newData.isString()" },
-        "imageUrl": { ".validate": "!newData.exists() || (newData.isString() && newData.val().length <= 200)" },
-        "images": { ".validate": "!newData.exists() || newData.isString()" },
-        "audioUrl": { ".validate": "!newData.exists() || (newData.isString() && newData.val().length <= 200)" },
-        "previewUrl": { ".validate": "!newData.exists() || (newData.isString() && newData.val().length <= 2000)" },
-        "spotify": { ".validate": "!newData.exists() || (newData.isString() && newData.val().length <= 500)" },
-        "youtube": { ".validate": "!newData.exists() || (newData.isString() && newData.val().length <= 500)" },
-        "soundcloud": { ".validate": "!newData.exists() || (newData.isString() && newData.val().length <= 50)" },
-        "date": { ".validate": "!newData.exists() || newData.isString()" },
-        "order": { ".validate": "!newData.exists() || (newData.isNumber() && newData.val() >= 0)" },
-        "active": { ".validate": "newData.isBoolean()" },
-        "featured": { ".validate": "newData.isBoolean()" },
-        "exclusive": { ".validate": "newData.isBoolean()" },
-        "available": { ".validate": "newData.isBoolean()" },
-        "_customStyle": { ".validate": "!newData.exists() || newData.isBoolean()" },
-
-        "plays": { ".read": true, ".write": "auth != null && root.child('adminWhitelist/approved').child(auth.uid).exists()", ".validate": "newData.isNumber() && newData.val() >= 0" },
-        "clicks": { ".read": true, ".write": "auth != null && root.child('adminWhitelist/approved').child(auth.uid).exists()", ".validate": "newData.isNumber() && newData.val() >= 0" },
-        "views": { ".read": true, ".write": "auth != null && root.child('adminWhitelist/approved').child(auth.uid).exists()", ".validate": "newData.isNumber() && newData.val() >= 0" },
-        "waClicks": { ".read": true, ".write": "auth != null && root.child('adminWhitelist/approved').child(auth.uid).exists()", ".validate": "newData.isNumber() && newData.val() >= 0" },
-
+        "name": {
+          ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 200"
+        },
+        "genre": {
+          ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 100"
+        },
+        "genreCustom": {
+          ".validate": "!newData.exists() || (newData.isString() && newData.val().length <= 10)"
+        },
+        "bpm": {
+          ".validate": "newData.isNumber() && newData.val() >= 20 && newData.val() <= 400"
+        },
+        "key": {
+          ".validate": "newData.isString() && newData.val().length <= 10"
+        },
+        "description": {
+          ".validate": "!newData.exists() || (newData.isString() && newData.val().length <= 200)"
+        },
+        "tags": {
+          ".validate": "!newData.exists() || newData.isString()"
+        },
+        "imageUrl": {
+          ".validate": "!newData.exists() || (newData.isString() && newData.val().length <= 200)"
+        },
+        "images": {
+          ".validate": "!newData.exists() || newData.isString()"
+        },
+        "audioUrl": {
+          ".validate": "!newData.exists() || (newData.isString() && newData.val().length <= 200)"
+        },
+        "previewUrl": {
+          ".validate": "!newData.exists() || (newData.isString() && newData.val().length <= 2000)"
+        },
+        "spotify": {
+          ".validate": "!newData.exists() || (newData.isString() && newData.val().length <= 500)"
+        },
+        "youtube": {
+          ".validate": "!newData.exists() || (newData.isString() && newData.val().length <= 500)"
+        },
+        "soundcloud": {
+          ".validate": "!newData.exists() || (newData.isString() && newData.val().length <= 50)"
+        },
+        "date": {
+          ".validate": "!newData.exists() || newData.isString()"
+        },
+        "order": {
+          ".validate": "!newData.exists() || (newData.isNumber() && newData.val() >= 0)"
+        },
+        "active": {
+          ".validate": "newData.isBoolean()"
+        },
+        "featured": {
+          ".validate": "newData.isBoolean()"
+        },
+        "exclusive": {
+          ".validate": "newData.isBoolean()"
+        },
+        "available": {
+          ".validate": "newData.isBoolean()"
+        },
+        "_customStyle": {
+          ".validate": "!newData.exists() || newData.isBoolean()"
+        },
+        "plays": {
+          ".read": true,
+          ".write": "auth != null && root.child('adminWhitelist/approved').child(auth.uid).exists()",
+          ".validate": "newData.isNumber() && newData.val() >= 0"
+        },
+        "clicks": {
+          ".read": true,
+          ".write": "auth != null && root.child('adminWhitelist/approved').child(auth.uid).exists()",
+          ".validate": "newData.isNumber() && newData.val() >= 0"
+        },
+        "views": {
+          ".read": true,
+          ".write": "auth != null && root.child('adminWhitelist/approved').child(auth.uid).exists()",
+          ".validate": "newData.isNumber() && newData.val() >= 0"
+        },
+        "waClicks": {
+          ".read": true,
+          ".write": "auth != null && root.child('adminWhitelist/approved').child(auth.uid).exists()",
+          ".validate": "newData.isNumber() && newData.val() >= 0"
+        },
         "licenses": {
           "$licIdx": {
-            "name": { ".validate": "newData.isString() && newData.val().length <= 10" },
-            "priceMXN": { ".validate": "newData.isNumber() && newData.val() >= 0" },
-            "priceUSD": { ".validate": "newData.isNumber() && newData.val() >= 0" },
-            "description": { ".validate": "!newData.exists() || (newData.isString() && newData.val().length <= 500)" }
+            "name": {
+              ".validate": "newData.isString() && newData.val().length <= 10"
+            },
+            "priceMXN": {
+              ".validate": "newData.isNumber() && newData.val() >= 0"
+            },
+            "priceUSD": {
+              ".validate": "newData.isNumber() && newData.val() >= 0"
+            },
+            "description": {
+              ".validate": "!newData.exists() || (newData.isString() && newData.val().length <= 500)"
+            }
           }
         },
-
         "glowConfig": {
-          "enabled": { ".validate": "newData.isBoolean()" },
-          "type": { ".validate": "newData.isString() && newData.val().length <= 30" },
-          "color": { ".validate": "newData.isString() && newData.val().length <= 20" },
-          "speed": { ".validate": "newData.isNumber() && newData.val() >= 0.1 && newData.val() <= 30" },
-          "intensity": { ".validate": "!newData.exists() || (newData.isNumber() && newData.val() >= 0 && newData.val() <= 10)" },
-          "blur": { ".validate": "!newData.exists() || (newData.isNumber() && newData.val() >= 0 && newData.val() <= 200)" },
-          "spread": { ".validate": "!newData.exists() || (newData.isNumber() && newData.val() >= 0 && newData.val() <= 10)" },
-          "opacity": { ".validate": "!newData.exists() || (newData.isNumber() && newData.val() >= 0 && newData.val() <= 1)" },
-          "hoverOnly": { ".validate": "!newData.exists() || newData.isBoolean()" }
+          "enabled": {
+            ".validate": "newData.isBoolean()"
+          },
+          "type": {
+            ".validate": "newData.isString() && newData.val().length <= 30"
+          },
+          "color": {
+            ".validate": "newData.isString() && newData.val().length <= 20"
+          },
+          "speed": {
+            ".validate": "newData.isNumber() && newData.val() >= 0.1 && newData.val() <= 30"
+          },
+          "intensity": {
+            ".validate": "!newData.exists() || (newData.isNumber() && newData.val() >= 0 && newData.val() <= 10)"
+          },
+          "blur": {
+            ".validate": "!newData.exists() || (newData.isNumber() && newData.val() >= 0 && newData.val() <= 200)"
+          },
+          "spread": {
+            ".validate": "!newData.exists() || (newData.isNumber() && newData.val() >= 0 && newData.val() <= 10)"
+          },
+          "opacity": {
+            ".validate": "!newData.exists() || (newData.isNumber() && newData.val() >= 0 && newData.val() <= 1)"
+          },
+          "hoverOnly": {
+            ".validate": "!newData.exists() || newData.isBoolean()"
+          }
         },
-
         "cardAnim": {
           ".validate": "!newData.exists() || (newData.hasChildren(['type', 'dur', 'del']))",
-          "type": { ".validate": "newData.isString() && newData.val().length <= 30" },
-          "dur": { ".validate": "newData.isNumber() && newData.val() >= 0.1 && newData.val() <= 30" },
-          "del": { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 10" }
+          "type": {
+            ".validate": "newData.isString() && newData.val().length <= 30"
+          },
+          "dur": {
+            ".validate": "newData.isNumber() && newData.val() >= 0.1 && newData.val() <= 30"
+          },
+          "del": {
+            ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 10"
+          }
         },
-
-        "accentColor": { ".validate": "!newData.exists() || (newData.isString() && newData.val().length <= 20)" },
-        "shimmer": { ".validate": "!newData.exists() || newData.isBoolean()" },
+        "accentColor": {
+          ".validate": "!newData.exists() || (newData.isString() && newData.val().length <= 20)"
+        },
+        "shimmer": {
+          ".validate": "!newData.exists() || newData.isBoolean()"
+        },
         "cardBorder": {
-          "enabled": { ".validate": "newData.isBoolean()" },
-          "color": { ".validate": "!newData.exists() || (newData.isString() && newData.val().length <= 20)" },
-          "width": { ".validate": "!newData.exists() || (newData.isNumber() && newData.val() >= 0.5 && newData.val() <= 10)" },
-          "style": { ".validate": "!newData.exists() || (newData.isString() && newData.val().length <= 15)" }
+          "enabled": {
+            ".validate": "newData.isBoolean()"
+          },
+          "color": {
+            ".validate": "!newData.exists() || (newData.isString() && newData.val().length <= 20)"
+          },
+          "width": {
+            ".validate": "!newData.exists() || (newData.isNumber() && newData.val() >= 0.5 && newData.val() <= 10)"
+          },
+          "style": {
+            ".validate": "!newData.exists() || (newData.isString() && newData.val().length <= 15)"
+          }
         },
-
         "cardStyle": {
-          "filter": { "...": "see secure version for full schema" },
-          "glow": { "...": "see secure version" },
-          "anim": { "...": "see secure version" },
-          "style": { "...": "see secure version" },
-          "border": { "...": "see secure version" },
-          "shadow": { "...": "see secure version" },
-          "hover": { "...": "see secure version" },
-          "transform": { "...": "see secure version" }
+          "filter": {
+            "...": "see secure version for full schema"
+          },
+          "glow": {
+            "...": "see secure version"
+          },
+          "anim": {
+            "...": "see secure version"
+          },
+          "style": {
+            "...": "see secure version"
+          },
+          "border": {
+            "...": "see secure version"
+          },
+          "shadow": {
+            "...": "see secure version"
+          },
+          "hover": {
+            "...": "see secure version"
+          },
+          "transform": {
+            "...": "see secure version"
+          }
         },
-
-        "$other": { ".validate": "newData.isString() || newData.isNumber() || newData.isBoolean()" }
+        "$other": {
+          ".validate": "newData.isString() || newData.isNumber() || newData.isBoolean()"
+        }
       }
     },
-
-    "floatingElements": { ".read": true, ".write": "auth != null && root.child('adminWhitelist/approved').child(auth.uid).exists()" },
-    "liveEdits": { ".read": true, ".write": "auth != null && root.child('adminWhitelist/approved').child(auth.uid).exists()" },
-
+    "floatingElements": {
+      ".read": true,
+      ".write": "auth != null && root.child('adminWhitelist/approved').child(auth.uid).exists()"
+    },
+    "liveEdits": {
+      ".read": true,
+      ".write": "auth != null && root.child('adminWhitelist/approved').child(auth.uid).exists()"
+    },
     "analytics": {
       ".read": "auth != null && root.child('adminWhitelist/approved').child(auth.uid).exists()",
       "events": {
@@ -115,50 +235,92 @@
           "$eventId": {
             ".write": true,
             ".validate": "newData.hasChildren(['ts', 'cat', 'act']) && newData.child('ts').val() <= (now + 60000)",
-            "ts": { ".validate": "newData.isNumber()" },
-            "cat": { ".validate": "newData.isString() && newData.val().length <= 50" },
-            "act": { ".validate": "newData.isString() && newData.val().length <= 10" },
-            "lbl": { ".validate": "!newData.exists() || (newData.isString() && newData.val().length <= 20)" },
-            "val": { ".validate": "!newData.exists() || newData.isNumber()" },
-            "meta": { ".validate": "!newData.exists() || (newData.isString() && newData.val().length <= 500)" }
+            "ts": {
+              ".validate": "newData.isNumber()"
+            },
+            "cat": {
+              ".validate": "newData.isString() && newData.val().length <= 50"
+            },
+            "act": {
+              ".validate": "newData.isString() && newData.val().length <= 10"
+            },
+            "lbl": {
+              ".validate": "!newData.exists() || (newData.isString() && newData.val().length <= 20)"
+            },
+            "val": {
+              ".validate": "!newData.exists() || newData.isNumber()"
+            },
+            "meta": {
+              ".validate": "!newData.exists() || (newData.isString() && newData.val().length <= 500)"
+            }
           }
         }
       },
       "counts": {
         "$beatId": {
           ".write": true,
-          "clicks": { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 10000" },
-          "views": { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 10000" },
-          "waClicks": { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 10000" }
-        }
+          "clicks": {
+            ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 10000"
+          },
+          "views": {
+            ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 10000"
+          },
+          "waClicks": {
+            ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 10000"
+          }
+        },
+        ".read": true
       },
       "daily": {
         "$date": {
           ".write": true,
-          "total": { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 10000" },
+          "total": {
+            ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 10000"
+          },
           "actions": {
-            "$action": { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 10000" }
+            "$action": {
+              ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 10000"
+            }
           }
-        }
+        },
+        ".read": true
       }
     },
-
     "contactMessages": {
       ".read": "auth != null && root.child('adminWhitelist/approved').child(auth.uid).exists()",
       ".write": true,
       "$msgId": {
         ".validate": "newData.hasChildren(['name', 'email', 'message', 'ts'])",
-        "name": { ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 200" },
-        "email": { ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 200" },
-        "message": { ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 5000" },
-        "ts": { ".validate": "newData.isNumber() && newData.val() <= (now + 6000)" },
-        "beatId": { ".validate": "!newData.exists() || (newData.isString() && newData.val().length <= 100)" },
-        "read": { ".validate": "!newData.exists() || newData.isBoolean()" },
-        "$other": { ".validate": false }
+        "name": {
+          ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 200"
+        },
+        "email": {
+          ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 200"
+        },
+        "message": {
+          ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 5000"
+        },
+        "ts": {
+          ".validate": "newData.isNumber() && newData.val() <= (now + 6000)"
+        },
+        "beatId": {
+          ".validate": "!newData.exists() || (newData.isString() && newData.val().length <= 100)"
+        },
+        "read": {
+          ".validate": "!newData.exists() || newData.isBoolean()"
+        },
+        "$other": {
+          ".validate": false
+        }
       }
     },
-
-    "notifications": { ".read": "auth != null && root.child('adminWhitelist/approved').child(auth.uid).exists()", ".write": "auth != null && root.child('adminWhitelist/approved').child(auth.uid).exists()" },
-    "backups": { ".read": "auth != null && root.child('adminWhitelist/approved').child(auth.uid).exists()", ".write": "auth != null && root.child('adminWhitelist/approved').child(auth.uid).exists()" }
+    "notifications": {
+      ".read": "auth != null && root.child('adminWhitelist/approved').child(auth.uid).exists()",
+      ".write": "auth != null && root.child('adminWhitelist/approved').child(auth.uid).exists()"
+    },
+    "backups": {
+      ".read": "auth != null && root.child('adminWhitelist/approved').child(auth.uid).exists()",
+      ".write": "auth != null && root.child('adminWhitelist/approved').child(auth.uid).exists()"
+    }
   }
 }
